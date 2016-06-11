@@ -13,7 +13,14 @@ loc_temp='temp/'
 ## End Edit
 
 def sigmoid(x) :
-    return 1/(1+np.exp(-x))
+    return 1. / (1.+ np.exp(-x))
+
+def softmax(x):
+    e = np.exp(x - np.max(x))
+    if e.ndim == 1:
+        return e / np.sum(e, axis=0)
+    else:
+        return e / np.array([np.sum(e, axis=1)]).T  # ndim = 2
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
     """A Regularized Greedy Forest[1] classifier.
@@ -57,6 +64,9 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     inc_prefix : boolean, (default=False)
         If Trur, auto increment for numbering temp file is enable.
 
+    calc_prob : String, "Sigmoid" or "Softmax"
+        Method of probability calculation.
+
     clean : boolean, (default=True)
         If True , remove temp files after prediction.
 
@@ -76,6 +86,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                  sl2=None,
                  prefix="model",
                  inc_prefix=False,
+                 calc_prob='Sigmoid',
                  clean=True):
         self.verbose = verbose
         self.max_leaf = max_leaf
@@ -90,6 +101,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             RGFClassifier.instance_count += 1
         self.reg_depth = reg_depth
         self.l2 = l2
+        self.calc_prob = calc_prob
         if sl2 is None:
             self.sl2 = l2
         else:
@@ -143,16 +155,27 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         p : array of shape = [n_samples, n_classes].
             The class probabilities of the input samples.
         """
+
         if self.n_classes_ <= 2:
-            self.estimator.predict_proba(X)
+            proba = self.estimator.predict_proba(X)
+            proba = sigmoid(proba)
+            proba = np.c_[1-proba, proba]
         else:
             proba = np.zeros((X.shape[0], self.n_classes_))
             for i, clf in enumerate(self.estimators):
-                proba[:, i] = clf.predict_proba(X)[:, 1]
-            normalizer = proba.sum(axis=1)[:, np.newaxis]
-            normalizer[normalizer == 0.0] = 1.0
-            proba /= normalizer
-            return proba
+                class_proba = clf.predict_proba(X)
+                proba[:, i] = class_proba
+            proba = sigmoid(proba)
+
+            #In honest I don't understand which is better
+            # softmax or normalized sigmoid for calc probability.
+            if self.calc_prob == "Sigmoid":
+                normalizer = proba.sum(axis=1)[:, np.newaxis]
+                normalizer[normalizer == 0.0] = 1.0
+                proba /= normalizer
+            else:
+                proba = softmax(proba)
+        return proba
 
     def predict(self, X):
         """Predict class for X.
@@ -266,8 +289,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             for k in output:
   		        print k
 
-        y_pred = sigmoid(np.loadtxt(os.path.join(loc_temp, "predictions.txt")))
-        y_pred = np.c_[1-y_pred, y_pred]
+        y_pred = np.loadtxt(os.path.join(loc_temp, "predictions.txt"))
 
     	#Clean temp directory
     	if self.clean:
