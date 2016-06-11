@@ -86,8 +86,10 @@ You can tuning parameter as follow.
 
 	sl2: Default is equal to ls. On some data, λ/100 works well.
 
-Detail is here.
+Detail of tuning parameter is here.
 http://stat.rutgers.edu/home/tzhang/software/rgf/rgf1.2-guide.pdf
+
+## Other
 
 Shamelessly, many part of the implementation is based on the following. Thanks!
 https://github.com/MLWave/RGF-sklearn
