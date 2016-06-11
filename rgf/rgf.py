@@ -16,6 +16,54 @@ def sigmoid(x) :
     return 1/(1+np.exp(-x))
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
+    """A Regularized Greedy Forest[1] classifier.
+
+    Tunig parameter Detail :
+        http://stat.rutgers.edu/home/tzhang/software/rgf/rgf1.2-guide.pdf
+
+    Parameters
+    ----------
+
+    verbose : int, optional (default=0)
+        Controls the verbosity of the tree building process.
+
+    max_leaf : int, optional (default=1000)
+        Training will be terminated when the number of
+        leaf nodes in the forest reaches this value.
+
+    test_interval : int, optional (default=100)
+        Test interval in terms of the number of leaf nodes.
+
+    algorithm : string, "RGF" or "RGF_Opt" or "RGF_Sib"
+        Regularization algorithm.
+
+    loss : "LS" or "Expo" or "Log".
+        Loss function.
+
+    reg_depth : float, (default=1)
+        Meant for being used with algorithm=RGF Opt|RGF Sib.
+        A larger value penalizes deeper nodes more severely.
+
+    l2 : float, (default=0.1)
+        Used to control the degree of L2 regularization.
+
+    sl2 : float, (default=None)
+        Override L2 regularization parameter l2
+        for the process of growing the forest.
+
+    prefix : string, (default="model")
+        Used as a prefix for rgf output temp file.
+
+    inc_prefix : boolean, (default=False)
+        If Trur, auto increment for numbering temp file is enable.
+
+    clean : boolean, (default=True)
+        If True , remove temp files after prediction.
+
+    Reference.
+    [1] Rie Johnson and Tong Zhang. Learning nonlinear functions using regularized greedy forest
+
+    """
     instance_count = 0
     def __init__(self,
                  verbose=0,
@@ -81,6 +129,20 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                 self.estimators[i].fit(X, y_one_or_rest)
 
     def predict_proba(self, X):
+        """Predict class probabilities for X.
+
+        The predicted class probabilities of an input sample is computed.
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The input samples.
+
+        Returns
+        -------
+        p : array of shape = [n_samples, n_classes].
+            The class probabilities of the input samples.
+        """
         if self.n_classes_ <= 2:
             self.estimator.predict_proba(X)
         else:
@@ -93,10 +155,31 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             return proba
 
     def predict(self, X):
+        """Predict class for X.
+
+        The predicted class of an input sample is a vote by the StackedClassifier.
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The input samples. Internally, it will be converted to
+            ``dtype=np.float32`` and if a sparse matrix is provided
+            to a sparse ``csr_matrix``.
+
+        Returns
+        -------
+        y : array of shape = [n_samples]
+            The predicted classes.
+        """
         proba = self.predict_proba(X)
         return np.argmax(proba, axis=1)
 
 class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
+    """
+    RGF Binary Classifier.
+    Don't instantiate this class directly.
+    RGFBinaryClassifier should be instantiated only by RGFClassifier.
+    """
     def __init__(self,
                  verbose=0,
                  max_leaf=500,
@@ -276,6 +359,21 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         return self
 
     def predict(self, X):
+        """
+        The predicted value of an input sample is a vote by the StackedRegressor.
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The input samples. Internally, it will be converted to
+            ``dtype=np.float32`` and if a sparse matrix is provided
+            to a sparse ``csr_matrix``.
+
+        Returns
+        -------
+        y : array of shape = [n_samples]
+            The predicted values.
+        """
         #Store the test set into RGF format
         np.savetxt(os.path.join(loc_temp, "test.data.x"), X, delimiter=' ', fmt="%s")
 
@@ -306,7 +404,6 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 				if "predictions.txt" in fn or "model-" in fn or "train.data." in fn or "test.data." in fn:
 					os.remove(fn)
 		return y_pred
-
 
 	def get_params(self, deep=False):
 		params = {}
