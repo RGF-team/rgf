@@ -6,7 +6,7 @@ from sklearn import datasets
 from sklearn.utils.validation import check_random_state
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.ensemble import GradientBoostingClassifier
-from rgf.lib.rgf import RGFClassifier
+from rgf.rgf.rgf import RGFClassifier
 
 iris = datasets.load_iris()
 rng = check_random_state(0)
