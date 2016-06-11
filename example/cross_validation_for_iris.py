@@ -5,7 +5,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sklearn import datasets
 from sklearn.utils.validation import check_random_state
 from sklearn.cross_validation import StratifiedKFold
-from sklearn.manifold import TSNE
 from sklearn.ensemble import GradientBoostingClassifier
 from rgf.lib.rgf import RGFClassifier
 

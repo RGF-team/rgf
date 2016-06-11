@@ -1,4 +1,3 @@
-
 import os
 import subprocess
 from glob import glob
@@ -11,6 +10,8 @@ from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 loc_exec='C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
 loc_temp='temp/'
 
+## End Edit
+
 def sigmoid(x) :
     return 1/(1+np.exp(-x))
 
@@ -18,12 +19,13 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     instance_count = 0
     def __init__(self,
                  verbose=0,
-                 max_leaf=500,
+                 max_leaf=1000,
                  test_interval=100,
                  algorithm="RGF",
                  loss="Log",
-                 depth=1,
+                 reg_depth=1,
                  l2=0.1,
+                 sl2=None,
                  prefix="model",
                  inc_prefix=False,
                  clean=True):
@@ -38,8 +40,12 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         if inc_prefix:
             self.file_prefix = prefix + str(RGFClassifier.instance_count)
             RGFClassifier.instance_count += 1
-        self.depth = depth
+        self.reg_depth = reg_depth
         self.l2 = l2
+        if sl2 is None:
+            self.sl2 = l2
+        else:
+            self.sl2 = sl2
         self.clean = clean
 
     def fit(self, X, y):
@@ -51,7 +57,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                                  test_interval=self.test_interval,
                                                  algorithm=self.algorithm,
                                                  loss=self.loss,
-                                                 depth=self.depth,
+                                                 reg_depth=self.reg_depth,
                                                  l2=self.l2,
                                                  prefix=self.prefix,
                                                  inc_prefix=self.inc_prefix,
@@ -67,7 +73,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                      test_interval=self.test_interval,
                                      algorithm=self.algorithm,
                                      loss=self.loss,
-                                     depth=self.depth,
+                                     reg_depth=self.reg_depth,
                                      l2=self.l2,
                                      prefix=prefix,
                                      inc_prefix=False,
@@ -97,8 +103,9 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                  test_interval=100,
                  algorithm="RGF",
                  loss="Log",
-                 depth=1,
+                 reg_depth=1,
                  l2=0.1,
+                 sl2=None,
                  prefix="model",
                  inc_prefix=False,
                  clean=True):
@@ -109,8 +116,12 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.test_interval = test_interval
         self.prefix = prefix
         self.file_prefix = prefix
-        self.depth = depth
+        self.reg_depth = reg_depth
         self.l2 = l2
+        if sl2 is None:
+            self.sl2 = l2
+        else:
+            self.sl2 = sl2
         self.clean = clean
         if not os.path.isdir(loc_temp):
             os.mkdir(loc_temp)
@@ -137,7 +148,8 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("max_leaf_forest=%s"%self.max_leaf)
         params.append("test_interval=%s"%self.test_interval)
         params.append("reg_L2=%s"%self.l2)
-        params.append("reg_depth=%s"%self.depth)
+        params.append("reg_sL2=%s"%self.sl2)
+        params.append("reg_depth=%s"%self.reg_depth)
         params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
 
     	cmd = "%s train %s 2>&1"%(loc_exec, ",".join(params))
@@ -193,7 +205,9 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 		params["test_interval"] = self.test_interval
 		params["prefix"] = self.prefix
 		params["l2"] = self.l2
-		return params
+        params["sl2"] = self.sl2
+        params["reg_depth"] = self.reg_depth
+        return params
 
 class RGFRegressor(BaseEstimator, RegressorMixin):
     instance_count = 0
@@ -204,7 +218,9 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                  algorithm="RGF",
                  loss="LS",
                  l2=0.1,
+                 sl2=None,
                  prefix="model",
+                 reg_depth=1,
                  inc_prefix=False,
                  clean=True):
         self.verbose = verbose
@@ -217,7 +233,12 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         if inc_prefix:
             self.file_prefix = prefix + str(RGFRegressor.instance_count)
             RGFRegressor.instance_count += 1
+        self.reg_depth = reg_depth
         self.l2 = l2
+        if sl2 is None:
+            self.sl2 = l2
+        else:
+            self.sl2 = sl2
         self.clean = clean
 
     #Fitting/training the model to target variables
@@ -239,6 +260,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("max_leaf_forest=%s"%self.max_leaf)
         params.append("test_interval=%s"%self.test_interval)
         params.append("reg_L2=%s"%self.l2)
+        params.append("reg_sL2=%s"%self.sl2)
+        params.append("reg_depth=%s"%self.reg_depth)
         params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
 
         cmd = "%s train %s 2>&1"%(loc_exec,",".join(params))
@@ -283,3 +306,17 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 				if "predictions.txt" in fn or "model-" in fn or "train.data." in fn or "test.data." in fn:
 					os.remove(fn)
 		return y_pred
+
+
+	def get_params(self, deep=False):
+		params = {}
+		params["verbose"] = self.verbose
+		params["max_leaf"] = self.max_leaf
+		params["algorithm"] = self.algorithm
+		params["loss"] = self.loss
+		params["test_interval"] = self.test_interval
+		params["prefix"] = self.prefix
+		params["l2"] = self.l2
+        params["sl2"] = self.sl2
+        params["reg_depth"] = self.reg_depth
+        return params
