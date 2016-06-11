@@ -158,7 +158,6 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
         if self.n_classes_ <= 2:
             proba = self.estimator.predict_proba(X)
-            proba = sigmoid(proba)
             proba = np.c_[1-proba, proba]
         else:
             proba = np.zeros((X.shape[0], self.n_classes_))
