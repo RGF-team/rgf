@@ -139,6 +139,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                      inc_prefix=False,
                                      clean=self.clean)
                 self.estimators[i].fit(X, y_one_or_rest)
+        return self
 
     def predict_proba(self, X):
         """Predict class probabilities for X.
