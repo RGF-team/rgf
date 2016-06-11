@@ -165,11 +165,11 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             for i, clf in enumerate(self.estimators):
                 class_proba = clf.predict_proba(X)
                 proba[:, i] = class_proba
-            proba = sigmoid(proba)
 
             #In honest I don't understand which is better
             # softmax or normalized sigmoid for calc probability.
             if self.calc_prob == "Sigmoid":
+                proba = sigmoid(proba)
                 normalizer = proba.sum(axis=1)[:, np.newaxis]
                 normalizer[normalizer == 0.0] = 1.0
                 proba /= normalizer

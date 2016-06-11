@@ -32,6 +32,17 @@ class TestRGFClassfier(unittest.TestCase):
         print("score: " + str(score))
         self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
 
+    def test_softmax_classifier(self):
+        clf = RGFClassifier(prefix='clf', calc_prob='Softmax')
+        clf.fit(self.iris.data, self.iris.target)
+
+        proba_sum = clf.predict_proba(self.iris.data).sum(axis=1)
+        assert_almost_equal(proba_sum, np.ones(self.iris.target.shape[0]))
+
+        score = clf.score(self.iris.data, self.iris.target)
+        print("score: " + str(score))
+        self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
+
     def test_bin_classifier(self):
         clf = RGFClassifier(prefix='clf')
         bin_target = (self.iris.target == 0).astype(int)
