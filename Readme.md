@@ -44,6 +44,7 @@ print('score: {0}'.format(rgf_score))
 ## Software Requirement
 
 * Python (2.7 or later)
+* Perl (5.22 or later)
 * scikit-learn
 * RGF(http://stat.rutgers.edu/home/tzhang/software/rgf/)
 
