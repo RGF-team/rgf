@@ -51,7 +51,7 @@ print('score: {0}'.format(rgf_score))
 ## Installation
 
 ```
-git clone https://github.com/fukatani/stacked_generalization.git
+git clone https://github.com/fukatani/rgf_python.git
 python setup.py install
 ```
 
