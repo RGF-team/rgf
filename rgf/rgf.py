@@ -197,6 +197,20 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         proba = self.predict_proba(X)
         return np.argmax(proba, axis=1)
 
+	def get_params(self, deep=False):
+		params = {}
+		params["verbose"] = self.verbose
+		params["max_leaf"] = self.max_leaf
+		params["algorithm"] = self.algorithm
+		params["loss"] = self.loss
+		params["test_interval"] = self.test_interval
+		params["prefix"] = self.prefix
+		params["l2"] = self.l2
+        params["sl2"] = self.sl2
+        params["reg_depth"] = self.reg_depth
+        return params
+
+
 class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
     """
     RGF Binary Classifier.
@@ -301,18 +315,6 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
     	return y_pred
 
-	def get_params(self, deep=False):
-		params = {}
-		params["verbose"] = self.verbose
-		params["max_leaf"] = self.max_leaf
-		params["algorithm"] = self.algorithm
-		params["loss"] = self.loss
-		params["test_interval"] = self.test_interval
-		params["prefix"] = self.prefix
-		params["l2"] = self.l2
-        params["sl2"] = self.sl2
-        params["reg_depth"] = self.reg_depth
-        return params
 
 class RGFRegressor(BaseEstimator, RegressorMixin):
     instance_count = 0
