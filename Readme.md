@@ -61,8 +61,8 @@ python setup.py install
 ## Edit this ##################################################
 
 #Location of the RGF executable
-loc_exec='C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
-loc_temp='temp/'
+loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
+loc_temp = 'temp/'
 
 ## End Edit
 ```

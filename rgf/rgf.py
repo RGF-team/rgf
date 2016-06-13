@@ -7,15 +7,23 @@ from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 ## Edit this ##################################################
 
 #Location of the RGF executable
-loc_exec='C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
-loc_temp='temp/'
+loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
+loc_temp = 'temp/'
 
 ## End Edit
 
-def sigmoid(x) :
+def sigmoid(x):
+    """
+    x : array-like
+    output : array-like
+    """
     return 1. / (1.+ np.exp(-x))
 
 def softmax(x):
+    """
+    x : array-like
+    output : array-like
+    """
     e = np.exp(x - np.max(x))
     if e.ndim == 1:
         return e / np.sum(e, axis=0)
@@ -197,15 +205,15 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         proba = self.predict_proba(X)
         return np.argmax(proba, axis=1)
 
-	def get_params(self, deep=False):
-		params = {}
-		params["verbose"] = self.verbose
-		params["max_leaf"] = self.max_leaf
-		params["algorithm"] = self.algorithm
-		params["loss"] = self.loss
-		params["test_interval"] = self.test_interval
-		params["prefix"] = self.prefix
-		params["l2"] = self.l2
+    def get_params(self, deep=False):
+        params = {}
+        params["verbose"] = self.verbose
+        params["max_leaf"] = self.max_leaf
+        params["algorithm"] = self.algorithm
+        params["loss"] = self.loss
+        params["test_interval"] = self.test_interval
+        params["prefix"] = self.prefix
+        params["l2"] = self.l2
         params["sl2"] = self.sl2
         params["reg_depth"] = self.reg_depth
         return params
@@ -272,10 +280,10 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("reg_depth=%s"%self.reg_depth)
         params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
 
-    	cmd = "%s train %s 2>&1"%(loc_exec, ",".join(params))
+        cmd = "%s train %s 2>&1"%(loc_exec, ",".join(params))
 
-		#train
-    	output = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, shell=True).communicate()
+        #train
+        output = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, shell=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -283,37 +291,37 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         return self
 
     def predict_proba(self, X):
-    	#Store the test set into RGF format
-    	np.savetxt(os.path.join(loc_temp, "test.data.x"), X, delimiter=' ', fmt="%s")
+        #Store the test set into RGF format
+        np.savetxt(os.path.join(loc_temp, "test.data.x"), X, delimiter=' ', fmt="%s")
 
-    	#Find latest model location
-    	model_glob = loc_temp + os.sep + self.file_prefix + "*"
-    	latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
+        #Find latest model location
+        model_glob = loc_temp + os.sep + self.file_prefix + "*"
+        latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
 
-    	#Format test command
-    	params = []
-    	params.append("test_x_fn=%s"%os.path.join(loc_temp, "test.data.x"))
-    	params.append("prediction_fn=%s"%os.path.join(loc_temp, "predictions.txt"))
-    	params.append("model_fn=%s"%latest_model_loc)
-    	cmd = "%s predict %s 2>&1"%(loc_exec, ",".join(params))
+        #Format test command
+        params = []
+        params.append("test_x_fn=%s"%os.path.join(loc_temp, "test.data.x"))
+        params.append("prediction_fn=%s"%os.path.join(loc_temp, "predictions.txt"))
+        params.append("model_fn=%s"%latest_model_loc)
+        cmd = "%s predict %s 2>&1"%(loc_exec, ",".join(params))
 
-    	output = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, shell=True).communicate()
+        output = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, shell=True).communicate()
 
         if self.verbose:
             for k in output:
-  		        print k
+                print k
 
         y_pred = np.loadtxt(os.path.join(loc_temp, "predictions.txt"))
 
-    	#Clean temp directory
-    	if self.clean:
-    		model_glob = loc_temp + os.sep + "*"
+        #Clean temp directory
+        if self.clean:
+            model_glob = loc_temp + os.sep + "*"
 
-    		for fn in glob(model_glob):
-    			if "predictions.txt" in fn or "model-" in fn or "train.data." in fn or "test.data." in fn:
-    				os.remove(fn)
+            for fn in glob(model_glob):
+                if "predictions.txt" in fn or "model-" in fn or "train.data." in fn or "test.data." in fn:
+                    os.remove(fn)
 
-    	return y_pred
+        return y_pred
 
 
 class RGFRegressor(BaseEstimator, RegressorMixin):
@@ -371,7 +379,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("reg_depth=%s"%self.reg_depth)
         params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
 
-        cmd = "%s train %s 2>&1"%(loc_exec,",".join(params))
+        cmd = "%s train %s 2>&1"%(loc_exec, ",".join(params))
 
         #train
         output = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, shell=True).communicate()
@@ -403,41 +411,41 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 
         #Find latest model location
         model_glob = loc_temp + os.sep + self.file_prefix + "*"
-        latest_model_loc = sorted(glob(model_glob),reverse=True)[0]
+        latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
 
         #Format test command
         params = []
         params.append("test_x_fn=%s"%os.path.join(loc_temp, "test.data.x"))
         params.append("prediction_fn=%s"%os.path.join(loc_temp, "predictions.txt"))
         params.append("model_fn=%s"%latest_model_loc)
-        cmd = "%s predict %s"%(loc_exec,",".join(params)) # 2>&1
+        cmd = "%s predict %s"%(loc_exec, ",".join(params)) # 2>&1
 
-        output = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE,shell=True).communicate()
+        output = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, shell=True).communicate()
 
         if self.verbose:
             for k in output:
                 print k
 
-		y_pred = np.loadtxt(os.path.join(loc_temp, "predictions.txt"))
+        y_pred = np.loadtxt(os.path.join(loc_temp, "predictions.txt"))
 
-		#Clean temp directory
-		if self.clean:
-			model_glob = loc_temp + os.sep + "*"
+        #Clean temp directory
+        if self.clean:
+            model_glob = loc_temp + os.sep + "*"
 
-			for fn in glob(model_glob):
-				if "predictions.txt" in fn or "model-" in fn or "train.data." in fn or "test.data." in fn:
-					os.remove(fn)
-		return y_pred
+            for fn in glob(model_glob):
+                if "predictions.txt" in fn or "model-" in fn or "train.data." in fn or "test.data." in fn:
+                    os.remove(fn)
+        return y_pred
 
-	def get_params(self, deep=False):
-		params = {}
-		params["verbose"] = self.verbose
-		params["max_leaf"] = self.max_leaf
-		params["algorithm"] = self.algorithm
-		params["loss"] = self.loss
-		params["test_interval"] = self.test_interval
-		params["prefix"] = self.prefix
-		params["l2"] = self.l2
+    def get_params(self, deep=False):
+        params = {}
+        params["verbose"] = self.verbose
+        params["max_leaf"] = self.max_leaf
+        params["algorithm"] = self.algorithm
+        params["loss"] = self.loss
+        params["test_interval"] = self.test_interval
+        params["prefix"] = self.prefix
+        params["l2"] = self.l2
         params["sl2"] = self.sl2
         params["reg_depth"] = self.reg_depth
         return params
