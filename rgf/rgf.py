@@ -13,16 +13,16 @@ loc_temp = 'temp/'
 ## End Edit
 
 def sigmoid(x):
-    """
-    x : array-like
+    """x : array-like
     output : array-like
+
     """
     return 1. / (1.+ np.exp(-x))
 
 def softmax(x):
-    """
-    x : array-like
+    """x : array-like
     output : array-like
+
     """
     e = np.exp(x - np.max(x))
     if e.ndim == 1:
@@ -163,6 +163,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         -------
         p : array of shape = [n_samples, n_classes].
             The class probabilities of the input samples.
+
         """
 
         if self.n_classes_ <= 2:
@@ -201,6 +202,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         -------
         y : array of shape = [n_samples]
             The predicted classes.
+
         """
         proba = self.predict_proba(X)
         return np.argmax(proba, axis=1)
@@ -220,10 +222,10 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
 
 class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
-    """
-    RGF Binary Classifier.
+    """RGF Binary Classifier.
     Don't instantiate this class directly.
     RGFBinaryClassifier should be instantiated only by RGFClassifier.
+
     """
     def __init__(self,
                  verbose=0,
@@ -391,8 +393,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         return self
 
     def predict(self, X):
-        """
-        The predicted value of an input sample is a vote by the StackedRegressor.
+        """The predicted value of an input sample is a vote by the RGFRegressor.
 
         Parameters
         ----------
@@ -405,6 +406,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         -------
         y : array of shape = [n_samples]
             The predicted values.
+
         """
         #Store the test set into RGF format
         np.savetxt(os.path.join(loc_temp, "test.data.x"), X, delimiter=' ', fmt="%s")
