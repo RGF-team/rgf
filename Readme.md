@@ -1,11 +1,11 @@
-# rgf_sklearn
+# rgf_python
 Machine learning ***Regularized Greedy Forest*** wrapper for Python.
 
-## feature
+## Feature
 
 ##### Scikit learn like interface and Multi classification problem is OK.
 
-Original rgf implement is only available for regression and binary classification, but rgf_sklearn is ** also available for Multi classification** by "One-or-Rest" method.
+Original rgf implement is only available for regression and binary classification, but rgf_sklearn is **also available for Multi classification** by "One-or-Rest" method.
 
 ex.
 ```python
@@ -68,10 +68,10 @@ loc_temp = 'temp/'
 ```
 
 You need to direct appropriate location of rgf exec file to 'loc_exe'.
-'loc_temp' is Directory for placing temp file.
+'loc_temp' is directory for placing temp file.
 
 ##Tuning hyper parameter
-You can tuning parameter as follow.
+You can tuning parameter as follows.
 
 	max_leaf: Appropriate values are data-dependent and in varied from 1000 to 10000.
 
