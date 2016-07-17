@@ -5,7 +5,7 @@ Machine learning ***Regularized Greedy Forest*** wrapper for Python.
 
 ##### Scikit learn like interface and Multi classification problem is OK.
 
-Original rgf implement is only available for regression and binary classification, but rgf_sklearn is **also available for Multi classification** by "One-or-Rest" method.
+Original rgf implementation is only available for regression and binary classification, but rgf_python is **also available for Multi classification** by "One-or-Rest" method.
 
 ex.
 ```python
