@@ -76,7 +76,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         Method of probability calculation.
 
     clean : boolean, (default=True)
-        If True , remove temp files after prediction.
+        If True, remove temp files after prediction.
+        If False previous leaning result will be loaded.
 
     Reference.
     [1] Rie Johnson and Tong Zhang. Learning nonlinear functions using regularized greedy forest
@@ -320,7 +321,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             model_glob = loc_temp + os.sep + "*"
 
             for fn in glob(model_glob):
-                if "predictions.txt" in fn or "model-" in fn or "train.data." in fn or "test.data." in fn:
+                if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
                     os.remove(fn)
 
         return y_pred
@@ -435,7 +436,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             model_glob = loc_temp + os.sep + "*"
 
             for fn in glob(model_glob):
-                if "predictions.txt" in fn or "model-" in fn or "train.data." in fn or "test.data." in fn:
+                if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
                     os.remove(fn)
         return y_pred
 
