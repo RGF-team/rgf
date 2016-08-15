@@ -14,9 +14,11 @@ install:
   - wget http://stat.rutgers.edu/home/tzhang/software/rgf/rgf1.2.zip
   - unzip rgf1.2.zip
   - cd rgf1.2
+  - sudo rm bin/*
   - make
   - cd ..
   - sed -i '10c\loc_exec = "rgf1.2/bin/rgf"' rgf/rgf.py
   - sed -n 5,15p rgf/rgf.py
 script:
+  - python setup.py install
   - python rgf/test.py
