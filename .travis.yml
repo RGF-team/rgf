@@ -16,7 +16,7 @@ install:
   - cd rgf1.2
   - make
   - cd ..
-  - sed '10c\loc_exec = "rgf1.2/bin/rgf.exe"' rgf/rgf.py
+  - sed -i '10c\loc_exec = "rgf1.2/bin/rgf"' rgf/rgf.py
   - sed -n 5,15p rgf/rgf.py
 script:
   - python rgf/test.py
