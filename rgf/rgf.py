@@ -10,7 +10,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
 loc_temp = 'temp/'
 
-## End Edit
+## End Edit ##################################################
 
 def sigmoid(x):
     """x : array-like
@@ -290,7 +290,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
         if self.verbose:
             for k in output:
-                print k
+                print(k)
         return self
 
     def predict_proba(self, X):
@@ -312,7 +312,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
         if self.verbose:
             for k in output:
-                print k
+                print(k)
 
         y_pred = np.loadtxt(os.path.join(loc_temp, "predictions.txt"))
 
@@ -389,7 +389,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 
         if self.verbose:
             for k in output:
-                print k
+                print(k)
 
         return self
 
@@ -427,7 +427,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 
         if self.verbose:
             for k in output:
-                print k
+                print(k)
 
         y_pred = np.loadtxt(os.path.join(loc_temp, "predictions.txt"))
 
