@@ -1,3 +1,7 @@
+cache:
+  directories:
+    - /home/travis/miniconda2
+    - /home/travis/rgf1.2
 # Setup anaconda
 before_install:
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
@@ -17,7 +21,7 @@ install:
   - sudo rm bin/*
   - make
   - cd ..
-  - sed -i '10c\loc_exec = "rgf1.2/bin/rgf"' rgf/rgf.py
+  - sed -i '10c\loc_exec = "~/rgf1.2/bin/rgf"' rgf/rgf.py
   - sed -n 5,15p rgf/rgf.py
 script:
 #  - python setup.py install
