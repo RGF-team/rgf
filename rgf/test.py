@@ -74,5 +74,6 @@ class TestRGFClassfier(unittest.TestCase):
         print("mse: " + str(mse))
         assert_less(mse, 6.0)
 
+
 if __name__ == '__main__':
     unittest.main()
