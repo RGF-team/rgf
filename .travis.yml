@@ -1,7 +1,7 @@
-cache:
-  directories:
-    - /home/travis/miniconda2
-    - /home/travis/rgf1.2
+#cache:
+#  directories:
+#    - /home/travis/miniconda2
+#    - /home/travis/rgf1.2
 # Setup anaconda
 before_install:
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
