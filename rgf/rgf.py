@@ -7,7 +7,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 ## Edit this ##################################################
 
 #Location of the RGF executable
-loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
+loc_exec = 'rgf1.2/bin/rgf.exe'
 loc_temp = 'temp/'
 
 ## End Edit ##################################################
