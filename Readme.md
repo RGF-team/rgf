@@ -63,10 +63,10 @@ python setup.py install
 loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
 loc_temp = 'temp/'
 
-## End Edit
+## End Edit ##################################################
 ```
 
-You need to direct appropriate location of rgf exec file to 'loc_exe'.
+You need to direct actual location of rgf execution file to 'loc_exe'.
 'loc_temp' is directory for placing temp file.
 
 ##Tuning hyper parameter
@@ -80,7 +80,7 @@ You can tuning parameter as follows.
 
 	loss: "LS", "Log" or "Expo".
 
-	reg_depth: Must be no smaller than 1. Meant for being used with algorithm = "RGF Opt" or "RGF Sib". 
+	reg_depth: Must be no smaller than 1. Meant for being used with algorithm = "RGF Opt" or "RGF Sib".
 
 	l2: Either 1, 0.1, or 0.01 often produces good results though with exponential loss (loss=Expo) and logistic loss (loss=Log) some data requires smaller values such as 1e-10 or 1e-20 Either 1, 0.1, or 0.01 often produces good results though with exponential loss (loss=Expo) and logistic loss (loss=Log) some data requires smaller values such as 1e-10 or 1e-20
 
