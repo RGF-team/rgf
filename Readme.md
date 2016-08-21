@@ -47,6 +47,9 @@ print('score: {0}'.format(rgf_score))
 * scikit-learn
 * RGF(http://stat.rutgers.edu/home/tzhang/software/rgf/)
 
+If you can't access the avove URL, alternatively, you can get RGF by downloading whole directory https://github.com/TimSalimans/HiggsML/tree/master/rgf1.2 .
+Please see also https://github.com/TimSalimans/HiggsML/blob/master/rgf1.2/README .
+
 ## Installation
 
 ```
