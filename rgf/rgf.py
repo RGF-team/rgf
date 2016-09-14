@@ -3,12 +3,21 @@ import subprocess
 from glob import glob
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
-
+import platform
 ## Edit this ##################################################
 
+sys_name = platform.system()
+
 #Location of the RGF executable
-loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
-loc_temp = 'temp/'
+WINDOWS = 'Windows'
+LINUX = 'Linux'
+
+if sys_name == WINDOWS:
+    loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
+    loc_temp = 'temp/'
+elif sys_name == LINUX:
+    loc_exec = '/opt/rgf1.2/bin/rgf'
+    loc_temp = '/tmp'
 
 ## End Edit ##################################################
 
@@ -286,7 +295,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         cmd = "%s train %s 2>&1"%(loc_exec, ",".join(params))
 
         #train
-        output = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, shell=True).communicate()
+        output = platform_specific_Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -308,7 +317,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("model_fn=%s"%latest_model_loc)
         cmd = "%s predict %s 2>&1"%(loc_exec, ",".join(params))
 
-        output = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, shell=True).communicate()
+        output = platform_specific_Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -385,7 +394,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         cmd = "%s train %s 2>&1"%(loc_exec, ",".join(params))
 
         #train
-        output = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, shell=True).communicate()
+        output = platform_specific_Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -423,7 +432,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("model_fn=%s"%latest_model_loc)
         cmd = "%s predict %s"%(loc_exec, ",".join(params)) # 2>&1
 
-        output = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, shell=True).communicate()
+        output = platform_specific_Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -452,3 +461,9 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params["sl2"] = self.sl2
         params["reg_depth"] = self.reg_depth
         return params
+
+def platform_specific_Popen(cmd,**kwargs):
+    if sys_name == WINDOWS:
+        return subprocess.Popen(cmd.split(),**kwargs)
+    elif sys_name == LINUX:
+        return subprocess.Popen(cmd, **kwargs)
