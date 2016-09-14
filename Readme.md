@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/fukatani/rgf_python.svg?branch=master)](https://travis-ci.org/fukatani/rgf_python)
+
 # rgf_python
 Machine learning ***Regularized Greedy Forest*** wrapper for Python.
 
@@ -43,7 +45,7 @@ print('score: {0}'.format(rgf_score))
 
 ## Software Requirement
 
-* Python (2.7 or later)
+* Python (2.7 or 3.4)
 * scikit-learn
 * RGF(http://stat.rutgers.edu/home/tzhang/software/rgf/)
 
