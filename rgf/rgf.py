@@ -4,20 +4,20 @@ from glob import glob
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 import platform
-## Edit this ##################################################
 
 sys_name = platform.system()
 
-#Location of the RGF executable
 WINDOWS = 'Windows'
 LINUX = 'Linux'
 
+## Edit this ##################################################
+#Location of the RGF executable
 if sys_name == WINDOWS:
     loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
     loc_temp = 'temp/'
 elif sys_name == LINUX:
     loc_exec = '/opt/rgf1.2/bin/rgf'
-    loc_temp = '/tmp'
+    loc_temp = '/tmp/rgf'
 
 ## End Edit ##################################################
 
