@@ -1,9 +1,15 @@
 import os
+import platform
 import subprocess
+
 from glob import glob
 import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
-import platform
+
+from sklearn.base import BaseEstimator
+from sklearn.base import ClassifierMixin
+from sklearn.base import RegressorMixin
+from sklearn.utils.validation import NotFittedError
+
 
 sys_name = platform.system()
 
@@ -320,9 +326,14 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         if self.verbose:
             for k in output:
                 print(k)
+        self.fitted = True
         return self
 
     def predict_proba(self, X):
+        if self.fitted is None:
+            raise NotFittedError("Estimator not fitted, "
+                                 "call `fit` before exploiting the model.")
+
         #Store the test set into RGF format
         np.savetxt(os.path.join(loc_temp, "test.data.x"), X, delimiter=' ', fmt="%s")
 
@@ -434,7 +445,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         if self.verbose:
             for k in output:
                 print(k)
-
+        self.fitted = True
         return self
 
     def predict(self, X):
@@ -452,6 +463,10 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         y : array of shape = [n_samples]
             The predicted values.
         """
+        if self.fitted is None:
+            raise NotFittedError("Estimator not fitted, "
+                                 "call `fit` before exploiting the model.")
+
         #Store the test set into RGF format
         np.savetxt(os.path.join(loc_temp, "test.data.x"), X, delimiter=' ', fmt="%s")
 
