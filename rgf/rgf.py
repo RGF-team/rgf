@@ -1,7 +1,6 @@
 import os
 import platform
 import subprocess
-
 from glob import glob
 import numpy as np
 
@@ -10,9 +9,7 @@ from sklearn.base import ClassifierMixin
 from sklearn.base import RegressorMixin
 from sklearn.utils.validation import NotFittedError
 
-
 sys_name = platform.system()
-
 WINDOWS = 'Windows'
 LINUX = 'Linux'
 
@@ -47,9 +44,9 @@ def softmax(x):
         return e / np.array([np.sum(e, axis=1)]).T  # ndim = 2
 
 
-def platform_specific_Popen(cmd,**kwargs):
+def platform_specific_Popen(cmd, **kwargs):
     if sys_name == WINDOWS:
-        return subprocess.Popen(cmd.split(),**kwargs)
+        return subprocess.Popen(cmd.split(), **kwargs)
     elif sys_name == LINUX:
         return subprocess.Popen(cmd, **kwargs)
 
@@ -139,6 +136,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         else:
             self.sl2 = sl2
         self.clean = clean
+        self.fitted = False
 
     def fit(self, X, y):
         """Build a RGF Classifier from the training set (X, y).
@@ -330,7 +328,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         return self
 
     def predict_proba(self, X):
-        if self.fitted is None:
+        if not self.fitted:
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
@@ -363,7 +361,6 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             for fn in glob(model_glob):
                 if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
                     os.remove(fn)
-
         return y_pred
 
 
@@ -398,6 +395,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         else:
             self.sl2 = sl2
         self.clean = clean
+        self.fitted = False
 
     def fit(self, X, y):
         """Build a RGF Classifier from the training set (X, y).
@@ -463,7 +461,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         y : array of shape = [n_samples]
             The predicted values.
         """
-        if self.fitted is None:
+        if not self.fitted:
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
