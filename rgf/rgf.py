@@ -7,6 +7,7 @@ import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.base import RegressorMixin
+from sklearn.utils.extmath import softmax
 from sklearn.utils.validation import NotFittedError
 
 sys_name = platform.system()
@@ -14,8 +15,8 @@ WINDOWS = 'Windows'
 LINUX = 'Linux'
 
 ## Edit this ##################################################
-#Location of the RGF executable
 if sys_name == WINDOWS:
+    #Location of the RGF executable
     loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
     loc_temp = 'temp/'
 elif sys_name == LINUX:
@@ -31,17 +32,6 @@ def sigmoid(x):
 
     """
     return 1. / (1.+ np.exp(-x))
-
-
-def softmax(x):
-    """x : array-like
-    output : array-like
-    """
-    e = np.exp(x - np.max(x))
-    if e.ndim == 1:
-        return e / np.sum(e, axis=0)
-    else:
-        return e / np.array([np.sum(e, axis=1)]).T  # ndim = 2
 
 
 def platform_specific_Popen(cmd, **kwargs):
