@@ -21,6 +21,7 @@ elif sys_name == LINUX:
 
 ## End Edit ##################################################
 
+
 def sigmoid(x):
     """x : array-like
     output : array-like
@@ -28,16 +29,24 @@ def sigmoid(x):
     """
     return 1. / (1.+ np.exp(-x))
 
+
 def softmax(x):
     """x : array-like
     output : array-like
-
     """
     e = np.exp(x - np.max(x))
     if e.ndim == 1:
         return e / np.sum(e, axis=0)
     else:
         return e / np.array([np.sum(e, axis=1)]).T  # ndim = 2
+
+
+def platform_specific_Popen(cmd,**kwargs):
+    if sys_name == WINDOWS:
+        return subprocess.Popen(cmd.split(),**kwargs)
+    elif sys_name == LINUX:
+        return subprocess.Popen(cmd, **kwargs)
+
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
     """A Regularized Greedy Forest[1] classifier.
@@ -90,7 +99,6 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
     Reference.
     [1] Rie Johnson and Tong Zhang. Learning nonlinear functions using regularized greedy forest
-
     """
     instance_count = 0
     def __init__(self,
@@ -127,6 +135,21 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self.clean = clean
 
     def fit(self, X, y):
+        """Build a RGF Classifier from the training set (X, y).
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape of shape = [n_samples, n_features]
+            The training input samples.
+
+        y : array-like, shape = [n_samples] or [n_samples, n_outputs]
+            The target values (class labels in classification).
+
+        Returns
+        -------
+        self : object
+            Returns self.
+        """
         self.classes_ = sorted(np.unique(y))
         self.n_classes_ = len(self.classes_)
         if self.n_classes_ <= 2:
@@ -173,7 +196,6 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         -------
         p : array of shape = [n_samples, n_classes].
             The class probabilities of the input samples.
-
         """
 
         if self.n_classes_ <= 2:
@@ -203,16 +225,14 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
+        X : array-like of shape = [n_samples, n_features]
             The input samples. Internally, it will be converted to
-            ``dtype=np.float32`` and if a sparse matrix is provided
-            to a sparse ``csr_matrix``.
+            ``dtype=np.float32``.
 
         Returns
         -------
         y : array of shape = [n_samples]
             The predicted classes.
-
         """
         proba = self.predict_proba(X)
         return np.argmax(proba, axis=1)
@@ -368,8 +388,23 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             self.sl2 = sl2
         self.clean = clean
 
-    #Fitting/training the model to target variables
     def fit(self, X, y):
+        """Build a RGF Classifier from the training set (X, y).
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape of shape = [n_samples, n_features]
+            The training input samples. Internally, it will be converted to
+            ``dtype=np.float32``.
+
+        y : array-like, shape = [n_samples] or [n_samples, n_outputs]
+            The target values (real numbers in regression).
+
+        Returns
+        -------
+        self : object
+            Returns self.
+        """
         #Store the train set into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.x"), X, delimiter=' ', fmt="%s")
         #Store the targets into RGF format
@@ -416,7 +451,6 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         -------
         y : array of shape = [n_samples]
             The predicted values.
-
         """
         #Store the test set into RGF format
         np.savetxt(os.path.join(loc_temp, "test.data.x"), X, delimiter=' ', fmt="%s")
@@ -461,9 +495,3 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params["sl2"] = self.sl2
         params["reg_depth"] = self.reg_depth
         return params
-
-def platform_specific_Popen(cmd,**kwargs):
-    if sys_name == WINDOWS:
-        return subprocess.Popen(cmd.split(),**kwargs)
-    elif sys_name == LINUX:
-        return subprocess.Popen(cmd, **kwargs)
