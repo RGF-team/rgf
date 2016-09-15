@@ -25,7 +25,7 @@ install:
   - sudo rm bin/*
   - make
   - cd ..
-  - sed -i '20c\    loc_exec = "../rgf1.2/bin/rgf"' rgf/rgf.py
+  - sed -i '23c\    loc_exec = "../rgf1.2/bin/rgf"' rgf/rgf.py
   - sed -n 5,25p rgf/rgf.py
 script:
 #  - python setup.py install
