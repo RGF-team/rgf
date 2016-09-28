@@ -72,7 +72,7 @@ loc_temp = 'temp/'
 ## End Edit ##################################################
 ```
 
-You need to direct actual location of rgf execution file to 'loc_exe'.
+You need to direct actual location of rgf execution file to 'loc_exec'.
 'loc_temp' is directory for placing temp file.
 
 ##Tuning hyper parameter
@@ -94,6 +94,10 @@ You can tuning parameter as follows.
 
 Detail of tuning parameter is here.
 http://stat.rutgers.edu/home/tzhang/software/rgf/rgf1.2-guide.pdf
+
+## Using at Kaggle Kernel
+Now, Kaggle Kernel supports rgh_python.
+Please see https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest .
 
 ## Other
 
