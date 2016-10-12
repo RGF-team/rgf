@@ -8,7 +8,7 @@ from sklearn.utils.validation import check_random_state
 from sklearn.metrics import log_loss, mean_squared_error
 from sklearn.utils.testing import assert_less, assert_almost_equal
 import numpy as np
-from rgf import RGFClassifier, RGFRegressor
+from rgf.rgf import RGFClassifier, RGFRegressor
 
 
 class TestRGFClassfier(unittest.TestCase):
