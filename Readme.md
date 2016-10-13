@@ -60,7 +60,7 @@ git clone https://github.com/fukatani/rgf_python.git
 python setup.py install
 ```
 
-**And you need to edit rgf/lib/rgf.py**
+**And you need to edit rgf/rgf.py**
 
 ```python
 ## Edit this ##################################################
