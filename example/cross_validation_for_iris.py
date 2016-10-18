@@ -3,7 +3,7 @@ import sys
 
 from sklearn import datasets
 from sklearn.utils.validation import check_random_state
-from sklearn.cross_validation import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold
 from sklearn.ensemble import GradientBoostingClassifier
 from rgf.rgf import RGFClassifier
 
@@ -24,7 +24,7 @@ rgf_score = 0
 gb_score = 0
 n_folds = 3
 
-for train_idx, test_idx in StratifiedKFold(iris.target, n_folds):
+for train_idx, test_idx in StratifiedKFold(n_folds).split(iris.data, iris.target):
     xs_train = iris.data[train_idx]
     y_train = iris.target[train_idx]
     xs_test = iris.data[test_idx]

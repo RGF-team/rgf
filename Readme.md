@@ -46,7 +46,7 @@ print('score: {0}'.format(rgf_score))
 ## Software Requirement
 
 * Python (2.7 or 3.4)
-* scikit-learn
+* scikit-learn (0.18 or later)
 * RGF(http://stat.rutgers.edu/home/tzhang/software/rgf/)
 
 If you can't access the avove URL, alternatively, you can get RGF by downloading https://github.com/fukatani/rgf_python/releases/download/0.1.0/rgf1.2.zip.
