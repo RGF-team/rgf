@@ -31,10 +31,10 @@ if ' ' in loc_exec:
     raise Exception('loc_exec must not include " ".')
 if ' ' in loc_temp:
     raise Exception('loc_temp must not include " ".')
-if not os.path.isfile(loc_exec):
-    raise Exception('{0} is not file. Please set loc_exec to rgf execution file'.format('loc_exec'))
+if not os.access(loc_exec, os.X_OK):
+    raise Exception('{0} is not executable file. Please set loc_exec to rgf execution file'.format(loc_exec))
 if not os.access(loc_temp, os.W_OK):
-    raise Exception('{0} is not writable directory. Please set loc_temp to writable directory'.format('loc_temp'))
+    raise Exception('{0} is not writable directory. Please set loc_temp to writable directory'.format(loc_temp))
 
 
 def sigmoid(x):
