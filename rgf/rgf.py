@@ -33,8 +33,6 @@ if ' ' in loc_temp:
     raise Exception('loc_temp must not include " ".')
 if not os.access(loc_exec, os.X_OK):
     raise Exception('{0} is not executable file. Please set loc_exec to rgf execution file'.format(loc_exec))
-if not os.path.isdir(loc_temp):
-    raise Exception('{0} is not writable directory. Please set loc_temp to writable directory'.format(loc_temp))
 
 
 def sigmoid(x):
@@ -290,6 +288,8 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.clean = clean
         if not os.path.isdir(loc_temp):
             os.mkdir(loc_temp)
+        if not os.access(loc_temp, os.W_OK):
+            raise Exception('{0} is not writable directory. Please set loc_temp to writable directory'.format(loc_temp))
 
 	#Fitting/training the model to target variables
     def fit(self, X, y):
@@ -396,6 +396,10 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         else:
             self.sl2 = sl2
         self.clean = clean
+        if not os.path.isdir(loc_temp):
+            os.mkdir(loc_temp)
+        if not os.access(loc_temp, os.W_OK):
+            raise Exception('{0} is not writable directory. Please set loc_temp to writable directory'.format(loc_temp))
         self.fitted = False
 
     def fit(self, X, y):
