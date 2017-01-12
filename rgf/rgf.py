@@ -37,10 +37,12 @@ def is_default_executable_in_path():
 if os.path.isfile(loc_exec) and not os.access(loc_exec, os.X_OK):
     raise Exception('{0} is not executable file. Please set '
                     'loc_exec to rgf execution file'.format(loc_exec))
+elif os.path.isfile(loc_exec):
+    pass
 elif is_default_executable_in_path():
         loc_exec = default_exec
 else:
-    raise Error('{0} does not exist and {1} is not in your path. Hint: '
+    raise Exception('{0} does not exist and {1} is not in your path. Hint: '
                 'you should fix one of these issues only.'.format(loc_exec,
                                                                   default_exec))
 if ' ' in loc_temp:
