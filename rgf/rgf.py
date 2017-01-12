@@ -18,21 +18,30 @@ LINUX = 'Linux'
 if sys_name == WINDOWS:
     #Location of the RGF executable
     loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
+    default_exec = 'rgf.exe'
     loc_temp = 'temp/'
 elif sys_name == LINUX:
     loc_exec = '/opt/rgf1.2/bin/rgf'
     loc_temp = '/tmp/rgf'
+    default_exec = 'rgf'
 
 ## End Edit ##################################################
-
+def is_default_executable_in_path():
+    try:
+        subprocess.check_output(default_exec)
+        return True
+    except:
+        return False
 
 # validate path
-if ' ' in loc_exec:
-    raise Exception('loc_exec must not include " ".')
+if os.path.isfile(loc_exec) and not os.access(loc_exec, os.X_OK):
+    raise Exception('{0} is not executable file. Please set loc_exec to rgf execution file'.format(loc_exec))
+elif is_default_executable_in_path():
+        loc_exec = default_exec
+else:
+    raise FileNotFoundError('{0} does not exist and {1} is not in your path. Hint: you should fix one of these issues only.'.format(loc_exec, default_exec))
 if ' ' in loc_temp:
     raise Exception('loc_temp must not include " ".')
-if not os.access(loc_exec, os.X_OK):
-    raise Exception('{0} is not executable file. Please set loc_exec to rgf execution file'.format(loc_exec))
 
 
 def sigmoid(x):
