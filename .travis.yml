@@ -20,7 +20,7 @@ before_install:
 # Install packages
 install:
   - conda install --yes atlas numpy scipy nose scikit-learn
-  - wget http://stat.rutgers.edu/home/tzhang/software/rgf/rgf1.2.zip
+  - wget https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip
   - unzip rgf1.2.zip
   - cd rgf1.2
   - sudo rm bin/*
