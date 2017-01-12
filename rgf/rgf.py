@@ -35,11 +35,14 @@ def is_default_executable_in_path():
 
 # validate path
 if os.path.isfile(loc_exec) and not os.access(loc_exec, os.X_OK):
-    raise Exception('{0} is not executable file. Please set loc_exec to rgf execution file'.format(loc_exec))
+    raise Exception('{0} is not executable file. Please set '
+                    'loc_exec to rgf execution file'.format(loc_exec))
 elif is_default_executable_in_path():
         loc_exec = default_exec
 else:
-    raise FileNotFoundError('{0} does not exist and {1} is not in your path. Hint: you should fix one of these issues only.'.format(loc_exec, default_exec))
+    raise Error('{0} does not exist and {1} is not in your path. Hint: '
+                'you should fix one of these issues only.'.format(loc_exec,
+                                                                  default_exec))
 if ' ' in loc_temp:
     raise Exception('loc_temp must not include " ".')
 
@@ -109,7 +112,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         If False previous leaning result will be loaded.
 
     Reference.
-    [1] Rie Johnson and Tong Zhang. Learning nonlinear functions using regularized greedy forest
+    [1] Rie Johnson and Tong Zhang.
+        Learning nonlinear functions using regularized greedy forest
     """
     instance_count = 0
     def __init__(self,
@@ -151,7 +155,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
         Parameters
         ----------
-        X : array-like or sparse matrix of shape of shape = [n_samples, n_features]
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
             The training input samples.
 
         y : array-like, shape = [n_samples] or [n_samples, n_outputs]
@@ -298,7 +302,8 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         if not os.path.isdir(loc_temp):
             os.mkdir(loc_temp)
         if not os.access(loc_temp, os.W_OK):
-            raise Exception('{0} is not writable directory. Please set loc_temp to writable directory'.format(loc_temp))
+            raise Exception('{0} is not writable directory. Please set '
+                            'loc_temp to writable directory'.format(loc_temp))
 
 	#Fitting/training the model to target variables
     def fit(self, X, y):

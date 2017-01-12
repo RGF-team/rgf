@@ -50,7 +50,8 @@ print('score: {0}'.format(rgf_score))
 * RGF(http://stat.rutgers.edu/home/tzhang/software/rgf/)
 
 If you can't access the avove URL, alternatively, you can get RGF by downloading https://github.com/fukatani/rgf_python/releases/download/0.1.0/rgf1.2.zip.
-Please see README in the zip file.
+
+Please see README in the zip file to build rgf executional.
 
 
 ## Installation
@@ -60,7 +61,8 @@ git clone https://github.com/fukatani/rgf_python.git
 python setup.py install
 ```
 
-**And you need to edit rgf/rgf.py**
+**You have to place rgf execution file in directory which is assigned by environmental variable 'path'.**
+**Or you can direct argf path by manual editting rgf/rgf.py**
 
 ```python
 ## Edit this ##################################################
