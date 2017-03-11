@@ -46,14 +46,14 @@ class TestRGFClassfier(unittest.TestCase):
 
     def test_bin_classifier(self):
         clf = RGFClassifier(prefix='clf', clean=False)
-        bin_target = (self.iris.target == 0).astype(int)
-        clf.fit(self.iris.data, self.iris.target)
+        bin_target = (self.iris.target == 2).astype(int)
+        clf.fit(self.iris.data, bin_target)
 
         proba_sum = clf.predict_proba(self.iris.data).sum(axis=1)
-        assert_almost_equal(proba_sum, np.ones(self.iris.target.shape[0]))
+        assert_almost_equal(proba_sum, np.ones(bin_target.shape[0]))
 
         clf.clean = True
-        score = clf.score(self.iris.data, self.iris.target)
+        score = clf.score(self.iris.data, bin_target)
         print("score: " + str(score))
         self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
 
