@@ -110,7 +110,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         Method of probability calculation.
 
     clean : boolean, (default=True)
-        If True, remove temp files after prediction.
+        If True, remove temp files before fitting.
         If False previous leaning result will be loaded.
 
     Reference.
@@ -310,6 +310,14 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
 	#Fitting/training the model to target variables
     def fit(self, X, y):
+        #Clean temp directory
+        if self.clean:
+            model_glob = loc_temp + os.sep + "*"
+
+            for fn in glob(model_glob):
+                if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
+                    os.remove(fn)
+
 		#Store the train set into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.x"), X, delimiter=' ', fmt="%s")
 
@@ -373,14 +381,6 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                 print(k)
 
         y_pred = np.loadtxt(os.path.join(loc_temp, "predictions.txt"))
-
-        #Clean temp directory
-        if self.clean:
-            model_glob = loc_temp + os.sep + "*"
-
-            for fn in glob(model_glob):
-                if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
-                    os.remove(fn)
         return y_pred
 
 
@@ -438,6 +438,14 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         self : object
             Returns self.
         """
+        #Clean temp directory
+        if self.clean:
+            model_glob = loc_temp + os.sep + "*"
+
+            for fn in glob(model_glob):
+                if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
+                    os.remove(fn)
+
         #Store the train set into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.x"), X, delimiter=' ', fmt="%s")
         #Store the targets into RGF format
@@ -513,13 +521,6 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 
         y_pred = np.loadtxt(os.path.join(loc_temp, "predictions.txt"))
 
-        #Clean temp directory
-        if self.clean:
-            model_glob = loc_temp + os.sep + "*"
-
-            for fn in glob(model_glob):
-                if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
-                    os.remove(fn)
         return y_pred
 
     def get_params(self, deep=False):
