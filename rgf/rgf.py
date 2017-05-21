@@ -82,39 +82,47 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     test_interval : int, optional (default=100)
         Test interval in terms of the number of leaf nodes.
 
-    algorithm : string, "RGF" or "RGF_Opt" or "RGF_Sib"
+    algorithm : string ("RGF" or "RGF_Opt" or "RGF_Sib"), optional (default="RGF")
         Regularization algorithm.
+        RGF: RGF with L2 regularization on leaf-only models.
+        RGF Opt: RGF with min-penalty regularization.
+        RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
 
-    loss : string, "LS" or "Expo" or "Log".
+    loss : string ("LS" or "Expo" or "Log"), optional (default="Log")
         Loss function.
 
-    reg_depth : float, (default=1)
+    reg_depth : float, optional (default=1.0)
+    	Must be no smaller than 1.0. 
         Meant for being used with algorithm=RGF Opt|RGF Sib.
         A larger value penalizes deeper nodes more severely.
 
-    l2 : float, (default=0.1)
+    l2 : float, optional (default=0.1)
         Used to control the degree of L2 regularization.
 
-    sl2 : float, (default=None)
+    sl2 : float or None, optional (default=None)
         Override L2 regularization parameter l2
         for the process of growing the forest.
+        That is, if speciﬁed, the weight correction process uses l2
+        and the forest growing process uses sl2.
+        If sl2=None, no override takes place and
+        l2 is used throughout training.
 
-    prefix : string, (default="model")
+    prefix : string, optional (default="model")
         Used as a prefix for rgf output temp file.
 
-    inc_prefix : boolean, (default=True)
+    inc_prefix : boolean, optional (default=True)
         If True, auto increment for numbering temp file is enable.
 
-    calc_prob : String, "Sigmoid" or "Softmax"
+    calc_prob : string ("Sigmoid" or "Softmax"), optional (default="Sigmoid")
         Method of probability calculation.
 
-    clean : boolean, (default=True)
+    clean : boolean, optional (default=True)
         If True, remove temp files before fitting.
         If False previous leaning result will be loaded.
 
     Reference.
     [1] Rie Johnson and Tong Zhang.
-        Learning nonlinear functions using regularized greedy forest
+        Learning Nonlinear Functions Using Regularized Greedy Forest
     """
     instance_count = 0
     def __init__(self,
@@ -123,7 +131,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                  test_interval=100,
                  algorithm="RGF",
                  loss="Log",
-                 reg_depth=1,
+                 reg_depth=1.0,
                  l2=0.1,
                  sl2=None,
                  prefix="model",
@@ -274,7 +282,6 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
     """RGF Binary Classifier.
     Don't instantiate this class directly.
     RGFBinaryClassifier should be instantiated only by RGFClassifier.
-
     """
     def __init__(self,
                  verbose=0,
@@ -282,7 +289,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                  test_interval=100,
                  algorithm="RGF",
                  loss="Log",
-                 reg_depth=1,
+                 reg_depth=1.0,
                  l2=0.1,
                  sl2=None,
                  prefix="model",
@@ -385,6 +392,63 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
 
 class RGFRegressor(BaseEstimator, RegressorMixin):
+    """A Regularized Greedy Forest[1] regressor.
+
+    Tuning parameters detailed instruction:
+        http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf
+
+    Parameters
+    ----------
+
+    verbose : int, optional (default=0)
+        Controls the verbosity of the tree building process.
+
+    max_leaf : int, optional (default=500)
+        Training will be terminated when the number of
+        leaf nodes in the forest reaches this value.
+
+    test_interval : int, optional (default=100)
+        Test interval in terms of the number of leaf nodes.
+
+    algorithm : string ("RGF" or "RGF_Opt" or "RGF_Sib"), optional (default="RGF")
+        Regularization algorithm.
+        RGF: RGF with L2 regularization on leaf-only models.
+        RGF Opt: RGF with min-penalty regularization.
+        RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
+
+    loss : string ("LS" or "Expo" or "Log"), optional (default="LS")
+        Loss function.
+
+    reg_depth : float, optional (default=1.0)
+    	Must be no smaller than 1.0. 
+        Meant for being used with algorithm=RGF Opt|RGF Sib.
+        A larger value penalizes deeper nodes more severely.
+
+    l2 : float, optional (default=0.1)
+        Used to control the degree of L2 regularization.
+
+    sl2 : float or None, optional (default=None)
+        Override L2 regularization parameter l2
+        for the process of growing the forest.
+        That is, if speciﬁed, the weight correction process uses l2
+        and the forest growing process uses sl2.
+        If sl2=None, no override takes place and
+        l2 is used throughout training.
+
+    prefix : string, optional (default="model")
+        Used as a prefix for rgf output temp file.
+
+    inc_prefix : boolean, optional (default=True)
+        If True, auto increment for numbering temp file is enable.
+
+    clean : boolean, optional (default=True)
+        If True, remove temp files before fitting.
+        If False previous leaning result will be loaded.
+
+    Reference.
+    [1] Rie Johnson and Tong Zhang.
+        Learning Nonlinear Functions Using Regularized Greedy Forest
+    """
     instance_count = 0
     def __init__(self,
                  verbose=0,
@@ -395,7 +459,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                  l2=0.1,
                  sl2=None,
                  prefix="model",
-                 reg_depth=1,
+                 reg_depth=1.0,
                  inc_prefix=True,
                  clean=True):
         self.verbose = verbose
