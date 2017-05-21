@@ -1,13 +1,13 @@
 [![Build Status](https://travis-ci.org/fukatani/rgf_python.svg?branch=master)](https://travis-ci.org/fukatani/rgf_python)
 
 # rgf_python
-Machine learning ***Regularized Greedy Forest*** wrapper for Python.
+Machine learning ***Regularized Greedy Forest (RGF)*** wrapper for Python.
 
 ## Feature
 
 ##### Scikit-learn like interface and multi-label classification problem is OK.
 
-Original rgf implementation is only available for regression and binary classification, but rgf_python is **also available for multi-label classification** by "One-or-Rest" method.
+Original RGF implementation is only available for regression and binary classification, but rgf_python is **also available for multi-label classification** by "One-or-Rest" method.
 
 ex.
 ```python
@@ -43,15 +43,15 @@ rgf_score /= n_folds
 print('score: {0}'.format(rgf_score))
 ```
 
-## Software Requirement
+## Software Requirements
 
 * Python (2.7 or 3.4)
 * scikit-learn (0.18 or later)
-* RGF(http://tongzhang-ml.org/software/rgf/index.html)
+* RGF C++ backend (http://tongzhang-ml.org/software/rgf/index.html)
 
-If you can't access the avove URL, alternatively, you can get RGF by downloading https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip.
+If you can't access the above URL, alternatively, you can get RGF C++ backend by downloading https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip.
 
-Please see README in the zip file to build rgf executional.
+Please see README in the zip file to build RGF executional.
 
 
 ## Installation
@@ -60,8 +60,12 @@ Please see README in the zip file to build rgf executional.
 git clone https://github.com/fukatani/rgf_python.git
 python setup.py install
 ```
+or using pip
+```
+pip install git+git://github.com/fukatani/rgf_python@master
+```
 
-**You have to place rgf execution file in directory which is assigned by environmental variable 'path'.**
+**You have to place RGF execution file in directory which is assigned by environmental variable 'path'.**
 **Or you can direct argf path by manual editting rgf/rgf.py**
 
 ```python
@@ -74,7 +78,7 @@ loc_temp = 'temp/'
 ## End Edit ##################################################
 ```
 
-You need to direct actual location of rgf execution file to 'loc_exec'.
+You need to direct actual location of RGF execution file to 'loc_exec'.
 'loc_temp' is directory for placing temp files.
 
 ## Tuning the hyper-parameters
@@ -94,8 +98,7 @@ You can tune hyper-parameters as follows.
 
 	sl2: Default is equal to ls. On some data, λ/100 works well.
 
-Detail instruction of tuning parameters is here.
-http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf
+Detail instruction of tuning parameters is [here](http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf).
 
 ## Using at Kaggle Kernel
 Now, Kaggle Kernel supports rgf_python.
