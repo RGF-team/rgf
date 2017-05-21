@@ -43,6 +43,8 @@ rgf_score /= n_folds
 print('score: {0}'.format(rgf_score))
 ```
 
+At the moment, rgf_python works only in single thread mode, so you should set the `n_jobs` parameter of GridSearchCV to 1.
+
 ## Software Requirements
 
 * Python (2.7 or 3.4)
@@ -98,7 +100,7 @@ You can tune hyper-parameters as follows.
 
 	sl2: Default is equal to ls. On some data, λ/100 works well.
 
-Detail instruction of tuning parameters is [here](http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf).
+Detailed instruction of tuning parameters is [here](http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf).
 
 ## Using at Kaggle Kernel
 Now, Kaggle Kernel supports rgf_python.
@@ -108,5 +110,3 @@ Please see https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regula
 
 Shamelessly, many part of the implementation is based on the following. Thanks!
 https://github.com/MLWave/RGF-sklearn
-
-At the moment, rgf_python works only in single thread mode, so you should set the `n_jobs` parameter of GridSearchCV to 1.
