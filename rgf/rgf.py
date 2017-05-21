@@ -24,8 +24,8 @@ elif sys_name == LINUX:
     loc_exec = '/opt/rgf1.2/bin/rgf'
     loc_temp = '/tmp/rgf'
     default_exec = 'rgf'
-
 ## End Edit ##################################################
+
 def is_default_executable_in_path():
     try:
         subprocess.check_output(default_exec)
@@ -52,7 +52,6 @@ if ' ' in loc_temp:
 def sigmoid(x):
     """x : array-like
     output : array-like
-
     """
     return 1. / (1.+ np.exp(-x))
 
@@ -67,8 +66,8 @@ def platform_specific_Popen(cmd, **kwargs):
 class RGFClassifier(BaseEstimator, ClassifierMixin):
     """A Regularized Greedy Forest[1] classifier.
 
-    Tunig parameter Detail :
-        http://stat.rutgers.edu/home/tzhang/software/rgf/rgf1.2-guide.pdf
+    Tuning parameters detailed instruction:
+        http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf
 
     Parameters
     ----------
@@ -86,7 +85,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     algorithm : string, "RGF" or "RGF_Opt" or "RGF_Sib"
         Regularization algorithm.
 
-    loss : "LS" or "Expo" or "Log".
+    loss : string, "LS" or "Expo" or "Log".
         Loss function.
 
     reg_depth : float, (default=1)
@@ -103,8 +102,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     prefix : string, (default="model")
         Used as a prefix for rgf output temp file.
 
-    inc_prefix : boolean, (default=False)
-        If Trur, auto increment for numbering temp file is enable.
+    inc_prefix : boolean, (default=True)
+        If True, auto increment for numbering temp file is enable.
 
     calc_prob : String, "Sigmoid" or "Softmax"
         Method of probability calculation.
@@ -128,7 +127,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                  l2=0.1,
                  sl2=None,
                  prefix="model",
-                 inc_prefix=False,
+                 inc_prefix=True,
                  calc_prob='Sigmoid',
                  clean=True):
         self.verbose = verbose
@@ -195,7 +194,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                      reg_depth=self.reg_depth,
                                      l2=self.l2,
                                      prefix=prefix,
-                                     inc_prefix=False,
+                                     inc_prefix=True,
                                      clean=self.clean)
                 self.estimators[i].fit(X, y_one_or_rest)
         return self
@@ -287,7 +286,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                  l2=0.1,
                  sl2=None,
                  prefix="model",
-                 inc_prefix=False,
+                 inc_prefix=True,
                  clean=True):
         self.verbose = verbose
         self.max_leaf = max_leaf
@@ -397,7 +396,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                  sl2=None,
                  prefix="model",
                  reg_depth=1,
-                 inc_prefix=False,
+                 inc_prefix=True,
                  clean=True):
         self.verbose = verbose
         self.max_leaf = max_leaf
