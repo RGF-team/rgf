@@ -5,9 +5,9 @@ Machine learning ***Regularized Greedy Forest*** wrapper for Python.
 
 ## Feature
 
-##### Scikit learn like interface and Multi classification problem is OK.
+##### Scikit-learn like interface and multi-label classification problem is OK.
 
-Original rgf implementation is only available for regression and binary classification, but rgf_python is **also available for Multi classification** by "One-or-Rest" method.
+Original rgf implementation is only available for regression and binary classification, but rgf_python is **also available for multi-label classification** by "One-or-Rest" method.
 
 ex.
 ```python
@@ -47,9 +47,9 @@ print('score: {0}'.format(rgf_score))
 
 * Python (2.7 or 3.4)
 * scikit-learn (0.18 or later)
-* RGF(http://stat.rutgers.edu/home/tzhang/software/rgf/)
+* RGF(http://tongzhang-ml.org/software/rgf/index.html)
 
-If you can't access the avove URL, alternatively, you can get RGF by downloading https://github.com/fukatani/rgf_python/releases/download/0.1.0/rgf1.2.zip.
+If you can't access the avove URL, alternatively, you can get RGF by downloading https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip.
 
 Please see README in the zip file to build rgf executional.
 
@@ -75,10 +75,10 @@ loc_temp = 'temp/'
 ```
 
 You need to direct actual location of rgf execution file to 'loc_exec'.
-'loc_temp' is directory for placing temp file.
+'loc_temp' is directory for placing temp files.
 
-##Tuning hyper parameter
-You can tuning parameter as follows.
+## Tuning the hyper-parameters
+You can tune hyper-parameters as follows.
 
 	max_leaf: Appropriate values are data-dependent and in varied from 1000 to 10000.
 
@@ -94,11 +94,11 @@ You can tuning parameter as follows.
 
 	sl2: Default is equal to ls. On some data, λ/100 works well.
 
-Detail of tuning parameter is here.
-http://stat.rutgers.edu/home/tzhang/software/rgf/rgf1.2-guide.pdf
+Detail instruction of tuning parameters is here.
+http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf
 
 ## Using at Kaggle Kernel
-Now, Kaggle Kernel supports rgh_python.
+Now, Kaggle Kernel supports rgf_python.
 Please see https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest .
 
 ## Other
@@ -106,3 +106,4 @@ Please see https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regula
 Shamelessly, many part of the implementation is based on the following. Thanks!
 https://github.com/MLWave/RGF-sklearn
 
+At the moment, rgf_python works only in single thread mode, so you should set the `n_jobs` parameter of GridSearchCV to 1.
