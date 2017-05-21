@@ -267,6 +267,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         params["l2"] = self.l2
         params["sl2"] = self.sl2
         params["reg_depth"] = self.reg_depth
+        params["clean"] = self.clean
         return params
 
 
@@ -534,4 +535,5 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params["l2"] = self.l2
         params["sl2"] = self.sl2
         params["reg_depth"] = self.reg_depth
+        params["clean"] = self.clean
         return params
