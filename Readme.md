@@ -1,15 +1,16 @@
 [![Build Status](https://travis-ci.org/fukatani/rgf_python.svg?branch=master)](https://travis-ci.org/fukatani/rgf_python)
+[![License](https://img.shields.io/github/license/fukatani/rgf_python.svg)](https://github.com/fukatani/rgf_python/blob/master/LICENSE)
 
 # rgf_python
-Machine learning ***Regularized Greedy Forest (RGF)*** wrapper for Python.
+The wrapper of machine learning algorithm ***Regularized Greedy Forest (RGF)*** for Python.
 
-## Feature
+## Features
 
-##### Scikit-learn like interface and multi-label classification problem is OK.
+##### Scikit-learn interface and possibility of usage for multi-label classification problem.
 
-Original RGF implementation is only available for regression and binary classification, but rgf_python is **also available for multi-label classification** by "One-or-Rest" method.
+Original RGF implementation is available only for regression and binary classification, but rgf_python is **also available for multi-label classification** by "One-vs-Rest" method.
 
-ex.
+Example:
 ```python
 from sklearn import datasets
 from sklearn.utils.validation import check_random_state
@@ -43,16 +44,15 @@ rgf_score /= n_folds
 print('score: {0}'.format(rgf_score))
 ```
 
-At the moment, rgf_python works only in single thread mode, so you should set the `n_jobs` parameter of GridSearchCV to 1.
+At the moment, rgf_python works only in single thread mode, so if you use GridSearchCV you should set the `n_jobs` parameter to 1.
 
 ## Software Requirements
 
 * Python (2.7 or 3.4)
 * scikit-learn (0.18 or later)
-* RGF C++ backend (http://tongzhang-ml.org/software/rgf/index.html)
+* RGF C++ ([link](http://tongzhang-ml.org/software/rgf/index.html))
 
-If you can't access the above URL, alternatively, you can get RGF C++ backend by downloading https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip.
-
+If you can't access the above URL, alternatively, you can get RGF C++ by downloading it from this [page](https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip).
 Please see README in the zip file to build RGF executional.
 
 
@@ -62,13 +62,13 @@ Please see README in the zip file to build RGF executional.
 git clone https://github.com/fukatani/rgf_python.git
 python setup.py install
 ```
-or using pip
+or using `pip`:
 ```
 pip install git+git://github.com/fukatani/rgf_python@master
 ```
 
-**You have to place RGF execution file in directory which is assigned by environmental variable 'path'.**
-**Or you can direct argf path by manual editting rgf/rgf.py**
+You have to place RGF execution file in directory which is included in **environmental variable 'PATH'.**
+Or you can direct specify path by **manual editing rgf/rgf.py**
 
 ```python
 ## Edit this ##################################################
@@ -80,33 +80,30 @@ loc_temp = 'temp/'
 ## End Edit ##################################################
 ```
 
-You need to direct actual location of RGF execution file to 'loc_exec'.
-'loc_temp' is directory for placing temp files.
+You need to set actual location of RGF execution file by editing 'loc_exec'.
+And the variable 'loc_temp' can be changed to specify the directory for placing temp files.
 
-## Tuning the hyper-parameters
+## Tuning the Hyper-parameters
 You can tune hyper-parameters as follows.
 
-	max_leaf: Appropriate values are data-dependent and in varied from 1000 to 10000.
+* _max_leaf_: Appropriate values are data-dependent and usually varied from 1000 to 10000.
 
-	test_interval: For efficiency, it must be either multiple or divisor of 100 (default of the optimization interval).
+* _test_interval_: For efficiency, it must be either multiple or divisor of 100 (default value of the optimization interval).
 
-	algorithm: You can select "RGF", "RGF Opt" or "RGF Sib"
+* _algorithm_: You can select "RGF", "RGF Opt" or "RGF Sib".
 
-	loss: "LS", "Log" or "Expo".
+* _loss_: You can select "LS", "Log" or "Expo".
 
-	reg_depth: Must be no smaller than 1. Meant for being used with algorithm = "RGF Opt" or "RGF Sib".
+* _reg_depth_: Must be no smaller than 1. Meant for being used with _algorithm_ = "RGF Opt" or "RGF Sib".
 
-	l2: Either 1, 0.1, or 0.01 often produces good results though with exponential loss (loss=Expo) and logistic loss (loss=Log) some data requires smaller values such as 1e-10 or 1e-20 Either 1, 0.1, or 0.01 often produces good results though with exponential loss (loss=Expo) and logistic loss (loss=Log) some data requires smaller values such as 1e-10 or 1e-20
+* _l2_: Either 1, 0.1, or 0.01 often produces good results though with exponential loss (_loss_ = "Expo") and logistic loss (_loss_ = "Log"), some data requires smaller values such as 1e-10 or 1e-20.
 
-	sl2: Default is equal to ls. On some data, λ/100 works well.
+* _sl2_: Default value is equal to _l2_. On some data, _l2_/100 works well.
 
-Detailed instruction of tuning parameters is [here](http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf).
+Detailed instruction of tuning hyper-parameters is [here](http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf).
 
 ## Using at Kaggle Kernel
-Now, Kaggle Kernel supports rgf_python.
-Please see https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest .
+Now, Kaggle Kernel supports rgf_python. Please see [this page](https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest).
 
 ## Other
-
-Shamelessly, many part of the implementation is based on the following. Thanks!
-https://github.com/MLWave/RGF-sklearn
+Shamelessly, many part of the implementation is based on the following [code](https://github.com/MLWave/RGF-sklearn). Thanks!
