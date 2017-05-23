@@ -18,33 +18,40 @@ LINUX = 'Linux'
 if sys_name == WINDOWS:
     #Location of the RGF executable
     loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
-    default_exec = 'rgf.exe'
+    #Location for RGF temp files
+    #Must not include whitespace characters
     loc_temp = 'temp/'
+    default_exec = 'rgf.exe'
 elif sys_name == LINUX:
+	#Location of the RGF executable
     loc_exec = '/opt/rgf1.2/bin/rgf'
+    #Location for RGF temp files
+    #Must not include whitespace characters
     loc_temp = '/tmp/rgf'
     default_exec = 'rgf'
-
 ## End Edit ##################################################
-def is_default_executable_in_path():
+
+def is_executable_response(path):
     try:
-        subprocess.check_output(default_exec)
+        subprocess.check_output([path, "train"])
         return True
     except:
         return False
 
 # validate path
-if os.path.isfile(loc_exec) and not os.access(loc_exec, os.X_OK):
+if is_executable_response(default_exec):
+	loc_exec = default_exec
+elif not os.path.isfile(loc_exec):
     raise Exception('{0} is not executable file. Please set '
-                    'loc_exec to rgf execution file'.format(loc_exec))
-elif os.path.isfile(loc_exec):
-    pass
-elif is_default_executable_in_path():
-        loc_exec = default_exec
+                    'loc_exec to RGF execution file.'.format(loc_exec))
+elif not os.access(loc_exec, os.X_OK):
+    raise Exception('{0} cannot be accessed. Please set '
+                    'loc_exec to RGF execution file.'.format(loc_exec))
+elif is_executable_response(loc_exec):
+	pass
 else:
-    raise Exception('{0} does not exist and {1} is not in your path. Hint: '
-                'you should fix one of these issues only.'.format(loc_exec,
-                                                                  default_exec))
+    raise Exception('{0} does not exist or {1} is not in the "PATH" variable.'.format(loc_exec,
+    	                                                                              default_exec))
 if ' ' in loc_temp:
     raise Exception('loc_temp must not include " ".')
 
@@ -52,7 +59,6 @@ if ' ' in loc_temp:
 def sigmoid(x):
     """x : array-like
     output : array-like
-
     """
     return 1. / (1.+ np.exp(-x))
 
@@ -67,8 +73,8 @@ def platform_specific_Popen(cmd, **kwargs):
 class RGFClassifier(BaseEstimator, ClassifierMixin):
     """A Regularized Greedy Forest[1] classifier.
 
-    Tunig parameter Detail :
-        http://stat.rutgers.edu/home/tzhang/software/rgf/rgf1.2-guide.pdf
+    Tuning parameters detailed instruction:
+        http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf
 
     Parameters
     ----------
@@ -83,39 +89,47 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     test_interval : int, optional (default=100)
         Test interval in terms of the number of leaf nodes.
 
-    algorithm : string, "RGF" or "RGF_Opt" or "RGF_Sib"
+    algorithm : string ("RGF" or "RGF_Opt" or "RGF_Sib"), optional (default="RGF")
         Regularization algorithm.
+        RGF: RGF with L2 regularization on leaf-only models.
+        RGF Opt: RGF with min-penalty regularization.
+        RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
 
-    loss : "LS" or "Expo" or "Log".
+    loss : string ("LS" or "Expo" or "Log"), optional (default="Log")
         Loss function.
 
-    reg_depth : float, (default=1)
+    reg_depth : float, optional (default=1.0)
+    	Must be no smaller than 1.0. 
         Meant for being used with algorithm=RGF Opt|RGF Sib.
         A larger value penalizes deeper nodes more severely.
 
-    l2 : float, (default=0.1)
+    l2 : float, optional (default=0.1)
         Used to control the degree of L2 regularization.
 
-    sl2 : float, (default=None)
+    sl2 : float or None, optional (default=None)
         Override L2 regularization parameter l2
         for the process of growing the forest.
+        That is, if speciﬁed, the weight correction process uses l2
+        and the forest growing process uses sl2.
+        If sl2=None, no override takes place and
+        l2 is used throughout training.
 
-    prefix : string, (default="model")
-        Used as a prefix for rgf output temp file.
+    prefix : string, optional (default="rgf_classifier")
+        Used as a prefix for RGF output temp file.
 
-    inc_prefix : boolean, (default=False)
-        If Trur, auto increment for numbering temp file is enable.
+    inc_prefix : boolean, optional (default=True)
+        If True, auto increment for numbering temp file is enable.
 
-    calc_prob : String, "Sigmoid" or "Softmax"
+    calc_prob : string ("Sigmoid" or "Softmax"), optional (default="Sigmoid")
         Method of probability calculation.
 
-    clean : boolean, (default=True)
+    clean : boolean, optional (default=True)
         If True, remove temp files before fitting.
         If False previous leaning result will be loaded.
 
     Reference.
     [1] Rie Johnson and Tong Zhang.
-        Learning nonlinear functions using regularized greedy forest
+        Learning Nonlinear Functions Using Regularized Greedy Forest
     """
     instance_count = 0
     def __init__(self,
@@ -124,11 +138,11 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                  test_interval=100,
                  algorithm="RGF",
                  loss="Log",
-                 reg_depth=1,
+                 reg_depth=1.0,
                  l2=0.1,
                  sl2=None,
-                 prefix="model",
-                 inc_prefix=False,
+                 prefix="rgf_classifier",
+                 inc_prefix=True,
                  calc_prob='Sigmoid',
                  clean=True):
         self.verbose = verbose
@@ -188,15 +202,15 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                 y_one_or_rest = (y == cls_num).astype(int)
                 prefix = "{0}_c{1}".format(self.prefix, i)
                 self.estimators[i] = RGFBinaryClassifier(verbose=self.verbose,
-                                     max_leaf=self.max_leaf,
-                                     test_interval=self.test_interval,
-                                     algorithm=self.algorithm,
-                                     loss=self.loss,
-                                     reg_depth=self.reg_depth,
-                                     l2=self.l2,
-                                     prefix=prefix,
-                                     inc_prefix=False,
-                                     clean=self.clean)
+                                                         max_leaf=self.max_leaf,
+                                                         test_interval=self.test_interval,
+                                                         algorithm=self.algorithm,
+                                                         loss=self.loss,
+                                                         reg_depth=self.reg_depth,
+                                                         l2=self.l2,
+                                                         prefix=prefix,
+                                                         inc_prefix=True,
+                                                         clean=self.clean)
                 self.estimators[i].fit(X, y_one_or_rest)
         return self
 
@@ -275,7 +289,6 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
     """RGF Binary Classifier.
     Don't instantiate this class directly.
     RGFBinaryClassifier should be instantiated only by RGFClassifier.
-
     """
     def __init__(self,
                  verbose=0,
@@ -283,11 +296,11 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                  test_interval=100,
                  algorithm="RGF",
                  loss="Log",
-                 reg_depth=1,
+                 reg_depth=1.0,
                  l2=0.1,
                  sl2=None,
-                 prefix="model",
-                 inc_prefix=False,
+                 prefix="rgf_classifier",
+                 inc_prefix=True,
                  clean=True):
         self.verbose = verbose
         self.max_leaf = max_leaf
@@ -386,6 +399,63 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
 
 class RGFRegressor(BaseEstimator, RegressorMixin):
+    """A Regularized Greedy Forest[1] regressor.
+
+    Tuning parameters detailed instruction:
+        http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf
+
+    Parameters
+    ----------
+
+    verbose : int, optional (default=0)
+        Controls the verbosity of the tree building process.
+
+    max_leaf : int, optional (default=500)
+        Training will be terminated when the number of
+        leaf nodes in the forest reaches this value.
+
+    test_interval : int, optional (default=100)
+        Test interval in terms of the number of leaf nodes.
+
+    algorithm : string ("RGF" or "RGF_Opt" or "RGF_Sib"), optional (default="RGF")
+        Regularization algorithm.
+        RGF: RGF with L2 regularization on leaf-only models.
+        RGF Opt: RGF with min-penalty regularization.
+        RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
+
+    loss : string ("LS" or "Expo" or "Log"), optional (default="LS")
+        Loss function.
+
+    reg_depth : float, optional (default=1.0)
+    	Must be no smaller than 1.0. 
+        Meant for being used with algorithm=RGF Opt|RGF Sib.
+        A larger value penalizes deeper nodes more severely.
+
+    l2 : float, optional (default=0.1)
+        Used to control the degree of L2 regularization.
+
+    sl2 : float or None, optional (default=None)
+        Override L2 regularization parameter l2
+        for the process of growing the forest.
+        That is, if speciﬁed, the weight correction process uses l2
+        and the forest growing process uses sl2.
+        If sl2=None, no override takes place and
+        l2 is used throughout training.
+
+    prefix : string, optional (default="rgf_regressor")
+        Used as a prefix for RGF output temp file.
+
+    inc_prefix : boolean, optional (default=True)
+        If True, auto increment for numbering temp file is enable.
+
+    clean : boolean, optional (default=True)
+        If True, remove temp files before fitting.
+        If False previous leaning result will be loaded.
+
+    Reference.
+    [1] Rie Johnson and Tong Zhang.
+        Learning Nonlinear Functions Using Regularized Greedy Forest
+    """
     instance_count = 0
     def __init__(self,
                  verbose=0,
@@ -395,9 +465,9 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                  loss="LS",
                  l2=0.1,
                  sl2=None,
-                 prefix="model",
-                 reg_depth=1,
-                 inc_prefix=False,
+                 prefix="rgf_regressor",
+                 reg_depth=1.0,
+                 inc_prefix=True,
                  clean=True):
         self.verbose = verbose
         self.max_leaf = max_leaf
