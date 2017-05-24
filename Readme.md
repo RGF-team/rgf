@@ -74,9 +74,8 @@ Or you can direct specify path by **manual editing rgf/rgf.py**
 ## Edit this ##################################################
 
 #Location of the RGF executable
-loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
+loc_exec = 'C:\\Program Files\\RGF\\bin\\rgf.exe'
 #Location for RGF temp files
-#Must not include whitespace characters
 loc_temp = 'temp/'
 
 ## End Edit ##################################################
