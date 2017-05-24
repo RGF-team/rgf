@@ -58,14 +58,6 @@ def sigmoid(x):
     """
     return 1. / (1.+ np.exp(-x))
 
-
-def platform_specific_Popen(cmd, **kwargs):
-    if sys_name == WINDOWS:
-        return subprocess.Popen(cmd, **kwargs, universal_newlines=True)
-    elif sys_name == LINUX:
-        return subprocess.Popen(cmd, **kwargs, universal_newlines=True)
-
-
 class RGFClassifier(BaseEstimator, ClassifierMixin):
     """A Regularized Greedy Forest[1] classifier.
 
@@ -352,10 +344,13 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("reg_depth=%s"%self.reg_depth)
         params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
 
-        cmd = [loc_exec, "train", ",".join(params), "2>&1"]#'"%s" train %s 2>&1'%(loc_exec, ",".join(params))
+        cmd = [loc_exec, "train", ",".join(params)]
 
         #train
-        output = platform_specific_Popen(cmd, stdout=subprocess.PIPE).communicate()
+        output = subprocess.Popen(cmd,
+        	                      stdout=subprocess.PIPE,
+        	                      stderr=subprocess.STDOUT,
+        	                      universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -382,9 +377,13 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("test_x_fn=%s"%os.path.join(loc_temp, "test.data.x"))
         params.append("prediction_fn=%s"%os.path.join(loc_temp, "predictions.txt"))
         params.append("model_fn=%s"%latest_model_loc)
-        cmd = [loc_exec, 'predict', ",".join(params), "2>&1"]#'"%s" predict %s 2>&1'%(loc_exec, ",".join(params))
 
-        output = platform_specific_Popen(cmd, stdout=subprocess.PIPE).communicate()
+        cmd = [loc_exec, "predict", ",".join(params)]
+
+        output = subprocess.Popen(cmd,
+        	                      stdout=subprocess.PIPE,
+        	                      stderr=subprocess.STDOUT,
+        	                      universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -534,10 +533,13 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("reg_depth=%s"%self.reg_depth)
         params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
 
-        cmd = "%s train %s 2>&1"%(loc_exec, ",".join(params))
+        cmd = [loc_exec, "train", ",".join(params)]
 
         #train
-        output = platform_specific_Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()
+        output = subprocess.Popen(cmd,
+        	                      stdout=subprocess.PIPE,
+        	                      stderr=subprocess.STDOUT,
+        	                      universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -578,9 +580,13 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("test_x_fn=%s"%os.path.join(loc_temp, "test.data.x"))
         params.append("prediction_fn=%s"%os.path.join(loc_temp, "predictions.txt"))
         params.append("model_fn=%s"%latest_model_loc)
-        cmd = "%s predict %s"%(loc_exec, ",".join(params)) # 2>&1
 
-        output = platform_specific_Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()
+        cmd = [loc_exec, "predict", ",".join(params)]
+
+        output = subprocess.Popen(cmd,
+        	                      stdout=subprocess.PIPE,
+        	                      stderr=subprocess.STDOUT,
+        	                      universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
