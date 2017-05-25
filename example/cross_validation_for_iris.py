@@ -33,6 +33,6 @@ for train_idx, test_idx in StratifiedKFold(n_folds).split(iris.data, iris.target
     gb_score += gb.score(xs_test, y_test)
 
 rgf_score /= n_folds
-print('RGF Classfier score: {0}'.format(rgf_score))
+print('RGF Classfier score: {0:.5f}'.format(rgf_score))
 gb_score /= n_folds
-print('Gradient Boosting Classfier score: {0}'.format(gb_score))
+print('Gradient Boosting Classfier score: {0:.5f}'.format(gb_score))
