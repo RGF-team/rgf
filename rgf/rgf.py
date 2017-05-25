@@ -348,9 +348,9 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
         #train
         output = subprocess.Popen(cmd,
-        	                      stdout=subprocess.PIPE,
-        	                      stderr=subprocess.STDOUT,
-        	                      universal_newlines=True).communicate()
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -369,7 +369,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         #Find latest model location
         model_glob = loc_temp + os.sep + self.file_prefix + "*"
         if not glob(model_glob):
-            raise Exception('Model learning result is not found in @{0}. This is rgf_python error.'.format(loc_temp))
+            raise Exception('Model learning result is not found in {0}. This is rgf_python error.'.format(loc_temp))
         latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
 
         #Format test command
@@ -381,9 +381,9 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         cmd = [loc_exec, "predict", ",".join(params)]
 
         output = subprocess.Popen(cmd,
-        	                      stdout=subprocess.PIPE,
-        	                      stderr=subprocess.STDOUT,
-        	                      universal_newlines=True).communicate()
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -537,9 +537,9 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 
         #train
         output = subprocess.Popen(cmd,
-        	                      stdout=subprocess.PIPE,
-        	                      stderr=subprocess.STDOUT,
-        	                      universal_newlines=True).communicate()
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -572,7 +572,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         #Find latest model location
         model_glob = loc_temp + os.sep + self.file_prefix + "*"
         if not glob(model_glob):
-            raise Exception('Model learning result is not found in @{0}. This is rgf_python error.'.format(loc_temp))
+            raise Exception('Model learning result is not found in {0}. This is rgf_python error.'.format(loc_temp))
         latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
 
         #Format test command
@@ -584,9 +584,9 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         cmd = [loc_exec, "predict", ",".join(params)]
 
         output = subprocess.Popen(cmd,
-        	                      stdout=subprocess.PIPE,
-        	                      stderr=subprocess.STDOUT,
-        	                      universal_newlines=True).communicate()
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
