@@ -17,16 +17,14 @@ LINUX = 'Linux'
 ## Edit this ##################################################
 if sys_name == WINDOWS:
     #Location of the RGF executable
-    loc_exec = 'C:\\Users\\rf\\Documents\\python\\rgf1.2\\bin\\rgf.exe'
+    loc_exec = 'C:\\Program Files\\RGF\\bin\\rgf.exe'
     #Location for RGF temp files
-    #Must not include whitespace characters
     loc_temp = 'temp/'
     default_exec = 'rgf.exe'
 elif sys_name == LINUX:
 	#Location of the RGF executable
     loc_exec = '/opt/rgf1.2/bin/rgf'
     #Location for RGF temp files
-    #Must not include whitespace characters
     loc_temp = '/tmp/rgf'
     default_exec = 'rgf'
 ## End Edit ##################################################
@@ -52,8 +50,6 @@ elif is_executable_response(loc_exec):
 else:
     raise Exception('{0} does not exist or {1} is not in the "PATH" variable.'.format(loc_exec,
     	                                                                              default_exec))
-if ' ' in loc_temp:
-    raise Exception('loc_temp must not include " ".')
 
 
 def sigmoid(x):
@@ -61,14 +57,6 @@ def sigmoid(x):
     output : array-like
     """
     return 1. / (1.+ np.exp(-x))
-
-
-def platform_specific_Popen(cmd, **kwargs):
-    if sys_name == WINDOWS:
-        return subprocess.Popen(cmd.split(), **kwargs)
-    elif sys_name == LINUX:
-        return subprocess.Popen(cmd, **kwargs)
-
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
     """A Regularized Greedy Forest[1] classifier.
@@ -356,10 +344,13 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("reg_depth=%s"%self.reg_depth)
         params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
 
-        cmd = "%s train %s 2>&1"%(loc_exec, ",".join(params))
+        cmd = [loc_exec, "train", ",".join(params)]
 
         #train
-        output = platform_specific_Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()
+        output = subprocess.Popen(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -378,7 +369,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         #Find latest model location
         model_glob = loc_temp + os.sep + self.file_prefix + "*"
         if not glob(model_glob):
-            raise Exception('Model learning result is not found @{0}. This is rgf_python error.'.format(loc_temp))
+            raise Exception('Model learning result is not found in {0}. This is rgf_python error.'.format(loc_temp))
         latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
 
         #Format test command
@@ -386,9 +377,13 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("test_x_fn=%s"%os.path.join(loc_temp, "test.data.x"))
         params.append("prediction_fn=%s"%os.path.join(loc_temp, "predictions.txt"))
         params.append("model_fn=%s"%latest_model_loc)
-        cmd = "%s predict %s 2>&1"%(loc_exec, ",".join(params))
 
-        output = platform_specific_Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()
+        cmd = [loc_exec, "predict", ",".join(params)]
+
+        output = subprocess.Popen(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -538,10 +533,13 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("reg_depth=%s"%self.reg_depth)
         params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
 
-        cmd = "%s train %s 2>&1"%(loc_exec, ",".join(params))
+        cmd = [loc_exec, "train", ",".join(params)]
 
         #train
-        output = platform_specific_Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()
+        output = subprocess.Popen(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -574,7 +572,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         #Find latest model location
         model_glob = loc_temp + os.sep + self.file_prefix + "*"
         if not glob(model_glob):
-            raise Exception('Model learning result is not found @{0}. This is rgf_python error.'.format(loc_temp))
+            raise Exception('Model learning result is not found in {0}. This is rgf_python error.'.format(loc_temp))
         latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
 
         #Format test command
@@ -582,9 +580,13 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("test_x_fn=%s"%os.path.join(loc_temp, "test.data.x"))
         params.append("prediction_fn=%s"%os.path.join(loc_temp, "predictions.txt"))
         params.append("model_fn=%s"%latest_model_loc)
-        cmd = "%s predict %s"%(loc_exec, ",".join(params)) # 2>&1
 
-        output = platform_specific_Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()
+        cmd = [loc_exec, "predict", ",".join(params)]
+
+        output = subprocess.Popen(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
