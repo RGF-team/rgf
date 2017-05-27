@@ -33,5 +33,8 @@ gb_scores = cross_val_score(gb,
 
 rgf_score = sum(rgf_scores)/n_folds
 print('RGF Classfier score: {0:.5f}'.format(rgf_score))
+# >>>RGF Classfier score: 0.95997
+
 gb_score = sum(gb_scores)/n_folds
 print('Gradient Boosting Classfier score: {0:.5f}'.format(gb_score))
+# >>>Gradient Boosting Classfier score: 0.95997
