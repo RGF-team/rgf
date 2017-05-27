@@ -38,7 +38,7 @@ rgf_scores = cross_val_score(rgf,
 rgf_score = sum(rgf_scores)/n_folds
 print('RGF Classfier score: {0:.5f}'.format(rgf_score))
 ```
-More examples could be found [here](/tree/master/examples).
+More examples could be found [here](https://github.com/fukatani/rgf_python/tree/master/examples).
 
 At the moment, rgf_python works only in single thread mode, so if you use GridSearchCV you should set the `n_jobs` parameter to 1.
 
