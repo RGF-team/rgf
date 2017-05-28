@@ -25,10 +25,8 @@ install:
   - cd rgf1.2
   - sudo rm bin/*
   - make
-  - ls
-  - pwd
   - cd ..
-  - export PATH="$PATH:/home/travis/rgf1.2/bin"
+  - export PATH="$PATH:/home/travis/build/fukatani/rgf_python/rgf1.2/bin"
 #  - sed -i '27c\    loc_exec = "../rgf1.2/bin/rgf"' rgf/rgf.py
   - sed -n 5,35p rgf/rgf.py
 script:
