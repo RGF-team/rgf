@@ -87,7 +87,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         Loss function.
 
     reg_depth : float, optional (default=1.0)
-    	Must be no smaller than 1.0. 
+    	Must be no smaller than 1.0.
         Meant for being used with algorithm=RGF Opt|RGF Sib.
         A larger value penalizes deeper nodes more severely.
 
@@ -97,7 +97,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     sl2 : float or None, optional (default=None)
         Override L2 regularization parameter l2
         for the process of growing the forest.
-        That is, if speciﬁed, the weight correction process uses l2
+        That is, if specified, the weight correction process uses l2
         and the forest growing process uses sl2.
         If sl2=None, no override takes place and
         l2 is used throughout training.
@@ -422,7 +422,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         Loss function.
 
     reg_depth : float, optional (default=1.0)
-    	Must be no smaller than 1.0. 
+    	Must be no smaller than 1.0.
         Meant for being used with algorithm=RGF Opt|RGF Sib.
         A larger value penalizes deeper nodes more severely.
 
@@ -432,7 +432,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
     sl2 : float or None, optional (default=None)
         Override L2 regularization parameter l2
         for the process of growing the forest.
-        That is, if speciﬁed, the weight correction process uses l2
+        That is, if specified, the weight correction process uses l2
         and the forest growing process uses sl2.
         If sl2=None, no override takes place and
         l2 is used throughout training.
