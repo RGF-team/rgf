@@ -14,7 +14,7 @@ Example:
 ```python
 from sklearn import datasets
 from sklearn.utils.validation import check_random_state
-from sklearn.cross_validation import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, cross_val_score
 from rgf.rgf import RGFClassifier
 
 iris = datasets.load_iris()
@@ -25,24 +25,20 @@ iris.target = iris.target[perm]
 
 rgf = RGFClassifier(max_leaf=400,
                     algorithm="RGF_Sib",
-                    test_interval=100,)
+                    test_interval=100,
+                    verbose=True)
 
-# cross validation
-rgf_score = 0
 n_folds = 3
 
-for train_idx, test_idx in StratifiedKFold(iris.target, n_folds):
-    xs_train = iris.data[train_idx]
-    y_train = iris.target[train_idx]
-    xs_test = iris.data[test_idx]
-    y_test = iris.target[test_idx]
+rgf_scores = cross_val_score(rgf,
+                             iris.data,
+                             iris.target,
+                             cv=StratifiedKFold(n_folds))
 
-    rgf.fit(xs_train, y_train)
-    rgf_score += rgf.score(xs_test, y_test)
-
-rgf_score /= n_folds
-print('score: {0}'.format(rgf_score))
+rgf_score = sum(rgf_scores)/n_folds
+print('RGF Classfier score: {0:.5f}'.format(rgf_score))
 ```
+More examples could be found [here](https://github.com/fukatani/rgf_python/tree/master/examples).
 
 At the moment, rgf_python works only in single thread mode, so if you use GridSearchCV you should set the `n_jobs` parameter to 1.
 
