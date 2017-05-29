@@ -335,7 +335,6 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                  prefix="rgf_classifier",
                  inc_prefix=True,
                  clean=True):
-
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -386,7 +385,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         if self.sl2 is None:
             self.sl2 = self.l2
 
-        if type(self.min_samples_leaf) == float:
+        if isinstance(self.min_samples_leaf, (float, np.float, np.float16, np.float32, np.float64, np.double)):
             self.min_samples_leaf = ceil(self.min_samples_leaf * np.asarray(X).shape[0])
 
         if self.n_iter is None:
@@ -637,7 +636,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         if self.sl2 is None:
             self.sl2 = self.l2
 
-        if type(self.min_samples_leaf) == float:
+        if isinstance(self.min_samples_leaf, (float, np.float, np.float16, np.float32, np.float64, np.double)):
             self.min_samples_leaf = ceil(self.min_samples_leaf * np.asarray(X).shape[0])
 
         if self.n_iter is None:
