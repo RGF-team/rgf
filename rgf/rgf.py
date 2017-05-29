@@ -229,7 +229,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                                  prefix=self.prefix,
                                                  inc_prefix=self.inc_prefix,
                                                  clean=self.clean)
-            self.estimator.fit(X, y)
+            self.estimator.fit(X, y, sample_weight)
         else:
             self.estimators = [None] * self.n_classes_
             for i, cls_num in enumerate(self.classes_):
@@ -252,7 +252,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                                          prefix=prefix,
                                                          inc_prefix=True,
                                                          clean=self.clean)
-                self.estimators[i].fit(X, y_one_or_rest)
+                self.estimators[i].fit(X, y_one_or_rest, sample_weight)
         return self
 
     def predict_proba(self, X):
