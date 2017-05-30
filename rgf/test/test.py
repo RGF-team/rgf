@@ -78,8 +78,8 @@ class TestRGFClassfier(unittest.TestCase):
                                                             random_state=42)
 
         clf = RGFClassifier()
-        y_pred = clf.fit(X_train, y_train).predict(X_test)
-        y_pred_weighted = clf.fit(X_train, y_train, np.ones(y_train.shape[0])).predict(X_test)
+        y_pred = clf.fit(X_train, y_train).predict_proba(X_test)
+        y_pred_weighted = clf.fit(X_train, y_train, np.ones(y_train.shape[0])).predict_proba(X_test)
         self.assertTrue(np.isclose(y_pred, y_pred_weighted).all())
 
 
