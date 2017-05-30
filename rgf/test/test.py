@@ -1,11 +1,9 @@
 import unittest
-import os
-import sys
-
 
 from sklearn import datasets
+from sklearn.model_selection import train_test_split
 from sklearn.utils.validation import check_random_state
-from sklearn.metrics import log_loss, mean_squared_error
+from sklearn.metrics import mean_squared_error
 from sklearn.utils.testing import assert_less, assert_almost_equal
 import numpy as np
 from rgf.rgf import RGFClassifier, RGFRegressor
@@ -72,6 +70,17 @@ class TestRGFClassfier(unittest.TestCase):
         mse = mean_squared_error(y_test, y_pred)
         print("mse: " + str(mse))
         assert_less(mse, 6.0)
+
+    def test_sample_weight(self):
+        X_train, X_test, y_train, y_test = train_test_split(self.iris.data,
+                                                            self.iris.target,
+                                                            test_size=0.2,
+                                                            random_state=42)
+
+        clf = RGFClassifier()
+        y_pred = clf.fit(X_train, y_train).predict(X_test)
+        y_pred_weighted = clf.fit(X_train, y_train, np.ones(y_train.shape[0])).predict(X_test)
+        self.assertTrue(np.isclose(y_pred, y_pred_weighted).all())
 
 
 if __name__ == '__main__':
