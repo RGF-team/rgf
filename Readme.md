@@ -15,7 +15,7 @@ Example:
 from sklearn import datasets
 from sklearn.utils.validation import check_random_state
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-from rgf.rgf import RGFClassifier
+from rgf.sklearn import RGFClassifier
 
 iris = datasets.load_iris()
 rng = check_random_state(0)
@@ -64,7 +64,7 @@ pip install git+git://github.com/fukatani/rgf_python@master
 ```
 
 You have to place RGF execution file in directory which is included in **environmental variable 'PATH'.**
-Or you can direct specify path by **manual editing rgf/rgf.py**
+Or you can direct specify path by **manual editing rgf/sklearn.py**
 
 ```python
 ## Edit this ##################################################
