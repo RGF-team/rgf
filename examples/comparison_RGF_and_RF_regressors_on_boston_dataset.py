@@ -3,7 +3,7 @@ from sklearn.utils.validation import check_random_state
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import make_scorer, mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
-from rgf.rgf import RGFRegressor
+from rgf.sklearn import RGFRegressor
 
 boston = load_boston()
 rng = check_random_state(42)
