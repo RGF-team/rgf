@@ -78,9 +78,15 @@ class TestRGFClassfier(unittest.TestCase):
                                                             random_state=42)
 
         clf = RGFClassifier()
+        
         y_pred = clf.fit(X_train, y_train).predict_proba(X_test)
         y_pred_weighted = clf.fit(X_train, y_train, np.ones(y_train.shape[0])).predict_proba(X_test)
         np.testing.assert_allclose(y_pred, y_pred_weighted)
+
+        weights = np.ones(y_train.shape[0]) * np.nextafter(np.float32(0), np.float32(1))
+        weights[0] = 1
+        y_pred_weighted = clf.fit(X_train, y_train, weights).predict(X_test)
+        np.testing.assert_equal(y_pred_weighted, np.full(y_test.shape[0], y_test[0]))
 
 
 if __name__ == '__main__':
