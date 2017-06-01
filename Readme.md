@@ -80,7 +80,7 @@ loc_temp = 'temp/'
 You need to set actual location of RGF execution file by editing 'loc_exec'.
 And the variable 'loc_temp' can be changed to specify the directory for placing temp files.
 
-## Tuning the Hyper-parameters
+## Tuning Hyper-parameters
 You can tune hyper-parameters as follows.
 
 * _max_leaf_: Appropriate values are data-dependent and usually varied from 1000 to 10000.
@@ -96,6 +96,18 @@ You can tune hyper-parameters as follows.
 * _l2_: Either 1, 0.1, or 0.01 often produces good results though with exponential loss (_loss_ = "Expo") and logistic loss (_loss_ = "Log"), some data requires smaller values such as 1e-10 or 1e-20.
 
 * _sl2_: Default value is equal to _l2_. On some data, _l2_/100 works well.
+
+* _normalize_: If turned on, training targets are normalized so that the average becomes zero.
+
+* _min_samples_leaf_: Smaller values may slow down training. Too large values may degrade model accuracy.
+
+* _n_iter_: Number of iterations of coordinate descent to optimize weights.
+
+* _n_tree_search_: Number of trees to be searched for the nodes to split. The most recently grown trees are searched first.
+
+* _opt_interval_: Weight optimization interval in terms of the number of leaf nodes.
+
+* _learning_rate_: Step size of Newton updates used in coordinate descent to optimize weights.
 
 Detailed instruction of tuning hyper-parameters is [here](http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf).
 
