@@ -6,18 +6,12 @@ import subprocess
 from glob import glob
 import numpy as np
 from math import ceil
-import numbers
 
 from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.base import RegressorMixin
 from sklearn.utils.extmath import softmax
 from sklearn.utils.validation import NotFittedError
-from sklearn.externals import six
-
-_ALGORITHMS = ["RGF", "RGF_Opt", "RGF_Sib"]
-_LOSSES = ["LS", "Expo", "Log"]
-_FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 
 sys_name = platform.system()
 WINDOWS = 'Windows'
@@ -31,7 +25,7 @@ if sys_name == WINDOWS:
     loc_temp = 'temp/'
     default_exec = 'rgf.exe'
 elif sys_name == LINUX:
-    #Location of the RGF executable
+	#Location of the RGF executable
     loc_exec = '/opt/rgf1.2/bin/rgf'
     #Location for RGF temp files
     loc_temp = '/tmp/rgf'
@@ -66,113 +60,6 @@ def sigmoid(x):
     output : array-like
     """
     return 1. / (1.+ np.exp(-x))
-
-def _validate_params(max_leaf,
-                    test_interval,
-                    algorithm,
-                    loss,
-                    reg_depth,
-                    l2,
-                    sl2,
-                    normalize,
-                    min_samples_leaf,
-                    n_iter,
-                    n_tree_search,
-                    opt_interval,
-                    learning_rate,
-                    verbose,
-                    prefix,
-                    inc_prefix,
-                    clean,
-                    calc_prob="Sigmoid"):
-    if not isinstance(max_leaf, (numbers.Integral, np.integer)):
-        raise ValueError("max_leaf must be an integer, got {0}.".format(type(max_leaf)))
-    elif (max_leaf <= 0):
-        raise ValueError("max_leaf must be greater than 0 but was %r." % max_leaf)
-        
-    if not isinstance(test_interval, (numbers.Integral, np.integer)):
-        raise ValueError("test_interval must be an integer, got {0}.".format(type(test_interval)))
-    elif (test_interval <= 0):
-        raise ValueError("test_interval must be greater than 0 but was %r." % test_interval)
-        
-    if not isinstance(algorithm, six.string_types):
-        raise ValueError("algorithm must be a string, got {0}.".format(type(algorithm)))
-    elif not (algorithm in _ALGORITHMS):
-        raise ValueError("algorithm must be 'RGF' or 'RGF_Opt' or 'RGF_Sib' but was %r." % algorithm)
-        
-    if not isinstance(loss, six.string_types):
-        raise ValueError("loss must be a string, got {0}.".format(type(loss)))
-    elif not (loss in _LOSSES):
-        raise ValueError("loss must be 'LS' or 'Expo' or 'Log' but was %r." % loss)
-        
-    if not isinstance(reg_depth, (numbers.Integral, np.integer, _FLOATS)):
-        raise ValueError("test_interval must be an integer or float, got {0}.".format(type(reg_depth)))
-    elif (reg_depth < 1):
-        raise ValueError("reg_depth must be no smaller than 1.0 but was %r." % reg_depth)
-        
-    if not isinstance(l2, _FLOATS):
-        raise ValueError("l2 must be a float, got {0}.".format(type(l2)))
-    elif (l2 < 0):
-        raise ValueError("l2 must be no smaller than 0.0 but was %r." % l2)
-        
-    if not isinstance(sl2, (type(None), _FLOATS)):
-        raise ValueError("sl2 must be a float or None, got {0}.".format(type(sl2)))
-    elif (not (sl2 is None) and (sl2 < 0)):
-        raise ValueError("sl2 must be no smaller than 0.0 but was %r." % sl2)
-        
-    if not isinstance(normalize, bool):
-        raise ValueError("normalize must be a boolean, got {0}.".format(type(normalize)))
-        
-    err_desc = "min_samples_leaf must be at least 1 or in (0, 0.5], got %r." % min_samples_leaf
-    if isinstance(min_samples_leaf, (numbers.Integral, np.integer)):
-        if not (1 <= min_samples_leaf):
-            raise ValueError(err_desc)
-    elif isinstance(min_samples_leaf, _FLOATS):
-        if not (0.0 < min_samples_leaf <= 0.5):
-            raise ValueError(err_desc)
-    else:
-        raise ValueError("min_samples_leaf must be an integer or float, got {0}.".format(type(min_samples_leaf)))
-        
-    if not isinstance(n_iter, (type(None), numbers.Integral, np.integer)):
-        raise ValueError("n_iter must be an integer or None, got {0}.".format(type(n_iter)))
-    elif (not (n_iter is None) and (n_iter < 1)):
-        raise ValueError("n_iter must be no smaller than 1 but was %r." % n_iter)
-        
-    if not isinstance(n_tree_search, (numbers.Integral, np.integer)):
-        raise ValueError("n_tree_search must be an integer, got {0}.".format(type(n_tree_search)))
-    elif (n_tree_search < 1):
-        raise ValueError("n_tree_search must be no smaller than 1 but was %r." % n_tree_search)
-        
-    if not isinstance(opt_interval, (numbers.Integral, np.integer)):
-        raise ValueError("opt_interval must be an integer, got {0}.".format(type(opt_interval)))
-    elif (opt_interval < 1):
-        raise ValueError("opt_interval must be no smaller than 1 but was %r." % opt_interval)
-        
-    if not isinstance(learning_rate, _FLOATS):
-        raise ValueError("learning_rate must be a float, got {0}.".format(type(learning_rate)))
-    elif (learning_rate <= 0):
-        raise ValueError("learning_rate must be greater than 0 but was %r." % learning_rate)
-        
-    if not isinstance(verbose, (numbers.Integral, np.integer)):
-        raise ValueError("verbose must be an integer, got {0}.".format(type(verbose)))
-    elif (verbose < 0):
-        raise ValueError("verbose must be no smaller than 0 but was %r." % verbose)
-        
-    if not isinstance(prefix, six.string_types):
-        raise ValueError("prefix must be a string, got {0}.".format(type(prefix)))
-    elif not prefix:
-        raise ValueError("prefix cannot be an empty string.")
-        
-    if not isinstance(inc_prefix, bool):
-        raise ValueError("inc_prefix must be a boolean, got {0}.".format(type(inc_prefix)))
-        
-    if not isinstance(calc_prob, six.string_types):
-        raise ValueError("calc_prob must be a string, got {0}.".format(type(calc_prob)))
-    elif not (calc_prob in ["Sigmoid", "Softmax"]):
-        raise ValueError("calc_prob must be 'Sigmoid' or 'Softmax' but was %r." % calc_prob)
-        
-    if not isinstance(clean, bool):
-        raise ValueError("clean must be a boolean, got {0}.".format(type(clean)))
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
     """A Regularized Greedy Forest [1] classifier.
@@ -324,20 +211,6 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self : object
             Returns self.
         """
-        _validate_params(**self.get_params())
-
-        if self.sl2 is None:
-            self.sl2 = self.l2
-
-        if isinstance(self.min_samples_leaf, _FLOATS):
-            self.min_samples_leaf = ceil(self.min_samples_leaf * np.asarray(X).shape[0])
-
-        if self.n_iter is None:
-            if self.loss == "LS":
-                self.n_iter = 10
-            else:
-                self.n_iter = 5
-
         self.classes_ = sorted(np.unique(y))
         self.n_classes_ = len(self.classes_)
         if self.n_classes_ <= 2:
@@ -510,8 +383,20 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         if sample_weight is not None:
             #Store the weights into RGF format
             np.savetxt(os.path.join(loc_temp, "train.data.weight"), sample_weight, delimiter=' ', fmt="%s")
-        
-        #format train command
+
+        if self.sl2 is None:
+            self.sl2 = self.l2
+
+        if isinstance(self.min_samples_leaf, (float, np.float, np.float16, np.float32, np.float64, np.double)):
+            self.min_samples_leaf = ceil(self.min_samples_leaf * np.asarray(X).shape[0])
+
+        if self.n_iter is None:
+            if self.loss == "LS":
+                self.n_iter = 10
+            else:
+                self.n_iter = 5
+
+	    #format train command
         params = []
         if self.verbose > 0:
             params.append("Verbose")
@@ -734,20 +619,6 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         self : object
             Returns self.
         """
-        _validate_params(**self.get_params())
-
-        if self.sl2 is None:
-            self.sl2 = self.l2
-
-        if isinstance(self.min_samples_leaf, _FLOATS):
-            self.min_samples_leaf = ceil(self.min_samples_leaf * np.asarray(X).shape[0])
-
-        if self.n_iter is None:
-            if self.loss == "LS":
-                self.n_iter = 10
-            else:
-                self.n_iter = 5
-
         #Clean temp directory
         if self.clean:
             model_glob = loc_temp + os.sep + "*"
@@ -764,7 +635,19 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             #Store the weights into RGF format
             np.savetxt(os.path.join(loc_temp, "train.data.weight"), sample_weight, delimiter=' ', fmt="%s")
 
-        #format train command
+        if self.sl2 is None:
+            self.sl2 = self.l2
+
+        if isinstance(self.min_samples_leaf, (float, np.float, np.float16, np.float32, np.float64, np.double)):
+            self.min_samples_leaf = ceil(self.min_samples_leaf * np.asarray(X).shape[0])
+
+        if self.n_iter is None:
+            if self.loss == "LS":
+                self.n_iter = 10
+            else:
+                self.n_iter = 5
+
+		#format train command
         params = []
         if self.verbose > 0:
             params.append("Verbose")
