@@ -19,6 +19,9 @@ _ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
 _LOSSES = ("LS", "Expo", "Log")
 _FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 
+with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as f:
+    __version__ = f.read().strip()
+
 sys_name = platform.system()
 WINDOWS = 'Windows'
 LINUX = 'Linux'
