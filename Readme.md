@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/fukatani/rgf_python.svg?branch=master)](https://travis-ci.org/fukatani/rgf_python)
 [![License](https://img.shields.io/github/license/fukatani/rgf_python.svg)](https://github.com/fukatani/rgf_python/blob/master/LICENSE)
+[![GitHub Version](https://badge.fury.io/gh/fukatani%2Frgf_python.svg)](https://github.com/fukatani/rgf_python/tree/master/rgf/VERSION)
 
 # rgf_python
 The wrapper of machine learning algorithm ***Regularized Greedy Forest (RGF)*** for Python.
