@@ -87,37 +87,37 @@ def _validate_params(max_leaf,
                     calc_prob="Sigmoid"):
     if not isinstance(max_leaf, (numbers.Integral, np.integer)):
         raise ValueError("max_leaf must be an integer, got {0}.".format(type(max_leaf)))
-    elif (max_leaf <= 0):
+    elif max_leaf <= 0:
         raise ValueError("max_leaf must be greater than 0 but was %r." % max_leaf)
         
     if not isinstance(test_interval, (numbers.Integral, np.integer)):
         raise ValueError("test_interval must be an integer, got {0}.".format(type(test_interval)))
-    elif (test_interval <= 0):
+    elif test_interval <= 0:
         raise ValueError("test_interval must be greater than 0 but was %r." % test_interval)
         
     if not isinstance(algorithm, six.string_types):
         raise ValueError("algorithm must be a string, got {0}.".format(type(algorithm)))
-    elif not (algorithm in _ALGORITHMS):
+    elif not algorithm in _ALGORITHMS:
         raise ValueError("algorithm must be 'RGF' or 'RGF_Opt' or 'RGF_Sib' but was %r." % algorithm)
         
     if not isinstance(loss, six.string_types):
         raise ValueError("loss must be a string, got {0}.".format(type(loss)))
-    elif not (loss in _LOSSES):
+    elif not loss in _LOSSES:
         raise ValueError("loss must be 'LS' or 'Expo' or 'Log' but was %r." % loss)
         
     if not isinstance(reg_depth, (numbers.Integral, np.integer, _FLOATS)):
         raise ValueError("test_interval must be an integer or float, got {0}.".format(type(reg_depth)))
-    elif (reg_depth < 1):
+    elif reg_depth < 1:
         raise ValueError("reg_depth must be no smaller than 1.0 but was %r." % reg_depth)
         
     if not isinstance(l2, _FLOATS):
         raise ValueError("l2 must be a float, got {0}.".format(type(l2)))
-    elif (l2 < 0):
+    elif l2 < 0:
         raise ValueError("l2 must be no smaller than 0.0 but was %r." % l2)
         
     if not isinstance(sl2, (type(None), _FLOATS)):
         raise ValueError("sl2 must be a float or None, got {0}.".format(type(sl2)))
-    elif (not (sl2 is None) and (sl2 < 0)):
+    elif sl2 is not None and sl2 < 0:
         raise ValueError("sl2 must be no smaller than 0.0 but was %r." % sl2)
         
     if not isinstance(normalize, bool):
@@ -125,37 +125,37 @@ def _validate_params(max_leaf,
         
     err_desc = "min_samples_leaf must be at least 1 or in (0, 0.5], got %r." % min_samples_leaf
     if isinstance(min_samples_leaf, (numbers.Integral, np.integer)):
-        if not (1 <= min_samples_leaf):
+        if not 1 <= min_samples_leaf:
             raise ValueError(err_desc)
     elif isinstance(min_samples_leaf, _FLOATS):
-        if not (0.0 < min_samples_leaf <= 0.5):
+        if not 0.0 < min_samples_leaf <= 0.5:
             raise ValueError(err_desc)
     else:
         raise ValueError("min_samples_leaf must be an integer or float, got {0}.".format(type(min_samples_leaf)))
         
     if not isinstance(n_iter, (type(None), numbers.Integral, np.integer)):
         raise ValueError("n_iter must be an integer or None, got {0}.".format(type(n_iter)))
-    elif (not (n_iter is None) and (n_iter < 1)):
+    elif n_iter is not None and n_iter < 1:
         raise ValueError("n_iter must be no smaller than 1 but was %r." % n_iter)
         
     if not isinstance(n_tree_search, (numbers.Integral, np.integer)):
         raise ValueError("n_tree_search must be an integer, got {0}.".format(type(n_tree_search)))
-    elif (n_tree_search < 1):
+    elif n_tree_search < 1:
         raise ValueError("n_tree_search must be no smaller than 1 but was %r." % n_tree_search)
         
     if not isinstance(opt_interval, (numbers.Integral, np.integer)):
         raise ValueError("opt_interval must be an integer, got {0}.".format(type(opt_interval)))
-    elif (opt_interval < 1):
+    elif opt_interval < 1:
         raise ValueError("opt_interval must be no smaller than 1 but was %r." % opt_interval)
         
     if not isinstance(learning_rate, _FLOATS):
         raise ValueError("learning_rate must be a float, got {0}.".format(type(learning_rate)))
-    elif (learning_rate <= 0):
+    elif learning_rate <= 0:
         raise ValueError("learning_rate must be greater than 0 but was %r." % learning_rate)
         
     if not isinstance(verbose, (numbers.Integral, np.integer)):
         raise ValueError("verbose must be an integer, got {0}.".format(type(verbose)))
-    elif (verbose < 0):
+    elif verbose < 0:
         raise ValueError("verbose must be no smaller than 0 but was %r." % verbose)
         
     if not isinstance(prefix, six.string_types):
@@ -168,7 +168,7 @@ def _validate_params(max_leaf,
         
     if not isinstance(calc_prob, six.string_types):
         raise ValueError("calc_prob must be a string, got {0}.".format(type(calc_prob)))
-    elif not (calc_prob in ["Sigmoid", "Softmax"]):
+    elif not calc_prob in ["Sigmoid", "Softmax"]:
         raise ValueError("calc_prob must be 'Sigmoid' or 'Softmax' but was %r." % calc_prob)
         
     if not isinstance(clean, bool):
