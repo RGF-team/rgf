@@ -12,7 +12,7 @@ from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.base import RegressorMixin
 from sklearn.utils.extmath import softmax
-from sklearn.utils.validation import NotFittedError
+from sklearn.utils.validation import NotFittedError, check_X_y, column_or_1d, check_consistent_length, check_array
 from sklearn.externals import six
 
 _ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
@@ -329,11 +329,19 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         """
         _validate_params(**self.get_params())
 
+        X, y = check_X_y(X, y, accept_sparse=True, dtype=None, multi_output=True)
+        n_samples, self.n_features_ = X.shape
+        if sample_weight is None:
+            sample_weight = np.ones(n_samples, dtype=np.float32)
+        else:
+            sample_weight = column_or_1d(sample_weight, warn=True)
+        check_consistent_length(X, y, sample_weight)
+
         if self.sl2 is None:
             self.sl2 = self.l2
 
         if isinstance(self.min_samples_leaf, _FLOATS):
-            self.min_samples_leaf = ceil(self.min_samples_leaf * np.asarray(X).shape[0])
+            self.min_samples_leaf = ceil(self.min_samples_leaf * n_samples)
 
         if self.n_iter is None:
             if self.loss == "LS":
@@ -402,7 +410,13 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         p : array of shape = [n_samples, n_classes].
             The class probabilities of the input samples.
         """
-
+        X = check_array(X, dtype=None, accept_sparse=True)
+        n_features = X.shape[1]
+        if self.n_features_ != n_features:
+            raise ValueError("Number of features of the model must "
+                             "match the input. Model n_features is %s and "
+                             "input n_features is %s "
+                             % (self.n_features_, n_features))
         if self.n_classes_ <= 2:
             proba = self.estimator.predict_proba(X)
             proba = sigmoid(proba)
@@ -502,17 +516,14 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                 if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
                     os.remove(fn)
 
-		#Store the train set into RGF format
+	    #Store the train set into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.x"), X, delimiter=' ', fmt="%s")
-
         #convert 1 to 1, 0 to -1
         y = 2*y - 1
 	    #Store the targets into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.y"), y, delimiter=' ', fmt="%s")
-
-        if sample_weight is not None:
-            #Store the weights into RGF format
-            np.savetxt(os.path.join(loc_temp, "train.data.weight"), sample_weight, delimiter=' ', fmt="%s")
+        #Store the weights into RGF format
+        np.savetxt(os.path.join(loc_temp, "train.data.weight"), sample_weight, delimiter=' ', fmt="%s")
         
         #format train command
         params = []
@@ -535,8 +546,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("opt_interval=%s"%self.opt_interval)
         params.append("opt_stepsize=%s"%self.learning_rate)
         params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
-        if sample_weight is not None:
-            params.append("train_w_fn=%s"%os.path.join(loc_temp, "train.data.weight"))
+        params.append("train_w_fn=%s"%os.path.join(loc_temp, "train.data.weight"))
 
         cmd = [loc_exec, "train", ",".join(params)]
 
@@ -722,7 +732,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 
         Parameters
         ----------
-        X : array-like or sparse matrix of shape of shape = [n_samples, n_features]
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
             The training input samples. Internally, it will be converted to
             ``dtype=np.float32``.
 
@@ -739,11 +749,19 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         """
         _validate_params(**self.get_params())
 
+        X, y = check_X_y(X, y, accept_sparse=True, dtype=None, multi_output=False)
+        n_samples, self.n_features_ = X.shape
+        if sample_weight is None:
+            sample_weight = np.ones(n_samples, dtype=np.float32)
+        else:
+            sample_weight = column_or_1d(sample_weight, warn=True)
+        check_consistent_length(X, y, sample_weight)
+
         if self.sl2 is None:
             self.sl2 = self.l2
 
         if isinstance(self.min_samples_leaf, _FLOATS):
-            self.min_samples_leaf = ceil(self.min_samples_leaf * np.asarray(X).shape[0])
+            self.min_samples_leaf = ceil(self.min_samples_leaf * n_samples)
 
         if self.n_iter is None:
             if self.loss == "LS":
@@ -763,9 +781,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         np.savetxt(os.path.join(loc_temp, "train.data.x"), X, delimiter=' ', fmt="%s")
         #Store the targets into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.y"), y, delimiter=' ', fmt="%s")
-        if sample_weight is not None:
-            #Store the weights into RGF format
-            np.savetxt(os.path.join(loc_temp, "train.data.weight"), sample_weight, delimiter=' ', fmt="%s")
+        #Store the weights into RGF format
+        np.savetxt(os.path.join(loc_temp, "train.data.weight"), sample_weight, delimiter=' ', fmt="%s")
 
         #format train command
         params = []
@@ -788,8 +805,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("opt_interval=%s"%self.opt_interval)
         params.append("opt_stepsize=%s"%self.learning_rate)
         params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
-        if sample_weight is not None:
-            params.append("train_w_fn=%s"%os.path.join(loc_temp, "train.data.weight"))
+        params.append("train_w_fn=%s"%os.path.join(loc_temp, "train.data.weight"))
 
         cmd = [loc_exec, "train", ",".join(params)]
 
@@ -824,6 +840,13 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
+        X = check_array(X, dtype=None, accept_sparse=True)
+        n_features = X.shape[1]
+        if self.n_features_ != n_features:
+            raise ValueError("Number of features of the model must "
+                             "match the input. Model n_features is %s and "
+                             "input n_features is %s "
+                             % (self.n_features_, n_features))
         #Store the test set into RGF format
         np.savetxt(os.path.join(loc_temp, "test.data.x"), X, delimiter=' ', fmt="%s")
 
