@@ -93,7 +93,7 @@ class TestRGFClassfier(unittest.TestCase):
     def test_params(self):
         clf = RGFClassifier()
         
-        valid_params = dict(max_leaf=1100,
+        valid_params = dict(max_leaf=300,
                             test_interval=100,
                             algorithm='RGF_Sib',
                             loss='Log',
@@ -112,7 +112,7 @@ class TestRGFClassfier(unittest.TestCase):
                             calc_prob='Sigmoid',
                             clean=True)
         clf.set_params(**valid_params)
-        y_pred = clf.fit(self.X_train, self.y_train).predict(self.X_test)
+        clf.fit(self.X_train, self.y_train)
 
         non_valid_params = dict(max_leaf=0,
                                 test_interval=0,

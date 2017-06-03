@@ -15,8 +15,8 @@ from sklearn.utils.extmath import softmax
 from sklearn.utils.validation import NotFittedError
 from sklearn.externals import six
 
-_ALGORITHMS = ["RGF", "RGF_Opt", "RGF_Sib"]
-_LOSSES = ["LS", "Expo", "Log"]
+_ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
+_LOSSES = ("LS", "Expo", "Log")
 _FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 
 sys_name = platform.system()
@@ -125,7 +125,7 @@ def _validate_params(max_leaf,
         
     err_desc = "min_samples_leaf must be at least 1 or in (0, 0.5], got %r." % min_samples_leaf
     if isinstance(min_samples_leaf, (numbers.Integral, np.integer)):
-        if not 1 <= min_samples_leaf:
+        if min_samples_leaf < 1:
             raise ValueError(err_desc)
     elif isinstance(min_samples_leaf, _FLOATS):
         if not 0.0 < min_samples_leaf <= 0.5:
@@ -168,7 +168,7 @@ def _validate_params(max_leaf,
         
     if not isinstance(calc_prob, six.string_types):
         raise ValueError("calc_prob must be a string, got {0}.".format(type(calc_prob)))
-    elif not calc_prob in ["Sigmoid", "Softmax"]:
+    elif not calc_prob in ("Sigmoid", "Softmax"):
         raise ValueError("calc_prob must be 'Sigmoid' or 'Softmax' but was %r." % calc_prob)
         
     if not isinstance(clean, bool):
