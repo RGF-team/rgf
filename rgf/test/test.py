@@ -18,6 +18,11 @@ class TestRGFClassfier(unittest.TestCase):
         iris.target = iris.target[perm]
         self.iris = iris
 
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.iris.data,
+                                                                                self.iris.target,
+                                                                                test_size=0.2,
+                                                                                random_state=42)
+
     def test_classifier(self):
         clf = RGFClassifier(prefix='clf', clean=False)
         clf.fit(self.iris.data, self.iris.target)
@@ -72,21 +77,65 @@ class TestRGFClassfier(unittest.TestCase):
         assert_less(mse, 6.0)
 
     def test_sample_weight(self):
-        X_train, X_test, y_train, y_test = train_test_split(self.iris.data,
-                                                            self.iris.target,
-                                                            test_size=0.2,
-                                                            random_state=42)
-
         clf = RGFClassifier()
         
-        y_pred = clf.fit(X_train, y_train).predict_proba(X_test)
-        y_pred_weighted = clf.fit(X_train, y_train, np.ones(y_train.shape[0])).predict_proba(X_test)
+        y_pred = clf.fit(self.X_train, self.y_train).predict_proba(self.X_test)
+        y_pred_weighted = clf.fit(self.X_train,
+                                  self.y_train,
+                                  np.ones(self.y_train.shape[0])).predict_proba(self.X_test)
         np.testing.assert_allclose(y_pred, y_pred_weighted)
 
-        weights = np.ones(y_train.shape[0]) * np.nextafter(np.float32(0), np.float32(1))
+        weights = np.ones(self.y_train.shape[0]) * np.nextafter(np.float32(0), np.float32(1))
         weights[0] = 1
-        y_pred_weighted = clf.fit(X_train, y_train, weights).predict(X_test)
-        np.testing.assert_equal(y_pred_weighted, np.full(y_test.shape[0], y_test[0]))
+        y_pred_weighted = clf.fit(self.X_train, self.y_train, weights).predict(self.X_test)
+        np.testing.assert_equal(y_pred_weighted, np.full(self.y_test.shape[0], self.y_test[0]))
+
+    def test_params(self):
+        clf = RGFClassifier()
+        
+        valid_params = dict(max_leaf=1100,
+                            test_interval=100,
+                            algorithm='RGF_Sib',
+                            loss='Log',
+                            reg_depth=1.1,
+                            l2=0.1,
+                            sl2=None,
+                            normalize=False,
+                            min_samples_leaf=9,
+                            n_iter=None,
+                            n_tree_search=2,
+                            opt_interval=100,
+                            learning_rate=0.4,
+                            verbose=True,
+                            prefix='rgf_classifier',
+                            inc_prefix=True,
+                            calc_prob='Sigmoid',
+                            clean=True)
+        clf.set_params(**valid_params)
+        y_pred = clf.fit(self.X_train, self.y_train).predict(self.X_test)
+
+        non_valid_params = dict(max_leaf=0,
+                                test_interval=0,
+                                algorithm='RGF_Test',
+                                loss=True,
+                                reg_depth=0.1,
+                                l2=11,
+                                sl2=-1.1,
+                                normalize='False',
+                                min_samples_leaf=0.7,
+                                n_iter=11.1,
+                                n_tree_search=0,
+                                opt_interval=100.1,
+                                learning_rate=-0.5,
+                                verbose=-1,
+                                prefix='',
+                                inc_prefix=1,
+                                calc_prob=True,
+                                clean=0)
+        for key in non_valid_params:
+            clf.set_params(**valid_params) # reset to valid params
+            clf.set_params(**{key : non_valid_params[key]}) # pick and set one non-valid parametr
+            self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
 
 
 if __name__ == '__main__':
