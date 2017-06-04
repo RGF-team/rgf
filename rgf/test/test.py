@@ -67,36 +67,8 @@ class TestRGFClassfier(unittest.TestCase):
         for sparse_format in (csr_matrix, csc_matrix, coo_matrix):
             iris_sparse = sparse_format(self.iris.data)
             clf.fit(iris_sparse, self.iris.target)
-            score = clf.score(self.iris.data, self.iris.target)
+            score = clf.score(iris_sparse, self.iris.target)
             self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
-
-    def test_regressor(self):
-        reg = RGFRegressor(prefix='reg', verbose=1)
-
-        # Friedman1
-        X, y = datasets.make_friedman1(n_samples=1200,
-                                       random_state=1,
-                                       noise=1.0)
-        X_train, y_train = X[:200], y[:200]
-        X_test, y_test = X[200:], y[200:]
-
-        reg.fit(X_train, y_train)
-        y_pred = reg.predict(X_test)
-        mse = mean_squared_error(y_test, y_pred)
-        print("mse: " + str(mse))
-        assert_less(mse, 6.0)
-
-    def test_regressior_sparse_input(self):
-        reg = RGFRegressor(prefix='reg', clean=False)
-        for sparse_format in (csr_matrix, csc_matrix, coo_matrix):
-            X, y = datasets.make_friedman1(n_samples=1200,
-                                       random_state=1,
-                                       noise=1.0)
-            X_sparse = sparse_format(X)
-            reg.fit(X_sparse, y)
-            y_pred = reg.predict(X)
-            mse = mean_squared_error(y, y_pred)
-            assert_less(mse, 6.0)
 
     def test_sample_weight(self):
         clf = RGFClassifier()
@@ -153,6 +125,94 @@ class TestRGFClassfier(unittest.TestCase):
                                 prefix='',
                                 inc_prefix=1,
                                 calc_prob=True,
+                                clean=0)
+        for key in non_valid_params:
+            clf.set_params(**valid_params) # reset to valid params
+            clf.set_params(**{key : non_valid_params[key]}) # pick and set one non-valid parametr
+            self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
+
+
+class TestRGFRegressor(unittest.TestCase):
+    def setUp(self):
+        # Friedman1
+        self.X, self.y = datasets.make_friedman1(n_samples=500,
+                                                 random_state=1,
+                                                 noise=1.0)
+        self.X_train, self.y_train = self.X[:400], self.y[:400]
+        self.X_test, self.y_test = self.X[400:], self.y[400:]
+
+    def test_regressor(self):
+        reg = RGFRegressor(prefix='reg', verbose=1)
+        reg.fit(self.X_train, self.y_train)
+        y_pred = reg.predict(self.X_test)
+        mse = mean_squared_error(self.y_test, y_pred)
+        print("mse: " + str(mse))
+        assert_less(mse, 6.0)
+
+    def test_regressior_sparse_input(self):
+        reg = RGFRegressor(prefix='reg', clean=False)
+        for sparse_format in (csr_matrix, csc_matrix, coo_matrix):
+            X_sparse = sparse_format(self.X)
+            reg.fit(X_sparse, self.y)
+            y_pred = reg.predict(X_sparse)
+            mse = mean_squared_error(self.y, y_pred)
+            assert_less(mse, 6.0)
+
+    def test_sample_weight(self):
+        reg = RGFRegressor()
+
+        y_pred = reg.fit(self.X_train, self.y_train).predict(self.X_test)
+        y_pred_weighted = reg.fit(self.X_train,
+                                  self.y_train,
+                                  np.ones(self.y_train.shape[0])
+                                  ).predict(self.X_test)
+        np.testing.assert_allclose(y_pred, y_pred_weighted)
+
+        # TODO(fukatani): I don't come up with effective test.
+        # weights = np.ones(self.y_train.shape[0]) * np.nextafter(np.float32(0), np.float32(1))
+        # weights[0] = 1
+        # y_pred_weighted = reg.fit(self.X_train, self.y_train, weights).predict(self.X_test)
+        # np.testing.assert_equal(y_pred_weighted, np.full(self.y_test.shape[0], self.y_test[0]))
+
+    def test_params(self):
+        clf = RGFRegressor()
+
+        valid_params = dict(max_leaf=300,
+                            test_interval=100,
+                            algorithm='RGF_Sib',
+                            loss='Log',
+                            reg_depth=1.1,
+                            l2=0.1,
+                            sl2=None,
+                            normalize=False,
+                            min_samples_leaf=9,
+                            n_iter=None,
+                            n_tree_search=2,
+                            opt_interval=100,
+                            learning_rate=0.4,
+                            verbose=True,
+                            prefix='rgf_regressor',
+                            inc_prefix=True,
+                            clean=True)
+        clf.set_params(**valid_params)
+        clf.fit(self.X_train, self.y_train)
+
+        non_valid_params = dict(max_leaf=0,
+                                test_interval=0,
+                                algorithm='RGF_Test',
+                                loss=True,
+                                reg_depth=0.1,
+                                l2=11,
+                                sl2=-1.1,
+                                normalize='False',
+                                min_samples_leaf=0.7,
+                                n_iter=11.1,
+                                n_tree_search=0,
+                                opt_interval=100.1,
+                                learning_rate=-0.5,
+                                verbose=-1,
+                                prefix='',
+                                inc_prefix=1,
                                 clean=0)
         for key in non_valid_params:
             clf.set_params(**valid_params) # reset to valid params
