@@ -1,10 +1,13 @@
 import unittest
 
 from sklearn import datasets
-from sklearn.model_selection import train_test_split
-from sklearn.utils.validation import check_random_state
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+from scipy.sparse import csc_matrix
+from scipy.sparse import csr_matrix
+from scipy.sparse import coo_matrix
 from sklearn.utils.testing import assert_less, assert_almost_equal
+from sklearn.utils.validation import check_random_state
 import numpy as np
 from rgf.sklearn import RGFClassifier, RGFRegressor
 
@@ -58,6 +61,14 @@ class TestRGFClassfier(unittest.TestCase):
         score = clf.score(self.iris.data, bin_target)
         print("score: " + str(score))
         self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
+
+    def test_sparse_input(self):
+        clf = RGFClassifier(prefix='clf', calc_prob='Softmax', clean=False)
+        for sparse_format in (csr_matrix, csc_matrix, coo_matrix):
+            iris_sparse = sparse_format(self.iris.data)
+            clf.fit(iris_sparse, self.iris.target)
+            score = clf.score(self.iris.data, self.iris.target)
+            self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
 
     def test_regressor(self):
         reg = RGFRegressor(prefix='reg', verbose=1)

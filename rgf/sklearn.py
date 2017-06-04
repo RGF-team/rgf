@@ -504,8 +504,11 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                 if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
                     os.remove(fn)
 
-		#Store the train set into RGF format
-        np.savetxt(os.path.join(loc_temp, "train.data.x"), X, delimiter=' ', fmt="%s")
+		#TODO(fukatani): use sparse format for RGF.
+        if not isinstance(X, np.ndarray):
+            X = X.toarray()
+        np.savetxt(os.path.join(loc_temp, "train.data.x"),
+                       X, delimiter=' ', fmt="%s")
 
         #convert 1 to 1, 0 to -1
         y = 2*y - 1
@@ -558,6 +561,10 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         if not self.fitted:
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
+
+        #TODO(fukatani): use sparse format for RGF.
+        if not isinstance(X, np.ndarray):
+            X = X.toarray()
 
         #Store the test set into RGF format
         np.savetxt(os.path.join(loc_temp, "test.data.x"), X, delimiter=' ', fmt="%s")
@@ -761,6 +768,10 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                 if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
                     os.remove(fn)
 
+        #TODO(fukatani): use sparse format for RGF.
+        if not isinstance(X, np.ndarray):
+            X = X.toarray()
+
         #Store the train set into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.x"), X, delimiter=' ', fmt="%s")
         #Store the targets into RGF format
@@ -825,6 +836,10 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         if not self.fitted:
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
+
+        #TODO(fukatani): use sparse format for RGF.
+        if not isinstance(X, np.ndarray):
+            X = X.toarray()
 
         #Store the test set into RGF format
         np.savetxt(os.path.join(loc_temp, "test.data.x"), X, delimiter=' ', fmt="%s")
