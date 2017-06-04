@@ -62,7 +62,7 @@ class TestRGFClassfier(unittest.TestCase):
         print("score: " + str(score))
         self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
 
-    def test_sparse_input(self):
+    def test_classifier_sparse_input(self):
         clf = RGFClassifier(prefix='clf', calc_prob='Softmax', clean=False)
         for sparse_format in (csr_matrix, csc_matrix, coo_matrix):
             iris_sparse = sparse_format(self.iris.data)
@@ -85,6 +85,18 @@ class TestRGFClassfier(unittest.TestCase):
         mse = mean_squared_error(y_test, y_pred)
         print("mse: " + str(mse))
         assert_less(mse, 6.0)
+
+    def test_regressior_sparse_input(self):
+        reg = RGFRegressor(prefix='reg', clean=False)
+        for sparse_format in (csr_matrix, csc_matrix, coo_matrix):
+            X, y = datasets.make_friedman1(n_samples=1200,
+                                       random_state=1,
+                                       noise=1.0)
+            X_sparse = sparse_format(X)
+            reg.fit(X_sparse, y)
+            y_pred = reg.predict(X)
+            mse = mean_squared_error(y, y_pred)
+            assert_less(mse, 6.0)
 
     def test_sample_weight(self):
         clf = RGFClassifier()

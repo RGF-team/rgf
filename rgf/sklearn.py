@@ -8,6 +8,9 @@ import numpy as np
 from math import ceil
 import numbers
 
+from scipy.sparse import csc_matrix
+from scipy.sparse import csr_matrix
+from scipy.sparse import lil_matrix
 from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.base import RegressorMixin
@@ -177,6 +180,21 @@ def _validate_params(max_leaf,
 
     if not isinstance(clean, bool):
         raise ValueError("clean must be a boolean, got {0}.".format(type(clean)))
+
+
+def sparse_savetxt(filename, input_array):
+    fw = open(filename, 'w')
+    input_array = input_array.tolil()
+    fw.write('sparse {}\n'.format(input_array.shape[-1]))
+
+    for each_features in input_array:
+        idx_list = each_features.data[0]
+        words = []
+        for idx, val in zip(each_features.nonzero()[1], idx_list):
+            words.append('{0}:{1}'.format(idx, val))
+        line = ' '.join(words)
+        fw.write(line + '\n')
+    fw.close()
 
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
@@ -504,10 +522,10 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                 if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
                     os.remove(fn)
 
-		#TODO(fukatani): use sparse format for RGF.
         if not isinstance(X, np.ndarray):
-            X = X.toarray()
-        np.savetxt(os.path.join(loc_temp, "train.data.x"),
+            sparse_savetxt(os.path.join(loc_temp, "train.data.x"), X)
+        else:
+            np.savetxt(os.path.join(loc_temp, "train.data.x"),
                        X, delimiter=' ', fmt="%s")
 
         #convert 1 to 1, 0 to -1
@@ -562,12 +580,11 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
-        #TODO(fukatani): use sparse format for RGF.
         if not isinstance(X, np.ndarray):
-            X = X.toarray()
-
-        #Store the test set into RGF format
-        np.savetxt(os.path.join(loc_temp, "test.data.x"), X, delimiter=' ', fmt="%s")
+            sparse_savetxt(os.path.join(loc_temp, "train.data.x"), X)
+        else:
+            np.savetxt(os.path.join(loc_temp, "train.data.x"),
+                       X, delimiter=' ', fmt="%s")
 
         #Find latest model location
         model_glob = loc_temp + os.sep + self.file_prefix + "*"
@@ -768,9 +785,11 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                 if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
                     os.remove(fn)
 
-        #TODO(fukatani): use sparse format for RGF.
         if not isinstance(X, np.ndarray):
-            X = X.toarray()
+            sparse_savetxt(os.path.join(loc_temp, "train.data.x"), X)
+        else:
+            np.savetxt(os.path.join(loc_temp, "train.data.x"),
+                       X, delimiter=' ', fmt="%s")
 
         #Store the train set into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.x"), X, delimiter=' ', fmt="%s")
@@ -837,12 +856,11 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
-        #TODO(fukatani): use sparse format for RGF.
         if not isinstance(X, np.ndarray):
-            X = X.toarray()
-
-        #Store the test set into RGF format
-        np.savetxt(os.path.join(loc_temp, "test.data.x"), X, delimiter=' ', fmt="%s")
+            sparse_savetxt(os.path.join(loc_temp, "train.data.x"), X)
+        else:
+            np.savetxt(os.path.join(loc_temp, "train.data.x"),
+                       X, delimiter=' ', fmt="%s")
 
         #Find latest model location
         model_glob = loc_temp + os.sep + self.file_prefix + "*"
