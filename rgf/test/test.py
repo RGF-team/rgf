@@ -133,7 +133,7 @@ class TestRGFClassfier(unittest.TestCase):
 
     def test_input_arrays_shape(self):
         clf = RGFClassifier()
-        
+
         n_samples = self.y_train.shape[0]
         self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train[:(n_samples-1)])
         self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train, np.ones(n_samples-1))
@@ -187,7 +187,7 @@ class TestRGFRegressor(unittest.TestCase):
         # np.testing.assert_equal(y_pred_weighted, np.full(self.y_test.shape[0], self.y_test[0]))
 
     def test_params(self):
-        clf = RGFRegressor()
+        reg = RGFRegressor()
 
         valid_params = dict(max_leaf=300,
                             test_interval=100,
@@ -206,8 +206,8 @@ class TestRGFRegressor(unittest.TestCase):
                             prefix='rgf_regressor',
                             inc_prefix=True,
                             clean=True)
-        clf.set_params(**valid_params)
-        clf.fit(self.X_train, self.y_train)
+        reg.set_params(**valid_params)
+        reg.fit(self.X_train, self.y_train)
 
         non_valid_params = dict(max_leaf=0,
                                 test_interval=0,
@@ -227,9 +227,21 @@ class TestRGFRegressor(unittest.TestCase):
                                 inc_prefix=1,
                                 clean=0)
         for key in non_valid_params:
-            clf.set_params(**valid_params) # reset to valid params
-            clf.set_params(**{key : non_valid_params[key]}) # pick and set one non-valid parametr
-            self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
+            reg.set_params(**valid_params) # reset to valid params
+            reg.set_params(**{key : non_valid_params[key]}) # pick and set one non-valid parametr
+            self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train)
+
+    def test_input_arrays_shape(self):
+        reg = RGFRegressor()
+
+        n_samples = self.y_train.shape[0]
+        self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train[:(n_samples-1)])
+        self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train, np.ones(n_samples-1))
+        self.assertRaises(ValueError,
+                          reg.fit,
+                          self.X_train,
+                          self.y_train,
+                          np.ones(n_samples*2).reshape((n_samples, 2)))
 
 
 if __name__ == '__main__':
