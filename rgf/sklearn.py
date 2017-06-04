@@ -223,7 +223,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         Loss function.
 
     reg_depth : float, optional (default=1.0)
-    	Must be no smaller than 1.0.
+        Must be no smaller than 1.0.
         Meant for being used with algorithm="RGF Opt"|"RGF Sib".
         A larger value penalizes deeper nodes more severely.
 
@@ -286,6 +286,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         Learning Nonlinear Functions Using Regularized Greedy Forest
     """
     instance_count = 0
+
     def __init__(self,
                  max_leaf=1000,
                  test_interval=100,
@@ -547,7 +548,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         y = 2*y - 1
         # Store the targets into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.y"), y, delimiter=' ', fmt="%s")
-        #Store the weights into RGF format
+        # Store the weights into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.weight"), sample_weight, delimiter=' ', fmt="%s")
 
         # Format train command
@@ -556,22 +557,22 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             params.append("Verbose")
         if self.normalize:
             params.append("NormalizeTarget")
-        params.append("train_x_fn=%s"%os.path.join(loc_temp, "train.data.x"))
-        params.append("train_y_fn=%s"%os.path.join(loc_temp, "train.data.y"))
-        params.append("algorithm=%s"%self.algorithm)
-        params.append("loss=%s"%self.loss)
-        params.append("max_leaf_forest=%s"%self.max_leaf)
-        params.append("test_interval=%s"%self.test_interval)
-        params.append("reg_L2=%s"%self.l2)
-        params.append("reg_sL2=%s"%self.sl2)
-        params.append("reg_depth=%s"%self.reg_depth)
-        params.append("min_pop=%s"%self.min_samples_leaf)
-        params.append("num_iteration_opt=%s"%self.n_iter)
-        params.append("num_tree_search=%s"%self.n_tree_search)
-        params.append("opt_interval=%s"%self.opt_interval)
-        params.append("opt_stepsize=%s"%self.learning_rate)
-        params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
-        params.append("train_w_fn=%s"%os.path.join(loc_temp, "train.data.weight"))
+        params.append("train_x_fn=%s" % os.path.join(loc_temp, "train.data.x"))
+        params.append("train_y_fn=%s" % os.path.join(loc_temp, "train.data.y"))
+        params.append("algorithm=%s" % self.algorithm)
+        params.append("loss=%s" % self.loss)
+        params.append("max_leaf_forest=%s" % self.max_leaf)
+        params.append("test_interval=%s" % self.test_interval)
+        params.append("reg_L2=%s" % self.l2)
+        params.append("reg_sL2=%s" % self.sl2)
+        params.append("reg_depth=%s" % self.reg_depth)
+        params.append("min_pop=%s" % self.min_samples_leaf)
+        params.append("num_iteration_opt=%s" % self.n_iter)
+        params.append("num_tree_search=%s" % self.n_tree_search)
+        params.append("opt_interval=%s" % self.opt_interval)
+        params.append("opt_stepsize=%s" % self.learning_rate)
+        params.append("model_fn_prefix=%s" % os.path.join(loc_temp, self.file_prefix))
+        params.append("train_w_fn=%s" % os.path.join(loc_temp, "train.data.weight"))
 
         cmd = (loc_exec, "train", ",".join(params))
 
@@ -607,9 +608,9 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
         # Format test command
         params = []
-        params.append("test_x_fn=%s"%os.path.join(loc_temp, "test.data.x"))
-        params.append("prediction_fn=%s"%os.path.join(loc_temp, "predictions.txt"))
-        params.append("model_fn=%s"%latest_model_loc)
+        params.append("test_x_fn=%s" % os.path.join(loc_temp, "test.data.x"))
+        params.append("prediction_fn=%s" % os.path.join(loc_temp, "predictions.txt"))
+        params.append("model_fn=%s" % latest_model_loc)
 
         cmd = (loc_exec, "predict", ",".join(params))
 
@@ -651,7 +652,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         Loss function.
 
     reg_depth : float, optional (default=1.0)
-    	Must be no smaller than 1.0.
+        Must be no smaller than 1.0.
         Meant for being used with algorithm="RGF Opt"|"RGF Sib".
         A larger value penalizes deeper nodes more severely.
 
@@ -711,6 +712,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         Learning Nonlinear Functions Using Regularized Greedy Forest
     """
     instance_count = 0
+
     def __init__(self,
                  max_leaf=500,
                  test_interval=100,
@@ -753,7 +755,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         if not os.path.isdir(loc_temp):
             os.mkdir(loc_temp)
         if not os.access(loc_temp, os.W_OK):
-            raise Exception('{0} is not writable directory. Please set loc_temp to writable directory'.format(loc_temp))
+            raise Exception('{0} is not writable directory. Please set loc_temp'
+                            ' to writable directory'.format(loc_temp))
         self.fitted = False
 
     def fit(self, X, y, sample_weight=None):
@@ -798,7 +801,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             else:
                 self.n_iter = 5
 
-        #Clean temp directory
+        # Clean temp directory
         if self.clean:
             model_glob = loc_temp + os.sep + "*"
 
@@ -812,37 +815,37 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             np.savetxt(os.path.join(loc_temp, "train.data.x"),
                        X, delimiter=' ', fmt="%s")
 
-        #Store the targets into RGF format
+        # Store the targets into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.y"), y, delimiter=' ', fmt="%s")
-        #Store the weights into RGF format
+        # Store the weights into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.weight"), sample_weight, delimiter=' ', fmt="%s")
 
-        #format train command
+        # Format train command
         params = []
         if self.verbose > 0:
             params.append("Verbose")
         if self.normalize:
             params.append("NormalizeTarget")
-        params.append("train_x_fn=%s"%os.path.join(loc_temp, "train.data.x"))
-        params.append("train_y_fn=%s"%os.path.join(loc_temp, "train.data.y"))
-        params.append("algorithm=%s"%self.algorithm)
-        params.append("loss=%s"%self.loss)
-        params.append("max_leaf_forest=%s"%self.max_leaf)
-        params.append("test_interval=%s"%self.test_interval)
-        params.append("reg_L2=%s"%self.l2)
-        params.append("reg_sL2=%s"%self.sl2)
-        params.append("reg_depth=%s"%self.reg_depth)
-        params.append("min_pop=%s"%self.min_samples_leaf)
-        params.append("num_iteration_opt=%s"%self.n_iter)
-        params.append("num_tree_search=%s"%self.n_tree_search)
-        params.append("opt_interval=%s"%self.opt_interval)
-        params.append("opt_stepsize=%s"%self.learning_rate)
-        params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
-        params.append("train_w_fn=%s"%os.path.join(loc_temp, "train.data.weight"))
+        params.append("train_x_fn=%s" % os.path.join(loc_temp, "train.data.x"))
+        params.append("train_y_fn=%s" % os.path.join(loc_temp, "train.data.y"))
+        params.append("algorithm=%s" % self.algorithm)
+        params.append("loss=%s" % self.loss)
+        params.append("max_leaf_forest=%s" % self.max_leaf)
+        params.append("test_interval=%s" % self.test_interval)
+        params.append("reg_L2=%s" % self.l2)
+        params.append("reg_sL2=%s" % self.sl2)
+        params.append("reg_depth=%s" % self.reg_depth)
+        params.append("min_pop=%s" % self.min_samples_leaf)
+        params.append("num_iteration_opt=%s" % self.n_iter)
+        params.append("num_tree_search=%s" % self.n_tree_search)
+        params.append("opt_interval=%s" % self.opt_interval)
+        params.append("opt_stepsize=%s" % self.learning_rate)
+        params.append("model_fn_prefix=%s" % os.path.join(loc_temp, self.file_prefix))
+        params.append("train_w_fn=%s" % os.path.join(loc_temp, "train.data.weight"))
 
         cmd = (loc_exec, "train", ",".join(params))
 
-        #train
+        # train
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
@@ -887,17 +890,17 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             np.savetxt(os.path.join(loc_temp, "test.data.x"),
                        X, delimiter=' ', fmt="%s")
 
-        #Find latest model location
+        # Find latest model location
         model_glob = loc_temp + os.sep + self.file_prefix + "*"
         if not glob(model_glob):
             raise Exception('Model learning result is not found in {0}. This is rgf_python error.'.format(loc_temp))
         latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
 
-        #Format test command
+        # Format test command
         params = []
-        params.append("test_x_fn=%s"%os.path.join(loc_temp, "test.data.x"))
-        params.append("prediction_fn=%s"%os.path.join(loc_temp, "predictions.txt"))
-        params.append("model_fn=%s"%latest_model_loc)
+        params.append("test_x_fn=%s" % os.path.join(loc_temp, "test.data.x"))
+        params.append("prediction_fn=%s" % os.path.join(loc_temp, "predictions.txt"))
+        params.append("model_fn=%s" % latest_model_loc)
 
         cmd = (loc_exec, "predict", ",".join(params))
 
