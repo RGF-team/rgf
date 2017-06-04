@@ -1,13 +1,13 @@
 from __future__ import absolute_import
 
+from glob import glob
+from math import ceil
+import numbers
 import os
 import platform
 import subprocess
-from glob import glob
-import numpy as np
-from math import ceil
-import numbers
 
+import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import csr_matrix
 from scipy.sparse import lil_matrix

@@ -1,14 +1,15 @@
 import unittest
 
-from sklearn import datasets
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
+import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import csr_matrix
 from scipy.sparse import coo_matrix
+from sklearn import datasets
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
 from sklearn.utils.testing import assert_less, assert_almost_equal
 from sklearn.utils.validation import check_random_state
-import numpy as np
+
 from rgf.sklearn import RGFClassifier, RGFRegressor
 
 
