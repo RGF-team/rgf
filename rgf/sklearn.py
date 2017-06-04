@@ -518,7 +518,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                 if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
                     os.remove(fn)
 
-		    #TODO(fukatani): use sparse format for RGF.
+        #TODO(fukatani): use sparse format for RGF.
         if not isinstance(X, np.ndarray):
             X = X.toarray()
         np.savetxt(os.path.join(loc_temp, "train.data.x"),
