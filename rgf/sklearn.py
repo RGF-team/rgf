@@ -44,6 +44,7 @@ elif sys_name == LINUX:
     default_exec = 'rgf'
 ## End Edit ##################################################
 
+
 def is_executable_response(path):
     try:
         subprocess.check_output([path, "train"])
@@ -53,7 +54,7 @@ def is_executable_response(path):
 
 # validate path
 if is_executable_response(default_exec):
-	loc_exec = default_exec
+    loc_exec = default_exec
 elif not os.path.isfile(loc_exec):
     raise Exception('{0} is not executable file. Please set '
                     'loc_exec to RGF execution file.'.format(loc_exec))
@@ -61,7 +62,7 @@ elif not os.access(loc_exec, os.X_OK):
     raise Exception('{0} cannot be accessed. Please set '
                     'loc_exec to RGF execution file.'.format(loc_exec))
 elif is_executable_response(loc_exec):
-	pass
+    pass
 else:
     raise Exception('{0} does not exist or {1} is not in the '
                     '"PATH" variable.'.format(loc_exec, default_exec))
@@ -71,7 +72,7 @@ def sigmoid(x):
     """x : array-like
     output : array-like
     """
-    return 1. / (1.+ np.exp(-x))
+    return 1. / (1. + np.exp(-x))
 
 
 def _validate_params(max_leaf,
@@ -104,12 +105,12 @@ def _validate_params(max_leaf,
 
     if not isinstance(algorithm, six.string_types):
         raise ValueError("algorithm must be a string, got {0}.".format(type(algorithm)))
-    elif not algorithm in _ALGORITHMS:
+    elif algorithm not in _ALGORITHMS:
         raise ValueError("algorithm must be 'RGF' or 'RGF_Opt' or 'RGF_Sib' but was %r." % algorithm)
 
     if not isinstance(loss, six.string_types):
         raise ValueError("loss must be a string, got {0}.".format(type(loss)))
-    elif not loss in _LOSSES:
+    elif loss not in _LOSSES:
         raise ValueError("loss must be 'LS' or 'Expo' or 'Log' but was %r." % loss)
 
     if not isinstance(reg_depth, (numbers.Integral, np.integer, _FLOATS)):
@@ -175,7 +176,7 @@ def _validate_params(max_leaf,
 
     if not isinstance(calc_prob, six.string_types):
         raise ValueError("calc_prob must be a string, got {0}.".format(type(calc_prob)))
-    elif not calc_prob in ("Sigmoid", "Softmax"):
+    elif calc_prob not in ("Sigmoid", "Softmax"):
         raise ValueError("calc_prob must be 'Sigmoid' or 'Softmax' but was %r." % calc_prob)
 
     if not isinstance(clean, bool):
@@ -447,8 +448,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                 class_proba = clf.predict_proba(X)
                 proba[:, i] = class_proba
 
-            #In honest I don't understand which is better
-            #softmax or normalized sigmoid for calc probability.
+            # In honest I don't understand which is better
+            # softmax or normalized sigmoid for calc probability.
             if self.calc_prob == "Sigmoid":
                 proba = sigmoid(proba)
                 normalizer = proba.sum(axis=1)[:, np.newaxis]
@@ -526,9 +527,9 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             raise Exception('{0} is not writable directory. Please set '
                             'loc_temp to writable directory'.format(loc_temp))
 
-    #Fitting/training the model to target variables
+    # Fitting/training the model to target variables
     def fit(self, X, y, sample_weight=None):
-        #Clean temp directory
+        # Clean temp directory
         if self.clean:
             model_glob = loc_temp + os.sep + "*"
 
@@ -542,14 +543,14 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             np.savetxt(os.path.join(loc_temp, "train.data.x"),
                        X, delimiter=' ', fmt="%s")
 
-        #convert 1 to 1, 0 to -1
+        # convert 1 to 1, 0 to -1
         y = 2*y - 1
-        #Store the targets into RGF format
+        # Store the targets into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.y"), y, delimiter=' ', fmt="%s")
         #Store the weights into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.weight"), sample_weight, delimiter=' ', fmt="%s")
 
-        #format train command
+        # Format train command
         params = []
         if self.verbose > 0:
             params.append("Verbose")
@@ -574,7 +575,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
         cmd = (loc_exec, "train", ",".join(params))
 
-        #train
+        # Train
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
@@ -597,14 +598,14 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             np.savetxt(os.path.join(loc_temp, "test.data.x"),
                        X, delimiter=' ', fmt="%s")
 
-        #Find latest model location
+        # Find latest model location
         model_glob = loc_temp + os.sep + self.file_prefix + "*"
         if not glob(model_glob):
             raise Exception('Model learning result is not found in {0}. '
                             'This is rgf_python error.'.format(loc_temp))
         latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
 
-        #Format test command
+        # Format test command
         params = []
         params.append("test_x_fn=%s"%os.path.join(loc_temp, "test.data.x"))
         params.append("prediction_fn=%s"%os.path.join(loc_temp, "predictions.txt"))

@@ -128,8 +128,8 @@ class TestRGFClassfier(unittest.TestCase):
                                 calc_prob=True,
                                 clean=0)
         for key in non_valid_params:
-            clf.set_params(**valid_params) # reset to valid params
-            clf.set_params(**{key : non_valid_params[key]}) # pick and set one non-valid parametr
+            clf.set_params(**valid_params)  # reset to valid params
+            clf.set_params(**{key: non_valid_params[key]})  # pick and set one non-valid parametr
             self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
 
     def test_input_arrays_shape(self):
@@ -228,8 +228,8 @@ class TestRGFRegressor(unittest.TestCase):
                                 inc_prefix=1,
                                 clean=0)
         for key in non_valid_params:
-            reg.set_params(**valid_params) # reset to valid params
-            reg.set_params(**{key : non_valid_params[key]}) # pick and set one non-valid parametr
+            reg.set_params(**valid_params)  # reset to valid params
+            reg.set_params(**{key: non_valid_params[key]})  # pick and set one non-valid parametr
             self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train)
 
     def test_input_arrays_shape(self):
