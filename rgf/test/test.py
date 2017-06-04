@@ -1,10 +1,13 @@
 import unittest
 
 from sklearn import datasets
-from sklearn.model_selection import train_test_split
-from sklearn.utils.validation import check_random_state
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+from scipy.sparse import csc_matrix
+from scipy.sparse import csr_matrix
+from scipy.sparse import coo_matrix
 from sklearn.utils.testing import assert_less, assert_almost_equal
+from sklearn.utils.validation import check_random_state
 import numpy as np
 from rgf.sklearn import RGFClassifier, RGFRegressor
 
@@ -18,10 +21,9 @@ class TestRGFClassfier(unittest.TestCase):
         iris.target = iris.target[perm]
         self.iris = iris
 
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.iris.data,
-                                                                                self.iris.target,
-                                                                                test_size=0.2,
-                                                                                random_state=42)
+        self.X_train, self.X_test, self.y_train, self.y_test = \
+            train_test_split(self.iris.data, self.iris.target,
+                             test_size=0.2, random_state=42)
 
     def test_classifier(self):
         clf = RGFClassifier(prefix='clf', clean=False)
@@ -60,6 +62,14 @@ class TestRGFClassfier(unittest.TestCase):
         print("score: " + str(score))
         self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
 
+    def test_sparse_input(self):
+        clf = RGFClassifier(prefix='clf', calc_prob='Softmax', clean=False)
+        for sparse_format in (csr_matrix, csc_matrix, coo_matrix):
+            iris_sparse = sparse_format(self.iris.data)
+            clf.fit(iris_sparse, self.iris.target)
+            score = clf.score(self.iris.data, self.iris.target)
+            self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
+
     def test_regressor(self):
         reg = RGFRegressor(prefix='reg', verbose=1)
 
@@ -78,7 +88,7 @@ class TestRGFClassfier(unittest.TestCase):
 
     def test_sample_weight(self):
         clf = RGFClassifier()
-        
+
         y_pred = clf.fit(self.X_train, self.y_train).predict_proba(self.X_test)
         y_pred_weighted = clf.fit(self.X_train,
                                   self.y_train,
@@ -92,7 +102,7 @@ class TestRGFClassfier(unittest.TestCase):
 
     def test_params(self):
         clf = RGFClassifier()
-        
+
         valid_params = dict(max_leaf=300,
                             test_interval=100,
                             algorithm='RGF_Sib',
