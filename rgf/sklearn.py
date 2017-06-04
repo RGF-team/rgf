@@ -8,9 +8,6 @@ import platform
 import subprocess
 
 import numpy as np
-from scipy.sparse import csc_matrix
-from scipy.sparse import csr_matrix
-from scipy.sparse import lil_matrix
 from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.base import RegressorMixin
@@ -49,7 +46,7 @@ def is_executable_response(path):
     try:
         subprocess.check_output([path, "train"])
         return True
-    except:
+    except Exception:
         return False
 
 # validate path
@@ -69,7 +66,8 @@ else:
 
 
 def sigmoid(x):
-    """x : array-like
+    """
+    x : array-like
     output : array-like
     """
     return 1. / (1. + np.exp(-x))
