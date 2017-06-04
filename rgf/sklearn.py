@@ -581,9 +581,9 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                                  "call `fit` before exploiting the model.")
 
         if not isinstance(X, np.ndarray):
-            sparse_savetxt(os.path.join(loc_temp, "train.data.x"), X)
+            sparse_savetxt(os.path.join(loc_temp, "test.data.x"), X)
         else:
-            np.savetxt(os.path.join(loc_temp, "train.data.x"),
+            np.savetxt(os.path.join(loc_temp, "test.data.x"),
                        X, delimiter=' ', fmt="%s")
 
         #Find latest model location
@@ -791,8 +791,6 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             np.savetxt(os.path.join(loc_temp, "train.data.x"),
                        X, delimiter=' ', fmt="%s")
 
-        #Store the train set into RGF format
-        np.savetxt(os.path.join(loc_temp, "train.data.x"), X, delimiter=' ', fmt="%s")
         #Store the targets into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.y"), y, delimiter=' ', fmt="%s")
         if sample_weight is not None:
@@ -857,9 +855,9 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                                  "call `fit` before exploiting the model.")
 
         if not isinstance(X, np.ndarray):
-            sparse_savetxt(os.path.join(loc_temp, "train.data.x"), X)
+            sparse_savetxt(os.path.join(loc_temp, "test.data.x"), X)
         else:
-            np.savetxt(os.path.join(loc_temp, "train.data.x"),
+            np.savetxt(os.path.join(loc_temp, "test.data.x"),
                        X, delimiter=' ', fmt="%s")
 
         #Find latest model location
