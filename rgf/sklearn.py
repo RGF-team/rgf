@@ -572,7 +572,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
         params.append("train_w_fn=%s"%os.path.join(loc_temp, "train.data.weight"))
 
-        cmd = [loc_exec, "train", ",".join(params)]
+        cmd = (loc_exec, "train", ",".join(params))
 
         #train
         output = subprocess.Popen(cmd,
@@ -600,7 +600,8 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         #Find latest model location
         model_glob = loc_temp + os.sep + self.file_prefix + "*"
         if not glob(model_glob):
-            raise Exception('Model learning result is not found in {0}. This is rgf_python error.'.format(loc_temp))
+            raise Exception('Model learning result is not found in {0}. '
+                            'This is rgf_python error.'.format(loc_temp))
         latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
 
         #Format test command
@@ -609,7 +610,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("prediction_fn=%s"%os.path.join(loc_temp, "predictions.txt"))
         params.append("model_fn=%s"%latest_model_loc)
 
-        cmd = [loc_exec, "predict", ",".join(params)]
+        cmd = (loc_exec, "predict", ",".join(params))
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
@@ -838,7 +839,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("model_fn_prefix=%s"%os.path.join(loc_temp, self.file_prefix))
         params.append("train_w_fn=%s"%os.path.join(loc_temp, "train.data.weight"))
 
-        cmd = [loc_exec, "train", ",".join(params)]
+        cmd = (loc_exec, "train", ",".join(params))
 
         #train
         output = subprocess.Popen(cmd,
@@ -897,7 +898,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("prediction_fn=%s"%os.path.join(loc_temp, "predictions.txt"))
         params.append("model_fn=%s"%latest_model_loc)
 
-        cmd = [loc_exec, "predict", ",".join(params)]
+        cmd = (loc_exec, "predict", ",".join(params))
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
