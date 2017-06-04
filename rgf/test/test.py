@@ -18,10 +18,9 @@ class TestRGFClassfier(unittest.TestCase):
         iris.target = iris.target[perm]
         self.iris = iris
 
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.iris.data,
-                                                                                self.iris.target,
-                                                                                test_size=0.2,
-                                                                                random_state=42)
+        self.X_train, self.X_test, self.y_train, self.y_test = \
+            train_test_split(self.iris.data, self.iris.target,
+                             test_size=0.2, random_state=42)
 
     def test_classifier(self):
         clf = RGFClassifier(prefix='clf', clean=False)
@@ -78,7 +77,7 @@ class TestRGFClassfier(unittest.TestCase):
 
     def test_sample_weight(self):
         clf = RGFClassifier()
-        
+
         y_pred = clf.fit(self.X_train, self.y_train).predict_proba(self.X_test)
         y_pred_weighted = clf.fit(self.X_train,
                                   self.y_train,
@@ -92,7 +91,7 @@ class TestRGFClassfier(unittest.TestCase):
 
     def test_params(self):
         clf = RGFClassifier()
-        
+
         valid_params = dict(max_leaf=300,
                             test_interval=100,
                             algorithm='RGF_Sib',

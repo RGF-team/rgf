@@ -70,6 +70,7 @@ def sigmoid(x):
     """
     return 1. / (1.+ np.exp(-x))
 
+
 def _validate_params(max_leaf,
                      test_interval,
                      algorithm,
@@ -176,6 +177,7 @@ def _validate_params(max_leaf,
 
     if not isinstance(clean, bool):
         raise ValueError("clean must be a boolean, got {0}.".format(type(clean)))
+
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
     """A Regularized Greedy Forest [1] classifier.
