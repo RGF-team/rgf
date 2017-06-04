@@ -516,15 +516,15 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                 if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
                     os.remove(fn)
 
-	    #Store the train set into RGF format
+        #Store the train set into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.x"), X, delimiter=' ', fmt="%s")
         #convert 1 to 1, 0 to -1
         y = 2*y - 1
-	    #Store the targets into RGF format
+        #Store the targets into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.y"), y, delimiter=' ', fmt="%s")
         #Store the weights into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.weight"), sample_weight, delimiter=' ', fmt="%s")
-        
+
         #format train command
         params = []
         if self.verbose > 0:

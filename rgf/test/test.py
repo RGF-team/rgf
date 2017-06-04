@@ -137,7 +137,7 @@ class TestRGFClassfier(unittest.TestCase):
             clf.set_params(**{key : non_valid_params[key]}) # pick and set one non-valid parametr
             self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
 
-    def test_inputs(self):
+    def test_input_arrays_shape(self):
         clf = RGFClassifier()
         
         n_samples = self.y_train.shape[0]
