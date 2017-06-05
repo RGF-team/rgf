@@ -22,5 +22,5 @@ setup(name='rgf_sklearn',
       license="Apache License 2.0",
       packages=find_packages(),
       include_package_data=True,
-      install_requires=["numpy", "scikit-learn>=0.18"],
+      install_requires=["scikit-learn>=0.18"],
 )

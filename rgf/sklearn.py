@@ -8,6 +8,7 @@ import platform
 import subprocess
 
 import numpy as np
+from scipy.sparse import isspmatrix
 from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.base import RegressorMixin
@@ -18,39 +19,36 @@ from sklearn.externals import six
 _ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
 _LOSSES = ("LS", "Expo", "Log")
 _FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
+_SYSTEM = platform.system()
 
 with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as f:
     __version__ = f.read().strip()
 
-sys_name = platform.system()
-WINDOWS = 'Windows'
-LINUX = 'Linux'
-
 ## Edit this ##################################################
-if sys_name == WINDOWS:
-    #Location of the RGF executable
+if _SYSTEM in ('Windows', 'Microsoft'):
+    # Location of the RGF executable
     loc_exec = 'C:\\Program Files\\RGF\\bin\\rgf.exe'
-    #Location for RGF temp files
+    # Location for RGF temp files
     loc_temp = 'temp/'
     default_exec = 'rgf.exe'
-elif sys_name == LINUX:
-    #Location of the RGF executable
+else:  # Linux, Darwin (OS X), etc.
+    # Location of the RGF executable
     loc_exec = '/opt/rgf1.2/bin/rgf'
-    #Location for RGF temp files
+    # Location for RGF temp files
     loc_temp = '/tmp/rgf'
     default_exec = 'rgf'
 ## End Edit ##################################################
 
 
-def is_executable_response(path):
+def _is_executable_response(path):
     try:
-        subprocess.check_output([path, "train"])
+        subprocess.check_output((path, "train"))
         return True
     except Exception:
         return False
 
-# validate path
-if is_executable_response(default_exec):
+# Validate path
+if _is_executable_response(default_exec):
     loc_exec = default_exec
 elif not os.path.isfile(loc_exec):
     raise Exception('{0} is not executable file. Please set '
@@ -58,11 +56,17 @@ elif not os.path.isfile(loc_exec):
 elif not os.access(loc_exec, os.X_OK):
     raise Exception('{0} cannot be accessed. Please set '
                     'loc_exec to RGF execution file.'.format(loc_exec))
-elif is_executable_response(loc_exec):
+elif _is_executable_response(loc_exec):
     pass
 else:
     raise Exception('{0} does not exist or {1} is not in the '
                     '"PATH" variable.'.format(loc_exec, default_exec))
+
+if not os.path.isdir(loc_temp):
+    os.makedirs(loc_temp)
+if not os.access(loc_temp, os.W_OK):
+    raise Exception('{0} is not writable directory. Please set '
+                    'loc_temp to writable directory'.format(loc_temp))
 
 
 def sigmoid(x):
@@ -181,19 +185,18 @@ def _validate_params(max_leaf,
         raise ValueError("clean must be a boolean, got {0}.".format(type(clean)))
 
 
-def sparse_savetxt(filename, input_array):
-    fw = open(filename, 'w')
-    input_array = input_array.tolil()
-    fw.write('sparse {}\n'.format(input_array.shape[-1]))
+def _sparse_savetxt(filename, input_array):
+    with open(filename, 'w') as fw:
+        input_array = input_array.tolil()
+        fw.write('sparse {0:d}\n'.format(input_array.shape[-1]))
 
-    for each_features in input_array:
-        idx_list = each_features.data[0]
-        words = []
-        for idx, val in zip(each_features.nonzero()[1], idx_list):
-            words.append('{0}:{1}'.format(idx, val))
-        line = ' '.join(words)
-        fw.write(line + '\n')
-    fw.close()
+        for each_features in input_array:
+            idx_list = each_features.data[0]
+            words = []
+            for idx, val in zip(each_features.nonzero()[1], idx_list):
+                words.append('{0}:{1}'.format(idx, val))
+            line = ' '.join(words)
+            fw.write(line + '\n')
 
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
@@ -520,11 +523,6 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.file_prefix = prefix
         self.clean = clean
         self.fitted = False
-        if not os.path.isdir(loc_temp):
-            os.mkdir(loc_temp)
-        if not os.access(loc_temp, os.W_OK):
-            raise Exception('{0} is not writable directory. Please set '
-                            'loc_temp to writable directory'.format(loc_temp))
 
     # Fitting/training the model to target variables
     def fit(self, X, y, sample_weight=None):
@@ -536,14 +534,14 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                 if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
                     os.remove(fn)
 
-        if not isinstance(X, np.ndarray):
-            sparse_savetxt(os.path.join(loc_temp, "train.data.x"), X)
+        if isspmatrix(X):
+            _sparse_savetxt(os.path.join(loc_temp, "train.data.x"), X)
         else:
             np.savetxt(os.path.join(loc_temp, "train.data.x"),
                        X, delimiter=' ', fmt="%s")
 
-        # convert 1 to 1, 0 to -1
-        y = 2*y - 1
+        # Convert 1 to 1, 0 to -1
+        y = 2 * y - 1
         # Store the targets into RGF format
         np.savetxt(os.path.join(loc_temp, "train.data.y"), y, delimiter=' ', fmt="%s")
         # Store the weights into RGF format
@@ -591,8 +589,8 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
-        if not isinstance(X, np.ndarray):
-            sparse_savetxt(os.path.join(loc_temp, "test.data.x"), X)
+        if isspmatrix(X):
+            _sparse_savetxt(os.path.join(loc_temp, "test.data.x"), X)
         else:
             np.savetxt(os.path.join(loc_temp, "test.data.x"),
                        X, delimiter=' ', fmt="%s")
@@ -750,11 +748,6 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             self.file_prefix = prefix + str(RGFRegressor.instance_count)
             RGFRegressor.instance_count += 1
         self.clean = clean
-        if not os.path.isdir(loc_temp):
-            os.mkdir(loc_temp)
-        if not os.access(loc_temp, os.W_OK):
-            raise Exception('{0} is not writable directory. Please set loc_temp'
-                            ' to writable directory'.format(loc_temp))
         self.fitted = False
 
     def fit(self, X, y, sample_weight=None):
@@ -807,8 +800,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                 if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
                     os.remove(fn)
 
-        if not isinstance(X, np.ndarray):
-            sparse_savetxt(os.path.join(loc_temp, "train.data.x"), X)
+        if isspmatrix(X):
+            _sparse_savetxt(os.path.join(loc_temp, "train.data.x"), X)
         else:
             np.savetxt(os.path.join(loc_temp, "train.data.x"),
                        X, delimiter=' ', fmt="%s")
@@ -843,7 +836,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 
         cmd = (loc_exec, "train", ",".join(params))
 
-        # train
+        # Train
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
@@ -882,8 +875,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                              "input n_features is %s "
                              % (self.n_features_, n_features))
 
-        if not isinstance(X, np.ndarray):
-            sparse_savetxt(os.path.join(loc_temp, "test.data.x"), X)
+        if isspmatrix(X):
+            _sparse_savetxt(os.path.join(loc_temp, "test.data.x"), X)
         else:
             np.savetxt(os.path.join(loc_temp, "test.data.x"),
                        X, delimiter=' ', fmt="%s")
