@@ -50,7 +50,7 @@ before_install:
 # Setup anaconda
   - chmod +x miniconda.sh
   - ./miniconda.sh -b
-  - export PATH=/home/travis/miniconda2/bin:$PATH
+  - export PATH=$HOME/miniconda2/bin:$PATH
   - conda update --yes conda
   # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
   - sudo rm -rf /dev/shm
