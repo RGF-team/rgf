@@ -124,8 +124,8 @@ class TestRGFClassfier(unittest.TestCase):
                                 calc_prob=True,
                                 clean=0)
         for key in non_valid_params:
-            clf.set_params(**valid_params)  # reset to valid params
-            clf.set_params(**{key: non_valid_params[key]})  # pick and set one non-valid parametr
+            clf.set_params(**valid_params)  # Reset to valid params
+            clf.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
             self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
 
     def test_input_arrays_shape(self):
@@ -177,11 +177,16 @@ class TestRGFRegressor(unittest.TestCase):
                                   ).predict(self.X_test)
         np.testing.assert_allclose(y_pred, y_pred_weighted)
 
-        # TODO(fukatani): I don't come up with effective test.
-        # weights = np.ones(self.y_train.shape[0]) * np.nextafter(np.float32(0), np.float32(1))
-        # weights[0] = 1
-        # y_pred_weighted = reg.fit(self.X_train, self.y_train, weights).predict(self.X_test)
-        # np.testing.assert_equal(y_pred_weighted, np.full(self.y_test.shape[0], self.y_test[0]))
+        np.random.seed(42)
+        idx = np.random.choice(400, 80, replace=False)
+        self.X_train[idx] = -99999  # Add some outliers
+        y_pred_corrupt = reg.fit(self.X_train, self.y_train).predict(self.X_test)
+        mse_corrupt = mean_squared_error(self.y_test, y_pred_corrupt)
+        weights = np.ones(self.y_train.shape[0])
+        weights[idx] = np.nextafter(np.float32(0), np.float32(1))  # Eliminate outliers
+        y_pred_weighted = reg.fit(self.X_train, self.y_train, weights).predict(self.X_test)
+        mse_fixed = mean_squared_error(self.y_test, y_pred_weighted)
+        self.assertLess(mse_fixed, mse_corrupt)
 
     def test_params(self):
         reg = RGFRegressor()
@@ -224,8 +229,8 @@ class TestRGFRegressor(unittest.TestCase):
                                 inc_prefix=1,
                                 clean=0)
         for key in non_valid_params:
-            reg.set_params(**valid_params)  # reset to valid params
-            reg.set_params(**{key: non_valid_params[key]})  # pick and set one non-valid parametr
+            reg.set_params(**valid_params)  # Reset to valid params
+            reg.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
             self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train)
 
     def test_input_arrays_shape(self):
