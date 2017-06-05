@@ -1,13 +1,10 @@
 import unittest
 
 import numpy as np
-from scipy.sparse import csc_matrix
-from scipy.sparse import csr_matrix
-from scipy.sparse import coo_matrix
+from scipy.sparse import coo_matrix, csc_matrix, csr_matrix
 from sklearn import datasets
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
-from sklearn.utils.testing import assert_less, assert_almost_equal
 from sklearn.utils.validation import check_random_state
 
 from rgf.sklearn import RGFClassifier, RGFRegressor
@@ -15,6 +12,7 @@ from rgf.sklearn import RGFClassifier, RGFRegressor
 
 class TestRGFClassfier(unittest.TestCase):
     def setUp(self):
+        # Iris
         iris = datasets.load_iris()
         rng = check_random_state(0)
         perm = rng.permutation(iris.target.size)
@@ -27,49 +25,46 @@ class TestRGFClassfier(unittest.TestCase):
                              test_size=0.2, random_state=42)
 
     def test_classifier(self):
-        clf = RGFClassifier(prefix='clf', clean=False)
+        clf = RGFClassifier(prefix='clf')
         clf.fit(self.iris.data, self.iris.target)
 
         proba_sum = clf.predict_proba(self.iris.data).sum(axis=1)
-        assert_almost_equal(proba_sum, np.ones(self.iris.target.shape[0]))
+        np.testing.assert_almost_equal(proba_sum, np.ones(self.iris.target.shape[0]))
 
-        clf.clean = True
         score = clf.score(self.iris.data, self.iris.target)
-        print("score: " + str(score))
-        self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
+        print('Score: {0:.5f}'.format(score))
+        self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
 
     def test_softmax_classifier(self):
-        clf = RGFClassifier(prefix='clf', calc_prob='Softmax', clean=False)
+        clf = RGFClassifier(prefix='clf', calc_prob='Softmax')
         clf.fit(self.iris.data, self.iris.target)
 
         proba_sum = clf.predict_proba(self.iris.data).sum(axis=1)
-        assert_almost_equal(proba_sum, np.ones(self.iris.target.shape[0]))
+        np.testing.assert_almost_equal(proba_sum, np.ones(self.iris.target.shape[0]))
 
-        clf.clean = True
         score = clf.score(self.iris.data, self.iris.target)
-        print("score: " + str(score))
-        self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
+        print('Score: {0:.5f}'.format(score))
+        self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
 
     def test_bin_classifier(self):
-        clf = RGFClassifier(prefix='clf', clean=False)
+        clf = RGFClassifier(prefix='clf')
         bin_target = (self.iris.target == 2).astype(int)
         clf.fit(self.iris.data, bin_target)
 
         proba_sum = clf.predict_proba(self.iris.data).sum(axis=1)
-        assert_almost_equal(proba_sum, np.ones(bin_target.shape[0]))
+        np.testing.assert_almost_equal(proba_sum, np.ones(bin_target.shape[0]))
 
-        clf.clean = True
         score = clf.score(self.iris.data, bin_target)
-        print("score: " + str(score))
-        self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
+        print('Score: {0:.5f}'.format(score))
+        self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
 
     def test_classifier_sparse_input(self):
-        clf = RGFClassifier(prefix='clf', calc_prob='Softmax', clean=False)
+        clf = RGFClassifier(prefix='clf', calc_prob='Softmax')
         for sparse_format in (csr_matrix, csc_matrix, coo_matrix):
             iris_sparse = sparse_format(self.iris.data)
             clf.fit(iris_sparse, self.iris.target)
             score = clf.score(iris_sparse, self.iris.target)
-            self.assertGreater(score, 0.8, "Failed with score = {0}".format(score))
+            self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
 
     def test_sample_weight(self):
         clf = RGFClassifier()
@@ -77,7 +72,8 @@ class TestRGFClassfier(unittest.TestCase):
         y_pred = clf.fit(self.X_train, self.y_train).predict_proba(self.X_test)
         y_pred_weighted = clf.fit(self.X_train,
                                   self.y_train,
-                                  np.ones(self.y_train.shape[0])).predict_proba(self.X_test)
+                                  np.ones(self.y_train.shape[0])
+                                  ).predict_proba(self.X_test)
         np.testing.assert_allclose(y_pred, y_pred_weighted)
 
         weights = np.ones(self.y_train.shape[0]) * np.nextafter(np.float32(0), np.float32(1))
@@ -142,7 +138,7 @@ class TestRGFClassfier(unittest.TestCase):
                           clf.fit,
                           self.X_train,
                           self.y_train,
-                          np.ones(n_samples*2).reshape((n_samples, 2)))
+                          np.ones((n_samples, 2)))
 
 
 class TestRGFRegressor(unittest.TestCase):
@@ -159,17 +155,17 @@ class TestRGFRegressor(unittest.TestCase):
         reg.fit(self.X_train, self.y_train)
         y_pred = reg.predict(self.X_test)
         mse = mean_squared_error(self.y_test, y_pred)
-        print("mse: " + str(mse))
-        assert_less(mse, 6.0)
+        print("MSE: {0:.5f}".format(mse))
+        self.assertLess(mse, 6.0)
 
-    def test_regressior_sparse_input(self):
-        reg = RGFRegressor(prefix='reg', clean=False)
+    def test_regressor_sparse_input(self):
+        reg = RGFRegressor(prefix='reg')
         for sparse_format in (csr_matrix, csc_matrix, coo_matrix):
             X_sparse = sparse_format(self.X)
             reg.fit(X_sparse, self.y)
             y_pred = reg.predict(X_sparse)
             mse = mean_squared_error(self.y, y_pred)
-            assert_less(mse, 6.0)
+            self.assertLess(mse, 6.0)
 
     def test_sample_weight(self):
         reg = RGFRegressor()
@@ -242,7 +238,7 @@ class TestRGFRegressor(unittest.TestCase):
                           reg.fit,
                           self.X_train,
                           self.y_train,
-                          np.ones(n_samples*2).reshape((n_samples, 2)))
+                          np.ones((n_samples, 2)))
 
 
 if __name__ == '__main__':
