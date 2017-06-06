@@ -15,10 +15,10 @@ from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
 from sklearn.utils.extmath import softmax
-from sklearn.utils.validation import check_X_y, column_or_1d, check_consistent_length, check_array
+from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d 
 
-with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as f:
-    __version__ = f.read().strip()
+with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as _f:
+    __version__ = _f.read().strip()
 
 _ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
 _LOSSES = ("LS", "Expo", "Log")
@@ -70,7 +70,7 @@ if not os.access(loc_temp, os.W_OK):
                     'loc_temp to writable directory'.format(loc_temp))
 
 
-def sigmoid(x):
+def _sigmoid(x):
     """
     x : array-like
     output : array-like
@@ -459,7 +459,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             # In honest I don't understand which is better
             # softmax or normalized sigmoid for calc probability.
             if self.calc_prob == "Sigmoid":
-                proba = sigmoid(proba)
+                proba = _sigmoid(proba)
                 normalizer = proba.sum(axis=1)[:, np.newaxis]
                 normalizer[normalizer == 0.0] = 1.0
                 proba /= normalizer
@@ -894,7 +894,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         # Find latest model location
         model_glob = loc_temp + os.sep + self._file_prefix + "*"
         if not glob(model_glob):
-            raise Exception('Model learning result is not found in {0}. This is rgf_python error.'.format(loc_temp))
+            raise Exception('Model learning result is not found in {0}. '
+                            'This is rgf_python error.'.format(loc_temp))
         latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
 
         # Format test command
