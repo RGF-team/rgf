@@ -341,7 +341,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         X : array-like or sparse matrix of shape = [n_samples, n_features]
             The training input samples.
 
-        y : array-like, shape = [n_samples] or [n_samples, n_outputs]
+        y : array-like, shape = [n_samples]
             The target values (class labels in classification).
 
         sample_weight : array-like, shape = [n_samples] or None
