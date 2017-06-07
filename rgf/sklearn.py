@@ -200,7 +200,8 @@ def _sparse_savetxt(filename, input_array):
 
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
-    """A Regularized Greedy Forest [1] classifier.
+    """
+    A Regularized Greedy Forest [1] classifier.
 
     Tuning parameters detailed instruction:
         http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf
@@ -283,8 +284,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
     Reference
     ---------
-    [1] Rie Johnson and Tong Zhang.
-        Learning Nonlinear Functions Using Regularized Greedy Forest
+    [1] Rie Johnson and Tong Zhang,
+        Learning Nonlinear Functions Using Regularized Greedy Forest.
     """
     instance_count = 0
 
@@ -332,14 +333,15 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self.fitted = False
 
     def fit(self, X, y, sample_weight=None):
-        """Build a RGF Classifier from the training set (X, y).
+        """
+        Build a RGF Classifier from the training set (X, y).
 
         Parameters
         ----------
         X : array-like or sparse matrix of shape = [n_samples, n_features]
             The training input samples.
 
-        y : array-like, shape = [n_samples] or [n_samples, n_outputs]
+        y : array-like, shape = [n_samples]
             The target values (class labels in classification).
 
         sample_weight : array-like, shape = [n_samples] or None
@@ -419,9 +421,10 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         return self
 
     def predict_proba(self, X):
-        """Predict class probabilities for X.
+        """
+        Predict class probabilities for X.
 
-        The predicted class probabilities of an input sample is computed.
+        The predicted class probabilities of an input sample are computed.
 
         Parameters
         ----------
@@ -462,15 +465,15 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         return proba
 
     def predict(self, X):
-        """Predict class for X.
+        """
+        Predict class for X.
 
-        The predicted class of an input sample is a vote by the StackedClassifier.
+        The predicted class of an input sample is computed.
 
         Parameters
         ----------
-        X : array-like of shape = [n_samples, n_features]
-            The input samples. Internally, it will be converted to
-            ``dtype=np.float32``.
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The input samples.
 
         Returns
         -------
@@ -482,7 +485,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
 
 class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
-    """RGF Binary Classifier.
+    """
+    RGF Binary Classifier.
     Don't instantiate this class directly.
     RGFBinaryClassifier should be instantiated only by RGFClassifier.
     """
@@ -624,7 +628,8 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
 
 class RGFRegressor(BaseEstimator, RegressorMixin):
-    """A Regularized Greedy Forest [1] regressor.
+    """
+    A Regularized Greedy Forest [1] regressor.
 
     Tuning parameters detailed instruction:
         http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf
@@ -704,8 +709,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 
     Reference
     ---------
-    [1] Rie Johnson and Tong Zhang.
-        Learning Nonlinear Functions Using Regularized Greedy Forest
+    [1] Rie Johnson and Tong Zhang,
+        Learning Nonlinear Functions Using Regularized Greedy Forest.
     """
     instance_count = 0
 
@@ -751,15 +756,15 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         self.fitted = False
 
     def fit(self, X, y, sample_weight=None):
-        """Build a RGF Regressor from the training set (X, y).
+        """
+        Build a RGF Regressor from the training set (X, y).
 
         Parameters
         ----------
         X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The training input samples. Internally, it will be converted to
-            ``dtype=np.float32``.
+            The training input samples.
 
-        y : array-like, shape = [n_samples] or [n_samples, n_outputs]
+        y : array-like, shape = [n_samples]
             The target values (real numbers in regression).
 
         sample_weight : array-like, shape = [n_samples] or None
@@ -849,14 +854,15 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         return self
 
     def predict(self, X):
-        """The predicted value of an input sample is a vote by the RGFRegressor.
+        """
+        Predict regression target for X.
+
+        The predicted regression target of an input sample is computed.
 
         Parameters
         ----------
         X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The input samples. Internally, it will be converted to
-            ``dtype=np.float32`` and if a sparse matrix is provided
-            to a sparse ``csr_matrix``.
+            The input samples.
 
         Returns
         -------
