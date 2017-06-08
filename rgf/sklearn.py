@@ -360,6 +360,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             sample_weight = np.ones(n_samples, dtype=np.float32)
         else:
             sample_weight = column_or_1d(sample_weight, warn=True)
+            if (sample_weight <= 0).any():
+                raise ValueError("Sample weights must be positive.")
         check_consistent_length(X, y, sample_weight)
 
         if self.sl2 is None:
@@ -783,6 +785,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             sample_weight = np.ones(n_samples, dtype=np.float32)
         else:
             sample_weight = column_or_1d(sample_weight, warn=True)
+            if (sample_weight <= 0).any():
+                raise ValueError("Sample weights must be positive.")
         check_consistent_length(X, y, sample_weight)
 
         if self.sl2 is None:
