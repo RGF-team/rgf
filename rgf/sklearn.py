@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+__all__ = ('RGFClassifier', 'RGFRegressor')
+
 from glob import glob
 from math import ceil
 import numbers
@@ -9,20 +11,19 @@ import subprocess
 
 import numpy as np
 from scipy.sparse import isspmatrix
-from sklearn.base import BaseEstimator
-from sklearn.base import ClassifierMixin
-from sklearn.base import RegressorMixin
-from sklearn.utils.extmath import softmax
-from sklearn.utils.validation import NotFittedError, check_X_y, column_or_1d, check_consistent_length, check_array
+from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
+from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
+from sklearn.utils.extmath import softmax
+from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d 
+
+with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as _f:
+    __version__ = _f.read().strip()
 
 _ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
 _LOSSES = ("LS", "Expo", "Log")
 _FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 _SYSTEM = platform.system()
-
-with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as f:
-    __version__ = f.read().strip()
 
 ## Edit this ##################################################
 if _SYSTEM in ('Windows', 'Microsoft'):
@@ -69,7 +70,7 @@ if not os.access(loc_temp, os.W_OK):
                     'loc_temp to writable directory'.format(loc_temp))
 
 
-def sigmoid(x):
+def _sigmoid(x):
     """
     x : array-like
     output : array-like
@@ -324,13 +325,13 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self.verbose = verbose
         self.prefix = prefix
         self.inc_prefix = inc_prefix
-        self.file_prefix = prefix
+        self._file_prefix = prefix
         if inc_prefix:
-            self.file_prefix = prefix + str(RGFClassifier.instance_count)
+            self._file_prefix = prefix + str(RGFClassifier.instance_count)
             RGFClassifier.instance_count += 1
         self.calc_prob = calc_prob
         self.clean = clean
-        self.fitted = False
+        self.fitted_ = False
 
     def fit(self, X, y, sample_weight=None):
         """
@@ -379,47 +380,47 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self.classes_ = sorted(np.unique(y))
         self.n_classes_ = len(self.classes_)
         if self.n_classes_ <= 2:
-            self.estimator = RGFBinaryClassifier(max_leaf=self.max_leaf,
-                                                 test_interval=self.test_interval,
-                                                 algorithm=self.algorithm,
-                                                 loss=self.loss,
-                                                 reg_depth=self.reg_depth,
-                                                 l2=self.l2,
-                                                 sl2=self.sl2,
-                                                 normalize=self.normalize,
-                                                 min_samples_leaf=self.min_samples_leaf,
-                                                 n_iter=self.n_iter,
-                                                 n_tree_search=self.n_tree_search,
-                                                 opt_interval=self.opt_interval,
-                                                 learning_rate=self.learning_rate,
-                                                 verbose=self.verbose,
-                                                 prefix=self.prefix,
-                                                 inc_prefix=self.inc_prefix,
-                                                 clean=self.clean)
-            self.estimator.fit(X, y, sample_weight)
+            self.estimator_ = _RGFBinaryClassifier(max_leaf=self.max_leaf,
+                                                   test_interval=self.test_interval,
+                                                   algorithm=self.algorithm,
+                                                   loss=self.loss,
+                                                   reg_depth=self.reg_depth,
+                                                   l2=self.l2,
+                                                   sl2=self.sl2,
+                                                   normalize=self.normalize,
+                                                   min_samples_leaf=self.min_samples_leaf,
+                                                   n_iter=self.n_iter,
+                                                   n_tree_search=self.n_tree_search,
+                                                   opt_interval=self.opt_interval,
+                                                   learning_rate=self.learning_rate,
+                                                   verbose=self.verbose,
+                                                   prefix=self.prefix,
+                                                   inc_prefix=self.inc_prefix,
+                                                   clean=self.clean)
+            self.estimator_.fit(X, y, sample_weight)
         else:
-            self.estimators = [None] * self.n_classes_
+            self.estimators_ = [None] * self.n_classes_
             for i, cls_num in enumerate(self.classes_):
                 y_one_or_rest = (y == cls_num).astype(int)
                 prefix = "{0}_c{1}".format(self.prefix, i)
-                self.estimators[i] = RGFBinaryClassifier(max_leaf=self.max_leaf,
-                                                         test_interval=self.test_interval,
-                                                         algorithm=self.algorithm,
-                                                         loss=self.loss,
-                                                         reg_depth=self.reg_depth,
-                                                         l2=self.l2,
-                                                         sl2=self.sl2,
-                                                         normalize=self.normalize,
-                                                         min_samples_leaf=self.min_samples_leaf,
-                                                         n_iter=self.n_iter,
-                                                         n_tree_search=self.n_tree_search,
-                                                         opt_interval=self.opt_interval,
-                                                         learning_rate=self.learning_rate,
-                                                         verbose=self.verbose,
-                                                         prefix=prefix,
-                                                         inc_prefix=True,
-                                                         clean=self.clean)
-                self.estimators[i].fit(X, y_one_or_rest, sample_weight)
+                self.estimators_[i] = _RGFBinaryClassifier(max_leaf=self.max_leaf,
+                                                           test_interval=self.test_interval,
+                                                           algorithm=self.algorithm,
+                                                           loss=self.loss,
+                                                           reg_depth=self.reg_depth,
+                                                           l2=self.l2,
+                                                           sl2=self.sl2,
+                                                           normalize=self.normalize,
+                                                           min_samples_leaf=self.min_samples_leaf,
+                                                           n_iter=self.n_iter,
+                                                           n_tree_search=self.n_tree_search,
+                                                           opt_interval=self.opt_interval,
+                                                           learning_rate=self.learning_rate,
+                                                           verbose=self.verbose,
+                                                           prefix=prefix,
+                                                           inc_prefix=True,
+                                                           clean=self.clean)
+                self.estimators_[i].fit(X, y_one_or_rest, sample_weight)
         return self
 
     def predict_proba(self, X):
@@ -446,19 +447,19 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                              "input n_features is %s "
                              % (self.n_features_, n_features))
         if self.n_classes_ <= 2:
-            proba = self.estimator.predict_proba(X)
-            proba = sigmoid(proba)
-            proba = np.c_[1-proba, proba]
+            proba = self.estimator_.predict_proba(X)
+            proba = _sigmoid(proba)
+            proba = np.c_[1 - proba, proba]
         else:
             proba = np.zeros((X.shape[0], self.n_classes_))
-            for i, clf in enumerate(self.estimators):
+            for i, clf in enumerate(self.estimators_):
                 class_proba = clf.predict_proba(X)
                 proba[:, i] = class_proba
 
             # In honest I don't understand which is better
             # softmax or normalized sigmoid for calc probability.
             if self.calc_prob == "Sigmoid":
-                proba = sigmoid(proba)
+                proba = _sigmoid(proba)
                 normalizer = proba.sum(axis=1)[:, np.newaxis]
                 normalizer[normalizer == 0.0] = 1.0
                 proba /= normalizer
@@ -486,9 +487,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         return np.argmax(proba, axis=1)
 
 
-class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
-    """
-    RGF Binary Classifier.
+class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
+    """RGF Binary Classifier.
     Don't instantiate this class directly.
     RGFBinaryClassifier should be instantiated only by RGFClassifier.
     """
@@ -526,9 +526,9 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.verbose = verbose
         self.prefix = prefix
         self.inc_prefix = inc_prefix
-        self.file_prefix = prefix
+        self._file_prefix = prefix
         self.clean = clean
-        self.fitted = False
+        self.fitted_ = False
 
     # Fitting/training the model to target variables
     def fit(self, X, y, sample_weight=None):
@@ -573,7 +573,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("num_tree_search=%s" % self.n_tree_search)
         params.append("opt_interval=%s" % self.opt_interval)
         params.append("opt_stepsize=%s" % self.learning_rate)
-        params.append("model_fn_prefix=%s" % os.path.join(loc_temp, self.file_prefix))
+        params.append("model_fn_prefix=%s" % os.path.join(loc_temp, self._file_prefix))
         params.append("train_w_fn=%s" % os.path.join(loc_temp, "train.data.weight"))
 
         cmd = (loc_exec, "train", ",".join(params))
@@ -587,11 +587,11 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         if self.verbose:
             for k in output:
                 print(k)
-        self.fitted = True
+        self.fitted_ = True
         return self
 
     def predict_proba(self, X):
-        if not self.fitted:
+        if not self.fitted_:
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
@@ -602,7 +602,7 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                        X, delimiter=' ', fmt="%s")
 
         # Find latest model location
-        model_glob = loc_temp + os.sep + self.file_prefix + "*"
+        model_glob = loc_temp + os.sep + self._file_prefix + "*"
         if not glob(model_glob):
             raise Exception('Model learning result is not found in {0}. '
                             'This is rgf_python error.'.format(loc_temp))
@@ -750,12 +750,12 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         self.verbose = verbose
         self.prefix = prefix
         self.inc_prefix = inc_prefix
-        self.file_prefix = prefix
+        self._file_prefix = prefix
         if inc_prefix:
-            self.file_prefix = prefix + str(RGFRegressor.instance_count)
+            self._file_prefix = prefix + str(RGFRegressor.instance_count)
             RGFRegressor.instance_count += 1
         self.clean = clean
-        self.fitted = False
+        self.fitted_ = False
 
     def fit(self, X, y, sample_weight=None):
         """
@@ -840,7 +840,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("num_tree_search=%s" % self.n_tree_search)
         params.append("opt_interval=%s" % self.opt_interval)
         params.append("opt_stepsize=%s" % self.learning_rate)
-        params.append("model_fn_prefix=%s" % os.path.join(loc_temp, self.file_prefix))
+        params.append("model_fn_prefix=%s" % os.path.join(loc_temp, self._file_prefix))
         params.append("train_w_fn=%s" % os.path.join(loc_temp, "train.data.weight"))
 
         cmd = (loc_exec, "train", ",".join(params))
@@ -854,7 +854,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         if self.verbose:
             for k in output:
                 print(k)
-        self.fitted = True
+        self.fitted_ = True
         return self
 
     def predict(self, X):
@@ -873,7 +873,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         y : array of shape = [n_samples]
             The predicted values.
         """
-        if not self.fitted:
+        if not self.fitted_:
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
@@ -892,9 +892,10 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                        X, delimiter=' ', fmt="%s")
 
         # Find latest model location
-        model_glob = loc_temp + os.sep + self.file_prefix + "*"
+        model_glob = loc_temp + os.sep + self._file_prefix + "*"
         if not glob(model_glob):
-            raise Exception('Model learning result is not found in {0}. This is rgf_python error.'.format(loc_temp))
+            raise Exception('Model learning result is not found in {0}. '
+                            'This is rgf_python error.'.format(loc_temp))
         latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
 
         # Format test command
