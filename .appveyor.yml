@@ -1,0 +1,31 @@
+build: false
+
+environment:
+  matrix:
+    - PYTHON_VERSION: 2.7
+      MINICONDA: C:\Miniconda
+    - PYTHON_VERSION: 3.4
+      MINICONDA: C:\Miniconda3
+    - PYTHON_VERSION: 3.5
+      MINICONDA: C:\Miniconda35
+
+init:
+  - "ECHO %PYTHON_VERSION% %MINICONDA%"
+
+install:
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy scikit-learn"
+  - activate test-environment
+  - powershell -command "$clnt = new-object System.Net.WebClient; $clnt.DownloadFile('https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip', 'rgf1.2.zip')"
+  - powershell -command "Add-Type -assembly 'system.io.compression.filesystem'; [io.compression.zipfile]::ExtractToDirectory('rgf1.2.zip', 'rgf1.2')"
+  - cd rgf1.2/rgf1.2/bin
+  - rename rgf.exe.file rgf.exe
+  - set curDir=%cd%
+  - set PATH=%PATH%;%curDir%
+  - cd ../../..
+  - python setup.py install
+
+test_script:
+  - python rgf/test/test.py

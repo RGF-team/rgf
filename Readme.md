@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/fukatani/rgf_python.svg?branch=master)](https://travis-ci.org/fukatani/rgf_python)
+[![Build Status Travis CI](https://travis-ci.org/fukatani/rgf_python.svg?branch=master)](https://travis-ci.org/fukatani/rgf_python)
+[![Build Status Appveyor](https://ci.appveyor.com/project/fukatani/rgf-python/branch/master?svg=true)](https://ci.appveyor.com/project/fukatani/rgf-python)
 [![License](https://img.shields.io/github/license/fukatani/rgf_python.svg)](https://github.com/fukatani/rgf_python/blob/master/LICENSE)
 [![GitHub Version](https://badge.fury.io/gh/fukatani%2Frgf_python.svg)](https://github.com/fukatani/rgf_python/tree/master/rgf/VERSION)
 
@@ -69,12 +70,10 @@ Or you can direct specify path by **manual editing rgf/sklearn.py**
 
 ```python
 ## Edit this ##################################################
-
 #Location of the RGF executable
 loc_exec = 'C:\\Program Files\\RGF\\bin\\rgf.exe'
 #Location for RGF temp files
 loc_temp = 'temp/'
-
 ## End Edit ##################################################
 ```
 
