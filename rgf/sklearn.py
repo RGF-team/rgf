@@ -192,7 +192,7 @@ def _sparse_savetxt(filename, input_array):
         zip_func = izip
     except ImportError:
         zip_func = zip
-    spmatrix = input_array.tocoo()
+    spmatrix = input_array.tocsr().tocoo()
     n_row = input_array.shape[0]
     row = 0
     line = ''
