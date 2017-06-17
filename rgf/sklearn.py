@@ -192,22 +192,22 @@ def _sparse_savetxt(filename, input_array):
         zip_func = izip
     except ImportError:  # For Python3.x
         zip_func = zip
-    spmatrix = input_array.tocsr().tocoo()
+    input_array = input_array.tocsr().tocoo()
     n_row = input_array.shape[0]
     current_sample_row = 0
     line = []
     with open(filename, 'w') as fw:
         fw.write('sparse {0:d}\n'.format(input_array.shape[-1]))
-        for i, j, v in zip(spmatrix.row, spmatrix.col, spmatrix.data):
+        for i, j, v in zip_func(input_array.row, input_array.col, input_array.data):
             if i == current_sample_row:
                 line.append('{0}:{1}'.format(j, v))
             else:
-                fw.write(' '.join(line) + '\n')
-                fw.write('\n' * (i - current_sample_row - 1))
+                fw.write(' '.join(line))
+                fw.write('\n' * (i - current_sample_row))
                 line = ['{0}:{1}'.format(j, v)]
                 current_sample_row = i
-        fw.write(' '.join(line) + '\n')
-        fw.write('\n' * (n_row - i - 1))
+        fw.write(' '.join(line))
+        fw.write('\n' * (n_row - i))
 
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
