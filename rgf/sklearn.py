@@ -187,26 +187,26 @@ def _validate_params(max_leaf,
 
 
 def _sparse_savetxt(filename, input_array):
-    try:
+    try:  # For Python2.x
         from itertools import izip
         zip_func = izip
-    except ImportError:
+    except ImportError:  # For Python3.x
         zip_func = zip
     spmatrix = input_array.tocsr().tocoo()
     n_row = input_array.shape[0]
-    row = 0
-    line = ''
+    current_sample_row = 0
+    line = []
     with open(filename, 'w') as fw:
         fw.write('sparse {0:d}\n'.format(input_array.shape[-1]))
         for i, j, v in zip(spmatrix.row, spmatrix.col, spmatrix.data):
-            if i == row:
-                line += '{0}:{1} '.format(j, v)
-            else:           
-                fw.write(line + '\n')
-                fw.write('\n' * (i - row - 1))
-                line = '{0}:{1} '.format(j, v)
-                row = i
-        fw.write(line + '\n')
+            if i == current_sample_row:
+                line.append('{0}:{1}'.format(j, v))
+            else:
+                fw.write(' '.join(line) + '\n')
+                fw.write('\n' * (i - current_sample_row - 1))
+                line = ['{0}:{1}'.format(j, v)]
+                current_sample_row = i
+        fw.write(' '.join(line) + '\n')
         fw.write('\n' * (n_row - i - 1))
 
 
