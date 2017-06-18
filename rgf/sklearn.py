@@ -384,7 +384,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         else:
             self.n_iter_ = self.n_iter
 
-        X, y = check_X_y(X, y, accept_sparse=True, multi_output=True)
+        X, y = check_X_y(X, y, accept_sparse=True)
         n_samples, self.n_features_ = X.shape
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
