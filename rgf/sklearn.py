@@ -15,6 +15,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
 from sklearn.utils.extmath import softmax
+from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d 
 
 with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as _f:
@@ -392,6 +393,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             if (sample_weight <= 0).any():
                 raise ValueError("Sample weights must be positive.")
         check_consistent_length(X, y, sample_weight)
+        check_classification_targets(y)
 
         self.classes_ = sorted(np.unique(y))
         self.n_classes_ = len(self.classes_)
