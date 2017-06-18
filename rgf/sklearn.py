@@ -294,6 +294,23 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         If True, remove temp files before fitting.
         If False, previous leaning result will be loaded.
 
+    Attributes:
+    -----------
+    estimators_ : list of binary classifiers
+        The collection of fitted sub-estimators when `fit` is performed.
+
+    classes_ : array of shape = [n_classes]
+        The classes labels when `fit` is performed.
+
+    n_classes_ : int
+        The number of classes when `fit` is performed.
+
+    n_features_ : int
+        The number of features when `fit` is performed.
+
+    fitted_ : boolean
+        Indicates whether `fit` is performed.
+
     Reference
     ---------
     [1] Rie Johnson and Tong Zhang,
@@ -464,6 +481,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         -------
         p : array of shape = [n_samples, n_classes].
             The class probabilities of the input samples.
+            The order of the classes corresponds to that in the attribute classes_.
         """
         if not self.fitted_:
             raise NotFittedError("Estimator not fitted, "
