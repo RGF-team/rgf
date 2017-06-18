@@ -395,7 +395,10 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
         self.classes_ = sorted(np.unique(y))
         self.n_classes_ = len(self.classes_)
+        self._classes_map = {}
         if self.n_classes_ == 2:
+            self._classes_map[0] = self.classes_[0]
+            self._classes_map[1] = self.classes_[1]
             self.estimator_ = _RGFBinaryClassifier(max_leaf=self.max_leaf,
                                                    test_interval=self.test_interval,
                                                    algorithm=self.algorithm,
@@ -417,6 +420,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         elif self.n_classes_ > 2:
             self.estimators_ = [None] * self.n_classes_
             for i, cls_num in enumerate(self.classes_):
+                self._classes_map[i] = cls_num
                 y_one_or_rest = (y == cls_num).astype(int)
                 prefix = "{0}_c{1}".format(self.prefix, i)
                 self.estimators_[i] = _RGFBinaryClassifier(max_leaf=self.max_leaf,
@@ -502,7 +506,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             The predicted classes.
         """
         proba = self.predict_proba(X)
-        return np.argmax(proba, axis=1)
+        y_pred = np.argmax(proba, axis=1)
+        return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y_pred)]
 
 
 class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
