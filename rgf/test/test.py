@@ -5,6 +5,7 @@ from scipy import sparse
 from sklearn import datasets
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
+from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_random_state
 
 from rgf.sklearn import RGFClassifier, RGFRegressor
@@ -57,6 +58,9 @@ class TestRGFClassfier(unittest.TestCase):
         score = clf.score(self.iris.data, bin_target)
         print('Score: {0:.5f}'.format(score))
         self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
+
+    def test_sklearn_integration(self):
+        check_estimator(RGFClassifier)
 
     def test_classifier_sparse_input(self):
         clf = RGFClassifier(prefix='clf', calc_prob='Softmax')
