@@ -365,7 +365,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         """
         _validate_params(**self.get_params())
 
-        X, y = check_X_y(X, y, accept_sparse=True, dtype=None, multi_output=True)
+        X, y = check_X_y(X, y, accept_sparse=True, multi_output=True)
         n_samples, self.n_features_ = X.shape
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
@@ -449,7 +449,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         p : array of shape = [n_samples, n_classes].
             The class probabilities of the input samples.
         """
-        X = check_array(X, dtype=None, accept_sparse=True)
+        X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
         if self.n_features_ != n_features:
             raise ValueError("Number of features of the model must "
@@ -789,7 +789,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         """
         _validate_params(**self.get_params())
 
-        X, y = check_X_y(X, y, accept_sparse=True, dtype=None, multi_output=False)
+        X, y = check_X_y(X, y, accept_sparse=True, multi_output=False)
         n_samples, self.n_features_ = X.shape
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
@@ -887,7 +887,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
-        X = check_array(X, dtype=None, accept_sparse=True)
+        X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
         if self.n_features_ != n_features:
             raise ValueError("Number of features of the model must "
