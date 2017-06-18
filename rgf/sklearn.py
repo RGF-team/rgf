@@ -401,7 +401,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         if self.n_classes_ == 2:
             self._classes_map[0] = self.classes_[0]
             self._classes_map[1] = self.classes_[1]
-            self.estimator_ = _RGFBinaryClassifier(max_leaf=self.max_leaf,
+            self.estimators_ = []
+            self.estimators_[0] = _RGFBinaryClassifier(max_leaf=self.max_leaf,
                                                    test_interval=self.test_interval,
                                                    algorithm=self.algorithm,
                                                    loss=self.loss,
@@ -418,7 +419,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                                    prefix=self.prefix,
                                                    inc_prefix=self.inc_prefix,
                                                    clean=self.clean)
-            self.estimator_.fit(X, y, sample_weight)
+            self.estimators_[0].fit(X, y, sample_weight)
         elif self.n_classes_ > 2:
             self.estimators_ = [None] * self.n_classes_
             for i, cls_num in enumerate(self.classes_):
@@ -475,7 +476,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                              "input n_features is %s "
                              % (self.n_features_, n_features))
         if self.n_classes_ <= 2:
-            proba = self.estimator_.predict_proba(X)
+            proba = self.estimators_[0].predict_proba(X)
             proba = _sigmoid(proba)
             proba = np.c_[1 - proba, proba]
         else:
