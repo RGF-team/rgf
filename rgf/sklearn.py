@@ -445,6 +445,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                 self.estimators_[i].fit(X, y_one_or_rest, sample_weight)
         else:
             raise ValueError("Classifier can't predict when only one class is present.")
+        self.fitted_ = True
         return self
 
     def predict_proba(self, X):
@@ -463,6 +464,9 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         p : array of shape = [n_samples, n_classes].
             The class probabilities of the input samples.
         """
+        if not self.fitted_:
+            raise NotFittedError("Estimator not fitted, "
+                                 "call `fit` before exploiting the model.")
         X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
         if self.n_features_ != n_features:
