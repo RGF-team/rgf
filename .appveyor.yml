@@ -16,7 +16,7 @@ install:
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy scikit-learn"
+  - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose scikit-learn"
   - activate test-environment
   - powershell -command "$clnt = new-object System.Net.WebClient; $clnt.DownloadFile('https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip', 'rgf1.2.zip')"
   - powershell -command "Add-Type -assembly 'system.io.compression.filesystem'; [io.compression.zipfile]::ExtractToDirectory('rgf1.2.zip', 'rgf1.2')"
