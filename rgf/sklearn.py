@@ -395,7 +395,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
         self.classes_ = sorted(np.unique(y))
         self.n_classes_ = len(self.classes_)
-        if self.n_classes_ <= 2:
+        if self.n_classes_ == 2:
             self.estimator_ = _RGFBinaryClassifier(max_leaf=self.max_leaf,
                                                    test_interval=self.test_interval,
                                                    algorithm=self.algorithm,
@@ -414,7 +414,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                                    inc_prefix=self.inc_prefix,
                                                    clean=self.clean)
             self.estimator_.fit(X, y, sample_weight)
-        else:
+        elif self.n_classes_ > 2:
             self.estimators_ = [None] * self.n_classes_
             for i, cls_num in enumerate(self.classes_):
                 y_one_or_rest = (y == cls_num).astype(int)
@@ -437,6 +437,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                                            inc_prefix=True,
                                                            clean=self.clean)
                 self.estimators_[i].fit(X, y_one_or_rest, sample_weight)
+        else:
+            raise ValueError("Classifier can't predict when only one class is present.")
         return self
 
     def predict_proba(self, X):
