@@ -1,7 +1,7 @@
 import unittest
 
 import numpy as np
-from scipy.sparse import coo_matrix, csc_matrix, csr_matrix
+from scipy import sparse
 from sklearn import datasets
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
@@ -60,7 +60,8 @@ class TestRGFClassfier(unittest.TestCase):
 
     def test_classifier_sparse_input(self):
         clf = RGFClassifier(prefix='clf', calc_prob='Softmax')
-        for sparse_format in (csr_matrix, csc_matrix, coo_matrix):
+        for sparse_format in (sparse.bsr_matrix, sparse.coo_matrix, sparse.csc_matrix,
+                              sparse.csr_matrix, sparse.dia_matrix, sparse.dok_matrix, sparse.lil_matrix):
             iris_sparse = sparse_format(self.iris.data)
             clf.fit(iris_sparse, self.iris.target)
             score = clf.score(iris_sparse, self.iris.target)
@@ -151,7 +152,7 @@ class TestRGFRegressor(unittest.TestCase):
         self.X_test, self.y_test = self.X[400:], self.y[400:]
 
     def test_regressor(self):
-        reg = RGFRegressor(prefix='reg', verbose=1)
+        reg = RGFRegressor(prefix='reg')
         reg.fit(self.X_train, self.y_train)
         y_pred = reg.predict(self.X_test)
         mse = mean_squared_error(self.y_test, y_pred)
@@ -160,7 +161,8 @@ class TestRGFRegressor(unittest.TestCase):
 
     def test_regressor_sparse_input(self):
         reg = RGFRegressor(prefix='reg')
-        for sparse_format in (csr_matrix, csc_matrix, coo_matrix):
+        for sparse_format in (sparse.bsr_matrix, sparse.coo_matrix, sparse.csc_matrix,
+                              sparse.csr_matrix, sparse.dia_matrix, sparse.dok_matrix, sparse.lil_matrix):
             X_sparse = sparse_format(self.X)
             reg.fit(X_sparse, self.y)
             y_pred = reg.predict(X_sparse)

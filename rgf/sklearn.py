@@ -187,17 +187,27 @@ def _validate_params(max_leaf,
 
 
 def _sparse_savetxt(filename, input_array):
+    try:  # For Python2.x
+        from itertools import izip
+        zip_func = izip
+    except ImportError:  # For Python3.x
+        zip_func = zip
+    input_array = input_array.tocsr().tocoo()
+    n_row = input_array.shape[0]
+    current_sample_row = 0
+    line = []
     with open(filename, 'w') as fw:
-        input_array = input_array.tolil()
         fw.write('sparse {0:d}\n'.format(input_array.shape[-1]))
-
-        for each_features in input_array:
-            idx_list = each_features.data[0]
-            words = []
-            for idx, val in zip(each_features.nonzero()[1], idx_list):
-                words.append('{0}:{1}'.format(idx, val))
-            line = ' '.join(words)
-            fw.write(line + '\n')
+        for i, j, v in zip_func(input_array.row, input_array.col, input_array.data):
+            if i == current_sample_row:
+                line.append('{0}:{1}'.format(j, v))
+            else:
+                fw.write(' '.join(line))
+                fw.write('\n' * (i - current_sample_row))
+                line = ['{0}:{1}'.format(j, v)]
+                current_sample_row = i
+        fw.write(' '.join(line))
+        fw.write('\n' * (n_row - i))
 
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
