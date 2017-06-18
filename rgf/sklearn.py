@@ -365,6 +365,24 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         """
         _validate_params(**self.get_params())
 
+        if self.sl2 is None:
+            self.sl2_ = self.l2
+        else:
+            self.sl2_ = self.sl2
+
+        if isinstance(self.min_samples_leaf, _FLOATS):
+            self.min_samples_leaf_ = ceil(self.min_samples_leaf * n_samples)
+        else:
+            self.min_samples_leaf_ = self.min_samples_leaf
+
+        if self.n_iter is None:
+            if self.loss == "LS":
+                self.n_iter_ = 10
+            else:
+                self.n_iter_ = 5
+        else:
+            self.n_iter_ = self.n_iter
+
         X, y = check_X_y(X, y, accept_sparse=True, multi_output=True)
         n_samples, self.n_features_ = X.shape
         if sample_weight is None:
@@ -375,18 +393,6 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                 raise ValueError("Sample weights must be positive.")
         check_consistent_length(X, y, sample_weight)
 
-        if self.sl2 is None:
-            self.sl2 = self.l2
-
-        if isinstance(self.min_samples_leaf, _FLOATS):
-            self.min_samples_leaf = ceil(self.min_samples_leaf * n_samples)
-
-        if self.n_iter is None:
-            if self.loss == "LS":
-                self.n_iter = 10
-            else:
-                self.n_iter = 5
-
         self.classes_ = sorted(np.unique(y))
         self.n_classes_ = len(self.classes_)
         if self.n_classes_ <= 2:
@@ -396,10 +402,10 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                                    loss=self.loss,
                                                    reg_depth=self.reg_depth,
                                                    l2=self.l2,
-                                                   sl2=self.sl2,
+                                                   sl2=self.sl2_,
                                                    normalize=self.normalize,
-                                                   min_samples_leaf=self.min_samples_leaf,
-                                                   n_iter=self.n_iter,
+                                                   min_samples_leaf=self.min_samples_leaf_,
+                                                   n_iter=self.n_iter_,
                                                    n_tree_search=self.n_tree_search,
                                                    opt_interval=self.opt_interval,
                                                    learning_rate=self.learning_rate,
@@ -419,10 +425,10 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                                            loss=self.loss,
                                                            reg_depth=self.reg_depth,
                                                            l2=self.l2,
-                                                           sl2=self.sl2,
+                                                           sl2=self.sl2_,
                                                            normalize=self.normalize,
-                                                           min_samples_leaf=self.min_samples_leaf,
-                                                           n_iter=self.n_iter,
+                                                           min_samples_leaf=self.min_samples_leaf_,
+                                                           n_iter=self.n_iter_,
                                                            n_tree_search=self.n_tree_search,
                                                            opt_interval=self.opt_interval,
                                                            learning_rate=self.learning_rate,
