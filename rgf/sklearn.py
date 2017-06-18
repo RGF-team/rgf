@@ -418,24 +418,24 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         if self.n_classes_ == 2:
             self._classes_map[0] = self.classes_[0]
             self._classes_map[1] = self.classes_[1]
-            self.estimators_ = []
+            self.estimators_ = [None]
             self.estimators_[0] = _RGFBinaryClassifier(max_leaf=self.max_leaf,
-                                                   test_interval=self.test_interval,
-                                                   algorithm=self.algorithm,
-                                                   loss=self.loss,
-                                                   reg_depth=self.reg_depth,
-                                                   l2=self.l2,
-                                                   sl2=self.sl2_,
-                                                   normalize=self.normalize,
-                                                   min_samples_leaf=self.min_samples_leaf_,
-                                                   n_iter=self.n_iter_,
-                                                   n_tree_search=self.n_tree_search,
-                                                   opt_interval=self.opt_interval,
-                                                   learning_rate=self.learning_rate,
-                                                   verbose=self.verbose,
-                                                   prefix=self.prefix,
-                                                   inc_prefix=self.inc_prefix,
-                                                   clean=self.clean)
+                                                       test_interval=self.test_interval,
+                                                       algorithm=self.algorithm,
+                                                       loss=self.loss,
+                                                       reg_depth=self.reg_depth,
+                                                       l2=self.l2,
+                                                       sl2=self.sl2_,
+                                                       normalize=self.normalize,
+                                                       min_samples_leaf=self.min_samples_leaf_,
+                                                       n_iter=self.n_iter_,
+                                                       n_tree_search=self.n_tree_search,
+                                                       opt_interval=self.opt_interval,
+                                                       learning_rate=self.learning_rate,
+                                                       verbose=self.verbose,
+                                                       prefix=self.prefix,
+                                                       inc_prefix=self.inc_prefix,
+                                                       clean=self.clean)
             self.estimators_[0].fit(X, y, sample_weight)
         elif self.n_classes_ > 2:
             self.estimators_ = [None] * self.n_classes_
