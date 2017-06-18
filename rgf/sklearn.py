@@ -419,6 +419,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             self._classes_map[0] = self.classes_[0]
             self._classes_map[1] = self.classes_[1]
             self.estimators_ = [None]
+            y = (y == self.classes_[0]).astype(int)
             self.estimators_[0] = _RGFBinaryClassifier(max_leaf=self.max_leaf,
                                                        test_interval=self.test_interval,
                                                        algorithm=self.algorithm,
@@ -493,10 +494,10 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                              "match the input. Model n_features is %s and "
                              "input n_features is %s "
                              % (self.n_features_, n_features))
-        if self.n_classes_ <= 2:
+        if self.n_classes_ == 2:
             proba = self.estimators_[0].predict_proba(X)
             proba = _sigmoid(proba)
-            proba = np.c_[1 - proba, proba]
+            proba = np.c_[proba, 1 - proba]
         else:
             proba = np.zeros((X.shape[0], self.n_classes_))
             for i, clf in enumerate(self.estimators_):
