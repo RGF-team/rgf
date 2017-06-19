@@ -758,6 +758,14 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         If True, remove temp files before fitting.
         If False, previous leaning result will be loaded.
 
+    Attributes:
+    -----------
+    n_features_ : int
+        The number of features when `fit` is performed.
+
+    fitted_ : boolean
+        Indicates whether `fit` is performed.
+
     Reference
     ---------
     [1] Rie Johnson and Tong Zhang,
