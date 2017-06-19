@@ -828,7 +828,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         """
         _validate_params(**self.get_params())
 
-        X, y = check_X_y(X, y, accept_sparse=True, multi_output=False)
+        X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
         n_samples, self.n_features_ = X.shape
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
