@@ -15,6 +15,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
 from sklearn.utils.extmath import softmax
+from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d 
 
 with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as _f:
@@ -293,6 +294,23 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         If True, remove temp files before fitting.
         If False, previous leaning result will be loaded.
 
+    Attributes:
+    -----------
+    estimators_ : list of binary classifiers
+        The collection of fitted sub-estimators when `fit` is performed.
+
+    classes_ : array of shape = [n_classes]
+        The classes labels when `fit` is performed.
+
+    n_classes_ : int
+        The number of classes when `fit` is performed.
+
+    n_features_ : int
+        The number of features when `fit` is performed.
+
+    fitted_ : boolean
+        Indicates whether `fit` is performed.
+
     Reference
     ---------
     [1] Rie Johnson and Tong Zhang,
@@ -365,7 +383,25 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         """
         _validate_params(**self.get_params())
 
-        X, y = check_X_y(X, y, accept_sparse=True, dtype=None, multi_output=True)
+        if self.sl2 is None:
+            self.sl2_ = self.l2
+        else:
+            self.sl2_ = self.sl2
+
+        if isinstance(self.min_samples_leaf, _FLOATS):
+            self.min_samples_leaf_ = ceil(self.min_samples_leaf * n_samples)
+        else:
+            self.min_samples_leaf_ = self.min_samples_leaf
+
+        if self.n_iter is None:
+            if self.loss == "LS":
+                self.n_iter_ = 10
+            else:
+                self.n_iter_ = 5
+        else:
+            self.n_iter_ = self.n_iter
+
+        X, y = check_X_y(X, y, accept_sparse=True)
         n_samples, self.n_features_ = X.shape
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
@@ -374,43 +410,38 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             if (sample_weight <= 0).any():
                 raise ValueError("Sample weights must be positive.")
         check_consistent_length(X, y, sample_weight)
-
-        if self.sl2 is None:
-            self.sl2 = self.l2
-
-        if isinstance(self.min_samples_leaf, _FLOATS):
-            self.min_samples_leaf = ceil(self.min_samples_leaf * n_samples)
-
-        if self.n_iter is None:
-            if self.loss == "LS":
-                self.n_iter = 10
-            else:
-                self.n_iter = 5
+        check_classification_targets(y)
 
         self.classes_ = sorted(np.unique(y))
         self.n_classes_ = len(self.classes_)
-        if self.n_classes_ <= 2:
-            self.estimator_ = _RGFBinaryClassifier(max_leaf=self.max_leaf,
-                                                   test_interval=self.test_interval,
-                                                   algorithm=self.algorithm,
-                                                   loss=self.loss,
-                                                   reg_depth=self.reg_depth,
-                                                   l2=self.l2,
-                                                   sl2=self.sl2,
-                                                   normalize=self.normalize,
-                                                   min_samples_leaf=self.min_samples_leaf,
-                                                   n_iter=self.n_iter,
-                                                   n_tree_search=self.n_tree_search,
-                                                   opt_interval=self.opt_interval,
-                                                   learning_rate=self.learning_rate,
-                                                   verbose=self.verbose,
-                                                   prefix=self.prefix,
-                                                   inc_prefix=self.inc_prefix,
-                                                   clean=self.clean)
-            self.estimator_.fit(X, y, sample_weight)
-        else:
+        self._classes_map = {}
+        if self.n_classes_ == 2:
+            self._classes_map[0] = self.classes_[0]
+            self._classes_map[1] = self.classes_[1]
+            self.estimators_ = [None]
+            y = (y == self.classes_[0]).astype(int)
+            self.estimators_[0] = _RGFBinaryClassifier(max_leaf=self.max_leaf,
+                                                       test_interval=self.test_interval,
+                                                       algorithm=self.algorithm,
+                                                       loss=self.loss,
+                                                       reg_depth=self.reg_depth,
+                                                       l2=self.l2,
+                                                       sl2=self.sl2_,
+                                                       normalize=self.normalize,
+                                                       min_samples_leaf=self.min_samples_leaf_,
+                                                       n_iter=self.n_iter_,
+                                                       n_tree_search=self.n_tree_search,
+                                                       opt_interval=self.opt_interval,
+                                                       learning_rate=self.learning_rate,
+                                                       verbose=self.verbose,
+                                                       prefix=self.prefix,
+                                                       inc_prefix=self.inc_prefix,
+                                                       clean=self.clean)
+            self.estimators_[0].fit(X, y, sample_weight)
+        elif self.n_classes_ > 2:
             self.estimators_ = [None] * self.n_classes_
             for i, cls_num in enumerate(self.classes_):
+                self._classes_map[i] = cls_num
                 y_one_or_rest = (y == cls_num).astype(int)
                 prefix = "{0}_c{1}".format(self.prefix, i)
                 self.estimators_[i] = _RGFBinaryClassifier(max_leaf=self.max_leaf,
@@ -419,10 +450,10 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                                            loss=self.loss,
                                                            reg_depth=self.reg_depth,
                                                            l2=self.l2,
-                                                           sl2=self.sl2,
+                                                           sl2=self.sl2_,
                                                            normalize=self.normalize,
-                                                           min_samples_leaf=self.min_samples_leaf,
-                                                           n_iter=self.n_iter,
+                                                           min_samples_leaf=self.min_samples_leaf_,
+                                                           n_iter=self.n_iter_,
                                                            n_tree_search=self.n_tree_search,
                                                            opt_interval=self.opt_interval,
                                                            learning_rate=self.learning_rate,
@@ -431,6 +462,9 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                                            inc_prefix=True,
                                                            clean=self.clean)
                 self.estimators_[i].fit(X, y_one_or_rest, sample_weight)
+        else:
+            raise ValueError("Classifier can't predict when only one class is present.")
+        self.fitted_ = True
         return self
 
     def predict_proba(self, X):
@@ -448,18 +482,22 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         -------
         p : array of shape = [n_samples, n_classes].
             The class probabilities of the input samples.
+            The order of the classes corresponds to that in the attribute classes_.
         """
-        X = check_array(X, dtype=None, accept_sparse=True)
+        if not self.fitted_:
+            raise NotFittedError("Estimator not fitted, "
+                                 "call `fit` before exploiting the model.")
+        X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
         if self.n_features_ != n_features:
             raise ValueError("Number of features of the model must "
                              "match the input. Model n_features is %s and "
                              "input n_features is %s "
                              % (self.n_features_, n_features))
-        if self.n_classes_ <= 2:
-            proba = self.estimator_.predict_proba(X)
+        if self.n_classes_ == 2:
+            proba = self.estimators_[0].predict_proba(X)
             proba = _sigmoid(proba)
-            proba = np.c_[1 - proba, proba]
+            proba = np.c_[proba, 1 - proba]
         else:
             proba = np.zeros((X.shape[0], self.n_classes_))
             for i, clf in enumerate(self.estimators_):
@@ -494,7 +532,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             The predicted classes.
         """
         proba = self.predict_proba(X)
-        return np.argmax(proba, axis=1)
+        y_pred = np.argmax(proba, axis=1)
+        return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y_pred)]
 
 
 class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
@@ -789,7 +828,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         """
         _validate_params(**self.get_params())
 
-        X, y = check_X_y(X, y, accept_sparse=True, dtype=None, multi_output=False)
+        X, y = check_X_y(X, y, accept_sparse=True, multi_output=False)
         n_samples, self.n_features_ = X.shape
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
@@ -887,7 +926,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
-        X = check_array(X, dtype=None, accept_sparse=True)
+        X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
         if self.n_features_ != n_features:
             raise ValueError("Number of features of the model must "
