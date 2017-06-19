@@ -163,6 +163,9 @@ class TestRGFRegressor(unittest.TestCase):
         print("MSE: {0:.5f}".format(mse))
         self.assertLess(mse, 6.0)
 
+    def test_sklearn_integration(self):
+        check_estimator(RGFRegressor)
+
     def test_regressor_sparse_input(self):
         reg = RGFRegressor(prefix='reg')
         for sparse_format in (sparse.bsr_matrix, sparse.coo_matrix, sparse.csc_matrix,
