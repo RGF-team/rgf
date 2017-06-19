@@ -46,8 +46,8 @@ At the moment, rgf_python works only in single thread mode, so if you use GridSe
 
 ## Software Requirements
 
-* Python (2.7 or 3.4)
-* scikit-learn (0.18 or later)
+* Python (2.7 or >= 3.4)
+* scikit-learn (>= 0.18)
 * RGF C++ ([link](http://tongzhang-ml.org/software/rgf/index.html))
 
 If you can't access the above URL, alternatively, you can get RGF C++ by downloading it from this [page](https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip).
