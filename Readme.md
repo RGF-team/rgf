@@ -1,7 +1,7 @@
-[![Build Status Travis CI](https://travis-ci.org/fukatani/rgf_python.svg?branch=master)](https://travis-ci.org/fukatani/rgf_python)
-[![Build status](https://ci.appveyor.com/api/projects/status/vpanb9hnncjr16hn/branch/master?svg=true)](https://ci.appveyor.com/project/fukatani/rgf-python/branch/master)
-[![License](https://img.shields.io/github/license/fukatani/rgf_python.svg)](https://github.com/fukatani/rgf_python/blob/master/LICENSE)
-[![GitHub Version](https://badge.fury.io/gh/fukatani%2Frgf_python.svg)](https://github.com/fukatani/rgf_python/tree/master/rgf/VERSION)
+[![Build Status Travis](https://travis-ci.org/fukatani/rgf_python.svg?branch=master)](https://travis-ci.org/fukatani/rgf_python)
+[![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/vpanb9hnncjr16hn/branch/master?svg=true)](https://ci.appveyor.com/project/fukatani/rgf-python)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/fukatani/rgf_python/blob/master/LICENSE)
+[![GitHub Version](https://badge.fury.io/gh/fukatani%2Frgf_python.svg)](https://github.com/fukatani/rgf_python/blob/master/rgf/VERSION)
 
 # rgf_python
 The wrapper of machine learning algorithm ***Regularized Greedy Forest (RGF)*** for Python.
