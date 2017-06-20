@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 from sklearn import datasets
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import accuracy_score, mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_random_state
@@ -58,6 +58,35 @@ class TestRGFClassfier(unittest.TestCase):
         score = clf.score(self.iris.data, bin_target)
         print('Score: {0:.5f}'.format(score))
         self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
+
+    def test_string_y(self):
+        clf = RGFClassifier()
+
+        y_str = np.array(self.iris.target, dtype=str)
+        y_str[y_str == '0'] = 'Zero'
+        y_str[y_str == '1'] = 'One'
+        y_str[y_str == '2'] = 'Two'
+
+        clf.fit(self.iris.data, y_str)
+        y_pred = clf.predict(self.iris.data)
+        score = accuracy_score(y_str, y_pred)
+        self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
+
+    def test_bin_string_y(self):
+        clf = RGFClassifier()
+
+        y_str = np.array(self.iris.target, dtype=str)
+        y_str[y_str == '0'] = 'Zero'
+        y_str[y_str == '1'] = 'One'
+        y_str[y_str == '2'] = 'Two'
+
+        bin_X = self.iris.data[self.iris.target != 0]
+        y_str = y_str[y_str != 'Zero']
+
+        clf.fit(bin_X, y_str)
+        y_pred = clf.predict(bin_X)
+        score = accuracy_score(y_str, y_pred)
+        self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
 
     def test_sklearn_integration(self):
         check_estimator(RGFClassifier)
@@ -162,6 +191,9 @@ class TestRGFRegressor(unittest.TestCase):
         mse = mean_squared_error(self.y_test, y_pred)
         print("MSE: {0:.5f}".format(mse))
         self.assertLess(mse, 6.0)
+
+    def test_sklearn_integration(self):
+        check_estimator(RGFRegressor)
 
     def test_regressor_sparse_input(self):
         reg = RGFRegressor(prefix='reg')
