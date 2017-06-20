@@ -62,7 +62,7 @@ class TestRGFClassfier(unittest.TestCase):
     def test_string_y(self):
         clf = RGFClassifier()
 
-        y_str = np.array(self.iris.target, dtype = str)
+        y_str = np.array(self.iris.target, dtype=str)
         y_str[y_str == '0'] = 'Zero'
         y_str[y_str == '1'] = 'One'
         y_str[y_str == '2'] = 'Two'
@@ -75,7 +75,7 @@ class TestRGFClassfier(unittest.TestCase):
     def test_bin_string_y(self):
         clf = RGFClassifier()
 
-        y_str = np.array(self.iris.target, dtype = str)
+        y_str = np.array(self.iris.target, dtype=str)
         y_str[y_str == '0'] = 'Zero'
         y_str[y_str == '1'] = 'One'
         y_str[y_str == '2'] = 'Two'
