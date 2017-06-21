@@ -26,7 +26,7 @@ class TestRGFClassfier(unittest.TestCase):
                              test_size=0.2, random_state=42)
 
     def test_classifier(self):
-        clf = RGFClassifier(prefix='clf')
+        clf = RGFClassifier()
         clf.fit(self.iris.data, self.iris.target)
 
         proba_sum = clf.predict_proba(self.iris.data).sum(axis=1)
@@ -37,7 +37,7 @@ class TestRGFClassfier(unittest.TestCase):
         self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
 
     def test_softmax_classifier(self):
-        clf = RGFClassifier(prefix='clf', calc_prob='Softmax')
+        clf = RGFClassifier(calc_prob='Softmax')
         clf.fit(self.iris.data, self.iris.target)
 
         proba_sum = clf.predict_proba(self.iris.data).sum(axis=1)
@@ -48,7 +48,7 @@ class TestRGFClassfier(unittest.TestCase):
         self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
 
     def test_bin_classifier(self):
-        clf = RGFClassifier(prefix='clf')
+        clf = RGFClassifier()
         bin_target = (self.iris.target == 2).astype(int)
         clf.fit(self.iris.data, bin_target)
 
@@ -92,7 +92,7 @@ class TestRGFClassfier(unittest.TestCase):
         check_estimator(RGFClassifier)
 
     def test_classifier_sparse_input(self):
-        clf = RGFClassifier(prefix='clf', calc_prob='Softmax')
+        clf = RGFClassifier(calc_prob='Softmax')
         for sparse_format in (sparse.bsr_matrix, sparse.coo_matrix, sparse.csc_matrix,
                               sparse.csr_matrix, sparse.dia_matrix, sparse.dok_matrix, sparse.lil_matrix):
             iris_sparse = sparse_format(self.iris.data)
@@ -132,10 +132,7 @@ class TestRGFClassfier(unittest.TestCase):
                             opt_interval=100,
                             learning_rate=0.4,
                             verbose=True,
-                            prefix='rgf_classifier',
-                            inc_prefix=True,
-                            calc_prob='Sigmoid',
-                            clean=True)
+                            calc_prob='Sigmoid')
         clf.set_params(**valid_params)
         clf.fit(self.X_train, self.y_train)
 
@@ -153,10 +150,7 @@ class TestRGFClassfier(unittest.TestCase):
                                 opt_interval=100.1,
                                 learning_rate=-0.5,
                                 verbose=-1,
-                                prefix='',
-                                inc_prefix=1,
-                                calc_prob=True,
-                                clean=0)
+                                calc_prob=True)
         for key in non_valid_params:
             clf.set_params(**valid_params)  # Reset to valid params
             clf.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
@@ -185,7 +179,7 @@ class TestRGFRegressor(unittest.TestCase):
         self.X_test, self.y_test = self.X[400:], self.y[400:]
 
     def test_regressor(self):
-        reg = RGFRegressor(prefix='reg')
+        reg = RGFRegressor()
         reg.fit(self.X_train, self.y_train)
         y_pred = reg.predict(self.X_test)
         mse = mean_squared_error(self.y_test, y_pred)
@@ -196,7 +190,7 @@ class TestRGFRegressor(unittest.TestCase):
         check_estimator(RGFRegressor)
 
     def test_regressor_sparse_input(self):
-        reg = RGFRegressor(prefix='reg')
+        reg = RGFRegressor()
         for sparse_format in (sparse.bsr_matrix, sparse.coo_matrix, sparse.csc_matrix,
                               sparse.csr_matrix, sparse.dia_matrix, sparse.dok_matrix, sparse.lil_matrix):
             X_sparse = sparse_format(self.X)
@@ -242,10 +236,7 @@ class TestRGFRegressor(unittest.TestCase):
                             n_tree_search=2,
                             opt_interval=100,
                             learning_rate=0.4,
-                            verbose=True,
-                            prefix='rgf_regressor',
-                            inc_prefix=True,
-                            clean=True)
+                            verbose=True)
         reg.set_params(**valid_params)
         reg.fit(self.X_train, self.y_train)
 
@@ -262,10 +253,7 @@ class TestRGFRegressor(unittest.TestCase):
                                 n_tree_search=0,
                                 opt_interval=100.1,
                                 learning_rate=-0.5,
-                                verbose=-1,
-                                prefix='',
-                                inc_prefix=1,
-                                clean=0)
+                                verbose=-1)
         for key in non_valid_params:
             reg.set_params(**valid_params)  # Reset to valid params
             reg.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
