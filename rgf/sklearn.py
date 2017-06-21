@@ -415,7 +415,6 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             for i, cls_num in enumerate(self.classes_):
                 self._classes_map[i] = cls_num
                 y_one_or_rest = (y == cls_num).astype(int)
-                prefix = "{0}_c{1}".format(self.prefix, i)
                 self.estimators_[i] = _RGFBinaryClassifier(max_leaf=self.max_leaf,
                                                            test_interval=self.test_interval,
                                                            algorithm=self.algorithm,
