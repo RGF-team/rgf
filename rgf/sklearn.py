@@ -4,6 +4,7 @@ __all__ = ('RGFClassifier', 'RGFRegressor')
 
 from glob import glob
 from math import ceil
+from threading import Lock
 from uuid import uuid4
 import atexit
 import numbers
@@ -76,6 +77,8 @@ if not os.access(loc_temp, os.W_OK):
 
 @atexit.register
 def _cleanup():
+    if len(_UUIDS) != len(set(_UUIDS)):
+        raise Exception("Duplicates found!")
     for uuid in _UUIDS:
         model_glob = os.path.join(loc_temp, uuid + "*")
         for fn in glob(model_glob):
@@ -206,6 +209,19 @@ def _sparse_savetxt(filename, input_array):
                 current_sample_row = i
         fw.write(' '.join(line))
         fw.write('\n' * (n_row - i))
+
+
+class _AtomicCounter:
+    def __init__(self):
+        self.value = 0
+        self._lock = Lock()
+
+    def increment(self):
+        with self._lock:
+            self.value += 1
+            return self.value
+
+_COUNTER = _AtomicCounter()
 
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
@@ -539,7 +555,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
         self.verbose = verbose
-        self._file_prefix = str(uuid4())
+        self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
         _UUIDS.append(self._file_prefix)
         self.fitted_ = False
 
@@ -635,10 +651,10 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         y_pred = np.loadtxt(pred_loc)
         return y_pred
 
-    def __del__(self):
-        model_glob = os.path.join(loc_temp, self._file_prefix + "*")
-        for fn in glob(model_glob):
-            os.remove(fn)
+    # def __del__(self):
+    #     model_glob = os.path.join(loc_temp, self._file_prefix + "*")
+    #     for fn in glob(model_glob):
+    #         os.remove(fn)
 
 
 class RGFRegressor(BaseEstimator, RegressorMixin):
@@ -753,7 +769,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
         self.verbose = verbose
-        self._file_prefix = str(uuid4())
+        self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
         _UUIDS.append(self._file_prefix)
         self.fitted_ = False
 
@@ -918,7 +934,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         y_pred = np.loadtxt(pred_loc)
         return y_pred
 
-    def __del__(self):
-        model_glob = os.path.join(loc_temp, self._file_prefix + "*")
-        for fn in glob(model_glob):
-            os.remove(fn)
+    # def __del__(self):
+    #     model_glob = os.path.join(loc_temp, self._file_prefix + "*")
+    #     for fn in glob(model_glob):
+    #         os.remove(fn)
