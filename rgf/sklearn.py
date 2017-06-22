@@ -4,6 +4,9 @@ __all__ = ('RGFClassifier', 'RGFRegressor')
 
 from glob import glob
 from math import ceil
+from threading import Lock
+from uuid import uuid4
+import atexit
 import numbers
 import os
 import platform
@@ -25,6 +28,7 @@ _ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
 _LOSSES = ("LS", "Expo", "Log")
 _FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 _SYSTEM = platform.system()
+_UUIDS = []
 
 ## Edit this ##################################################
 if _SYSTEM in ('Windows', 'Microsoft'):
@@ -71,12 +75,22 @@ if not os.access(loc_temp, os.W_OK):
                     'loc_temp to writable directory'.format(loc_temp))
 
 
+@atexit.register
+def _cleanup():
+    if len(_UUIDS) != len(set(_UUIDS)):
+        raise Exception("Duplicates found!")
+    for uuid in _UUIDS:
+        model_glob = os.path.join(loc_temp, uuid + "*")
+        for fn in glob(model_glob):
+            os.remove(fn)
+
+
 def _sigmoid(x):
     """
     x : array-like
     output : array-like
     """
-    return 1. / (1. + np.exp(-x))
+    return 1.0 / (1.0 + np.exp(-x))
 
 
 def _validate_params(max_leaf,
@@ -93,9 +107,6 @@ def _validate_params(max_leaf,
                      opt_interval,
                      learning_rate,
                      verbose,
-                     prefix,
-                     inc_prefix,
-                     clean,
                      calc_prob="Sigmoid"):
     if not isinstance(max_leaf, (numbers.Integral, np.integer)):
         raise ValueError("max_leaf must be an integer, got {0}.".format(type(max_leaf)))
@@ -170,21 +181,10 @@ def _validate_params(max_leaf,
     elif verbose < 0:
         raise ValueError("verbose must be no smaller than 0 but was %r." % verbose)
 
-    if not isinstance(prefix, six.string_types):
-        raise ValueError("prefix must be a string, got {0}.".format(type(prefix)))
-    elif not prefix:
-        raise ValueError("prefix cannot be an empty string.")
-
-    if not isinstance(inc_prefix, bool):
-        raise ValueError("inc_prefix must be a boolean, got {0}.".format(type(inc_prefix)))
-
     if not isinstance(calc_prob, six.string_types):
         raise ValueError("calc_prob must be a string, got {0}.".format(type(calc_prob)))
     elif calc_prob not in ("Sigmoid", "Softmax"):
         raise ValueError("calc_prob must be 'Sigmoid' or 'Softmax' but was %r." % calc_prob)
-
-    if not isinstance(clean, bool):
-        raise ValueError("clean must be a boolean, got {0}.".format(type(clean)))
 
 
 def _sparse_savetxt(filename, input_array):
@@ -209,6 +209,19 @@ def _sparse_savetxt(filename, input_array):
                 current_sample_row = i
         fw.write(' '.join(line))
         fw.write('\n' * (n_row - i))
+
+
+class _AtomicCounter:
+    def __init__(self):
+        self.value = 0
+        self._lock = Lock()
+
+    def increment(self):
+        with self._lock:
+            self.value += 1
+            return self.value
+
+_COUNTER = _AtomicCounter()
 
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
@@ -281,18 +294,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     verbose : int, optional (default=0)
         Controls the verbosity of the tree building process.
 
-    prefix : string, optional (default="rgf_classifier")
-        Used as a prefix for RGF output temp file.
-
-    inc_prefix : boolean, optional (default=True)
-        If True, auto increment for numbering temp file is enable.
-
     calc_prob : string ("Sigmoid" or "Softmax"), optional (default="Sigmoid")
         Method of probability calculation.
-
-    clean : boolean, optional (default=True)
-        If True, remove temp files before fitting.
-        If False, previous leaning result will be loaded.
 
     Attributes:
     -----------
@@ -316,8 +319,6 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     [1] Rie Johnson and Tong Zhang,
         Learning Nonlinear Functions Using Regularized Greedy Forest.
     """
-    instance_count = 0
-
     def __init__(self,
                  max_leaf=1000,
                  test_interval=100,
@@ -333,10 +334,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                  opt_interval=100,
                  learning_rate=0.5,
                  verbose=0,
-                 prefix="rgf_classifier",
-                 inc_prefix=True,
-                 calc_prob='Sigmoid',
-                 clean=True):
+                 calc_prob='Sigmoid'):
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -351,14 +349,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
         self.verbose = verbose
-        self.prefix = prefix
-        self.inc_prefix = inc_prefix
-        self._file_prefix = prefix
-        if inc_prefix:
-            self._file_prefix = prefix + str(RGFClassifier.instance_count)
-            RGFClassifier.instance_count += 1
         self.calc_prob = calc_prob
-        self.clean = clean
         self.fitted_ = False
 
     def fit(self, X, y, sample_weight=None):
@@ -433,17 +424,13 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                                        n_tree_search=self.n_tree_search,
                                                        opt_interval=self.opt_interval,
                                                        learning_rate=self.learning_rate,
-                                                       verbose=self.verbose,
-                                                       prefix=self.prefix,
-                                                       inc_prefix=self.inc_prefix,
-                                                       clean=self.clean)
+                                                       verbose=self.verbose)
             self.estimators_[0].fit(X, y, sample_weight)
         elif self.n_classes_ > 2:
             self.estimators_ = [None] * self.n_classes_
             for i, cls_num in enumerate(self.classes_):
                 self._classes_map[i] = cls_num
                 y_one_or_rest = (y == cls_num).astype(int)
-                prefix = "{0}_c{1}".format(self.prefix, i)
                 self.estimators_[i] = _RGFBinaryClassifier(max_leaf=self.max_leaf,
                                                            test_interval=self.test_interval,
                                                            algorithm=self.algorithm,
@@ -457,10 +444,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                                                            n_tree_search=self.n_tree_search,
                                                            opt_interval=self.opt_interval,
                                                            learning_rate=self.learning_rate,
-                                                           verbose=self.verbose,
-                                                           prefix=prefix,
-                                                           inc_prefix=True,
-                                                           clean=self.clean)
+                                                           verbose=self.verbose)
                 self.estimators_[i].fit(X, y_one_or_rest, sample_weight)
         else:
             raise ValueError("Classifier can't predict when only one class is present.")
@@ -537,7 +521,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
 
 class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
-    """RGF Binary Classifier.
+    """
+    RGF Binary Classifier.
     Don't instantiate this class directly.
     RGFBinaryClassifier should be instantiated only by RGFClassifier.
     """
@@ -555,10 +540,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                  n_tree_search=1,
                  opt_interval=100,
                  learning_rate=0.5,
-                 verbose=0,
-                 prefix="rgf_classifier",
-                 inc_prefix=True,
-                 clean=True):
+                 verbose=0):
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -573,34 +555,23 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
         self.verbose = verbose
-        self.prefix = prefix
-        self.inc_prefix = inc_prefix
-        self._file_prefix = prefix
-        self.clean = clean
+        self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
+        _UUIDS.append(self._file_prefix)
         self.fitted_ = False
 
-    # Fitting/training the model to target variables
     def fit(self, X, y, sample_weight=None):
-        # Clean temp directory
-        if self.clean:
-            model_glob = loc_temp + os.sep + "*"
-
-            for fn in glob(model_glob):
-                if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
-                    os.remove(fn)
-
+        train_x_loc = os.path.join(loc_temp, self._file_prefix + ".train.data.x")
+        train_y_loc = os.path.join(loc_temp, self._file_prefix + ".train.data.y")
+        train_weight_loc = os.path.join(loc_temp, self._file_prefix + ".train.data.weight")
         if isspmatrix(X):
-            _sparse_savetxt(os.path.join(loc_temp, "train.data.x"), X)
+            _sparse_savetxt(train_x_loc, X)
         else:
-            np.savetxt(os.path.join(loc_temp, "train.data.x"),
-                       X, delimiter=' ', fmt="%s")
+            np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
 
         # Convert 1 to 1, 0 to -1
         y = 2 * y - 1
-        # Store the targets into RGF format
-        np.savetxt(os.path.join(loc_temp, "train.data.y"), y, delimiter=' ', fmt="%s")
-        # Store the weights into RGF format
-        np.savetxt(os.path.join(loc_temp, "train.data.weight"), sample_weight, delimiter=' ', fmt="%s")
+        np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
+        np.savetxt(train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
 
         # Format train command
         params = []
@@ -608,8 +579,8 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             params.append("Verbose")
         if self.normalize:
             params.append("NormalizeTarget")
-        params.append("train_x_fn=%s" % os.path.join(loc_temp, "train.data.x"))
-        params.append("train_y_fn=%s" % os.path.join(loc_temp, "train.data.y"))
+        params.append("train_x_fn=%s" % train_x_loc)
+        params.append("train_y_fn=%s" % train_y_loc)
         params.append("algorithm=%s" % self.algorithm)
         params.append("loss=%s" % self.loss)
         params.append("max_leaf_forest=%s" % self.max_leaf)
@@ -622,8 +593,8 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("num_tree_search=%s" % self.n_tree_search)
         params.append("opt_interval=%s" % self.opt_interval)
         params.append("opt_stepsize=%s" % self.learning_rate)
-        params.append("model_fn_prefix=%s" % os.path.join(loc_temp, self._file_prefix))
-        params.append("train_w_fn=%s" % os.path.join(loc_temp, "train.data.weight"))
+        params.append("model_fn_prefix=%s" % os.path.join(loc_temp, self._file_prefix + ".model"))
+        params.append("train_w_fn=%s" % train_weight_loc)
 
         cmd = (loc_exec, "train", ",".join(params))
 
@@ -636,6 +607,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         if self.verbose:
             for k in output:
                 print(k)
+
         self.fitted_ = True
         return self
 
@@ -644,23 +616,25 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
+        test_x_loc = os.path.join(loc_temp, self._file_prefix + ".test.data.x")
         if isspmatrix(X):
-            _sparse_savetxt(os.path.join(loc_temp, "test.data.x"), X)
+            _sparse_savetxt(test_x_loc, X)
         else:
-            np.savetxt(os.path.join(loc_temp, "test.data.x"),
-                       X, delimiter=' ', fmt="%s")
+            np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
         # Find latest model location
-        model_glob = loc_temp + os.sep + self._file_prefix + "*"
-        if not glob(model_glob):
+        model_glob = os.path.join(loc_temp, self._file_prefix + ".model*")
+        model_files = glob(model_glob)
+        if not model_files:
             raise Exception('Model learning result is not found in {0}. '
                             'This is rgf_python error.'.format(loc_temp))
-        latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
+        latest_model_loc = sorted(model_files, reverse=True)[0]
 
         # Format test command
+        pred_loc = os.path.join(loc_temp, self._file_prefix + ".predictions.txt")
         params = []
-        params.append("test_x_fn=%s" % os.path.join(loc_temp, "test.data.x"))
-        params.append("prediction_fn=%s" % os.path.join(loc_temp, "predictions.txt"))
+        params.append("test_x_fn=%s" % test_x_loc)
+        params.append("prediction_fn=%s" % pred_loc)
         params.append("model_fn=%s" % latest_model_loc)
 
         cmd = (loc_exec, "predict", ",".join(params))
@@ -674,8 +648,13 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             for k in output:
                 print(k)
 
-        y_pred = np.loadtxt(os.path.join(loc_temp, "predictions.txt"))
+        y_pred = np.loadtxt(pred_loc)
         return y_pred
+
+    # def __del__(self):
+    #     model_glob = os.path.join(loc_temp, self._file_prefix + "*")
+    #     for fn in glob(model_glob):
+    #         os.remove(fn)
 
 
 class RGFRegressor(BaseEstimator, RegressorMixin):
@@ -748,16 +727,6 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
     verbose : int, optional (default=0)
         Controls the verbosity of the tree building process.
 
-    prefix : string, optional (default="rgf_regressor")
-        Used as a prefix for RGF output temp file.
-
-    inc_prefix : boolean, optional (default=True)
-        If True, auto increment for numbering temp file is enable.
-
-    clean : boolean, optional (default=True)
-        If True, remove temp files before fitting.
-        If False, previous leaning result will be loaded.
-
     Attributes:
     -----------
     n_features_ : int
@@ -771,8 +740,6 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
     [1] Rie Johnson and Tong Zhang,
         Learning Nonlinear Functions Using Regularized Greedy Forest.
     """
-    instance_count = 0
-
     def __init__(self,
                  max_leaf=500,
                  test_interval=100,
@@ -787,10 +754,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                  n_tree_search=1,
                  opt_interval=100,
                  learning_rate=0.5,
-                 verbose=0,
-                 prefix="rgf_regressor",
-                 inc_prefix=True,
-                 clean=True):
+                 verbose=0):
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -805,13 +769,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
         self.verbose = verbose
-        self.prefix = prefix
-        self.inc_prefix = inc_prefix
-        self._file_prefix = prefix
-        if inc_prefix:
-            self._file_prefix = prefix + str(RGFRegressor.instance_count)
-            RGFRegressor.instance_count += 1
-        self.clean = clean
+        self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
+        _UUIDS.append(self._file_prefix)
         self.fitted_ = False
 
     def fit(self, X, y, sample_weight=None):
@@ -864,24 +823,15 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                 raise ValueError("Sample weights must be positive.")
         check_consistent_length(X, y, sample_weight)
 
-        # Clean temp directory
-        if self.clean:
-            model_glob = loc_temp + os.sep + "*"
-
-            for fn in glob(model_glob):
-                if "predictions.txt" in fn or self.prefix in fn or "train.data." in fn or "test.data." in fn:
-                    os.remove(fn)
-
+        train_x_loc = os.path.join(loc_temp, self._file_prefix + ".train.data.x")
+        train_y_loc = os.path.join(loc_temp, self._file_prefix + ".train.data.y")
+        train_weight_loc = os.path.join(loc_temp, self._file_prefix + ".train.data.weight")
         if isspmatrix(X):
-            _sparse_savetxt(os.path.join(loc_temp, "train.data.x"), X)
+            _sparse_savetxt(train_x_loc, X)
         else:
-            np.savetxt(os.path.join(loc_temp, "train.data.x"),
-                       X, delimiter=' ', fmt="%s")
-
-        # Store the targets into RGF format
-        np.savetxt(os.path.join(loc_temp, "train.data.y"), y, delimiter=' ', fmt="%s")
-        # Store the weights into RGF format
-        np.savetxt(os.path.join(loc_temp, "train.data.weight"), sample_weight, delimiter=' ', fmt="%s")
+            np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
+        np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
+        np.savetxt(train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
 
         # Format train command
         params = []
@@ -889,8 +839,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             params.append("Verbose")
         if self.normalize:
             params.append("NormalizeTarget")
-        params.append("train_x_fn=%s" % os.path.join(loc_temp, "train.data.x"))
-        params.append("train_y_fn=%s" % os.path.join(loc_temp, "train.data.y"))
+        params.append("train_x_fn=%s" % train_x_loc)
+        params.append("train_y_fn=%s" % train_y_loc)
         params.append("algorithm=%s" % self.algorithm)
         params.append("loss=%s" % self.loss)
         params.append("max_leaf_forest=%s" % self.max_leaf)
@@ -903,8 +853,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("num_tree_search=%s" % self.n_tree_search)
         params.append("opt_interval=%s" % self.opt_interval)
         params.append("opt_stepsize=%s" % self.learning_rate)
-        params.append("model_fn_prefix=%s" % os.path.join(loc_temp, self._file_prefix))
-        params.append("train_w_fn=%s" % os.path.join(loc_temp, "train.data.weight"))
+        params.append("model_fn_prefix=%s" % os.path.join(loc_temp, self._file_prefix + ".model"))
+        params.append("train_w_fn=%s" % train_weight_loc)
 
         cmd = (loc_exec, "train", ",".join(params))
 
@@ -917,6 +867,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         if self.verbose:
             for k in output:
                 print(k)
+
         self.fitted_ = True
         return self
 
@@ -948,23 +899,25 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                              "input n_features is %s "
                              % (self.n_features_, n_features))
 
+        test_x_loc = os.path.join(loc_temp, self._file_prefix + ".test.data.x")
         if isspmatrix(X):
-            _sparse_savetxt(os.path.join(loc_temp, "test.data.x"), X)
+            _sparse_savetxt(test_x_loc, X)
         else:
-            np.savetxt(os.path.join(loc_temp, "test.data.x"),
-                       X, delimiter=' ', fmt="%s")
+            np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
         # Find latest model location
-        model_glob = loc_temp + os.sep + self._file_prefix + "*"
-        if not glob(model_glob):
+        model_glob = os.path.join(loc_temp, self._file_prefix + ".model*")
+        model_files = glob(model_glob)
+        if not model_files:
             raise Exception('Model learning result is not found in {0}. '
                             'This is rgf_python error.'.format(loc_temp))
-        latest_model_loc = sorted(glob(model_glob), reverse=True)[0]
+        latest_model_loc = sorted(model_files, reverse=True)[0]
 
         # Format test command
+        pred_loc = os.path.join(loc_temp, self._file_prefix + ".predictions.txt")
         params = []
-        params.append("test_x_fn=%s" % os.path.join(loc_temp, "test.data.x"))
-        params.append("prediction_fn=%s" % os.path.join(loc_temp, "predictions.txt"))
+        params.append("test_x_fn=%s" % test_x_loc)
+        params.append("prediction_fn=%s" % pred_loc)
         params.append("model_fn=%s" % latest_model_loc)
 
         cmd = (loc_exec, "predict", ",".join(params))
@@ -978,5 +931,10 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             for k in output:
                 print(k)
 
-        y_pred = np.loadtxt(os.path.join(loc_temp, "predictions.txt"))
+        y_pred = np.loadtxt(pred_loc)
         return y_pred
+
+    # def __del__(self):
+    #     model_glob = os.path.join(loc_temp, self._file_prefix + "*")
+    #     for fn in glob(model_glob):
+    #         os.remove(fn)
