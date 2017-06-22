@@ -1,6 +1,7 @@
 from setuptools import find_packages, setup
 import os
 
+
 def read(filenames):
     return open(os.path.join(os.path.dirname(__file__), filenames)).read()
 
@@ -15,7 +16,7 @@ setup(name='rgf_sklearn',
       version=read(os.sep.join(['rgf', 'VERSION'])).strip(),
       description='Scikit-learn Wrapper for Regularized Greedy Forest',
       long_description=read_md('Readme.md'),
-      keywords = 'Machine Learning',
+      keywords='Machine Learning',
       author='Ryosuke Fukatani',
       author_email='nannyakannya@gmail.com',
       url='https://github.com/fukatani/rgf_sklearn',
