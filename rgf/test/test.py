@@ -160,8 +160,8 @@ class TestRGFClassfier(unittest.TestCase):
         clf = RGFClassifier()
 
         n_samples = self.y_train.shape[0]
-        self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train[:(n_samples-1)])
-        self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train, np.ones(n_samples-1))
+        self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train[:(n_samples - 1)])
+        self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train, np.ones(n_samples - 1))
         self.assertRaises(ValueError,
                           clf.fit,
                           self.X_train,
@@ -171,8 +171,11 @@ class TestRGFClassfier(unittest.TestCase):
     def test_parallel_gridsearch(self):
         param_grid = dict(max_leaf=[100, 300])
         grid = GridSearchCV(RGFClassifier(),
-                            param_grid=param_grid, cv=2, verbose=0, n_jobs=-1)
+                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
+        y_pred = grid.best_estimator_.predict(self.X_train)
+        score = accuracy_score(self.y_train, y_pred)
+        self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
 
 
 class TestRGFRegressor(unittest.TestCase):
@@ -269,8 +272,8 @@ class TestRGFRegressor(unittest.TestCase):
         reg = RGFRegressor()
 
         n_samples = self.y_train.shape[0]
-        self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train[:(n_samples-1)])
-        self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train, np.ones(n_samples-1))
+        self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train[:(n_samples - 1)])
+        self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train, np.ones(n_samples - 1))
         self.assertRaises(ValueError,
                           reg.fit,
                           self.X_train,
@@ -280,8 +283,11 @@ class TestRGFRegressor(unittest.TestCase):
     def test_parallel_gridsearch(self):
         param_grid = dict(max_leaf=[100, 300])
         grid = GridSearchCV(RGFRegressor(),
-                            param_grid=param_grid, cv=2, verbose=0, n_jobs=-1)
+                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
+        y_pred = grid.best_estimator_.predict(self.X_test)
+        mse = mean_squared_error(self.y_test, y_pred)
+        self.assertLess(mse, 6.0)
 
 
 if __name__ == '__main__':
