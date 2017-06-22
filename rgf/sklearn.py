@@ -29,7 +29,7 @@ _LOSSES = ("LS", "Expo", "Log")
 _FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 _SYSTEM = platform.system()
 _UUIDS = []
-_COUNTER = _AtomicCounter()
+
 
 ## Edit this ##################################################
 if _SYSTEM in ('Windows', 'Microsoft'):
@@ -221,6 +221,9 @@ class _AtomicCounter:
         with self._lock:
             self.value += 1
             return self.value
+
+
+_COUNTER = _AtomicCounter()
 
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
