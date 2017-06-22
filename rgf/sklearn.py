@@ -78,8 +78,6 @@ if not os.access(loc_temp, os.W_OK):
 
 @atexit.register
 def _cleanup():
-    if len(_UUIDS) != len(set(_UUIDS)):
-        raise Exception("Duplicates found!")
     for uuid in _UUIDS:
         model_glob = os.path.join(loc_temp, uuid + "*")
         for fn in glob(model_glob):
@@ -189,10 +187,10 @@ def _validate_params(max_leaf,
 
 
 def _sparse_savetxt(filename, input_array):
-    try:  # For Python2.x
+    try:  # For Python 2.x
         from itertools import izip
         zip_func = izip
-    except ImportError:  # For Python3.x
+    except ImportError:  # For Python 3.x
         zip_func = zip
     input_array = input_array.tocsr().tocoo()
     n_row = input_array.shape[0]
@@ -212,7 +210,7 @@ def _sparse_savetxt(filename, input_array):
         fw.write('\n' * (n_row - i))
 
 
-class _AtomicCounter:
+class _AtomicCounter(object):
     def __init__(self):
         self.value = 0
         self._lock = Lock()
@@ -653,11 +651,6 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         y_pred = np.loadtxt(pred_loc)
         return y_pred
 
-    # def __del__(self):
-    #     model_glob = os.path.join(loc_temp, self._file_prefix + "*")
-    #     for fn in glob(model_glob):
-    #         os.remove(fn)
-
 
 class RGFRegressor(BaseEstimator, RegressorMixin):
     """
@@ -935,8 +928,3 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 
         y_pred = np.loadtxt(pred_loc)
         return y_pred
-
-    # def __del__(self):
-    #     model_glob = os.path.join(loc_temp, self._file_prefix + "*")
-    #     for fn in glob(model_glob):
-    #         os.remove(fn)
