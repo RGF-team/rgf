@@ -113,4 +113,4 @@ Detailed instruction of tuning hyper-parameters is [here](http://tongzhang-ml.or
 Now, Kaggle Kernel supports rgf_python. Please see [this page](https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest).
 
 ## Other
-Shamelessly, many part of the implementation is based on the following [code](https://github.com/MLWave/RGF-sklearn). Thanks!
+Shamelessly, much part of the implementation is based on the following [code](https://github.com/MLWave/RGF-sklearn). Thanks!
