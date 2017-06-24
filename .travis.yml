@@ -8,16 +8,16 @@ os:
   - osx
 
 env:
-  - PYTHON_VERSION=2.7 MINICONDA_PYVERSION=2
-  - PYTHON_VERSION=3.4 MINICONDA_PYVERSION=3
-  - PYTHON_VERSION=3.5 MINICONDA_PYVERSION=3
-  - PYTHON_VERSION=3.6 MINICONDA_PYVERSION=3
+  - PYTHON_VERSION=2.7
+  - PYTHON_VERSION=3.4
+  - PYTHON_VERSION=3.5
+  - PYTHON_VERSION=3.6
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      curl https://repo.continuum.io/miniconda/Miniconda$MINICONDA_PYVERSION-latest-MacOSX-x86_64.sh -o miniconda.sh;
+      curl https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
     else
-      wget https://repo.continuum.io/miniconda/Miniconda$MINICONDA_PYVERSION-latest-Linux-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
 
   - bash miniconda.sh -b -p $HOME/miniconda
