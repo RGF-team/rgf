@@ -1,7 +1,7 @@
 [![Build Status Travis](https://travis-ci.org/fukatani/rgf_python.svg?branch=master)](https://travis-ci.org/fukatani/rgf_python)
 [![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/vpanb9hnncjr16hn/branch/master?svg=true)](https://ci.appveyor.com/project/fukatani/rgf-python)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/fukatani/rgf_python/blob/master/LICENSE)
-[![GitHub Version](https://badge.fury.io/gh/fukatani%2Frgf_python.svg)](https://github.com/fukatani/rgf_python/blob/master/rgf/VERSION)
+[![PyPI version](https://badge.fury.io/py/rgf_python.svg)](https://badge.fury.io/py/rgf_python)
 
 # rgf_python
 The wrapper of machine learning algorithm ***Regularized Greedy Forest (RGF)*** for Python.
@@ -54,13 +54,15 @@ Please see README in the zip file to build RGF executional.
 
 ## Installation
 
+You can easily install by pip:
+```
+pip install git+git://github.com/fukatani/rgf_python@master
+```
+
+Or:
 ```
 git clone https://github.com/fukatani/rgf_python.git
 python setup.py install
-```
-or using `pip`:
-```
-pip install git+git://github.com/fukatani/rgf_python@master
 ```
 
 You have to place RGF execution file in directory which is included in **environmental variable 'PATH'.**
