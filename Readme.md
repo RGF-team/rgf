@@ -65,20 +65,13 @@ git clone https://github.com/fukatani/rgf_python.git
 python setup.py install
 ```
 
-You have to place RGF execution file in directory which is included in **environmental variable 'PATH'.**
-Or you can direct specify path by **manual editing rgf/sklearn.py**
+You have to place RGF execution file into directory which is included in environmental variable **'PATH'**.
+Alternatively, you may specify actual location of RGF execution file and directory for placing temp files by corresponding flags in configuration file `.rgfrc`, which you should create into your home directory. The default values are platform dependent: for Windows `exe_location=$HOME/rgf.exe`, `temp_location=$HOME/temp/rgf` and for others: `exe_location=$HOME/rgf`, `temp_location=/tmp/rgf`. Here is the example of `.rgfrc`:
 
-```python
-## Edit this ##################################################
-#Location of the RGF executable
-loc_exec = 'C:\\Program Files\\RGF\\bin\\rgf.exe'
-#Location for RGF temp files
-loc_temp = 'temp/'
-## End Edit ##################################################
 ```
-
-You need to set actual location of RGF execution file by editing 'loc_exec'.
-And the variable 'loc_temp' can be changed to specify the directory for placing temp files.
+exe_location=C:/Program Files/RGF/bin/rgf.exe
+temp_location=C:/Program Files/RGF/temp
+```
 
 ## Tuning Hyper-parameters
 You can tune hyper-parameters as follows.
