@@ -1,4 +1,6 @@
+include Readme.md
 recursive-include rgf VERSION
 
 global-exclude *.pyo
 global-exclude *.pyc
+

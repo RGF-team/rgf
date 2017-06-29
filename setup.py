@@ -12,7 +12,7 @@ except ImportError:
     print("Warning: pypandoc module not found, could not convert Markdown to RST.")
     read_md = lambda f: open(f, 'r').read()
 
-setup(name='rgf_sklearn',
+setup(name='rgf_python',
       version=read(os.sep.join(['rgf', 'VERSION'])).strip(),
       description='Scikit-learn Wrapper for Regularized Greedy Forest',
       long_description=read_md('Readme.md'),
