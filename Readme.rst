@@ -84,11 +84,17 @@ Tuning Hyper-parameters
 -----------------------
 
 You can tune hyper-parameters as follows.
+
 |
+
 -  *max\_leaf*: Appropriate values are data-dependent and usually varied from 1000 to 10000.
+
 |
+
 -  *test\_interval*: For efficiency, it must be either multiple or divisor of 100 (default value of the optimization interval).
+
 |
+
 -  *algorithm*: You can select "RGF", "RGF Opt" or "RGF Sib".
 |
 -  *loss*: You can select "LS", "Log" or "Expo".
