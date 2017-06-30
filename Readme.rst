@@ -93,11 +93,15 @@ You can tune hyper-parameters as follows.
 
 -  *loss*: You can select "LS", "Log" or "Expo".
 
+
 -  *reg\_depth*: Must be no smaller than 1. Meant for being used with *algorithm* = "RGF Opt" or "RGF Sib".
+
 
 -  *l2*: Either 1, 0.1, or 0.01 often produces good results though with exponential loss (*loss* = "Expo") and logistic loss (*loss* = "Log"), some data requires smaller values such as 1e-10 or 1e-20.
 
+
 -  *sl2*: Default value is equal to *l2*. On some data, *l2*/100 works well.
+
 
 -  *normalize*: If turned on, training targets are normalized so that the average becomes zero.
 
