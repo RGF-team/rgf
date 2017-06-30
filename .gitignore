@@ -1,5 +1,5 @@
 temp/
 *.pyc
-rgf_sklearn.egg-info/
+rgf_python.egg-info/
 build/
 dist/
