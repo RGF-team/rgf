@@ -1,7 +1,8 @@
 [![Build Status Travis](https://travis-ci.org/fukatani/rgf_python.svg?branch=master)](https://travis-ci.org/fukatani/rgf_python)
 [![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/vpanb9hnncjr16hn/branch/master?svg=true)](https://ci.appveyor.com/project/fukatani/rgf-python)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/fukatani/rgf_python/blob/master/LICENSE)
-[![PyPI version](https://badge.fury.io/py/rgf_python.svg)](https://badge.fury.io/py/rgf_python)
+[![PyPI Version](https://badge.fury.io/py/rgf_python.svg)](https://badge.fury.io/py/rgf_python)
+<!-- [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.python.org/pypi/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io -->
 
 # rgf_python
 The wrapper of machine learning algorithm ***Regularized Greedy Forest (RGF)*** for Python.
