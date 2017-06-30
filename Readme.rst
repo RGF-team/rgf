@@ -14,9 +14,7 @@ Features
 
 **Scikit-learn interface and possibility of usage for multi-label classification problem.**
 
-Original RGF implementation is available only for regression and binary
-classification, but rgf\_python is also available for **multi-label
-classification** by "One-vs-Rest" method.
+Original RGF implementation is available only for regression and binary classification, but rgf\_python is also available for **multi-label classification** by "One-vs-Rest" method.
 
 Example:
 
@@ -48,8 +46,7 @@ Example:
     rgf_score = sum(rgf_scores)/n_folds
     print('RGF Classfier score: {0:.5f}'.format(rgf_score))
 
-More examples could be found
-`here <https://github.com/fukatani/rgf_python/tree/master/examples>`__.
+More examples could be found `here <https://github.com/fukatani/rgf_python/tree/master/examples>`__.
 
 Software Requirements
 ---------------------
@@ -58,10 +55,7 @@ Software Requirements
 -  scikit-learn (>= 0.18)
 -  RGF C++ (`link <http://tongzhang-ml.org/software/rgf/index.html>`__)
 
-If you can't access the above URL, alternatively, you can get RGF C++ by
-downloading it from this
-`page <https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip>`__.
-Please see README in the zip file to build RGF executional.
+If you can't access the above URL, alternatively, you can get RGF C++ by downloading it from this `page <https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip>`__. Please see README in the zip file to build RGF executional.
 
 Installation
 ------------
@@ -79,15 +73,7 @@ or from `GitHub <https://github.com/fukatani/rgf_python>`__:
     git clone https://github.com/fukatani/rgf_python.git
     python setup.py install
 
-You have to place RGF execution file into directory which is included in
-environmental variable **'PATH'**. Alternatively, you may specify actual
-location of RGF execution file and directory for placing temp files by
-corresponding flags in configuration file ``.rgfrc``, which you should
-create into your home directory. The default values are platform
-dependent: for Windows ``exe_location=$HOME/rgf.exe``,
-``temp_location=$HOME/temp/rgf`` and for others
-``exe_location=$HOME/rgf``, ``temp_location=/tmp/rgf``. Here is the
-example of ``.rgfrc``:
+You have to place RGF execution file into directory which is included in environmental variable **'PATH'**. Alternatively, you may specify actual location of RGF execution file and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are platform dependent: for Windows ``exe_location=$HOME/rgf.exe``, ``temp_location=$HOME/temp/rgf`` and for others ``exe_location=$HOME/rgf``, ``temp_location=/tmp/rgf``. Here is the example of ``.rgfrc``:
 
 ::
 
@@ -99,58 +85,43 @@ Tuning Hyper-parameters
 
 You can tune hyper-parameters as follows.
 
--  *max\_leaf*: Appropriate values are data-dependent and usually
-   varied from 1000 to 10000.
+-  *max\_leaf*: Appropriate values are data-dependent and usually varied from 1000 to 10000.
 
--  *test\_interval*: For efficiency, it must be either multiple or
-   divisor of 100 (default value of the optimization interval).
+-  *test\_interval*: For efficiency, it must be either multiple or divisor of 100 (default value of the optimization interval).
 
 -  *algorithm*: You can select "RGF", "RGF Opt" or "RGF Sib".
 
 -  *loss*: You can select "LS", "Log" or "Expo".
 
--  *reg\_depth*: Must be no smaller than 1. Meant for being used with
-   *algorithm* = "RGF Opt" or "RGF Sib".
+-  *reg\_depth*: Must be no smaller than 1. Meant for being used with *algorithm* = "RGF Opt" or "RGF Sib".
 
--  *l2*: Either 1, 0.1, or 0.01 often produces good results though with
-   exponential loss (*loss* = "Expo") and logistic loss (*loss* =
-   "Log"), some data requires smaller values such as 1e-10 or 1e-20.
+-  *l2*: Either 1, 0.1, or 0.01 often produces good results though with exponential loss (*loss* = "Expo") and logistic loss (*loss* = "Log"), some data requires smaller values such as 1e-10 or 1e-20.
 
--  *sl2*: Default value is equal to *l2*. On some data, *l2*/100 works
-   well.
+-  *sl2*: Default value is equal to *l2*. On some data, *l2*/100 works well.
 
--  *normalize*: If turned on, training targets are normalized so that
-   the average becomes zero.
+-  *normalize*: If turned on, training targets are normalized so that the average becomes zero.
 
--  *min\_samples\_leaf*: Smaller values may slow down training. Too
-   large values may degrade model accuracy.
+-  *min\_samples\_leaf*: Smaller values may slow down training. Too large values may degrade model accuracy.
 
--  *n\_iter*: Number of iterations of coordinate descent to optimize
-   weights.
+-  *n\_iter*: Number of iterations of coordinate descent to optimize weights.
 
--  *n\_tree\_search*: Number of trees to be searched for the nodes to
-   split. The most recently grown trees are searched first.
+-  *n\_tree\_search*: Number of trees to be searched for the nodes to split. The most recently grown trees are searched first.
 
--  *opt\_interval*: Weight optimization interval in terms of the
-   number of leaf nodes.
+-  *opt\_interval*: Weight optimization interval in terms of the number of leaf nodes.
 
--  *learning\_rate*: Step size of Newton updates used in coordinate
-   descent to optimize weights.
+-  *learning\_rate*: Step size of Newton updates used in coordinate descent to optimize weights.
 
-Detailed instruction of tuning hyper-parameters is
-`here <http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf>`__.
+Detailed instruction of tuning hyper-parameters is `here <http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf>`__.
 
 Using at Kaggle Kernel
 ----------------------
 
-Now, Kaggle Kernel supports rgf\_python. Please see `this
-page <https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest>`__.
+Now, Kaggle Kernel supports rgf\_python. Please see `this page <https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest>`__.
 
 Other
 -----
 
-Shamelessly, much part of the implementation is based on the following
-`code <https://github.com/MLWave/RGF-sklearn>`__. Thanks!
+Shamelessly, much part of the implementation is based on the following `code <https://github.com/MLWave/RGF-sklearn>`__. Thanks!
 
 .. |Build Status Travis| image:: https://travis-ci.org/fukatani/rgf_python.svg?branch=master
    :target: https://travis-ci.org/fukatani/rgf_python
