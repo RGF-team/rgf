@@ -56,19 +56,19 @@ Please see README in the zip file to build RGF executional.
 
 ## Installation
 
-From [PyPI](https://pypi.python.org/pypi/rgf_python/) using `pip`:
+From [PyPI](https://pypi.python.org/pypi/rgf_python) using `pip`:
 ```
 pip install rgf_python
 ```
 
-or from GitHub:
+or from [GitHub](https://github.com/fukatani/rgf_python):
 ```
 git clone https://github.com/fukatani/rgf_python.git
 python setup.py install
 ```
 
 You have to place RGF execution file into directory which is included in environmental variable **'PATH'**.
-Alternatively, you may specify actual location of RGF execution file and directory for placing temp files by corresponding flags in configuration file `.rgfrc`, which you should create into your home directory. The default values are platform dependent: for Windows `exe_location=$HOME/rgf.exe`, `temp_location=$HOME/temp/rgf` and for others: `exe_location=$HOME/rgf`, `temp_location=/tmp/rgf`. Here is the example of `.rgfrc`:
+Alternatively, you may specify actual location of RGF execution file and directory for placing temp files by corresponding flags in configuration file `.rgfrc`, which you should create into your home directory. The default values are platform dependent: for Windows `exe_location=$HOME/rgf.exe`, `temp_location=$HOME/temp/rgf` and for others `exe_location=$HOME/rgf`, `temp_location=/tmp/rgf`. Here is the example of `.rgfrc`:
 
 ```
 exe_location=C:/Program Files/RGF/bin/rgf.exe
