@@ -7,6 +7,7 @@ from math import ceil
 from threading import Lock
 from uuid import uuid4
 import atexit
+import codecs
 import numbers
 import os
 import platform
@@ -31,20 +32,43 @@ _SYSTEM = platform.system()
 _UUIDS = []
 
 
-## Edit this ##################################################
-if _SYSTEM in ('Windows', 'Microsoft'):
-    # Location of the RGF executable
-    loc_exec = 'C:\\Program Files\\RGF\\bin\\rgf.exe'
-    # Location for RGF temp files
-    loc_temp = 'temp/'
-    default_exec = 'rgf.exe'
-else:  # Linux, Darwin (OS X), etc.
-    # Location of the RGF executable
-    loc_exec = '/opt/rgf1.2/bin/rgf'
-    # Location for RGF temp files
-    loc_temp = '/tmp/rgf'
-    default_exec = 'rgf'
-## End Edit ##################################################
+def _get_paths():
+    config = six.moves.configparser.RawConfigParser()
+    path = os.path.join(os.path.expanduser('~'), '.rgfrc')
+
+    try:
+        with codecs.open(path, 'r', 'utf-8') as cfg:
+            with six.StringIO(cfg.read()) as strIO:
+                config.readfp(strIO)
+    except six.moves.configparser.MissingSectionHeaderError:
+        with codecs.open(path, 'r', 'utf-8') as cfg:
+            with six.StringIO('[glob]\n' + cfg.read()) as strIO:
+                config.readfp(strIO)
+    except Exception:
+        pass
+
+    if _SYSTEM in ('Windows', 'Microsoft'):
+        try:
+            exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+        except Exception:
+            exe = os.path.join(os.path.expanduser('~'), 'rgf.exe')
+        try:
+            temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
+        except Exception:
+            temp = os.path.join(os.path.expanduser('~'), 'temp', 'rgf')
+        def_exe = 'rgf.exe'
+    else:  # Linux, Darwin (OS X), etc.
+        try:
+            exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+        except Exception:
+            exe = os.path.join(os.path.expanduser('~'), 'rgf')
+        try:
+            temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
+        except Exception:
+            temp = os.path.join('/tmp', 'rgf')
+        def_exe = 'rgf'
+
+    return def_exe, exe, temp
 
 
 def _is_executable_response(path):
@@ -54,41 +78,16 @@ def _is_executable_response(path):
     except Exception:
         return False
 
-# Validate path
-if _is_executable_response(default_exec):
-    loc_exec = default_exec
-elif not os.path.isfile(loc_exec):
-    raise Exception('{0} is not executable file. Please set '
-                    'loc_exec to RGF execution file.'.format(loc_exec))
-elif not os.access(loc_exec, os.X_OK):
-    raise Exception('{0} cannot be accessed. Please set '
-                    'loc_exec to RGF execution file.'.format(loc_exec))
-elif _is_executable_response(loc_exec):
-    pass
-else:
-    raise Exception('{0} does not exist or {1} is not in the '
-                    '"PATH" variable.'.format(loc_exec, default_exec))
-
-if not os.path.isdir(loc_temp):
-    os.makedirs(loc_temp)
-if not os.access(loc_temp, os.W_OK):
-    raise Exception('{0} is not writable directory. Please set '
-                    'loc_temp to writable directory'.format(loc_temp))
-
 
 @atexit.register
 def _cleanup():
     for uuid in _UUIDS:
-        model_glob = os.path.join(loc_temp, uuid + "*")
+        model_glob = os.path.join(_TEMP_PATH, uuid + "*")
         for fn in glob(model_glob):
             os.remove(fn)
 
 
 def _sigmoid(x):
-    """
-    x : array-like
-    output : array-like
-    """
     return 1.0 / (1.0 + np.exp(-x))
 
 
@@ -222,6 +221,28 @@ class _AtomicCounter(object):
 
 
 _COUNTER = _AtomicCounter()
+_DEFAULT_EXE_PATH, _EXE_PATH, _TEMP_PATH = _get_paths()
+
+if _is_executable_response(_DEFAULT_EXE_PATH):
+    _EXE_PATH = _DEFAULT_EXE_PATH
+elif not os.path.isfile(_EXE_PATH):
+    raise Exception("{0} is not executable file. Please set "
+                    "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
+elif not os.access(_EXE_PATH, os.X_OK):
+    raise Exception("{0} cannot be accessed. Please set "
+                    "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
+elif _is_executable_response(_EXE_PATH):
+    pass
+else:
+    raise Exception("{0} does not exist or {1} is not in the "
+                    "'PATH' variable.".format(_EXE_PATH, _DEFAULT_EXE_PATH))
+
+if not os.path.isdir(_TEMP_PATH):
+    os.makedirs(_TEMP_PATH)
+if not os.access(_TEMP_PATH, os.W_OK):
+    raise Exception("{0} is not writable directory. Please set "
+                    "config flag 'temp_location' to writable directory".format(_TEMP_PATH))
+
 
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
@@ -560,9 +581,9 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.fitted_ = False
 
     def fit(self, X, y, sample_weight=None):
-        train_x_loc = os.path.join(loc_temp, self._file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(loc_temp, self._file_prefix + ".train.data.y")
-        train_weight_loc = os.path.join(loc_temp, self._file_prefix + ".train.data.weight")
+        train_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.x")
+        train_y_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.y")
+        train_weight_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.weight")
         if isspmatrix(X):
             _sparse_savetxt(train_x_loc, X)
         else:
@@ -593,10 +614,10 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("num_tree_search=%s" % self.n_tree_search)
         params.append("opt_interval=%s" % self.opt_interval)
         params.append("opt_stepsize=%s" % self.learning_rate)
-        params.append("model_fn_prefix=%s" % os.path.join(loc_temp, self._file_prefix + ".model"))
+        params.append("model_fn_prefix=%s" % os.path.join(_TEMP_PATH, self._file_prefix + ".model"))
         params.append("train_w_fn=%s" % train_weight_loc)
 
-        cmd = (loc_exec, "train", ",".join(params))
+        cmd = (_EXE_PATH, "train", ",".join(params))
 
         # Train
         output = subprocess.Popen(cmd,
@@ -616,28 +637,28 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
-        test_x_loc = os.path.join(loc_temp, self._file_prefix + ".test.data.x")
+        test_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".test.data.x")
         if isspmatrix(X):
             _sparse_savetxt(test_x_loc, X)
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
         # Find latest model location
-        model_glob = os.path.join(loc_temp, self._file_prefix + ".model*")
+        model_glob = os.path.join(_TEMP_PATH, self._file_prefix + ".model*")
         model_files = glob(model_glob)
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(loc_temp))
+                            'This is rgf_python error.'.format(_TEMP_PATH))
         latest_model_loc = sorted(model_files, reverse=True)[0]
 
         # Format test command
-        pred_loc = os.path.join(loc_temp, self._file_prefix + ".predictions.txt")
+        pred_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".predictions.txt")
         params = []
         params.append("test_x_fn=%s" % test_x_loc)
         params.append("prediction_fn=%s" % pred_loc)
         params.append("model_fn=%s" % latest_model_loc)
 
-        cmd = (loc_exec, "predict", ",".join(params))
+        cmd = (_EXE_PATH, "predict", ",".join(params))
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
@@ -818,9 +839,9 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                 raise ValueError("Sample weights must be positive.")
         check_consistent_length(X, y, sample_weight)
 
-        train_x_loc = os.path.join(loc_temp, self._file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(loc_temp, self._file_prefix + ".train.data.y")
-        train_weight_loc = os.path.join(loc_temp, self._file_prefix + ".train.data.weight")
+        train_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.x")
+        train_y_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.y")
+        train_weight_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.weight")
         if isspmatrix(X):
             _sparse_savetxt(train_x_loc, X)
         else:
@@ -848,10 +869,10 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("num_tree_search=%s" % self.n_tree_search)
         params.append("opt_interval=%s" % self.opt_interval)
         params.append("opt_stepsize=%s" % self.learning_rate)
-        params.append("model_fn_prefix=%s" % os.path.join(loc_temp, self._file_prefix + ".model"))
+        params.append("model_fn_prefix=%s" % os.path.join(_TEMP_PATH, self._file_prefix + ".model"))
         params.append("train_w_fn=%s" % train_weight_loc)
 
-        cmd = (loc_exec, "train", ",".join(params))
+        cmd = (_EXE_PATH, "train", ",".join(params))
 
         # Train
         output = subprocess.Popen(cmd,
@@ -894,28 +915,28 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                              "input n_features is %s "
                              % (self.n_features_, n_features))
 
-        test_x_loc = os.path.join(loc_temp, self._file_prefix + ".test.data.x")
+        test_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".test.data.x")
         if isspmatrix(X):
             _sparse_savetxt(test_x_loc, X)
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
         # Find latest model location
-        model_glob = os.path.join(loc_temp, self._file_prefix + ".model*")
+        model_glob = os.path.join(_TEMP_PATH, self._file_prefix + ".model*")
         model_files = glob(model_glob)
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(loc_temp))
+                            'This is rgf_python error.'.format(_TEMP_PATH))
         latest_model_loc = sorted(model_files, reverse=True)[0]
 
         # Format test command
-        pred_loc = os.path.join(loc_temp, self._file_prefix + ".predictions.txt")
+        pred_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".predictions.txt")
         params = []
         params.append("test_x_fn=%s" % test_x_loc)
         params.append("prediction_fn=%s" % pred_loc)
         params.append("model_fn=%s" % latest_model_loc)
 
-        cmd = (loc_exec, "predict", ",".join(params))
+        cmd = (_EXE_PATH, "predict", ",".join(params))
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,

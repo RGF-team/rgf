@@ -1,7 +1,9 @@
 [![Build Status Travis](https://travis-ci.org/fukatani/rgf_python.svg?branch=master)](https://travis-ci.org/fukatani/rgf_python)
 [![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/vpanb9hnncjr16hn/branch/master?svg=true)](https://ci.appveyor.com/project/fukatani/rgf-python)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/fukatani/rgf_python/blob/master/LICENSE)
-[![PyPI version](https://badge.fury.io/py/rgf_python.svg)](https://badge.fury.io/py/rgf_python)
+[![Python Versions](https://img.shields.io/pypi/pyversions/rgf_python.svg)](https://pypi.python.org/pypi/rgf_python/)
+[![PyPI Version](https://badge.fury.io/py/rgf_python.svg)](https://badge.fury.io/py/rgf_python)
+<!-- [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.python.org/pypi/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io -->
 
 # rgf_python
 The wrapper of machine learning algorithm ***Regularized Greedy Forest (RGF)*** for Python.
@@ -10,7 +12,7 @@ The wrapper of machine learning algorithm ***Regularized Greedy Forest (RGF)*** 
 
 ##### Scikit-learn interface and possibility of usage for multi-label classification problem.
 
-Original RGF implementation is available only for regression and binary classification, but rgf_python is **also available for multi-label classification** by "One-vs-Rest" method.
+Original RGF implementation is available only for regression and binary classification, but rgf_python is also available for **multi-label classification** by "One-vs-Rest" method.
 
 Example:
 ```python
@@ -54,31 +56,24 @@ Please see README in the zip file to build RGF executional.
 
 ## Installation
 
-You can easily install by pip:
+From [PyPI](https://pypi.python.org/pypi/rgf_python) using `pip`:
 ```
-pip install git+git://github.com/fukatani/rgf_python@master
+pip install rgf_python
 ```
 
-Or:
+or from [GitHub](https://github.com/fukatani/rgf_python):
 ```
 git clone https://github.com/fukatani/rgf_python.git
 python setup.py install
 ```
 
-You have to place RGF execution file in directory which is included in **environmental variable 'PATH'.**
-Or you can direct specify path by **manual editing rgf/sklearn.py**
+You have to place RGF execution file into directory which is included in environmental variable **'PATH'**.
+Alternatively, you may specify actual location of RGF execution file and directory for placing temp files by corresponding flags in configuration file `.rgfrc`, which you should create into your home directory. The default values are platform dependent: for Windows `exe_location=$HOME/rgf.exe`, `temp_location=$HOME/temp/rgf` and for others `exe_location=$HOME/rgf`, `temp_location=/tmp/rgf`. Here is the example of `.rgfrc`:
 
-```python
-## Edit this ##################################################
-#Location of the RGF executable
-loc_exec = 'C:\\Program Files\\RGF\\bin\\rgf.exe'
-#Location for RGF temp files
-loc_temp = 'temp/'
-## End Edit ##################################################
 ```
-
-You need to set actual location of RGF execution file by editing 'loc_exec'.
-And the variable 'loc_temp' can be changed to specify the directory for placing temp files.
+exe_location=C:/Program Files/RGF/bin/rgf.exe
+temp_location=C:/Program Files/RGF/temp
+```
 
 ## Tuning Hyper-parameters
 You can tune hyper-parameters as follows.
