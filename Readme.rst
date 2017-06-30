@@ -1,6 +1,8 @@
 |Build Status Travis| |Build Status AppVeyor| |License| |Python
 Versions| |PyPI Version|
 
+.. [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.python.org/pypi/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io
+
 rgf\_python
 ===========
 
@@ -10,8 +12,7 @@ The wrapper of machine learning algorithm **Regularized Greedy Forest
 Features
 --------
 
-Scikit-learn interface and possibility of usage for multi-label classification problem.
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+**Scikit-learn interface and possibility of usage for multi-label classification problem.**
 
 Original RGF implementation is available only for regression and binary
 classification, but rgf\_python is also available for **multi-label
