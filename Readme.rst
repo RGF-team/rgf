@@ -4,8 +4,8 @@ Versions| |PyPI Version|
 rgf\_python
 ===========
 
-The wrapper of machine learning algorithm ***Regularized Greedy Forest
-(RGF)*** for Python.
+The wrapper of machine learning algorithm **Regularized Greedy Forest
+(RGF)** for Python.
 
 Features
 --------
@@ -98,17 +98,17 @@ Tuning Hyper-parameters
 
 You can tune hyper-parameters as follows.
 
--  *max*\ leaf\_: Appropriate values are data-dependent and usually
+-  *max\_leaf*: Appropriate values are data-dependent and usually
    varied from 1000 to 10000.
 
--  *test*\ interval\_: For efficiency, it must be either multiple or
+-  *test\_interval*: For efficiency, it must be either multiple or
    divisor of 100 (default value of the optimization interval).
 
 -  *algorithm*: You can select "RGF", "RGF Opt" or "RGF Sib".
 
 -  *loss*: You can select "LS", "Log" or "Expo".
 
--  *reg*\ depth\_: Must be no smaller than 1. Meant for being used with
+-  *reg\_depth*: Must be no smaller than 1. Meant for being used with
    *algorithm* = "RGF Opt" or "RGF Sib".
 
 -  *l2*: Either 1, 0.1, or 0.01 often produces good results though with
@@ -121,19 +121,19 @@ You can tune hyper-parameters as follows.
 -  *normalize*: If turned on, training targets are normalized so that
    the average becomes zero.
 
--  *min*\ samples\_leaf\_: Smaller values may slow down training. Too
+-  *min\_samples\_leaf*: Smaller values may slow down training. Too
    large values may degrade model accuracy.
 
--  *n*\ iter\_: Number of iterations of coordinate descent to optimize
+-  *n\_iter*: Number of iterations of coordinate descent to optimize
    weights.
 
--  *n*\ tree\_search\_: Number of trees to be searched for the nodes to
+-  *n\_tree\_search*: Number of trees to be searched for the nodes to
    split. The most recently grown trees are searched first.
 
--  *opt*\ interval\_: Weight optimization interval in terms of the
+-  *opt\_interval*: Weight optimization interval in terms of the
    number of leaf nodes.
 
--  *learning*\ rate\_: Step size of Newton updates used in coordinate
+-  *learning\_rate*: Step size of Newton updates used in coordinate
    descent to optimize weights.
 
 Detailed instruction of tuning hyper-parameters is
