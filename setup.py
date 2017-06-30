@@ -15,7 +15,7 @@ except ImportError:
 setup(name='rgf_python',
       version=read(os.sep.join(['rgf', 'VERSION'])).strip(),
       description='Scikit-learn Wrapper for Regularized Greedy Forest',
-      long_description=read_md('Readme.md'),
+      long_description=read_md('Readme.rst'),
       keywords='Machine Learning',
       author='Ryosuke Fukatani',
       author_email='nannyakannya@gmail.com',
