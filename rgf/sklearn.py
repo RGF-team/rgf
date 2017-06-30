@@ -240,8 +240,8 @@ else:
 if not os.path.isdir(_TEMP_PATH):
     os.makedirs(_TEMP_PATH)
 if not os.access(_TEMP_PATH, os.W_OK):
-    raise Exception('{0} is not writable directory. Please set '
-                    '_TEMP_PATH to writable directory'.format(_TEMP_PATH))
+    raise Exception("{0} is not writable directory. Please set "
+                    "config flag 'temp_location' to writable directory".format(_TEMP_PATH))
 
 
 
