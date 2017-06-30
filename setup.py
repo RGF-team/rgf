@@ -2,11 +2,11 @@ from setuptools import find_packages, setup
 import os
 
 
-def read(filenames):
-    return open(os.path.join(os.path.dirname(__file__), filenames)).read()
+def read(filename):
+    return open(os.path.join(os.path.dirname(__file__), filename)).read()
 
 setup(name='rgf_python',
-      version=read(os.sep.join(['rgf', 'VERSION'])).strip(),
+      version=read(os.path.join('rgf', 'VERSION')).strip(),
       description='Scikit-learn Wrapper for Regularized Greedy Forest',
       long_description=read('Readme.rst'),
       keywords='Machine Learning',
