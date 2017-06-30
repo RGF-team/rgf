@@ -56,12 +56,12 @@ Please see README in the zip file to build RGF executional.
 
 ## Installation
 
-You can easily install by pip:
+From [PyPI](https://pypi.python.org/pypi/rgf_python/) using `pip`:
 ```
-pip install git+git://github.com/fukatani/rgf_python@master
+pip install rgf_python
 ```
 
-Or:
+or from GitHub:
 ```
 git clone https://github.com/fukatani/rgf_python.git
 python setup.py install
