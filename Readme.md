@@ -1,6 +1,7 @@
 [![Build Status Travis](https://travis-ci.org/fukatani/rgf_python.svg?branch=master)](https://travis-ci.org/fukatani/rgf_python)
 [![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/vpanb9hnncjr16hn/branch/master?svg=true)](https://ci.appveyor.com/project/fukatani/rgf-python)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/fukatani/rgf_python/blob/master/LICENSE)
+[![Python Versions](https://img.shields.io/pypi/pyversions/rgf_python.svg)](https://pypi.python.org/pypi/rgf_python/)
 [![PyPI Version](https://badge.fury.io/py/rgf_python.svg)](https://badge.fury.io/py/rgf_python)
 <!-- [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.python.org/pypi/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io -->
 
@@ -11,7 +12,7 @@ The wrapper of machine learning algorithm ***Regularized Greedy Forest (RGF)*** 
 
 ##### Scikit-learn interface and possibility of usage for multi-label classification problem.
 
-Original RGF implementation is available only for regression and binary classification, but rgf_python is **also available for multi-label classification** by "One-vs-Rest" method.
+Original RGF implementation is available only for regression and binary classification, but rgf_python is also available for **multi-label classification** by "One-vs-Rest" method.
 
 Example:
 ```python
