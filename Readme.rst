@@ -1,13 +1,11 @@
-|Build Status Travis| |Build Status AppVeyor| |License| |Python
-Versions| |PyPI Version|
+|Build Status Travis| |Build Status AppVeyor| |License| |Python Versions| |PyPI Version|
 
 .. [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.python.org/pypi/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io
 
 rgf\_python
 ===========
 
-The wrapper of machine learning algorithm **Regularized Greedy Forest
-(RGF)** for Python.
+The wrapper of machine learning algorithm **Regularized Greedy Forest (RGF)** for Python.
 
 Features
 --------
@@ -73,7 +71,7 @@ or from `GitHub <https://github.com/fukatani/rgf_python>`__:
     git clone https://github.com/fukatani/rgf_python.git
     python setup.py install
 
-You have to place RGF execution file into directory which is included in environmental variable **'PATH'**. Alternatively, you may specify actual location of RGF execution file and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are platform dependent: for Windows ``exe_location=$HOME/rgf.exe``, ``temp_location=$HOME/temp/rgf`` and for others ``exe_location=$HOME/rgf``, ``temp_location=/tmp/rgf``. Here is the example of ``.rgfrc``:
+You have to place RGF execution file into directory which is included in environmental variable **'PATH'**. Alternatively, you may specify actual location of RGF execution file and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are platform dependent: for Windows ``exe_location=$HOME/rgf.exe``, ``temp_location=$HOME/temp/rgf`` and for others ``exe_location=$HOME/rgf``, ``temp_location=/tmp/rgf``. Here is the example of ``.rgfrc`` file:
 
 ::
 
@@ -85,38 +83,20 @@ Tuning Hyper-parameters
 
 You can tune hyper-parameters as follows.
 
-|
-
 -  *max\_leaf*: Appropriate values are data-dependent and usually varied from 1000 to 10000.
-
-|
-
 -  *test\_interval*: For efficiency, it must be either multiple or divisor of 100 (default value of the optimization interval).
-
-|
-
 -  *algorithm*: You can select "RGF", "RGF Opt" or "RGF Sib".
-|
 -  *loss*: You can select "LS", "Log" or "Expo".
-|
 -  *reg\_depth*: Must be no smaller than 1. Meant for being used with *algorithm* = "RGF Opt" or "RGF Sib".
-|
 -  *l2*: Either 1, 0.1, or 0.01 often produces good results though with exponential loss (*loss* = "Expo") and logistic loss (*loss* = "Log"), some data requires smaller values such as 1e-10 or 1e-20.
-|
 -  *sl2*: Default value is equal to *l2*. On some data, *l2*/100 works well.
-|
 -  *normalize*: If turned on, training targets are normalized so that the average becomes zero.
-|
 -  *min\_samples\_leaf*: Smaller values may slow down training. Too large values may degrade model accuracy.
-|
 -  *n\_iter*: Number of iterations of coordinate descent to optimize weights.
-|
 -  *n\_tree\_search*: Number of trees to be searched for the nodes to split. The most recently grown trees are searched first.
-|
 -  *opt\_interval*: Weight optimization interval in terms of the number of leaf nodes.
-|
 -  *learning\_rate*: Step size of Newton updates used in coordinate descent to optimize weights.
-|
+
 Detailed instruction of tuning hyper-parameters is `here <http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf>`__.
 
 Using at Kaggle Kernel
