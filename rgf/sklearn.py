@@ -14,10 +14,11 @@ import platform
 import subprocess
 
 import numpy as np
-from scipy.sparse import isspmatrix
+import scipy.sparse as sp
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
+from sklearn.externals.joblib import Parallel, delayed
 from sklearn.utils.extmath import softmax
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
@@ -105,7 +106,8 @@ def _validate_params(max_leaf,
                      opt_interval,
                      learning_rate,
                      verbose,
-                     calc_prob="Sigmoid"):
+                     calc_prob="sigmoid",
+                     n_jobs=-1):
     if not isinstance(max_leaf, (numbers.Integral, np.integer)):
         raise ValueError("max_leaf must be an integer, got {0}.".format(type(max_leaf)))
     elif max_leaf <= 0:
@@ -181,17 +183,19 @@ def _validate_params(max_leaf,
 
     if not isinstance(calc_prob, six.string_types):
         raise ValueError("calc_prob must be a string, got {0}.".format(type(calc_prob)))
-    elif calc_prob not in ("Sigmoid", "Softmax"):
-        raise ValueError("calc_prob must be 'Sigmoid' or 'Softmax' but was %r." % calc_prob)
+    elif calc_prob not in ("sigmoid", "softmax"):
+        raise ValueError("calc_prob must be 'sigmoid' or 'softmax' but was %r." % calc_prob)
+
+    if not isinstance(n_jobs, (numbers.Integral, np.integer)):
+        raise ValueError("n_jobs must be an integer, got {0}.".format(type(n_jobs)))
 
 
 def _sparse_savetxt(filename, input_array):
-    try:  # For Python 2.x
-        from itertools import izip
-        zip_func = izip
-    except ImportError:  # For Python 3.x
-        zip_func = zip
-    input_array = input_array.tocsr().tocoo()
+    zip_func = six.moves.zip
+    if sp.isspmatrix_csr(input_array):
+        input_array = input_array.tocoo()
+    elif not sp.isspmatrix_coo(input_array):
+        input_array = input_array.tocsr().tocoo()
     n_row = input_array.shape[0]
     current_sample_row = 0
     line = []
@@ -207,6 +211,10 @@ def _sparse_savetxt(filename, input_array):
                 current_sample_row = i
         fw.write(' '.join(line))
         fw.write('\n' * (n_row - i))
+
+
+def _fit_ovr_binary(binary_clf, X, y, sample_weight):
+    return binary_clf.fit(X, y, sample_weight)
 
 
 class _AtomicCounter(object):
@@ -269,6 +277,9 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
     loss : string ("LS" or "Expo" or "Log"), optional (default="Log")
         Loss function.
+        LS: Square loss.
+        Expo: Exponential loss.
+        Log: Logistic loss.
 
     reg_depth : float, optional (default=1.0)
         Must be no smaller than 1.0.
@@ -312,11 +323,18 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     learning_rate : float, optional (default=0.5)
         Step size of Newton updates used in coordinate descent to optimize weights.
 
+    calc_prob : string ("sigmoid" or "softmax"), optional (default="sigmoid")
+        Method of probability calculation.
+
+    n_jobs : integer, optional (default=-1)
+        The number of jobs to use for the computation.
+        If 1 is given, no parallel computing code is used at all.
+        If -1 all CPUs are used.
+        For n_jobs = -2, all CPUs but one are used.
+        For n_jobs below -1, (n_cpus + 1 + n_jobs) are used.
+
     verbose : int, optional (default=0)
         Controls the verbosity of the tree building process.
-
-    calc_prob : string ("Sigmoid" or "Softmax"), optional (default="Sigmoid")
-        Method of probability calculation.
 
     Attributes:
     -----------
@@ -354,8 +372,9 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                  n_tree_search=1,
                  opt_interval=100,
                  learning_rate=0.5,
-                 verbose=0,
-                 calc_prob='Sigmoid'):
+                 calc_prob="sigmoid",
+                 n_jobs=-1,
+                 verbose=0):
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -369,8 +388,9 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self.n_tree_search = n_tree_search
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
-        self.verbose = verbose
         self.calc_prob = calc_prob
+        self.n_jobs = n_jobs
+        self.verbose = verbose
         self.fitted_ = False
 
     def fit(self, X, y, sample_weight=None):
@@ -415,6 +435,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
         X, y = check_X_y(X, y, accept_sparse=True)
         n_samples, self.n_features_ = X.shape
+
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
         else:
@@ -427,48 +448,45 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self.classes_ = sorted(np.unique(y))
         self.n_classes_ = len(self.classes_)
         self._classes_map = {}
+
+        params = dict(max_leaf=self.max_leaf,
+                      test_interval=self.test_interval,
+                      algorithm=self.algorithm,
+                      loss=self.loss,
+                      reg_depth=self.reg_depth,
+                      l2=self.l2,
+                      sl2=self.sl2_,
+                      normalize=self.normalize,
+                      min_samples_leaf=self.min_samples_leaf_,
+                      n_iter=self.n_iter_,
+                      n_tree_search=self.n_tree_search,
+                      opt_interval=self.opt_interval,
+                      learning_rate=self.learning_rate,
+                      verbose=self.verbose)
         if self.n_classes_ == 2:
             self._classes_map[0] = self.classes_[0]
             self._classes_map[1] = self.classes_[1]
             self.estimators_ = [None]
             y = (y == self.classes_[0]).astype(int)
-            self.estimators_[0] = _RGFBinaryClassifier(max_leaf=self.max_leaf,
-                                                       test_interval=self.test_interval,
-                                                       algorithm=self.algorithm,
-                                                       loss=self.loss,
-                                                       reg_depth=self.reg_depth,
-                                                       l2=self.l2,
-                                                       sl2=self.sl2_,
-                                                       normalize=self.normalize,
-                                                       min_samples_leaf=self.min_samples_leaf_,
-                                                       n_iter=self.n_iter_,
-                                                       n_tree_search=self.n_tree_search,
-                                                       opt_interval=self.opt_interval,
-                                                       learning_rate=self.learning_rate,
-                                                       verbose=self.verbose)
+            self.estimators_[0] = _RGFBinaryClassifier(**params)
             self.estimators_[0].fit(X, y, sample_weight)
         elif self.n_classes_ > 2:
+            if sp.isspmatrix_dok(X):
+                X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
             self.estimators_ = [None] * self.n_classes_
+            ovr_list = [None] * self.n_classes_
             for i, cls_num in enumerate(self.classes_):
                 self._classes_map[i] = cls_num
-                y_one_or_rest = (y == cls_num).astype(int)
-                self.estimators_[i] = _RGFBinaryClassifier(max_leaf=self.max_leaf,
-                                                           test_interval=self.test_interval,
-                                                           algorithm=self.algorithm,
-                                                           loss=self.loss,
-                                                           reg_depth=self.reg_depth,
-                                                           l2=self.l2,
-                                                           sl2=self.sl2_,
-                                                           normalize=self.normalize,
-                                                           min_samples_leaf=self.min_samples_leaf_,
-                                                           n_iter=self.n_iter_,
-                                                           n_tree_search=self.n_tree_search,
-                                                           opt_interval=self.opt_interval,
-                                                           learning_rate=self.learning_rate,
-                                                           verbose=self.verbose)
-                self.estimators_[i].fit(X, y_one_or_rest, sample_weight)
+                ovr_list[i] = (y == cls_num).astype(int)
+                self.estimators_[i] = _RGFBinaryClassifier(**params)
+            self.estimators_ = Parallel(n_jobs=self.n_jobs)(delayed(_fit_ovr_binary)(self.estimators_[i],
+                                                                                     X,
+                                                                                     ovr_list[i],
+                                                                                     sample_weight)
+                                                            for i in range(self.n_classes_))
         else:
             raise ValueError("Classifier can't predict when only one class is present.")
+
         self.fitted_ = True
         return self
 
@@ -500,25 +518,25 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                              "input n_features is %s "
                              % (self.n_features_, n_features))
         if self.n_classes_ == 2:
-            proba = self.estimators_[0].predict_proba(X)
-            proba = _sigmoid(proba)
-            proba = np.c_[proba, 1 - proba]
+            y = self.estimators_[0].predict_proba(X)
+            y = _sigmoid(y)
+            y = np.c_[y, 1 - y]
         else:
-            proba = np.zeros((X.shape[0], self.n_classes_))
+            y = np.zeros((X.shape[0], self.n_classes_))
             for i, clf in enumerate(self.estimators_):
                 class_proba = clf.predict_proba(X)
-                proba[:, i] = class_proba
+                y[:, i] = class_proba
 
-            # In honest I don't understand which is better
+            # In honest, I don't understand which is better
             # softmax or normalized sigmoid for calc probability.
-            if self.calc_prob == "Sigmoid":
-                proba = _sigmoid(proba)
-                normalizer = proba.sum(axis=1)[:, np.newaxis]
+            if self.calc_prob == "sigmoid":
+                y = _sigmoid(y)
+                normalizer = np.sum(y, axis=1)[:, np.newaxis]
                 normalizer[normalizer == 0.0] = 1.0
-                proba /= normalizer
+                y /= normalizer
             else:
-                proba = softmax(proba)
-        return proba
+                y = softmax(y)
+        return y
 
     def predict(self, X):
         """
@@ -536,9 +554,9 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         y : array of shape = [n_samples]
             The predicted classes.
         """
-        proba = self.predict_proba(X)
-        y_pred = np.argmax(proba, axis=1)
-        return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y_pred)]
+        y = self.predict_proba(X)
+        y = np.argmax(y, axis=1)
+        return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y)]
 
 
 class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
@@ -580,11 +598,11 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         _UUIDS.append(self._file_prefix)
         self.fitted_ = False
 
-    def fit(self, X, y, sample_weight=None):
+    def fit(self, X, y, sample_weight):
         train_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.x")
         train_y_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.y")
         train_weight_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.weight")
-        if isspmatrix(X):
+        if sp.isspmatrix(X):
             _sparse_savetxt(train_x_loc, X)
         else:
             np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
@@ -638,7 +656,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                                  "call `fit` before exploiting the model.")
 
         test_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".test.data.x")
-        if isspmatrix(X):
+        if sp.isspmatrix(X):
             _sparse_savetxt(test_x_loc, X)
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
@@ -669,8 +687,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             for k in output:
                 print(k)
 
-        y_pred = np.loadtxt(pred_loc)
-        return y_pred
+        return np.loadtxt(pred_loc)
 
 
 class RGFRegressor(BaseEstimator, RegressorMixin):
@@ -842,7 +859,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         train_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.x")
         train_y_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.y")
         train_weight_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.weight")
-        if isspmatrix(X):
+        if sp.isspmatrix(X):
             _sparse_savetxt(train_x_loc, X)
         else:
             np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
@@ -916,7 +933,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                              % (self.n_features_, n_features))
 
         test_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".test.data.x")
-        if isspmatrix(X):
+        if sp.isspmatrix(X):
             _sparse_savetxt(test_x_loc, X)
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")

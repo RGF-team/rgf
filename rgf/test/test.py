@@ -7,7 +7,6 @@ from sklearn.metrics import accuracy_score, mean_squared_error
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_random_state
-
 from rgf.sklearn import RGFClassifier, RGFRegressor
 
 
@@ -37,7 +36,7 @@ class TestRGFClassfier(unittest.TestCase):
         self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
 
     def test_softmax_classifier(self):
-        clf = RGFClassifier(calc_prob='Softmax')
+        clf = RGFClassifier(calc_prob='softmax')
         clf.fit(self.iris.data, self.iris.target)
 
         proba_sum = clf.predict_proba(self.iris.data).sum(axis=1)
@@ -92,7 +91,7 @@ class TestRGFClassfier(unittest.TestCase):
         check_estimator(RGFClassifier)
 
     def test_classifier_sparse_input(self):
-        clf = RGFClassifier(calc_prob='Softmax')
+        clf = RGFClassifier(calc_prob='softmax')
         for sparse_format in (sparse.bsr_matrix, sparse.coo_matrix, sparse.csc_matrix,
                               sparse.csr_matrix, sparse.dia_matrix, sparse.dok_matrix, sparse.lil_matrix):
             iris_sparse = sparse_format(self.iris.data)
@@ -131,8 +130,9 @@ class TestRGFClassfier(unittest.TestCase):
                             n_tree_search=2,
                             opt_interval=100,
                             learning_rate=0.4,
-                            verbose=True,
-                            calc_prob='Sigmoid')
+                            calc_prob='sigmoid',
+                            n_jobs=-1,
+                            verbose=True)
         clf.set_params(**valid_params)
         clf.fit(self.X_train, self.y_train)
 
@@ -149,8 +149,9 @@ class TestRGFClassfier(unittest.TestCase):
                                 n_tree_search=0,
                                 opt_interval=100.1,
                                 learning_rate=-0.5,
-                                verbose=-1,
-                                calc_prob=True)
+                                calc_prob=True,
+                                n_jobs='-1',
+                                verbose=-1)
         for key in non_valid_params:
             clf.set_params(**valid_params)  # Reset to valid params
             clf.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
@@ -170,7 +171,7 @@ class TestRGFClassfier(unittest.TestCase):
 
     def test_parallel_gridsearch(self):
         param_grid = dict(max_leaf=[100, 300])
-        grid = GridSearchCV(RGFClassifier(),
+        grid = GridSearchCV(RGFClassifier(n_jobs=1),
                             param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
         y_pred = grid.best_estimator_.predict(self.X_train)
