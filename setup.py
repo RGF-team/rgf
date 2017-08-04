@@ -6,27 +6,35 @@ from platform import system
 import os
 
 
-_CURRENT_DIR = os.path.dirname(__file__)
+CURRENT_DIR = os.path.dirname(__file__)
 
 
 def read(filename):
-    return open(os.path.join(_CURRENT_DIR, filename)).read()
+    return open(os.path.join(CURRENT_DIR, filename)).read()
+
+
+def clear_folder(path):
+    file_list = os.listdir(path)
+    for file in file_list:
+        file_path = os.path.join(path, file)
+    if os.path.isfile(file_path):
+        os.remove(file_path)
 
 
 def find_lib():
     if system() in ('Windows',
-                    'Microsoft') and os.path.isfile(os.path.join(_CURRENT_DIR,
+                    'Microsoft') and os.path.isfile(os.path.join(CURRENT_DIR,
                                                                  'include',
                                                                  'rgf',
                                                                  'bin',
                                                                  'rgf.exe')):
-        return os.path.join(_CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf.exe')
-    elif os.path.isfile(os.path.join(_CURRENT_DIR,
+        return os.path.join(CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf.exe')
+    elif os.path.isfile(os.path.join(CURRENT_DIR,
                                      'include',
                                      'rgf',
                                      'bin',
                                      'rgf')):
-        return os.path.join(_CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf')
+        return os.path.join(CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf')
     else:
         return None
 
@@ -34,7 +42,8 @@ def compile_cpp():
     status = 0
     os.chdir(os.path.join('include', 'rgf'))
     if system() in ('Windows', 'Microsoft'):
-        pass  # FIXME
+        # Try to build with Visual Studio
+        pass
 #        if use_mingw:
 #            cmake_cmd += " -G \"MinGW Makefiles\" "
 #            os.system(cmake_cmd + " ../lightgbm/")
