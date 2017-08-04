@@ -1,6 +1,8 @@
 build: false
 image: Visual Studio 2015
 
+platform: x64
+
 environment:
   matrix:
     - PYTHON_VERSION: 2.7

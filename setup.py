@@ -51,19 +51,15 @@ def compile_cpp():
                               os.pardir,
                               'bin',
                               'rgf.exe')
-        platform_toolsets = ('v100', 'v110', 'v120', 'v140',
-                             'v141', 'v150', 'v90', 'Windows7.1SDK')
+        platform_toolsets = ('Windows7.1SDK', 'v100', 'v110', 'v120', 'v140',
+                             'v141', 'v150', 'v90')  # FIXME: Works only with W7.1SDK
         print("Trying to build executable file with MSBuild.")
         for platform_toolset in platform_toolsets:
-            if IS_64BITS:
-                status = os.system('MSBuild rgf.sln '
-                                   '/p:ProjectConfiguration="Release|x64" '
-                                   '/p:PlatformToolset={0}'.format(platform_toolset))
-            else:
-                status = os.system('MSBuild rgf.sln '
-                                   '/p:ProjectConfiguration="Release|Win32" '
-                                   '/p:PlatformToolset={0}'.format(platform_toolset))
-            clear_folder('Release')
+            status = os.system('MSBuild rgf.sln '
+                               '/p:Configuration=Release '
+                               '/p:PlatformToolset={0}'.format(platform_toolset))
+            if os.path.isdir('Release'):
+                clear_folder('Release')
             if status == 0 and os.path.isfile(target):
                 break
         if status != 0 or not os.path.isfile(target):

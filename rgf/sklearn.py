@@ -73,7 +73,7 @@ def _get_paths():
 
 def _is_executable_response(path):
     try:
-        subprocess.check_output((path, "train"))
+        subprocess.check_output((path, 'train', 'RGF_Sib'))
         return True
     except Exception:
         return False
