@@ -225,8 +225,8 @@ _DEFAULT_EXE_PATH, _EXE_PATH, _TEMP_PATH = _get_paths()
 
 if _is_executable_response(_DEFAULT_EXE_PATH):
     _EXE_PATH = _DEFAULT_EXE_PATH
-elif _is_executable_response(os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH))
-    _EXE_PATH = _DEFAULT_EXE_PATH
+elif _is_executable_response(os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)):
+    _EXE_PATH = os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)
 elif not os.path.isfile(_EXE_PATH):
     raise Exception("{0} is not executable file. Please set "
                     "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
