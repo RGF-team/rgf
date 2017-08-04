@@ -1,11 +1,13 @@
+from platform import system
 from setuptools import find_packages, setup
 from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
 from setuptools.command.sdist import sdist
-from platform import system
+from sys import maxsize
 import os
 
 
+IS_64BITS = maxsize > 2**32
 CURRENT_DIR = os.path.dirname(__file__)
 
 
@@ -42,27 +44,33 @@ def compile_cpp():
     status = 0
     os.chdir(os.path.join('include', 'rgf'))
     if system() in ('Windows', 'Microsoft'):
-        # Try to build with Visual Studio
-        pass
-#        if use_mingw:
-#            cmake_cmd += " -G \"MinGW Makefiles\" "
-#            os.system(cmake_cmd + " ../lightgbm/")
-#            build_cmd = "mingw32-make.exe _lightgbm"
-#        else:
-#            vs_versions = ["Visual Studio 15 2017 Win64", "Visual Studio 14 2015 Win64", "Visual Studio 12 2013 Win64"]
-#            try_vs = 1
-#            for vs in vs_versions:
-#                tmp_cmake_cmd = "%s -G \"%s\"" % (cmake_cmd, vs)
-#                try_vs = os.system(tmp_cmake_cmd + " ../lightgbm/")
-#                if try_vs == 0:
-#                    cmake_cmd = tmp_cmake_cmd
-#                    break
-#                else:
-#                    clear_path("./")
-#            if try_vs != 0:
-#                raise Exception('Please install Visual Studio or MS Build first')
-#
-#            build_cmd = "cmake --build . --target _lightgbm  --config Release"
+        # Try to build with MSBuild
+        os.chdir(os.path.join('Windows', 'rgf'))
+        target = os.path.join(os.path.pardir,
+                              os.pardir,
+                              'bin',
+                              'rgf.exe')
+        platform_toolsets = ('v100', 'v110', 'v120', 'v140',
+                             'v141', 'v150', 'v90', 'Windows7.1SDK')
+        print("Trying to build executable file with MSBuild.")
+        for platform_toolset in platform_toolsets:
+            if IS_64BITS:
+                status = os.system('MSBuild rgf.sln '
+                                   '/p:ProjectConfiguration="Release|x64" '
+                                   '/p:PlatformToolset={0}'.format(platform_toolset))
+            else:
+                status = os.system('MSBuild rgf.sln '
+                                   '/p:ProjectConfiguration="Release|Win32" '
+                                   '/p:PlatformToolset={0}'.format(platform_toolset))
+            clear_folder('Release')
+            if status == 0 and os.path.isfile(target):
+                break
+        if status != 0 or not os.path.isfile(target):
+            # Try to build with MinGW
+            print("Building executable file with MSBuild failed.")
+            print("Trying to build executable file with MinGW.")
+            # FIXME
+        os.chdir(os.path.join(os.path.pardir, os.path.pardir))
     else:
         status = os.system('make')
     os.chdir(os.path.join(os.path.pardir, os.pardir))
