@@ -40,6 +40,7 @@ def find_lib():
     else:
         return None
 
+
 def compile_cpp():
     status = 0
     os.chdir(os.path.join('include', 'rgf'))

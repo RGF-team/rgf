@@ -81,10 +81,11 @@ def _is_executable_response(path):
 
 @atexit.register
 def _cleanup():
-    for uuid in _UUIDS:
-        model_glob = os.path.join(_TEMP_PATH, uuid + "*")
-        for fn in glob(model_glob):
-            os.remove(fn)
+    if _UUIDS is not None:
+        for uuid in _UUIDS:
+            model_glob = os.path.join(_TEMP_PATH, uuid + "*")
+            for fn in glob(model_glob):
+                os.remove(fn)
 
 
 def _sigmoid(x):
