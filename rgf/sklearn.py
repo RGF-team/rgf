@@ -252,7 +252,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     A Regularized Greedy Forest [1] classifier.
 
     Tuning parameters detailed instruction:
-        http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf
+        https://github.com/fukatani/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf
 
     Parameters
     ----------
@@ -680,7 +680,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
     A Regularized Greedy Forest [1] regressor.
 
     Tuning parameters detailed instruction:
-        http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf
+        https://github.com/fukatani/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf
 
     Parameters
     ----------
