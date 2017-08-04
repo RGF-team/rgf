@@ -84,6 +84,8 @@ class CustomInstallLib(install_lib):
     def install(self):
         outfiles = install_lib.install(self)
         src = find_lib()
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!find_lib={0}'.format(src))
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!install_dir={0}'.format(self.install_dir))
         if src:
             dst, _ = self.copy_file(src, os.path.join(self.install_dir,
                                                       os.path.split(src)[-1]))
