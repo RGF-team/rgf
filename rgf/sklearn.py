@@ -222,9 +222,10 @@ class _AtomicCounter(object):
 
 _COUNTER = _AtomicCounter()
 _DEFAULT_EXE_PATH, _EXE_PATH, _TEMP_PATH = _get_paths()
-_DEFAULT_EXE_PATH = os.path.join(os.path.dirname(__file__), 'rgf')  # FIXME
 
 if _is_executable_response(_DEFAULT_EXE_PATH):
+    _EXE_PATH = _DEFAULT_EXE_PATH
+elif _is_executable_response(os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH))
     _EXE_PATH = _DEFAULT_EXE_PATH
 elif not os.path.isfile(_EXE_PATH):
     raise Exception("{0} is not executable file. Please set "
