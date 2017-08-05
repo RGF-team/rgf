@@ -44,6 +44,7 @@ def find_lib():
 def compile_cpp():
     status = 0
     os.chdir(os.path.join('include', 'rgf'))
+    clear_folder('bin')  # Delete precompiled file
     if system() in ('Windows', 'Microsoft'):
         # Try to build with MSBuild
         os.chdir(os.path.join('Windows', 'rgf'))
