@@ -74,8 +74,15 @@ def _get_paths():
 
 def _is_executable_response(path):
     try:
-        subprocess.check_output((path, 'train', 'RGF_Sib'))
-        return True
+        obj = subprocess.Popen((path, 'train', 'RGF_Sib'),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT,
+                               universal_newlines=True)
+        _ = obj.communicate()[0]
+        if obj.returncode == 0:
+            return True
+        else:
+            return False
     except Exception:
         return False
 

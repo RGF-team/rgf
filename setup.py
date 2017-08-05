@@ -5,6 +5,7 @@ from setuptools.command.install_lib import install_lib
 from setuptools.command.sdist import sdist
 from sys import maxsize
 import os
+import subprocess
 
 
 IS_64BITS = maxsize > 2**32
@@ -41,6 +42,21 @@ def find_lib():
         return None
 
 
+def is_executable_response(path):
+    try:
+        obj = subprocess.Popen((path, 'train', 'RGF_Sib'),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT,
+                               universal_newlines=True)
+        _ = obj.communicate()[0]
+        if obj.returncode == 0:
+            return True
+        else:
+            return False
+    except Exception:
+        return False
+
+
 def compile_cpp():
     status = 0
     os.chdir(os.path.join('include', 'rgf'))
@@ -61,9 +77,9 @@ def compile_cpp():
                                '/p:PlatformToolset={0}'.format(platform_toolset))
             if os.path.isdir('Release'):
                 clear_folder('Release')
-            if status == 0 and os.path.isfile(target):
+            if status == 0 and os.path.isfile(target) and is_executable_response(target):
                 break
-        if status != 0 or not os.path.isfile(target):
+        if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
             # Try to build with MinGW
             print("Building executable file with MSBuild failed.")
             print("Trying to build executable file with MinGW.")
