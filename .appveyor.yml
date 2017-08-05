@@ -1,7 +1,9 @@
 build: false
 image: Visual Studio 2015
 
-platform: x64
+platform:
+  - x64
+  - x86
 
 environment:
   matrix:
@@ -15,10 +17,11 @@ environment:
       MINICONDA: C:\Miniconda36
 
 install:
-  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - ps: if ($env:PLATFORM -eq "x64") {$env:MINICONDA = $env:MINICONDA + "-x64"}
+  - set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose scikit-learn"
+  - conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose scikit-learn
   - activate test-environment
   - python setup.py install
 
