@@ -10,9 +10,9 @@ The wrapper of machine learning algorithm **Regularized Greedy Forest (RGF)** fo
 Features
 --------
 
-**Scikit-learn interface and possibility of usage for multi-label classification problem.**
+**Scikit-learn interface and possibility of usage for multiclass classification problem.**
 
-Original RGF implementation is available only for regression and binary classification, but rgf\_python is also available for **multi-label classification** by "One-vs-Rest" method.
+Original RGF implementation is available only for regression and binary classification, but rgf\_python is also available for **multiclass classification** by "One-vs-Rest" method.
 
 Example:
 
