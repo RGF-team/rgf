@@ -1,7 +1,11 @@
 BIN_NAME = rgf
 BIN_DIR = ../bin
 TARGET = $(BIN_DIR)/$(BIN_NAME)
-CFLAGS = -I../src/com -I../src/tet_tools -O2
+CFLAGS = -I../src/com -I../src/tet -O2
+
+ifeq ($(OS), Windows_NT)
+	CFLAGS += -static  # MinGW fix
+endif
 
 CPP_FILES = ../src/tet/driv_rgf.cpp                \
             ../src/com/AzDmat.cpp                  \
