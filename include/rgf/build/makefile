@@ -5,6 +5,7 @@ CFLAGS = -I../src/com -I../src/tet -O2
 
 ifeq ($(OS), Windows_NT)
 	CFLAGS += -static  # MinGW fix
+	CFLAGS += -D__AZ_MSDN__
 endif
 
 CPP_FILES = ../src/tet/driv_rgf.cpp                \
