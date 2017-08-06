@@ -17,11 +17,12 @@ def read(filename):
 
 
 def clear_folder(path):
-    file_list = os.listdir(path)
-    for file in file_list:
-        file_path = os.path.join(path, file)
-    if os.path.isfile(file_path):
-        os.remove(file_path)
+    if os.path.isdir(path):
+        file_list = os.listdir(path)
+        for file in file_list:
+            file_path = os.path.join(path, file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
 
 def find_lib():
@@ -62,43 +63,67 @@ def compile_cpp():
     os.chdir(os.path.join('include', 'rgf'))
     clear_folder('bin')  # Delete precompiled file
     if system() in ('Windows', 'Microsoft'):
-        # Try to build with MSBuild
         os.chdir(os.path.join('Windows', 'rgf'))
         target = os.path.abspath(os.path.join(os.path.pardir,
                                               os.path.pardir,
                                               'bin',
                                               'rgf.exe'))
+        print("Trying to build executable file with MSBuild "
+              "from existing Visual Studio solution.")
         platform_toolsets = ('Windows7.1SDK', 'v100', 'v110', 'v120', 'v140',
                              'v141', 'v150')  # FIXME: Works only with W7.1SDK
-        print("Trying to build executable file with MSBuild.")
         for platform_toolset in platform_toolsets:
             if IS_64BITS:
-                status = os.system('MSBuild rgf.sln '
-                                   '/p:Configuration=Release '
-                                   '/p:Platform=x64 '
-                                   '/p:PlatformToolset={0}'.format(platform_toolset))
+                arch = 'x64'
             else:
-                status = os.system('MSBuild rgf.sln '
-                                   '/p:Configuration=Release '
-                                   '/p:Platform=x86 '
-                                   '/p:PlatformToolset={0}'.format(platform_toolset))
-            if os.path.isdir('Release'):
-                clear_folder('Release')
+                arch = 'x86'
+            status = os.system('MSBuild rgf.sln '
+                               '/p:Configuration=Release '
+                               '/p:Platform={0} '
+                               '/p:PlatformToolset={1}'.format(arch, platform_toolset))
+            clear_folder('Release')
             if status == 0 and os.path.isfile(target) and is_executable_response(target):
                 break
-        os.chdir(os.path.join(os.path.pardir, os.path.pardir))
+        os.chdir(os.path.join(os.path.pardir, os.path.pardir, 'build'))
         if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
-            # Try to build with MinGW
-            print("Building executable file with MSBuild failed.")
-            print("Trying to build executable file with MinGW.")
-            os.chdir('build')
-            status = os.system('cmake ../')
-            status = os.system('cmake --build . --config Release')
-            # FIXME
-            os.chdir(os.path.pardir)
+            print("Building executable file with MSBuild "
+                  "from existing Visual Studio solution failed.")
+            print("Trying to build executable file with MinGW g++ "
+                  "from existing makefile.")
+            status = os.system('mingw32-make')
+        if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
+            print("Building executable file with MinGW g++ "
+                  "from existing makefile failed.")
+            print("Trying to build executable file with CMake and MSBuild.")
+            generators = ('Visual Studio 10 2010', 'Visual Studio 11 2012',
+                          'Visual Studio 12 2013', 'Visual Studio 14 2015',
+                          'Visual Studio 15 2017')
+            for generator in generators:
+                if IS_64BITS:
+                    generator += ' Win64'
+                clear_folder('.')
+                status = os.system('cmake ../ -G "{0}"'.format(generator))
+                status += os.system('cmake --build . --config Release')
+                if status == 0 and os.path.isfile(target) and is_executable_response(target):
+                    break
+        if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
+            print("Building executable file with CMake and MSBuild failed.")
+            print("Trying to build executable file with CMake and MinGW g++.")
+            clear_folder('.')
+            status = os.system('cmake ../ -G "MinGW Makefiles"')
+            status += os.system('cmake --build . --config Release')
+        os.chdir(os.path.pardir)
     else:
         os.chdir('build')
+        target = os.path.abspath(os.path.join(os.path.pardir, 'bin', 'rgf'))
+        print("Trying to build executable file with g++ from existing makefile.")
         status = os.system('make')
+        if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
+            print("Building executable file with g++ from existing makefile failed.")
+            print("Trying to build executable file with CMake.")
+            clear_folder('.')
+            status = os.system('cmake ../')
+            status += os.system('cmake --build . --config Release')
         os.chdir(os.path.pardir)
     os.chdir(os.path.join(os.path.pardir, os.path.pardir))
     if status:
