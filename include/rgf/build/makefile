@@ -34,8 +34,4 @@ CPP_FILES = ../src/tet/driv_rgf.cpp                \
             ../src/com/AzUtil.cpp
 
 all:
-	/bin/rm -f $(TARGET)
 	g++ $(CPP_FILES) $(CFLAGS) -o $(TARGET)
-
-clean:
-	/bin/rm -f $(TARGET)
