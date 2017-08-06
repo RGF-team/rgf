@@ -64,30 +64,43 @@ def compile_cpp():
     if system() in ('Windows', 'Microsoft'):
         # Try to build with MSBuild
         os.chdir(os.path.join('Windows', 'rgf'))
-        target = os.path.join(os.path.pardir,
-                              os.pardir,
-                              'bin',
-                              'rgf.exe')
+        target = os.path.abspath(os.path.join(os.path.pardir,
+                                              os.path.pardir,
+                                              'bin',
+                                              'rgf.exe'))
         platform_toolsets = ('Windows7.1SDK', 'v100', 'v110', 'v120', 'v140',
-                             'v141', 'v150', 'v90')  # FIXME: Works only with W7.1SDK
+                             'v141', 'v150')  # FIXME: Works only with W7.1SDK
         print("Trying to build executable file with MSBuild.")
         for platform_toolset in platform_toolsets:
-            status = os.system('MSBuild rgf.sln '
-                               '/p:Configuration=Release '
-                               '/p:PlatformToolset={0}'.format(platform_toolset))
+            if IS_64BITS:
+                status = os.system('MSBuild rgf.sln '
+                                   '/p:Configuration=Release '
+                                   '/p:Platform=x64 '
+                                   '/p:PlatformToolset={0}'.format(platform_toolset))
+            else:
+                status = os.system('MSBuild rgf.sln '
+                                   '/p:Configuration=Release '
+                                   '/p:Platform=x86 '
+                                   '/p:PlatformToolset={0}'.format(platform_toolset))
             if os.path.isdir('Release'):
                 clear_folder('Release')
             if status == 0 and os.path.isfile(target) and is_executable_response(target):
                 break
+        os.chdir(os.path.join(os.path.pardir, os.path.pardir))
         if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
             # Try to build with MinGW
             print("Building executable file with MSBuild failed.")
             print("Trying to build executable file with MinGW.")
+            os.chdir('build')
+            status = os.system('cmake ../')
+            status = os.system('cmake --build . --config Release')
             # FIXME
-        os.chdir(os.path.join(os.path.pardir, os.path.pardir))
+            os.chdir(os.path.pardir)
     else:
+        os.chdir('build')
         status = os.system('make')
-    os.chdir(os.path.join(os.path.pardir, os.pardir))
+        os.chdir(os.path.pardir)
+    os.chdir(os.path.join(os.path.pardir, os.path.pardir))
     if status:
         print('Error: Compilation of executable file failed. '
               'Please build from binaries by your own and '
