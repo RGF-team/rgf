@@ -20,9 +20,9 @@ def clear_folder(path):
     if os.path.isdir(path):
         file_list = os.listdir(path)
         for file in file_list:
-            file_path = os.path.join(path, file)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
+            file_path = os.path.abspath(os.path.join(path, file))
+            if os.path.isfile(file_path):
+                os.remove(file_path)
 
 
 def find_lib():
