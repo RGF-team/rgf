@@ -20,9 +20,9 @@ install:
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%  # Delete sh.exe from PATH (mingw32-make fix)
   - ps: if($env:PLATFORM -eq "x64") {
             $env:MINICONDA += "-x64";
-            $env:Path += ";C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin"
+            $env:PATH += ";C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin"
         }
-        else {$env:Path += ";C:\MinGW\bin"}
+        else {$env:PATH += ";C:\MinGW\bin"}
   - set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
