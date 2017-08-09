@@ -73,16 +73,19 @@ def _get_paths():
 
 
 def _is_executable_response(path):
+    temp_x_loc = os.path.abspath('temp.train.data.x')
+    temp_y_loc = os.path.abspath('temp.train.data.y')
+    np.savetxt(temp_x_loc, [[1, 0, 1, 0], [0, 1, 0, 1]], delimiter=' ', fmt="%s")
+    np.savetxt(temp_y_loc, [1, -1], delimiter=' ', fmt="%s")
+    params = []
+    params.append("train_x_fn=%s" % temp_x_loc)
+    params.append("train_y_fn=%s" % temp_y_loc)
+    params.append("model_fn_prefix=%s" % os.path.abspath("temp.model"))
+    params.append("reg_L2=%s" % 1)
+
     try:
-        obj = subprocess.Popen((path, 'train', 'RGF_Sib'),
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT,
-                               universal_newlines=True)
-        _ = obj.communicate()[0]
-        if obj.returncode == 0:
-            return True
-        else:
-            return False
+        subprocess.check_output((path, "train", ",".join(params)))
+        return True
     except Exception:
         return False
 
