@@ -76,7 +76,7 @@ def compile_cpp():
             if IS_64BITS:
                 arch = 'x64'
             else:
-                arch = 'x86'
+                arch = 'Win32'
             status = os.system('MSBuild rgf.sln '
                                '/p:Configuration=Release '
                                '/p:Platform={0} '
