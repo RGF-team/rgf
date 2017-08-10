@@ -5,7 +5,7 @@
 rgf\_python
 ===========
 
-The wrapper of machine learning algorithm **Regularized Greedy Forest (RGF)** `[1] <#reference>`__. for Python.
+The wrapper of machine learning algorithm **Regularized Greedy Forest (RGF)** `[1] <#reference>`__ for Python.
 
 Features
 --------
@@ -69,7 +69,7 @@ or from `GitHub <https://github.com/fukatani/rgf_python>`__:
     cd rgf_python
     python setup.py install
 
-If you have any problems while installig by methods listed above you should *build RGF executable file from binaries by your own and place compiled execution file* into directory which is included in environmental variable **'PATH'** or into directory with installed package. Alternatively, you may specify actual location of RGF execution file and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are platform dependent: for Windows ``exe_location=$HOME/rgf.exe``, ``temp_location=$HOME/temp/rgf`` and for others ``exe_location=$HOME/rgf``, ``temp_location=/tmp/rgf``. Here is the example of ``.rgfrc`` file:
+If you have any problems while installing by methods listed above you should *build RGF executable file from binaries by your own and place compiled execution file* into directory which is included in environmental variable **'PATH'** or into directory with installed package. Alternatively, you may specify actual location of RGF execution file and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are platform dependent: for Windows ``exe_location=$HOME/rgf.exe``, ``temp_location=$HOME/temp/rgf`` and for others ``exe_location=$HOME/rgf``, ``temp_location=/tmp/rgf``. Here is the example of ``.rgfrc`` file:
 
 ::
 
@@ -105,13 +105,13 @@ Visual Studio (existing solution)
 
 1. Open directory ``rgf_python/include/rgf/Windows/rgf``.
 2. Open ``rgf.sln`` file with Visual Studio and choose ``BUILD->Build Solution (Ctrl+Shift+B)``.
-   If you are asked to upgrade solution file after openning click ``OK``.
+   If you are asked to upgrade solution file after opening it click ``OK``.
    If you have errors about **Platform Toolset** go to ``PROJECT-> Properties-> Configuration Properties-> General`` and select the toolset installed on your machine.
 
 MinGW (existing makefile)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Build executable with MinGW g++ from existing ``makefile`` (you may want to custoimize this file for your environment).
+Build executable with MinGW g++ from existing ``makefile`` (you may want to customize this file for your environment).
 
 ::
 
@@ -129,7 +129,7 @@ Create solution file with CMake and then compile with Visual Studio.
     cmake ../ -G "Visual Studio 10 2010"
     cmake --build . --config Release
     
-If you are compiling on 64-bit then add ``Win64`` to the end of generator's name: ``Visual Studio 10 2010 Win64``. We tested following version of Visual Studio:
+If you are compiling on 64-bit machine then add ``Win64`` to the end of generator's name: ``Visual Studio 10 2010 Win64``. We tested following versions of Visual Studio:
 
 - Visual Studio 10 2010 [Win64]
 - Visual Studio 11 2012 [Win64]
