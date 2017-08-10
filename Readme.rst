@@ -149,6 +149,30 @@ Create ``makefile`` with CMake and then compile with MinGW.
     cmake ../ -G "MinGW Makefiles"
     cmake --build . --config Release
 
+*nix
+''''
+
+g++ (existing makefile)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Build executable with g++ from existing ``makefile`` (you may want to customize this file for your environment).
+
+::
+
+    cd rgf_python/include/rgf/build
+    make
+
+CMake
+~~~~~
+
+Create ``makefile`` with CMake and then compile.
+
+::
+
+    cd rgf_python/include/rgf/build
+    cmake ../
+    cmake --build . --config Release
+
 Tuning Hyper-parameters
 -----------------------
 
