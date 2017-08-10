@@ -12,7 +12,7 @@ import subprocess
 IS_64BITS = maxsize > 2**32
 CURRENT_DIR = os.path.dirname(__file__)
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('')
+logger = logging.getLogger('rgf_python')
 
 
 def read(filename):
