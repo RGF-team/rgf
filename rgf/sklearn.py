@@ -72,15 +72,26 @@ def _get_paths():
     return def_exe, exe, temp
 
 
+_DEFAULT_EXE_PATH, _EXE_PATH, _TEMP_PATH = _get_paths()
+
+
+if not os.path.isdir(_TEMP_PATH):
+    os.makedirs(_TEMP_PATH)
+if not os.access(_TEMP_PATH, os.W_OK):
+    raise Exception("{0} is not writable directory. Please set "
+                    "config flag 'temp_location' to writable directory".format(_TEMP_PATH))
+
+
 def _is_executable_response(path):
-    temp_x_loc = os.path.abspath('temp.train.data.x')
-    temp_y_loc = os.path.abspath('temp.train.data.y')
+    temp_x_loc = os.path.join(_TEMP_PATH, 'temp.train.data.x')
+    temp_y_loc = os.path.join(_TEMP_PATH, 'temp.train.data.y')
     np.savetxt(temp_x_loc, [[1, 0, 1, 0], [0, 1, 0, 1]], delimiter=' ', fmt="%s")
     np.savetxt(temp_y_loc, [1, -1], delimiter=' ', fmt="%s")
+    _UUIDS.append('temp')
     params = []
     params.append("train_x_fn=%s" % temp_x_loc)
     params.append("train_y_fn=%s" % temp_y_loc)
-    params.append("model_fn_prefix=%s" % os.path.abspath("temp.model"))
+    params.append("model_fn_prefix=%s" % os.path.join(_TEMP_PATH, "temp.model"))
     params.append("reg_L2=%s" % 1)
 
     try:
@@ -88,6 +99,23 @@ def _is_executable_response(path):
         return True
     except Exception:
         return False
+
+
+if _is_executable_response(_DEFAULT_EXE_PATH):
+    _EXE_PATH = _DEFAULT_EXE_PATH
+elif _is_executable_response(os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)):
+    _EXE_PATH = os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)
+elif not os.path.isfile(_EXE_PATH):
+    raise Exception("{0} is not executable file. Please set "
+                    "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
+elif not os.access(_EXE_PATH, os.X_OK):
+    raise Exception("{0} cannot be accessed. Please set "
+                    "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
+elif _is_executable_response(_EXE_PATH):
+    pass
+else:
+    raise Exception("{0} does not exist or {1} is not in the "
+                    "'PATH' variable.".format(_EXE_PATH, _DEFAULT_EXE_PATH))
 
 
 @atexit.register
@@ -240,30 +268,6 @@ class _AtomicCounter(object):
 
 
 _COUNTER = _AtomicCounter()
-_DEFAULT_EXE_PATH, _EXE_PATH, _TEMP_PATH = _get_paths()
-
-if _is_executable_response(_DEFAULT_EXE_PATH):
-    _EXE_PATH = _DEFAULT_EXE_PATH
-elif _is_executable_response(os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)):
-    _EXE_PATH = os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)
-elif not os.path.isfile(_EXE_PATH):
-    raise Exception("{0} is not executable file. Please set "
-                    "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
-elif not os.access(_EXE_PATH, os.X_OK):
-    raise Exception("{0} cannot be accessed. Please set "
-                    "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
-elif _is_executable_response(_EXE_PATH):
-    pass
-else:
-    raise Exception("{0} does not exist or {1} is not in the "
-                    "'PATH' variable.".format(_EXE_PATH, _DEFAULT_EXE_PATH))
-
-if not os.path.isdir(_TEMP_PATH):
-    os.makedirs(_TEMP_PATH)
-if not os.access(_TEMP_PATH, os.W_OK):
-    raise Exception("{0} is not writable directory. Please set "
-                    "config flag 'temp_location' to writable directory".format(_TEMP_PATH))
-
 
 
 class RGFClassifier(BaseEstimator, ClassifierMixin):
