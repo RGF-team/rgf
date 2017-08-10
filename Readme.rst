@@ -168,7 +168,7 @@ You can tune hyper-parameters as follows.
 -  *opt\_interval*: Weight optimization interval in terms of the number of leaf nodes.
 -  *learning\_rate*: Step size of Newton updates used in coordinate descent to optimize weights.
 
-Detailed instruction of tuning hyper-parameters is `here <http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf>`__.
+Detailed instruction of tuning hyper-parameters is `here <https://github.com/fukatani/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf>`__.
 
 Using at Kaggle Kernel
 ----------------------
