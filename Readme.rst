@@ -5,7 +5,7 @@
 rgf\_python
 ===========
 
-The wrapper of machine learning algorithm **Regularized Greedy Forest (RGF)** [1]_ for Python.
+The wrapper of machine learning algorithm **Regularized Greedy Forest (RGF)** `[1] <#reference>`__. for Python.
 
 Features
 --------
@@ -183,7 +183,7 @@ Shamelessly, much part of the implementation is based on the following `code <ht
 Reference
 ---------
 
-[#] `Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest <https://arxiv.org/abs/1109.0887>`__ 
+[1] `Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest <https://arxiv.org/abs/1109.0887>`__ 
 
 .. |Build Status Travis| image:: https://travis-ci.org/fukatani/rgf_python.svg?branch=master
    :target: https://travis-ci.org/fukatani/rgf_python
