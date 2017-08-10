@@ -4,12 +4,15 @@ from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
 from setuptools.command.sdist import sdist
 from sys import maxsize
+import logging
 import os
 import subprocess
 
 
 IS_64BITS = maxsize > 2**32
 CURRENT_DIR = os.path.dirname(__file__)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('')
 
 
 def read(filename):
@@ -73,10 +76,10 @@ def compile_cpp():
                                               os.path.pardir,
                                               'bin',
                                               'rgf.exe'))
-        print("Trying to build executable file with MSBuild "
-              "from existing Visual Studio solution.")
-        platform_toolsets = ('Windows7.1SDK', 'v100', 'v110', 'v120', 'v140',
-                             'v141', 'v150')  # FIXME: Works only with W7.1SDK
+        logger.info("Trying to build executable file with MSBuild "
+                    "from existing Visual Studio solution.")
+        platform_toolsets = ('Windows7.1SDK', 'v100', 'v110',
+                             'v120', 'v140', 'v141', 'v150')
         for platform_toolset in platform_toolsets:
             if IS_64BITS:
                 arch = 'x64'
@@ -91,15 +94,15 @@ def compile_cpp():
                 break
         os.chdir(os.path.join(os.path.pardir, os.path.pardir, 'build'))
         if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
-            print("Building executable file with MSBuild "
-                  "from existing Visual Studio solution failed.")
-            print("Trying to build executable file with MinGW g++ "
-                  "from existing makefile.")
+            logger.warning("Building executable file with MSBuild "
+                           "from existing Visual Studio solution failed.")
+            logger.info("Trying to build executable file with MinGW g++ "
+                        "from existing makefile.")
             status = os.system('mingw32-make')
         if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
-            print("Building executable file with MinGW g++ "
-                  "from existing makefile failed.")
-            print("Trying to build executable file with CMake and MSBuild.")
+            logger.warning("Building executable file with MinGW g++ "
+                           "from existing makefile failed.")
+            logger.info("Trying to build executable file with CMake and MSBuild.")
             generators = ('Visual Studio 10 2010', 'Visual Studio 11 2012',
                           'Visual Studio 12 2013', 'Visual Studio 14 2015',
                           'Visual Studio 15 2017')
@@ -112,8 +115,8 @@ def compile_cpp():
                 if status == 0 and os.path.isfile(target) and is_executable_response(target):
                     break
         if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
-            print("Building executable file with CMake and MSBuild failed.")
-            print("Trying to build executable file with CMake and MinGW g++.")
+            logger.warning("Building executable file with CMake and MSBuild failed.")
+            logger.info("Trying to build executable file with CMake and MinGW.")
             clear_folder('.')
             status = os.system('cmake ../ -G "MinGW Makefiles"')
             status += os.system('cmake --build . --config Release')
@@ -121,20 +124,21 @@ def compile_cpp():
     else:
         os.chdir('build')
         target = os.path.abspath(os.path.join(os.path.pardir, 'bin', 'rgf'))
-        print("Trying to build executable file with g++ from existing makefile.")
+        logger.info("Trying to build executable file with g++ from existing makefile.")
         status = os.system('make')
         if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
-            print("Building executable file with g++ from existing makefile failed.")
-            print("Trying to build executable file with CMake.")
+            logger.warning("Building executable file with g++ "
+                           "from existing makefile failed.")
+            logger.info("Trying to build executable file with CMake.")
             clear_folder('.')
             status = os.system('cmake ../')
             status += os.system('cmake --build . --config Release')
         os.chdir(os.path.pardir)
     os.chdir(os.path.join(os.path.pardir, os.path.pardir))
     if status:
-        print('Error: Compilation of executable file failed. '
-              'Please build from binaries by your own and '
-              'specify path to the compiled file in the config file.')
+        logger.error("Compilation of executable file failed. "
+                     "Please build from binaries by your own and "
+                     "specify path to the compiled file in the config file.")
 
 
 class CustomInstallLib(install_lib):
@@ -145,7 +149,7 @@ class CustomInstallLib(install_lib):
             dst, _ = self.copy_file(src, os.path.join(self.install_dir, 'rgf'))
             outfiles.append(dst)
         else:
-            print('Error: Cannot find executable file. Installing without it.')
+            logger.error("Cannot find executable file. Installing without it.")
         return outfiles
 
 
@@ -159,10 +163,10 @@ class CustomInstall(install):
 
     def run(self):
         if not self.nocompilation:
-            print('Starting to compile executable file.')
+            logger.info("Starting to compile executable file.")
             compile_cpp()
         else:
-            print('Installing package without binaries.')
+            logger.info("Installing package without binaries.")
         install.run(self)
 
 
