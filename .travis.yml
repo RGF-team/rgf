@@ -30,7 +30,7 @@ before_install:
   - source activate test-environment
 
 install:
-  - conda install -q numpy scipy nose scikit-learn
+  - conda install -q numpy scipy nose pandas scikit-learn
   - wget https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip
   - unzip rgf1.2.zip
   - cd rgf1.2
