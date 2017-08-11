@@ -391,7 +391,6 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self.calc_prob = calc_prob
         self.n_jobs = n_jobs
         self.verbose = verbose
-        self.fitted_ = False
 
     def fit(self, X, y, sample_weight=None):
         """
@@ -507,7 +506,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             The class probabilities of the input samples.
             The order of the classes corresponds to that in the attribute classes_.
         """
-        if not self.fitted_:
+        if not hasattr(self, 'fitted_') or not self.fitted_:
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
         X = check_array(X, accept_sparse=True)
@@ -596,7 +595,6 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.verbose = verbose
         self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
         _UUIDS.append(self._file_prefix)
-        self.fitted_ = False
 
     def fit(self, X, y, sample_weight):
         train_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.x")
@@ -651,7 +649,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         return self
 
     def predict_proba(self, X):
-        if not self.fitted_:
+        if not hasattr(self, 'fitted_') or not self.fitted_:
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
@@ -804,7 +802,6 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         self.verbose = verbose
         self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
         _UUIDS.append(self._file_prefix)
-        self.fitted_ = False
 
     def fit(self, X, y, sample_weight=None):
         """
@@ -920,7 +917,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         y : array of shape = [n_samples]
             The predicted values.
         """
-        if not self.fitted_:
+        if not hasattr(self, 'fitted_') or not self.fitted_:
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
