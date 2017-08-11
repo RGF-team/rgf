@@ -99,6 +99,7 @@ Precompiled file
 ~~~~~~~~~~~~~~~~
 
 The easiest way. Just take precompiled file from ``rgf_python/include/rgf/bin``.
+For Windows 32-bit rename ``rgf32.exe`` to ``rgf.exe`` and take it.
 
 Visual Studio (existing solution)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
