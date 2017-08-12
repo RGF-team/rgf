@@ -2,7 +2,6 @@ from platform import system
 from setuptools import find_packages, setup
 from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
-from setuptools.command.sdist import sdist
 from sys import maxsize
 import logging
 import os
