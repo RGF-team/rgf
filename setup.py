@@ -2,6 +2,7 @@ from platform import system
 from setuptools import find_packages, setup
 from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
+from shutil import rmtree
 from sys import maxsize
 import logging
 import os
@@ -22,9 +23,14 @@ def clear_folder(path):
     if os.path.isdir(path):
         file_list = os.listdir(path)
         for file in file_list:
-            file_path = os.path.abspath(os.path.join(path, file))
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+            try:
+                file_path = os.path.abspath(os.path.join(path, file))
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                elif os.path.isdir(file_path):
+                    rmtree(file_path, ignore_errors=True)
+            except Excetpion:
+                pass
 
 
 def find_lib():
