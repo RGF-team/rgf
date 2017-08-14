@@ -29,7 +29,7 @@ def clear_folder(path):
                     os.remove(file_path)
                 elif os.path.isdir(file_path):
                     rmtree(file_path, ignore_errors=True)
-            except Excetpion:
+            except Exception:
                 pass
 
 
