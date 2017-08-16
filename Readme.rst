@@ -1,4 +1,4 @@
-|Build Status Travis| |Build Status AppVeyor| |License| |Python Versions| |PyPI Version|
+﻿|Build Status Travis| |Build Status AppVeyor| |License| |Python Versions| |PyPI Version|
 
 .. [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.python.org/pypi/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io
 
@@ -200,6 +200,15 @@ Using at Kaggle Kernel
 
 Now, Kaggle Kernel supports rgf\_python. Please see `this page <https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest>`__.
 
+License
+-------
+
+rgf_python is distributed under the GNU General Public License v3 (GPLv3). Please read file `LICENSE <https://github.com/fukatani/rgf_python/blob/master/LICENSE>`__ for more information.
+
+rgf_python includes RGF version 1.2 which is distributed under the GPLv3. Original CLI implementation of RGF you can download at http://tongzhang-ml.org/software/rgf.
+
+We thank Rie Johnson and Tong Zhang (authors of RGF).
+
 Other
 -----
 
@@ -214,7 +223,7 @@ Reference
    :target: https://travis-ci.org/fukatani/rgf_python
 .. |Build Status AppVeyor| image:: https://ci.appveyor.com/api/projects/status/vpanb9hnncjr16hn/branch/master?svg=true
    :target: https://ci.appveyor.com/project/fukatani/rgf-python
-.. |License| image:: https://img.shields.io/badge/license-Apache%202.0-blue.svg
+.. |License| image:: https://img.shields.io/github/license/fukatani/rgf_python.svg
    :target: https://github.com/fukatani/rgf_python/blob/master/LICENSE
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/rgf_python.svg
    :target: https://pypi.python.org/pypi/rgf_python/
