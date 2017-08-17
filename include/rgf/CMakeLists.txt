@@ -1,0 +1,32 @@
+project(rgf)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR})
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+if(MINGW)
+    set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++)
+endif()
+if(MSVC)
+    add_definitions(-D__AZ_MSDN__)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+    set(variables
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_MINSIZEREL
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+    foreach(variable ${variables})
+        if(${variable} MATCHES "/MD")
+            string(REGEX REPLACE "/MD" "/MT" ${variable} "${${variable}}")
+            set(${variable} "${${variable}}"  PARENT_SCOPE)
+        endif()
+    endforeach()
+endif()
+if(CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_CONFIGURATION_TYPES Release)
+    set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
+        "Reset the configurations to what we need" FORCE)
+endif()
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/com ${CMAKE_CURRENT_SOURCE_DIR}/src/tet)
+file(GLOB_RECURSE FILES "./src/*.cpp")
+add_definitions(-O2)
+add_executable(${PROJECT_NAME} ${FILES})
+target_link_libraries(${PROJECT_NAME})
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)

@@ -1,11 +1,11 @@
-|Build Status Travis| |Build Status AppVeyor| |License| |Python Versions| |PyPI Version|
+﻿|Build Status Travis| |Build Status AppVeyor| |License| |Python Versions| |PyPI Version|
 
 .. [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.python.org/pypi/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io
 
 rgf\_python
 ===========
 
-The wrapper of machine learning algorithm **Regularized Greedy Forest (RGF)** for Python.
+The wrapper of machine learning algorithm **Regularized Greedy Forest (RGF)** `[1] <#reference>`__ for Python.
 
 Features
 --------
@@ -51,9 +51,6 @@ Software Requirements
 
 -  Python (2.7 or >= 3.4)
 -  scikit-learn (>= 0.18)
--  RGF C++ (`link <http://tongzhang-ml.org/software/rgf/index.html>`__)
-
-If you can't access the above URL, alternatively, you can get RGF C++ by downloading it from this `page <https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip>`__. Please see README in the zip file to build RGF executional.
 
 Installation
 ------------
@@ -69,14 +66,113 @@ or from `GitHub <https://github.com/fukatani/rgf_python>`__:
 ::
 
     git clone https://github.com/fukatani/rgf_python.git
+    cd rgf_python
     python setup.py install
 
-You have to place RGF execution file into directory which is included in environmental variable **'PATH'**. Alternatively, you may specify actual location of RGF execution file and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are platform dependent: for Windows ``exe_location=$HOME/rgf.exe``, ``temp_location=$HOME/temp/rgf`` and for others ``exe_location=$HOME/rgf``, ``temp_location=/tmp/rgf``. Here is the example of ``.rgfrc`` file:
+If you have any problems while installing by methods listed above you should *build RGF executable file from binaries by your own and place compiled executable file* into directory which is included in environmental variable **'PATH'** or into directory with installed package. Alternatively, you may specify actual location of RGF executable file and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are platform dependent: for Windows ``exe_location=$HOME/rgf.exe``, ``temp_location=$HOME/temp/rgf`` and for others ``exe_location=$HOME/rgf``, ``temp_location=/tmp/rgf``. Here is the example of ``.rgfrc`` file:
 
 ::
 
     exe_location=C:/Program Files/RGF/bin/rgf.exe
     temp_location=C:/Program Files/RGF/temp
+
+Also, you may directly specify installation without automatic compilation:
+
+::
+
+    pip install rgf_python --install-option="nocompilation"
+
+or
+
+::
+
+    git clone https://github.com/fukatani/rgf_python.git
+    cd rgf_python
+    python setup.py install --nocompilation
+
+Here is the guide how you can build RGF executable file from binaries. The file will be in ``rgf_python/include/rgf/bin`` folder.
+
+Windows
+'''''''
+
+Precompiled file
+~~~~~~~~~~~~~~~~
+
+The easiest way. Just take precompiled file from ``rgf_python/include/rgf/bin``.
+For Windows 32-bit rename ``rgf32.exe`` to ``rgf.exe`` and take it.
+
+Visual Studio (existing solution)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Open directory ``rgf_python/include/rgf/Windows/rgf``.
+2. Open ``rgf.sln`` file with Visual Studio and choose ``BUILD->Build Solution (Ctrl+Shift+B)``.
+   If you are asked to upgrade solution file after opening it click ``OK``.
+   If you have errors about **Platform Toolset** go to ``PROJECT-> Properties-> Configuration Properties-> General`` and select the toolset installed on your machine.
+
+MinGW (existing makefile)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Build executable file with MinGW g++ from existing ``makefile`` (you may want to customize this file for your environment).
+
+::
+
+    cd rgf_python/include/rgf/build
+    mingw32-make
+
+CMake and Visual Studio
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Create solution file with CMake and then compile with Visual Studio.
+
+::
+
+    cd rgf_python/include/rgf/build
+    cmake ../ -G "Visual Studio 10 2010"
+    cmake --build . --config Release
+    
+If you are compiling on 64-bit machine then add ``Win64`` to the end of generator's name: ``Visual Studio 10 2010 Win64``. We tested following versions of Visual Studio:
+
+- Visual Studio 10 2010 [Win64]
+- Visual Studio 11 2012 [Win64]
+- Visual Studio 12 2013 [Win64]
+- Visual Studio 14 2015 [Win64]
+- Visual Studio 15 2017 [Win64]
+Other versions may work but are untested.
+
+CMake and MinGW
+~~~~~~~~~~~~~~~
+
+Create ``makefile`` with CMake and then compile with MinGW.
+
+::
+
+    cd rgf_python/include/rgf/build
+    cmake ../ -G "MinGW Makefiles"
+    cmake --build . --config Release
+
+\*nix
+''''
+
+g++ (existing makefile)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Build executable file with g++ from existing ``makefile`` (you may want to customize this file for your environment).
+
+::
+
+    cd rgf_python/include/rgf/build
+    make
+
+CMake
+~~~~~
+
+Create ``makefile`` with CMake and then compile.
+
+::
+
+    cd rgf_python/include/rgf/build
+    cmake ../
+    cmake --build . --config Release
 
 Tuning Hyper-parameters
 -----------------------
@@ -97,23 +193,37 @@ You can tune hyper-parameters as follows.
 -  *opt\_interval*: Weight optimization interval in terms of the number of leaf nodes.
 -  *learning\_rate*: Step size of Newton updates used in coordinate descent to optimize weights.
 
-Detailed instruction of tuning hyper-parameters is `here <http://tongzhang-ml.org/software/rgf/rgf1.2-guide.pdf>`__.
+Detailed instruction of tuning hyper-parameters is `here <https://github.com/fukatani/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf>`__.
 
 Using at Kaggle Kernel
 ----------------------
 
 Now, Kaggle Kernel supports rgf\_python. Please see `this page <https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest>`__.
 
+License
+-------
+
+rgf_python is distributed under the GNU General Public License v3 (GPLv3). Please read file `LICENSE <https://github.com/fukatani/rgf_python/blob/master/LICENSE>`__ for more information.
+
+rgf_python includes RGF version 1.2 which is distributed under the GPLv3. Original CLI implementation of RGF you can download at http://tongzhang-ml.org/software/rgf.
+
+We thank Rie Johnson and Tong Zhang (authors of RGF).
+
 Other
 -----
 
 Shamelessly, much part of the implementation is based on the following `code <https://github.com/MLWave/RGF-sklearn>`__. Thanks!
 
+Reference
+---------
+
+[1] `Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest <https://arxiv.org/abs/1109.0887>`__ 
+
 .. |Build Status Travis| image:: https://travis-ci.org/fukatani/rgf_python.svg?branch=master
    :target: https://travis-ci.org/fukatani/rgf_python
 .. |Build Status AppVeyor| image:: https://ci.appveyor.com/api/projects/status/vpanb9hnncjr16hn/branch/master?svg=true
    :target: https://ci.appveyor.com/project/fukatani/rgf-python
-.. |License| image:: https://img.shields.io/badge/license-Apache%202.0-blue.svg
+.. |License| image:: https://img.shields.io/github/license/fukatani/rgf_python.svg
    :target: https://github.com/fukatani/rgf_python/blob/master/LICENSE
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/rgf_python.svg
    :target: https://pypi.python.org/pypi/rgf_python/

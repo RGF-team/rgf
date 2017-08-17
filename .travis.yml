@@ -31,14 +31,6 @@ before_install:
 
 install:
   - conda install -q numpy scipy nose pandas scikit-learn
-  - wget https://github.com/fukatani/rgf_python/releases/download/0.2.0/rgf1.2.zip
-  - unzip rgf1.2.zip
-  - cd rgf1.2
-  - rm bin/*
-  - make
-  - cd bin
-  - export PATH=$PATH:$(pwd)
-  - cd ../..
   - python setup.py install
 
 script:

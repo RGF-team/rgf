@@ -1,6 +1,10 @@
 include Readme.rst
 recursive-include rgf VERSION
+recursive-include include/rgf CMakeLists.txt
+recursive-include include/rgf/build makefile
+recursive-include include/rgf/Windows/rgf *
+recursive-include include/rgf/src/com *
+recursive-include include/rgf/src/tet *
 
 global-exclude *.pyo
 global-exclude *.pyc
-
