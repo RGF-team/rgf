@@ -145,6 +145,7 @@ def _validate_params(max_leaf,
                      opt_interval,
                      learning_rate,
                      verbose,
+                     memory_policy,
                      calc_prob="sigmoid",
                      n_jobs=-1):
     if not isinstance(max_leaf, (numbers.Integral, np.integer)):
@@ -219,6 +220,11 @@ def _validate_params(max_leaf,
         raise ValueError("verbose must be an integer, got {0}.".format(type(verbose)))
     elif verbose < 0:
         raise ValueError("verbose must be no smaller than 0 but was %r." % verbose)
+
+    if not isinstance(memory_policy, six.string_types):
+        raise ValueError("memory_policy must be a string, got {0}.".format(type(memory_policy)))
+    elif memory_policy not in ("conservative", "generous"):
+        raise ValueError("memory_policy must be 'conservative' or 'generous' but was %r." % memory_policy)
 
     if not isinstance(calc_prob, six.string_types):
         raise ValueError("calc_prob must be a string, got {0}.".format(type(calc_prob)))
@@ -350,6 +356,13 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         For n_jobs = -2, all CPUs but one are used.
         For n_jobs below -1, (n_cpus + 1 + n_jobs) are used.
 
+    memory_policy : string ("conservative" or "generous"), optional (default="generous")
+        Memory using policy.
+        Generous: it runs faster using more memory by keeping the sorted orders
+        of the features on memory for reuse.
+        Conservative: it uses less memory at the expense of longer runtime. Try only when
+        with default value it uses too much memory.
+
     verbose : int, optional (default=0)
         Controls the verbosity of the tree building process.
 
@@ -391,6 +404,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                  learning_rate=0.5,
                  calc_prob="sigmoid",
                  n_jobs=-1,
+                 memory_policy="generous",
                  verbose=0):
         self.max_leaf = max_leaf
         self.test_interval = test_interval
@@ -407,6 +421,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self.learning_rate = learning_rate
         self.calc_prob = calc_prob
         self.n_jobs = n_jobs
+        self.memory_policy = memory_policy
         self.verbose = verbose
 
     def fit(self, X, y, sample_weight=None):
@@ -478,6 +493,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                       n_tree_search=self.n_tree_search,
                       opt_interval=self.opt_interval,
                       learning_rate=self.learning_rate,
+                      memory_policy=self.memory_policy,
                       verbose=self.verbose)
         if self.n_classes_ == 2:
             self._classes_map[0] = self.classes_[0]
@@ -595,6 +611,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                  n_tree_search=1,
                  opt_interval=100,
                  learning_rate=0.5,
+                 memory_policy="generous",
                  verbose=0):
         self.max_leaf = max_leaf
         self.test_interval = test_interval
@@ -609,6 +626,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.n_tree_search = n_tree_search
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
+        self.memory_policy = memory_policy
         self.verbose = verbose
         self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
         _UUIDS.append(self._file_prefix)
@@ -647,6 +665,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("num_tree_search=%s" % self.n_tree_search)
         params.append("opt_interval=%s" % self.opt_interval)
         params.append("opt_stepsize=%s" % self.learning_rate)
+        params.append("memory_policy=%s" % self.memory_policy.title())
         params.append("model_fn_prefix=%s" % os.path.join(_TEMP_PATH, self._file_prefix + ".model"))
         params.append("train_w_fn=%s" % train_weight_loc)
 
@@ -772,6 +791,13 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
     learning_rate : float, optional (default=0.5)
         Step size of Newton updates used in coordinate descent to optimize weights.
 
+    memory_policy : string ("conservative" or "generous"), optional (default="generous")
+        Memory using policy.
+        Generous: it runs faster using more memory by keeping the sorted orders
+        of the features on memory for reuse.
+        Conservative: it uses less memory at the expense of longer runtime. Try only when
+        with default value it uses too much memory.
+
     verbose : int, optional (default=0)
         Controls the verbosity of the tree building process.
 
@@ -802,6 +828,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
                  n_tree_search=1,
                  opt_interval=100,
                  learning_rate=0.5,
+                 memory_policy="generous",
                  verbose=0):
         self.max_leaf = max_leaf
         self.test_interval = test_interval
@@ -816,6 +843,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         self.n_tree_search = n_tree_search
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
+        self.memory_policy = memory_policy
         self.verbose = verbose
         self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
         _UUIDS.append(self._file_prefix)
@@ -900,6 +928,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("num_tree_search=%s" % self.n_tree_search)
         params.append("opt_interval=%s" % self.opt_interval)
         params.append("opt_stepsize=%s" % self.learning_rate)
+        params.append("memory_policy=%s" % self.memory_policy.title())
         params.append("model_fn_prefix=%s" % os.path.join(_TEMP_PATH, self._file_prefix + ".model"))
         params.append("train_w_fn=%s" % train_weight_loc)
 

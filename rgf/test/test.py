@@ -132,6 +132,7 @@ class TestRGFClassfier(unittest.TestCase):
                             learning_rate=0.4,
                             calc_prob='sigmoid',
                             n_jobs=-1,
+                            memory_policy='conservative',
                             verbose=True)
         clf.set_params(**valid_params)
         clf.fit(self.X_train, self.y_train)
@@ -151,6 +152,7 @@ class TestRGFClassfier(unittest.TestCase):
                                 learning_rate=-0.5,
                                 calc_prob=True,
                                 n_jobs='-1',
+                                memory_policy='Generos',
                                 verbose=-1)
         for key in non_valid_params:
             clf.set_params(**valid_params)  # Reset to valid params
@@ -246,6 +248,7 @@ class TestRGFRegressor(unittest.TestCase):
                             n_tree_search=2,
                             opt_interval=100,
                             learning_rate=0.4,
+                            memory_policy='conservative',
                             verbose=True)
         reg.set_params(**valid_params)
         reg.fit(self.X_train, self.y_train)
@@ -263,6 +266,7 @@ class TestRGFRegressor(unittest.TestCase):
                                 n_tree_search=0,
                                 opt_interval=100.1,
                                 learning_rate=-0.5,
+                                memory_policy='Generos',
                                 verbose=-1)
         for key in non_valid_params:
             reg.set_params(**valid_params)  # Reset to valid params
