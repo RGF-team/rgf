@@ -74,6 +74,7 @@ def is_executable_response(path):
 def compile_cpp():
     status = 0
     os.chdir(os.path.join('include', 'rgf'))
+    clear_folder('bin')  # Delete precompiled file
     if system() in ('Windows', 'Microsoft'):
         os.chdir(os.path.join('Windows', 'rgf'))
         target = os.path.abspath(os.path.join(os.path.pardir,
@@ -148,12 +149,13 @@ def compile_cpp():
 class CustomInstallLib(install_lib):
     def install(self):
         outfiles = install_lib.install(self)
-        src = find_lib()
-        if src:
-            dst, _ = self.copy_file(src, os.path.join(self.install_dir, 'rgf'))
-            outfiles.append(dst)
-        else:
-            logger.error("Cannot find executable file. Installing without it.")
+        if not self.nocompilation:
+            src = find_lib()
+            if src:
+                dst, _ = self.copy_file(src, os.path.join(self.install_dir, 'rgf'))
+                outfiles.append(dst)
+            else:
+                logger.error("Cannot find executable file. Installing without it.")
         return outfiles
 
 
@@ -166,12 +168,14 @@ class CustomInstall(install):
         self.nocompilation = 0
 
     def run(self):
-        clear_folder(os.path.join('include', 'rgf', 'bin'))  # Delete precompiled file
         if not self.nocompilation:
             logger.info("Starting to compile executable file.")
             compile_cpp()
         else:
             logger.info("Installing package without binaries.")
+        install_lib = self.distribution.get_command_obj('install_lib')
+        install_lib.user_options += [('nocompilation', 'n', 'Installing package without binaries.')]
+        install_lib.nocompilation = self.nocompilation
         install.run(self)
 
 
