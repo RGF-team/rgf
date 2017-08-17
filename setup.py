@@ -74,7 +74,6 @@ def is_executable_response(path):
 def compile_cpp():
     status = 0
     os.chdir(os.path.join('include', 'rgf'))
-    clear_folder('bin')  # Delete precompiled file
     if system() in ('Windows', 'Microsoft'):
         os.chdir(os.path.join('Windows', 'rgf'))
         target = os.path.abspath(os.path.join(os.path.pardir,
@@ -167,6 +166,7 @@ class CustomInstall(install):
         self.nocompilation = 0
 
     def run(self):
+        clear_folder(os.path.join('include', 'rgf', 'bin'))  # Delete precompiled file
         if not self.nocompilation:
             logger.info("Starting to compile executable file.")
             compile_cpp()
