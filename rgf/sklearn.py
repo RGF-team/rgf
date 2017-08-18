@@ -649,6 +649,8 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params = []
         if self.verbose > 0:
             params.append("Verbose")
+        if self.verbose > 5:
+            params.append("Verbose_opt")  # Add some info on weight optimization
         if self.normalize:
             params.append("NormalizeTarget")
         params.append("train_x_fn=%s" % train_x_loc)
@@ -912,6 +914,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params = []
         if self.verbose > 0:
             params.append("Verbose")
+        if self.verbose > 5:
+            params.append("Verbose_opt")  # Add some info on weight optimization
         if self.normalize:
             params.append("NormalizeTarget")
         params.append("train_x_fn=%s" % train_x_loc)
