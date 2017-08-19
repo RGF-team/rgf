@@ -223,7 +223,7 @@ Reference
    :target: https://travis-ci.org/fukatani/rgf_python
 .. |Build Status AppVeyor| image:: https://ci.appveyor.com/api/projects/status/vpanb9hnncjr16hn/branch/master?svg=true
    :target: https://ci.appveyor.com/project/fukatani/rgf-python
-.. |License| image:: https://img.shields.io/github/license/fukatani/rgf_python.svg
+.. |License| image:: https://img.shields.io/badge/license-GPLv3-blue.svg
    :target: https://github.com/fukatani/rgf_python/blob/master/LICENSE
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/rgf_python.svg
    :target: https://pypi.python.org/pypi/rgf_python/

@@ -149,12 +149,13 @@ def compile_cpp():
 class CustomInstallLib(install_lib):
     def install(self):
         outfiles = install_lib.install(self)
-        src = find_lib()
-        if src:
-            dst, _ = self.copy_file(src, os.path.join(self.install_dir, 'rgf'))
-            outfiles.append(dst)
-        else:
-            logger.error("Cannot find executable file. Installing without it.")
+        if not self.nocompilation:
+            src = find_lib()
+            if src:
+                dst, _ = self.copy_file(src, os.path.join(self.install_dir, 'rgf'))
+                outfiles.append(dst)
+            else:
+                logger.error("Cannot find executable file. Installing without it.")
         return outfiles
 
 
@@ -172,6 +173,9 @@ class CustomInstall(install):
             compile_cpp()
         else:
             logger.info("Installing package without binaries.")
+        install_lib = self.distribution.get_command_obj('install_lib')
+        install_lib.user_options += [('nocompilation', 'n', 'Installing package without binaries.')]
+        install_lib.nocompilation = self.nocompilation
         install.run(self)
 
 
