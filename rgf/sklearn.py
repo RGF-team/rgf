@@ -423,6 +423,56 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self.n_jobs = n_jobs
         self.memory_policy = memory_policy
         self.verbose = verbose
+        self._estimators = None
+        self._classes = None
+        self._n_classes = None
+        self._n_features = None
+        self._fitted = None
+
+    @property
+    def estimators_(self):
+        """The collection of fitted sub-estimators when `fit` is performed."""
+        if self._estimators is None:
+            raise NotFittedError("Estimator not fitted, "
+                                 "call `fit` before exploiting the model.")
+        else:
+            return self._estimators
+
+    @property
+    def classes_(self):
+        """The classes labels when `fit` is performed."""
+        if self._classes is None:
+            raise NotFittedError("Estimator not fitted, "
+                                 "call `fit` before exploiting the model.")
+        else:
+            return self._classes
+
+    @property
+    def n_classes_(self):
+        """The number of classes when `fit` is performed."""
+        if self._n_classes is None:
+            raise NotFittedError("Estimator not fitted, "
+                                 "call `fit` before exploiting the model.")
+        else:
+            return self._n_classes
+
+    @property
+    def n_features_(self):
+        """The number of features when `fit` is performed."""
+        if self._n_features is None:
+            raise NotFittedError("Estimator not fitted, "
+                                 "call `fit` before exploiting the model.")
+        else:
+            return self._n_features
+
+    @property
+    def fitted_(self):
+        """Indicates whether `fit` is performed."""
+        if self._fitted is None:
+            raise NotFittedError("Estimator not fitted, "
+                                 "call `fit` before exploiting the model.")
+        else:
+            return self._fitted
 
     def fit(self, X, y, sample_weight=None):
         """
@@ -465,7 +515,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             self.n_iter_ = self.n_iter
 
         X, y = check_X_y(X, y, accept_sparse=True)
-        n_samples, self.n_features_ = X.shape
+        n_samples, self._n_features = X.shape
 
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
@@ -476,8 +526,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         check_consistent_length(X, y, sample_weight)
         check_classification_targets(y)
 
-        self.classes_ = sorted(np.unique(y))
-        self.n_classes_ = len(self.classes_)
+        self._classes = sorted(np.unique(y))
+        self._n_classes = len(self._classes)
         self._classes_map = {}
 
         params = dict(max_leaf=self.max_leaf,
@@ -495,31 +545,31 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                       learning_rate=self.learning_rate,
                       memory_policy=self.memory_policy,
                       verbose=self.verbose)
-        if self.n_classes_ == 2:
-            self._classes_map[0] = self.classes_[0]
-            self._classes_map[1] = self.classes_[1]
-            self.estimators_ = [None]
-            y = (y == self.classes_[0]).astype(int)
-            self.estimators_[0] = _RGFBinaryClassifier(**params)
-            self.estimators_[0].fit(X, y, sample_weight)
-        elif self.n_classes_ > 2:
+        if self._n_classes == 2:
+            self._classes_map[0] = self._classes[0]
+            self._classes_map[1] = self._classes[1]
+            self._estimators = [None]
+            y = (y == self._classes[0]).astype(int)
+            self._estimators[0] = _RGFBinaryClassifier(**params)
+            self._estimators[0].fit(X, y, sample_weight)
+        elif self._n_classes > 2:
             if sp.isspmatrix_dok(X):
                 X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
-            self.estimators_ = [None] * self.n_classes_
-            ovr_list = [None] * self.n_classes_
-            for i, cls_num in enumerate(self.classes_):
+            self._estimators = [None] * self._n_classes
+            ovr_list = [None] * self._n_classes
+            for i, cls_num in enumerate(self._classes):
                 self._classes_map[i] = cls_num
                 ovr_list[i] = (y == cls_num).astype(int)
-                self.estimators_[i] = _RGFBinaryClassifier(**params)
-            self.estimators_ = Parallel(n_jobs=self.n_jobs)(delayed(_fit_ovr_binary)(self.estimators_[i],
+                self._estimators[i] = _RGFBinaryClassifier(**params)
+            self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(_fit_ovr_binary)(self._estimators[i],
                                                                                      X,
                                                                                      ovr_list[i],
                                                                                      sample_weight)
-                                                            for i in range(self.n_classes_))
+                                                            for i in range(self._n_classes))
         else:
             raise ValueError("Classifier can't predict when only one class is present.")
 
-        self.fitted_ = True
+        self._fitted = True
         return self
 
     def predict_proba(self, X):
@@ -539,23 +589,23 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             The class probabilities of the input samples.
             The order of the classes corresponds to that in the attribute classes_.
         """
-        if not hasattr(self, 'fitted_') or not self.fitted_:
+        if self._fitted is None:
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
         X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
-        if self.n_features_ != n_features:
+        if self._n_features != n_features:
             raise ValueError("Number of features of the model must "
                              "match the input. Model n_features is %s and "
                              "input n_features is %s "
-                             % (self.n_features_, n_features))
-        if self.n_classes_ == 2:
-            y = self.estimators_[0].predict_proba(X)
+                             % (self._n_features, n_features))
+        if self._n_classes == 2:
+            y = self._estimators[0].predict_proba(X)
             y = _sigmoid(y)
             y = np.c_[y, 1 - y]
         else:
-            y = np.zeros((X.shape[0], self.n_classes_))
-            for i, clf in enumerate(self.estimators_):
+            y = np.zeros((X.shape[0], self._n_classes))
+            for i, clf in enumerate(self._estimators):
                 class_proba = clf.predict_proba(X)
                 y[:, i] = class_proba
 
@@ -630,6 +680,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.verbose = verbose
         self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
         _UUIDS.append(self._file_prefix)
+        self._fitted = None
 
     def fit(self, X, y, sample_weight):
         train_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.x")
@@ -683,11 +734,11 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             for k in output:
                 print(k)
 
-        self.fitted_ = True
+        self._fitted = True
         return self
 
     def predict_proba(self, X):
-        if not hasattr(self, 'fitted_') or not self.fitted_:
+        if self._fitted is None:
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
@@ -849,6 +900,26 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         self.verbose = verbose
         self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
         _UUIDS.append(self._file_prefix)
+        self._n_features = None
+        self._fitted = None
+
+    @property
+    def n_features_(self):
+        """The number of features when `fit` is performed."""
+        if self._n_features is None:
+            raise NotFittedError("Estimator not fitted, "
+                                 "call `fit` before exploiting the model.")
+        else:
+            return self._n_features
+
+    @property
+    def fitted_(self):
+        """Indicates whether `fit` is performed."""
+        if self._fitted is None:
+            raise NotFittedError("Estimator not fitted, "
+                                 "call `fit` before exploiting the model.")
+        else:
+            return self._fitted
 
     def fit(self, X, y, sample_weight=None):
         """
@@ -891,7 +962,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             self.n_iter_ = self.n_iter
 
         X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
-        n_samples, self.n_features_ = X.shape
+        n_samples, self._n_features = X.shape
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
         else:
@@ -948,7 +1019,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             for k in output:
                 print(k)
 
-        self.fitted_ = True
+        self._fitted = True
         return self
 
     def predict(self, X):
@@ -967,17 +1038,17 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         y : array of shape = [n_samples]
             The predicted values.
         """
-        if not hasattr(self, 'fitted_') or not self.fitted_:
+        if self._fitted is None:
             raise NotFittedError("Estimator not fitted, "
                                  "call `fit` before exploiting the model.")
 
         X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
-        if self.n_features_ != n_features:
+        if self._n_features != n_features:
             raise ValueError("Number of features of the model must "
                              "match the input. Model n_features is %s and "
                              "input n_features is %s "
-                             % (self.n_features_, n_features))
+                             % (self._n_features, n_features))
 
         test_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
