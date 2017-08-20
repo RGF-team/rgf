@@ -1,4 +1,4 @@
-﻿|Build Status Travis| |Build Status AppVeyor| |License| |Python Versions| |PyPI Version|
+|Build Status Travis| |Build Status AppVeyor| |License| |Python Versions| |PyPI Version|
 
 .. [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.python.org/pypi/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io
 
