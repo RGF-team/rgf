@@ -1,4 +1,4 @@
-﻿|Build Status Travis| |Build Status AppVeyor| |License| |Python Versions| |PyPI Version|
+|Build Status Travis| |Build Status AppVeyor| |License| |Python Versions| |PyPI Version|
 
 .. [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.python.org/pypi/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io
 
@@ -80,7 +80,7 @@ Also, you may directly specify installation without automatic compilation:
 
 ::
 
-    pip install rgf_python --install-option="nocompilation"
+    pip install rgf_python --install-option=--nocompilation
 
 or
 
@@ -137,6 +137,7 @@ If you are compiling on 64-bit machine then add ``Win64`` to the end of generato
 - Visual Studio 12 2013 [Win64]
 - Visual Studio 14 2015 [Win64]
 - Visual Studio 15 2017 [Win64]
+
 Other versions may work but are untested.
 
 CMake and MinGW
@@ -151,7 +152,7 @@ Create ``makefile`` with CMake and then compile with MinGW.
     cmake --build . --config Release
 
 \*nix
-''''
+'''''
 
 g++ (existing makefile)
 ~~~~~~~~~~~~~~~~~~~~~~~
