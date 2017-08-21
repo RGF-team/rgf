@@ -99,10 +99,11 @@ def compile_cpp():
                 arch = 'x64'
             else:
                 arch = 'Win32'
-            status = silent_call('MSBuild rgf.sln '
-                                 '/p:Configuration=Release '
-                                 '/p:Platform={0} '
-                                 '/p:PlatformToolset={1}'.format(arch, platform_toolset))
+            status = silent_call(('MSBuild',
+                                  'rgf.sln',
+                                  '/p:Configuration=Release',
+                                  '/p:Platform={0}'.format(arch),
+                                  '/p:PlatformToolset={0}'.format(platform_toolset)))
             clear_folder('Release')
             if status == 0 and os.path.isfile(target) and is_executable_response(target):
                 break
@@ -112,7 +113,7 @@ def compile_cpp():
                            "from existing Visual Studio solution failed.")
             logger.info("Trying to build executable file with MinGW g++ "
                         "from existing makefile.")
-            status = silent_call('mingw32-make')
+            status = silent_call(('mingw32-make'))
         if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
             logger.warning("Building executable file with MinGW g++ "
                            "from existing makefile failed.")
@@ -124,29 +125,29 @@ def compile_cpp():
                 if IS_64BITS:
                     generator += ' Win64'
                 clear_folder('.')
-                status = silent_call('cmake ../ -G "{0}"'.format(generator))
-                status += silent_call('cmake --build . --config Release')
+                status = silent_call(('cmake', '../', '-G', generator))
+                status += silent_call(('cmake', '--build', '.', '--config', 'Release'))
                 if status == 0 and os.path.isfile(target) and is_executable_response(target):
                     break
         if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
             logger.warning("Building executable file with CMake and MSBuild failed.")
             logger.info("Trying to build executable file with CMake and MinGW.")
             clear_folder('.')
-            status = silent_call('cmake ../ -G "MinGW Makefiles"')
-            status += silent_call('cmake --build . --config Release')
+            status = silent_call(('cmake', '../', '-G', 'MinGW Makefiles'))
+            status += silent_call(('cmake', '--build', '.', '--config', 'Release'))
         os.chdir(os.path.pardir)
     else:
         os.chdir('build')
         target = os.path.abspath(os.path.join(os.path.pardir, 'bin', 'rgf'))
         logger.info("Trying to build executable file with g++ from existing makefile.")
-        status = silent_call('make')
+        status = silent_call(('make'))
         if status != 0 or not os.path.isfile(target) or not is_executable_response(target):
             logger.warning("Building executable file with g++ "
                            "from existing makefile failed.")
             logger.info("Trying to build executable file with CMake.")
             clear_folder('.')
-            status = silent_call('cmake ../')
-            status += silent_call('cmake --build . --config Release')
+            status = silent_call(('cmake', '../'))
+            status += silent_call(('cmake', '--build', '.', '--config', 'Release'))
         os.chdir(os.path.pardir)
     os.chdir(os.path.join(os.path.pardir, os.path.pardir))
     if status:
