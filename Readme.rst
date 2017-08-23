@@ -90,6 +90,8 @@ or
     cd rgf_python
     python setup.py install --nocompilation
 
+``sudo`` (or administrator privileges in Windows) may be needed to perform commands.
+
 Here is the guide how you can build RGF executable file from binaries. The file will be in ``rgf_python/include/rgf/bin`` folder.
 
 Windows

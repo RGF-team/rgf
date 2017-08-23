@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 from sklearn import datasets
+from sklearn.exceptions import NotFittedError
 from sklearn.metrics import accuracy_score, mean_squared_error
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.utils.estimator_checks import check_estimator
@@ -159,6 +160,35 @@ class TestRGFClassfier(unittest.TestCase):
             clf.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
             self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
 
+    def test_attributes(self):
+        clf = RGFClassifier()
+        attributes = ('estimators_', 'classes_', 'n_classes_', 'n_features_', 'fitted_',
+                      'sl2_', 'min_samples_leaf_', 'n_iter_')
+
+        for attr in attributes:
+            self.assertRaises(NotFittedError, getattr, clf, attr)
+        clf.fit(self.X_train, self.y_train)
+        self.assertEqual(len(clf.estimators_), len(np.unique(self.y_train)))
+        np.testing.assert_array_equal(clf.classes_, sorted(np.unique(self.y_train)))
+        self.assertEqual(clf.n_classes_, len(clf.estimators_))
+        self.assertEqual(clf.n_features_, self.X_train.shape[-1])
+        self.assertTrue(clf.fitted_)
+        if clf.sl2 is None:
+            self.assertEqual(clf.sl2_, clf.l2)
+        else:
+            self.assertEqual(clf.sl2_, clf.sl2)
+        if clf.min_samples_leaf < 1:
+            self.assertLessEqual(clf.min_samples_leaf_, 0.5 * self.X_train.shape[0])
+        else:
+            self.assertEqual(clf.min_samples_leaf_, clf.min_samples_leaf)
+        if clf.n_iter is None:
+            if clf.loss == "LS":
+                self.assertEqual(clf.n_iter_, 10)
+            else:
+                self.assertEqual(clf.n_iter_, 5)
+        else:
+            self.assertEqual(clf.n_iter_, clf.n_iter)
+
     def test_input_arrays_shape(self):
         clf = RGFClassifier()
 
@@ -272,6 +302,31 @@ class TestRGFRegressor(unittest.TestCase):
             reg.set_params(**valid_params)  # Reset to valid params
             reg.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
             self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train)
+
+    def test_attributes(self):
+        reg = RGFRegressor()
+        attributes = ('n_features_', 'fitted_', 'sl2_', 'min_samples_leaf_', 'n_iter_')
+
+        for attr in attributes:
+            self.assertRaises(NotFittedError, getattr, reg, attr)
+        reg.fit(self.X_train, self.y_train)
+        self.assertEqual(reg.n_features_, self.X_train.shape[-1])
+        self.assertTrue(reg.fitted_)
+        if reg.sl2 is None:
+            self.assertEqual(reg.sl2_, reg.l2)
+        else:
+            self.assertEqual(reg.sl2_, reg.sl2)
+        if reg.min_samples_leaf < 1:
+            self.assertLessEqual(reg.min_samples_leaf_, 0.5 * self.X_train.shape[0])
+        else:
+            self.assertEqual(reg.min_samples_leaf_, reg.min_samples_leaf)
+        if reg.n_iter is None:
+            if reg.loss == "LS":
+                self.assertEqual(reg.n_iter_, 10)
+            else:
+                self.assertEqual(reg.n_iter_, 5)
+        else:
+            self.assertEqual(reg.n_iter_, reg.n_iter)
 
     def test_input_arrays_shape(self):
         reg = RGFRegressor()
