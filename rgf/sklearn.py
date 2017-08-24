@@ -26,6 +26,7 @@ from sklearn.utils.validation import check_array, check_consistent_length, check
 with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as _f:
     __version__ = _f.read().strip()
 
+_NOT_FITTED_ERROR_DESC = "Estimator not fitted, call `fit` before exploiting the model."
 _ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
 _LOSSES = ("LS", "Expo", "Log")
 _FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
@@ -383,6 +384,18 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     fitted_ : boolean
         Indicates whether `fit` is performed.
 
+    sl2_ : float
+        The concrete regularization value for the process of growing the forest
+        used in model building process.
+
+    min_samples_leaf_ : int
+        Minimum number of training data points in each leaf node
+        used in model building process.
+
+    n_iter_ : int
+        Number of iterations of coordinate descent to optimize weights
+        used in model building process depending on the specified loss function.
+
     Reference
     ---------
     [1] Rie Johnson and Tong Zhang,
@@ -413,9 +426,12 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self.reg_depth = reg_depth
         self.l2 = l2
         self.sl2 = sl2
+        self._sl2 = None
         self.normalize = normalize
         self.min_samples_leaf = min_samples_leaf
+        self._min_samples_leaf = None
         self.n_iter = n_iter
+        self._n_iter = None
         self.n_tree_search = n_tree_search
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
@@ -433,8 +449,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     def estimators_(self):
         """The collection of fitted sub-estimators when `fit` is performed."""
         if self._estimators is None:
-            raise NotFittedError("Estimator not fitted, "
-                                 "call `fit` before exploiting the model.")
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
         else:
             return self._estimators
 
@@ -442,8 +457,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     def classes_(self):
         """The classes labels when `fit` is performed."""
         if self._classes is None:
-            raise NotFittedError("Estimator not fitted, "
-                                 "call `fit` before exploiting the model.")
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
         else:
             return self._classes
 
@@ -451,8 +465,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     def n_classes_(self):
         """The number of classes when `fit` is performed."""
         if self._n_classes is None:
-            raise NotFittedError("Estimator not fitted, "
-                                 "call `fit` before exploiting the model.")
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
         else:
             return self._n_classes
 
@@ -460,8 +473,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     def n_features_(self):
         """The number of features when `fit` is performed."""
         if self._n_features is None:
-            raise NotFittedError("Estimator not fitted, "
-                                 "call `fit` before exploiting the model.")
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
         else:
             return self._n_features
 
@@ -469,10 +481,42 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
     def fitted_(self):
         """Indicates whether `fit` is performed."""
         if self._fitted is None:
-            raise NotFittedError("Estimator not fitted, "
-                                 "call `fit` before exploiting the model.")
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
         else:
             return self._fitted
+
+    @property
+    def sl2_(self):
+        """
+        The concrete regularization value for the process of growing the forest
+        used in model building process.
+        """
+        if self._sl2 is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._sl2
+
+    @property
+    def min_samples_leaf_(self):
+        """
+        Minimum number of training data points in each leaf node
+        used in model building process.
+        """
+        if self._min_samples_leaf is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._min_samples_leaf
+
+    @property
+    def n_iter_(self):
+        """
+        Number of iterations of coordinate descent to optimize weights
+        used in model building process depending on the specified loss function.
+        """
+        if self._n_iter is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._n_iter
 
     def fit(self, X, y, sample_weight=None):
         """
@@ -496,26 +540,26 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         """
         _validate_params(**self.get_params())
 
+        X, y = check_X_y(X, y, accept_sparse=True)
+        n_samples, self._n_features = X.shape
+
         if self.sl2 is None:
-            self.sl2_ = self.l2
+            self._sl2 = self.l2
         else:
-            self.sl2_ = self.sl2
+            self._sl2 = self.sl2
 
         if isinstance(self.min_samples_leaf, _FLOATS):
-            self.min_samples_leaf_ = ceil(self.min_samples_leaf * n_samples)
+            self._min_samples_leaf = ceil(self.min_samples_leaf * n_samples)
         else:
-            self.min_samples_leaf_ = self.min_samples_leaf
+            self._min_samples_leaf = self.min_samples_leaf
 
         if self.n_iter is None:
             if self.loss == "LS":
-                self.n_iter_ = 10
+                self._n_iter = 10
             else:
-                self.n_iter_ = 5
+                self._n_iter = 5
         else:
-            self.n_iter_ = self.n_iter
-
-        X, y = check_X_y(X, y, accept_sparse=True)
-        n_samples, self._n_features = X.shape
+            self._n_iter = self.n_iter
 
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
@@ -536,10 +580,10 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                       loss=self.loss,
                       reg_depth=self.reg_depth,
                       l2=self.l2,
-                      sl2=self.sl2_,
+                      sl2=self._sl2,
                       normalize=self.normalize,
-                      min_samples_leaf=self.min_samples_leaf_,
-                      n_iter=self.n_iter_,
+                      min_samples_leaf=self._min_samples_leaf,
+                      n_iter=self._n_iter,
                       n_tree_search=self.n_tree_search,
                       opt_interval=self.opt_interval,
                       learning_rate=self.learning_rate,
@@ -590,8 +634,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             The order of the classes corresponds to that in the attribute classes_.
         """
         if self._fitted is None:
-            raise NotFittedError("Estimator not fitted, "
-                                 "call `fit` before exploiting the model.")
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
         X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
         if self._n_features != n_features:
@@ -739,8 +782,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
     def predict_proba(self, X):
         if self._fitted is None:
-            raise NotFittedError("Estimator not fitted, "
-                                 "call `fit` before exploiting the model.")
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
 
         test_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
@@ -862,6 +904,18 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
     fitted_ : boolean
         Indicates whether `fit` is performed.
 
+    sl2_ : float
+        The concrete regularization value for the process of growing the forest
+        when `fit` is performed.
+
+    min_samples_leaf_ : int
+        Minimum number of training data points in each leaf node
+        used in model building process.
+
+    n_iter_ : int
+        Number of iterations of coordinate descent to optimize weights
+        used in model building process depending on the specified loss function.
+
     Reference
     ---------
     [1] Rie Johnson and Tong Zhang,
@@ -890,9 +944,12 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         self.reg_depth = reg_depth
         self.l2 = l2
         self.sl2 = sl2
+        self._sl2 = None
         self.normalize = normalize
         self.min_samples_leaf = min_samples_leaf
+        self._min_samples_leaf = None
         self.n_iter = n_iter
+        self._n_iter = None
         self.n_tree_search = n_tree_search
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
@@ -907,8 +964,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
     def n_features_(self):
         """The number of features when `fit` is performed."""
         if self._n_features is None:
-            raise NotFittedError("Estimator not fitted, "
-                                 "call `fit` before exploiting the model.")
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
         else:
             return self._n_features
 
@@ -916,10 +972,42 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
     def fitted_(self):
         """Indicates whether `fit` is performed."""
         if self._fitted is None:
-            raise NotFittedError("Estimator not fitted, "
-                                 "call `fit` before exploiting the model.")
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
         else:
             return self._fitted
+
+    @property
+    def sl2_(self):
+        """
+        The concrete regularization value for the process of growing the forest
+        used in model building process.
+        """
+        if self._sl2 is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._sl2
+
+    @property
+    def min_samples_leaf_(self):
+        """
+        Minimum number of training data points in each leaf node
+        used in model building process.
+        """
+        if self._min_samples_leaf is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._min_samples_leaf
+
+    @property
+    def n_iter_(self):
+        """
+        Number of iterations of coordinate descent to optimize weights
+        used in model building process depending on the specified loss function.
+        """
+        if self._n_iter is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._n_iter
 
     def fit(self, X, y, sample_weight=None):
         """
@@ -943,26 +1031,27 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         """
         _validate_params(**self.get_params())
 
+        X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
+        n_samples, self._n_features = X.shape
+
         if self.sl2 is None:
-            self.sl2_ = self.l2
+            self._sl2 = self.l2
         else:
-            self.sl2_ = self.sl2
+            self._sl2 = self.sl2
 
         if isinstance(self.min_samples_leaf, _FLOATS):
-            self.min_samples_leaf_ = ceil(self.min_samples_leaf * n_samples)
+            self._min_samples_leaf = ceil(self.min_samples_leaf * n_samples)
         else:
-            self.min_samples_leaf_ = self.min_samples_leaf
+            self._min_samples_leaf = self.min_samples_leaf
 
         if self.n_iter is None:
             if self.loss == "LS":
-                self.n_iter_ = 10
+                self._n_iter = 10
             else:
-                self.n_iter_ = 5
+                self._n_iter = 5
         else:
-            self.n_iter_ = self.n_iter
+            self._n_iter = self.n_iter
 
-        X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
-        n_samples, self._n_features = X.shape
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
         else:
@@ -996,10 +1085,10 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params.append("max_leaf_forest=%s" % self.max_leaf)
         params.append("test_interval=%s" % self.test_interval)
         params.append("reg_L2=%s" % self.l2)
-        params.append("reg_sL2=%s" % self.sl2_)
+        params.append("reg_sL2=%s" % self._sl2)
         params.append("reg_depth=%s" % self.reg_depth)
-        params.append("min_pop=%s" % self.min_samples_leaf_)
-        params.append("num_iteration_opt=%s" % self.n_iter_)
+        params.append("min_pop=%s" % self._min_samples_leaf)
+        params.append("num_iteration_opt=%s" % self._n_iter)
         params.append("num_tree_search=%s" % self.n_tree_search)
         params.append("opt_interval=%s" % self.opt_interval)
         params.append("opt_stepsize=%s" % self.learning_rate)
@@ -1039,8 +1128,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             The predicted values.
         """
         if self._fitted is None:
-            raise NotFittedError("Estimator not fitted, "
-                                 "call `fit` before exploiting the model.")
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
 
         X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
