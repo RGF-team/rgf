@@ -7,6 +7,7 @@ from sys import maxsize
 import logging
 import os
 import subprocess
+import sys
 
 
 IS_64BITS = maxsize > 2**32
@@ -16,7 +17,10 @@ logger = logging.getLogger('rgf_python')
 
 
 def read(filename):
-    return open(os.path.join(CURRENT_DIR, filename)).read()
+    if sys.version_info[0] > 2:
+        return open(os.path.join(CURRENT_DIR, filename), encoding='utf-8').read()
+    else:
+        return open(os.path.join(CURRENT_DIR, filename)).read()
 
 
 def clear_folder(path):
