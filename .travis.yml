@@ -34,9 +34,7 @@ before_install:
 install:
   - conda install -q numpy scipy nose pandas scikit-learn
   - python setup.py sdist --formats gztar
-  - cd dist
-  - pip install rgf_python-$RGF_VER.tar.gz -v
-  - cd ..
+  - pip install dist/rgf_python-$RGF_VER.tar.gz -v
 
 script:
   - python rgf/test/test.py

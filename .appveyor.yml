@@ -30,9 +30,7 @@ install:
   - activate test-environment
   - ps: $env:RGF_VER = (Get-Content rgf\VERSION).trim()
   - python setup.py sdist --formats gztar
-  - cd dist
-  - pip install rgf_python-%RGF_VER%.tar.gz -v
-  - cd ..
+  - pip install dist\rgf_python-%RGF_VER%.tar.gz -v
 
 test_script:
   - python rgf/test/test.py
