@@ -4,10 +4,10 @@ from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
 from shutil import rmtree
 from sys import maxsize
+import io
 import logging
 import os
 import subprocess
-import sys
 
 
 IS_64BITS = maxsize > 2**32
@@ -17,10 +17,7 @@ logger = logging.getLogger('rgf_python')
 
 
 def read(filename):
-    if sys.version_info[0] > 2:
-        return open(os.path.join(CURRENT_DIR, filename), encoding='utf-8').read()
-    else:
-        return open(os.path.join(CURRENT_DIR, filename)).read()
+    return io.open(os.path.join(CURRENT_DIR, filename), encoding='utf-8').read()
 
 
 def clear_folder(path):

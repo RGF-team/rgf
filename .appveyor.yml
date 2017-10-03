@@ -28,7 +28,12 @@ install:
   - conda update -q conda
   - conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose pandas scikit-learn
   - activate test-environment
-  - python setup.py install
+  - ps: $env:RGF_VER = (Get-Content rgf\VERSION).trim()
+  - python setup.py sdist --formats gztar
+  - pip install dist\rgf_python-%RGF_VER%.tar.gz -v
 
 test_script:
+  - python rgf/test/test.py
+  - pip uninstall -y rgf_python
+  - python setup.py install
   - python rgf/test/test.py
