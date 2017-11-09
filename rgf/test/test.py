@@ -1,3 +1,4 @@
+import pickle
 import unittest
 
 import numpy as np
@@ -349,6 +350,16 @@ class TestRGFRegressor(unittest.TestCase):
         mse = mean_squared_error(self.y_test, y_pred)
         self.assertLess(mse, 6.0)
 
+    def test_pickle(self):
+        reg = RGFRegressor()
+        reg.fit(self.X_train, self.y_train)
+        y_pred1 = reg.predict(self.X_test)
+
+        s = pickle.dumps(reg)
+        reg2 = pickle.loads(s)
+        y_pred2 = reg2.predict(self.X_test)
+
+        np.testing.assert_allclose(y_pred1, y_pred2)
 
 if __name__ == '__main__':
     unittest.main()
