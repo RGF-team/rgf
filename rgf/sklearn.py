@@ -724,7 +724,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
         _UUIDS.append(self._file_prefix)
         self._fitted = None
-        self.latest_model_loc = None
+        self._latest_model_loc = None
 
     def fit(self, X, y, sample_weight):
         train_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.x")
@@ -785,13 +785,13 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
                             'Training is abnormally finished.'.format(_TEMP_PATH))
-        self.latest_model_loc = sorted(model_files, reverse=True)[0]
+        self._latest_model_loc = sorted(model_files, reverse=True)[0]
         return self
 
     def predict_proba(self, X):
         if self._fitted is None:
             raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        if not os.path.isfile(self.latest_model_loc):
+        if not os.path.isfile(self._latest_model_loc):
             raise Exception('Model learning result is not found in {0}. '
                             'This is rgf_python error.'.format(_TEMP_PATH))
 
@@ -806,7 +806,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params = []
         params.append("test_x_fn=%s" % test_x_loc)
         params.append("prediction_fn=%s" % pred_loc)
-        params.append("model_fn=%s" % self.latest_model_loc)
+        params.append("model_fn=%s" % self._latest_model_loc)
 
         cmd = (_EXE_PATH, "predict", ",".join(params))
 
@@ -824,14 +824,14 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
     def __getstate__(self):
         state = self.__dict__.copy()
         if self._fitted:
-            with open(self.latest_model_loc, 'rb') as fr:
+            with open(self._latest_model_loc, 'rb') as fr:
                 state["model"] = fr.read()
         return state
 
     def __setstate__(self, state):
         self.__dict__.update(state)
         if self._fitted:
-            with open(self.latest_model_loc, 'wb') as fw:
+            with open(self._latest_model_loc, 'wb') as fw:
                 fw.write(self.__dict__["model"])
 
 
@@ -975,7 +975,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         _UUIDS.append(self._file_prefix)
         self._n_features = None
         self._fitted = None
-        self.latest_model_loc = None
+        self._latest_model_loc = None
 
     @property
     def n_features_(self):
@@ -1133,7 +1133,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
                             'Training is abnormally finished.'.format(_TEMP_PATH))
-        self.latest_model_loc = sorted(model_files, reverse=True)[0]
+        self._latest_model_loc = sorted(model_files, reverse=True)[0]
         return self
 
     def predict(self, X):
@@ -1169,7 +1169,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
-        if not os.path.isfile(self.latest_model_loc):
+        if not os.path.isfile(self._latest_model_loc):
             raise Exception('Model learning result is not found in {0}. '
                             'This is rgf_python error.'.format(_TEMP_PATH))
 
@@ -1178,7 +1178,7 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         params = []
         params.append("test_x_fn=%s" % test_x_loc)
         params.append("prediction_fn=%s" % pred_loc)
-        params.append("model_fn=%s" % self.latest_model_loc)
+        params.append("model_fn=%s" % self._latest_model_loc)
 
         cmd = (_EXE_PATH, "predict", ",".join(params))
 
@@ -1197,12 +1197,12 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
     def __getstate__(self):
         state = self.__dict__.copy()
         if self._fitted:
-            with open(self.latest_model_loc, 'rb') as fr:
+            with open(self._latest_model_loc, 'rb') as fr:
                 state["model"] = fr.read()
         return state
 
     def __setstate__(self, state):
         self.__dict__.update(state)
         if self._fitted:
-            with open(self.latest_model_loc, 'wb') as fw:
+            with open(self._latest_model_loc, 'wb') as fw:
                 fw.write(self.__dict__["model"])
