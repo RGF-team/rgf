@@ -833,6 +833,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         if self._fitted:
             with open(self._latest_model_loc, 'wb') as fw:
                 fw.write(self.__dict__["model"])
+            del self.__dict__["model"]
 
 
 class RGFRegressor(BaseEstimator, RegressorMixin):
@@ -1206,3 +1207,4 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         if self._fitted:
             with open(self._latest_model_loc, 'wb') as fw:
                 fw.write(self.__dict__["model"])
+            del self.__dict__["model"]
