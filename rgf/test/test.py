@@ -409,5 +409,6 @@ class TestRGFRegressor(unittest.TestCase):
         np.testing.assert_allclose(y_pred1, y_pred2)
 
 
+
 if __name__ == '__main__':
     unittest.main()
