@@ -1,3 +1,4 @@
+import pickle
 import unittest
 
 import numpy as np
@@ -8,7 +9,7 @@ from sklearn.metrics import accuracy_score, mean_squared_error
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_random_state
-from rgf.sklearn import RGFClassifier, RGFRegressor
+from rgf.sklearn import RGFClassifier, RGFRegressor, _cleanup
 
 
 class TestRGFClassfier(unittest.TestCase):
@@ -210,6 +211,20 @@ class TestRGFClassfier(unittest.TestCase):
         score = accuracy_score(self.y_train, y_pred)
         self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
 
+    def test_pickle(self):
+        clf = RGFClassifier()
+        clf.fit(self.X_train, self.y_train)
+        y_pred1 = clf.predict(self.X_test)
+        s = pickle.dumps(clf)
+
+        # Remove model file
+        _cleanup()
+
+        reg2 = pickle.loads(s)
+        y_pred2 = reg2.predict(self.X_test)
+
+        np.testing.assert_allclose(y_pred1, y_pred2)
+
 
 class TestRGFRegressor(unittest.TestCase):
     def setUp(self):
@@ -349,6 +364,19 @@ class TestRGFRegressor(unittest.TestCase):
         mse = mean_squared_error(self.y_test, y_pred)
         self.assertLess(mse, 6.0)
 
+    def test_pickle(self):
+        reg = RGFRegressor()
+        reg.fit(self.X_train, self.y_train)
+        y_pred1 = reg.predict(self.X_test)
+        s = pickle.dumps(reg)
+
+        # Remove model file
+        _cleanup()
+
+        reg2 = pickle.loads(s)
+        y_pred2 = reg2.predict(self.X_test)
+
+        np.testing.assert_allclose(y_pred1, y_pred2)
 
 if __name__ == '__main__':
     unittest.main()
