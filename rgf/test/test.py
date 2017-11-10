@@ -5,10 +5,12 @@ import numpy as np
 from scipy import sparse
 from sklearn import datasets
 from sklearn.exceptions import NotFittedError
+from sklearn.externals import joblib
 from sklearn.metrics import accuracy_score, mean_squared_error
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_random_state
+
 from rgf.sklearn import RGFClassifier, RGFRegressor, _cleanup
 
 
@@ -225,6 +227,20 @@ class TestRGFClassfier(unittest.TestCase):
 
         np.testing.assert_allclose(y_pred1, y_pred2)
 
+    def test_joblib_pickle(self):
+        clf = RGFClassifier()
+        clf.fit(self.X_train, self.y_train)
+        y_pred1 = clf.predict(self.X_test)
+        joblib.dump(clf, 'test_clf.pkl')
+
+        # Remove model file
+        _cleanup()
+
+        clf2 = joblib.load('test_clf.pkl')
+        y_pred2 = clf2.predict(self.X_test)
+
+        np.testing.assert_allclose(y_pred1, y_pred2)
+
 
 class TestRGFRegressor(unittest.TestCase):
     def setUp(self):
@@ -377,6 +393,21 @@ class TestRGFRegressor(unittest.TestCase):
         y_pred2 = reg2.predict(self.X_test)
 
         np.testing.assert_allclose(y_pred1, y_pred2)
+
+    def test_joblib_pickle(self):
+        reg = RGFRegressor()
+        reg.fit(self.X_train, self.y_train)
+        y_pred1 = reg.predict(self.X_test)
+        joblib.dump(reg, 'test_reg.pkl')
+
+        # Remove model file
+        _cleanup()
+
+        reg2 = joblib.load('test_reg.pkl')
+        y_pred2 = reg2.predict(self.X_test)
+
+        np.testing.assert_allclose(y_pred1, y_pred2)
+
 
 if __name__ == '__main__':
     unittest.main()
