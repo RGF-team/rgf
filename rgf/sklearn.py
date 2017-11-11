@@ -32,7 +32,7 @@ _LOSSES = ("LS", "Expo", "Log")
 _FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 _SYSTEM = platform.system()
 _UUIDS = []
-_FASTRGF_PATH = "/home/ryo/work/fast_rgf/bin"
+
 
 def _get_paths():
     config = six.moves.configparser.RawConfigParser()
@@ -110,21 +110,21 @@ def _is_executable_response(path):
         return False
 
 
-# if _is_executable_response(_DEFAULT_EXE_PATH):
-#     _EXE_PATH = _DEFAULT_EXE_PATH
-# elif _is_executable_response(os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)):
-#     _EXE_PATH = os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)
-# elif not os.path.isfile(_EXE_PATH):
-#     raise Exception("{0} is not executable file. Please set "
-#                     "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
-# elif not os.access(_EXE_PATH, os.X_OK):
-#     raise Exception("{0} cannot be accessed. Please set "
-#                     "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
-# elif _is_executable_response(_EXE_PATH):
-#     pass
-# else:
-#     raise Exception("{0} does not exist or {1} is not in the "
-#                     "'PATH' variable.".format(_EXE_PATH, _DEFAULT_EXE_PATH))
+if _is_executable_response(_DEFAULT_EXE_PATH):
+    _EXE_PATH = _DEFAULT_EXE_PATH
+elif _is_executable_response(os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)):
+    _EXE_PATH = os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)
+elif not os.path.isfile(_EXE_PATH):
+    raise Exception("{0} is not executable file. Please set "
+                    "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
+elif not os.access(_EXE_PATH, os.X_OK):
+    raise Exception("{0} cannot be accessed. Please set "
+                    "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
+elif _is_executable_response(_EXE_PATH):
+    pass
+else:
+    raise Exception("{0} does not exist or {1} is not in the "
+                    "'PATH' variable.".format(_EXE_PATH, _DEFAULT_EXE_PATH))
 
 
 @atexit.register
@@ -1220,6 +1220,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 
 class FastRGFRegressor(BaseEstimator, RegressorMixin):
     """
+    A Fast Regularized Greedy Forest regressor.
+    This function is alpha version.
     """
     def __init__(self,
                  dtree_new_tree_gain_ratio=1.0,
@@ -1324,23 +1326,20 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
 
         # Format train command
-        config_file = os.path.join(_TEMP_PATH, "config")
-        with open(config_file, "w") as fw:
-            fw.write("discretize.dense.max_buckets=%s\n" % self.discretize_dense_max_buckets)
-            fw.write("discretize.dense.lamL2=%s\n" % self.discretize_dense_lamL2)
-            fw.write("discretize.sparse.max_features=%s\n" % self.discretize_sparse_max_features)
-            fw.write("discretize.sparse.max_buckets=%s\n" % self.discretize_sparse_max_buckets)
-            fw.write("dtree.new_tree_gain_ratio=%s\n" % self.dtree_new_tree_gain_ratio)
-            fw.write("dtree.loss=%s\n" % self.dtree_loss)
-            fw.write("dtree.lamL1=%s\n" % self.dtree_lamL1)
-            fw.write("dtree.lamL2=%s\n" % self.dtree_lamL2)
-            fw.write("forest.ntrees=%s\n" % self.forest_ntrees)
-
         params = []
-        params.append("-config=%s" % config_file)
+        params.append("forest.ntrees=%s" % self.forest_ntrees)
+        params.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
+        params.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
+        params.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
+        params.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
+        params.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
+        params.append("dtree.loss=%s" % self.dtree_loss)
+        params.append("dtree.lamL1=%s" % self.dtree_lamL1)
+        params.append("dtree.lamL2=%s" % self.dtree_lamL2)
         params.append("trn.x-file=%s" % train_x_loc)
         params.append("trn.y-file=%s" % train_y_loc)
         params.append("trn.target=REAL")
+        params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self.model_file)
 
         # TODO(fukatani): support WINDOWS
@@ -1352,8 +1351,7 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
-                                  universal_newlines=True,
-                                  shell=True).communicate()
+                                  universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -1407,8 +1405,6 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         # Format test command
         pred_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".predictions.txt")
 
-        # ${exe_predict} model.load=${model_rgf} tst.print-forest=${model_rgf}.print tst.feature-names=${feat_name}
-
         params = []
         params.append("model.load=%s" % self.model_file)
         # params.append("tst.print-forest=%s" % self.model_file)
@@ -1416,8 +1412,8 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         params.append("tst.target=REAL")
         params.append("tst.output-prediction=%s" % pred_loc)
 
-        # cmd = (_FASTRGF_PATH + "/forest_predict", " ".join(params))
-        cmd = _FASTRGF_PATH + "/forest_predict " + " ".join(params)
+        cmd = (_FASTRGF_PATH + "/forest_predict", ",".join(params))
+        # cmd = _FASTRGF_PATH + "/forest_predict " + " ".join(params)
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
