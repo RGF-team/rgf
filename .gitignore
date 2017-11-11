@@ -3,4 +3,5 @@ temp/
 rgf_python.egg-info/
 dist/
 build/*
+include/rgf/bin/rgf
 
