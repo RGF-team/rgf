@@ -32,7 +32,7 @@ _LOSSES = ("LS", "Expo", "Log")
 _FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 _SYSTEM = platform.system()
 _UUIDS = []
-
+_FASTRGF_PATH = "/home/ryo/workspace/github/fast_rgf/fast_rgf/bin"
 
 def _get_paths():
     config = six.moves.configparser.RawConfigParser()
@@ -1291,13 +1291,13 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         self : object
             Returns self.
         """
-        _validate_params(**self.get_params())
+        # _validate_params(**self.get_params())
 
         X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
         n_samples, self._n_features = X.shape
 
         if self.n_iter is None:
-            if self.loss == "LS":
+            if self.dtree_loss == "LS":
                 self._n_iter = 10
             else:
                 self._n_iter = 5
@@ -1317,7 +1317,7 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
 
         # Format train command
         config_file = os.path.join(_TEMP_PATH, "config")
-        with open(config_file) as fw:
+        with open(config_file, "w") as fw:
             fw.write("discretize.dense.max_buckets=%s\n" % self.discretize_dense_max_buckets)
             fw.write("discretize.dense.lamL2=%s\n" % self.discretize_dense_lamL2)
             fw.write("discretize_sparse_max_features=%s\n" % self.discretize_sparse_max_features)
@@ -1337,7 +1337,7 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         params.append("trn.target=REAL")
         params.append("model.save=%s" % self.model_file)
 
-        cmd = (_EXE_PATH, "forest_train", " ".join(params))
+        cmd = (_FASTRGF_PATH, "forest_train", " ".join(params))
 
         # Train
         output = subprocess.Popen(cmd,
@@ -1387,7 +1387,7 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
-        if not os.path.isfile(self._latest_model_loc):
+        if not os.path.isfile(self.model_file):
             raise Exception('Model learning result is not found in {0}. '
                             'This is rgf_python error.'.format(_TEMP_PATH))
 
@@ -1400,7 +1400,7 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         params.append("model.load=%s" % self.model_file)
         params.append("tst.print-forest=%s" % self.model_file)
 
-        cmd = (_EXE_PATH, "forest_predict", " ".join(params))
+        cmd = (_FASTRGF_PATH, "forest_predict", " ".join(params))
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
