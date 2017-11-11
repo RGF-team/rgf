@@ -1326,26 +1326,22 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
 
         # Format train command
-        params = []
-        params.append("forest.ntrees=%s" % self.forest_ntrees)
-        params.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
-        params.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
-        params.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
-        params.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
-        params.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
-        params.append("dtree.loss=%s" % self.dtree_loss)
-        params.append("dtree.lamL1=%s" % self.dtree_lamL1)
-        params.append("dtree.lamL2=%s" % self.dtree_lamL2)
-        params.append("trn.x-file=%s" % train_x_loc)
-        params.append("trn.y-file=%s" % train_y_loc)
-        params.append("trn.target=REAL")
-        params.append("set.verbose=%s" % self.verbose)
-        params.append("model.save=%s" % self.model_file)
-
-        # TODO(fukatani): support WINDOWS
-        # cmd = (_FASTRGF_PATH + "/forest_train", ",".join(params))
-        cmd = _FASTRGF_PATH + "/forest_train " + " ".join(params)
-        print("command: ", cmd)
+        cmd = []
+        cmd.append(_FASTRGF_PATH + "/forest_train")
+        cmd.append("forest.ntrees=%s" % self.forest_ntrees)
+        cmd.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
+        cmd.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
+        cmd.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
+        cmd.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
+        cmd.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
+        cmd.append("dtree.loss=%s" % self.dtree_loss)
+        cmd.append("dtree.lamL1=%s" % self.dtree_lamL1)
+        cmd.append("dtree.lamL2=%s" % self.dtree_lamL2)
+        cmd.append("trn.x-file=%s" % train_x_loc)
+        cmd.append("trn.y-file=%s" % train_y_loc)
+        cmd.append("trn.target=REAL")
+        cmd.append("set.verbose=%s" % self.verbose)
+        cmd.append("model.save=%s" % self.model_file)
 
         # Train
         output = subprocess.Popen(cmd,
@@ -1405,20 +1401,16 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         # Format test command
         pred_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".predictions.txt")
 
-        params = []
-        params.append("model.load=%s" % self.model_file)
-        # params.append("tst.print-forest=%s" % self.model_file)
-        params.append("tst.x-file=%s" % test_x_loc)
-        params.append("tst.target=REAL")
-        params.append("tst.output-prediction=%s" % pred_loc)
-
-        cmd = (_FASTRGF_PATH + "/forest_predict", ",".join(params))
-        # cmd = _FASTRGF_PATH + "/forest_predict " + " ".join(params)
+        cmd = []
+        cmd.append(_FASTRGF_PATH + "/forest_predict")
+        cmd.append("model.load=%s" % self.model_file)
+        cmd.append("tst.x-file=%s" % test_x_loc)
+        cmd.append("tst.target=REAL")
+        cmd.append("tst.output-prediction=%s" % pred_loc)
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  shell=True).communicate()
+                                  stderr=subprocess.STDOUT).communicate()
 
         if self.verbose:
             for k in output:
