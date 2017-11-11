@@ -2,3 +2,5 @@ temp/
 *.pyc
 rgf_python.egg-info/
 dist/
+build/*
+
