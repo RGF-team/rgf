@@ -69,7 +69,7 @@ or from `GitHub <https://github.com/fukatani/rgf_python>`__:
     cd rgf_python
     python setup.py install
 
-If you have any problems while installing by methods listed above you should *build RGF executable file from binaries by your own and place compiled executable file* into directory which is included in environmental variable **'PATH'** or into directory with installed package. Alternatively, you may specify actual location of RGF executable file and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are platform dependent: for Windows ``exe_location=$HOME/rgf.exe``, ``temp_location=$HOME/temp/rgf`` and for others ``exe_location=$HOME/rgf``, ``temp_location=/tmp/rgf``. Here is the example of ``.rgfrc`` file:
+If you have any problems while installing by methods listed above, you should *build RGF executable file from binaries by your own and place compiled executable file* into directory which is included in environmental variable **'PATH'** or into directory with installed package. Alternatively, you may specify actual location of RGF executable file and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are platform dependent: for Windows ``exe_location=$HOME/rgf.exe``, ``temp_location=$HOME/temp/rgf`` and for others ``exe_location=$HOME/rgf``, ``temp_location=/tmp/rgf``. Here is the example of ``.rgfrc`` file:
 
 ::
 
