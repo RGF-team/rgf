@@ -32,7 +32,7 @@ _LOSSES = ("LS", "Expo", "Log")
 _FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 _SYSTEM = platform.system()
 _UUIDS = []
-_FASTRGF_PATH = "/home/ryo/workspace/github/fast_rgf/fast_rgf/bin"
+_FASTRGF_PATH = "/home/ryo/work/fast_rgf/bin"
 
 def _get_paths():
     config = six.moves.configparser.RawConfigParser()
@@ -51,9 +51,13 @@ def _get_paths():
 
     if _SYSTEM in ('Windows', 'Microsoft'):
         try:
-            exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+            rgf_exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
         except Exception:
-            exe = os.path.join(os.path.expanduser('~'), 'rgf.exe')
+            rgf_exe = os.path.join(os.path.expanduser('~'), 'rgf.exe')
+        try:
+            fast_rgf_path = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
+        except Exception:
+            fast_rgf_path = os.path.expanduser('~')
         try:
             temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
         except Exception:
@@ -61,19 +65,23 @@ def _get_paths():
         def_exe = 'rgf.exe'
     else:  # Linux, Darwin (OS X), etc.
         try:
-            exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+            rgf_exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
         except Exception:
-            exe = os.path.join(os.path.expanduser('~'), 'rgf')
+            rgf_exe = os.path.join(os.path.expanduser('~'), 'rgf')
+        try:
+            fast_rgf_path = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
+        except Exception:
+            fast_rgf_path = os.path.expanduser('~')
         try:
             temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
         except Exception:
             temp = os.path.join('/tmp', 'rgf')
         def_exe = 'rgf'
 
-    return def_exe, exe, temp
+    return def_exe, rgf_exe, fast_rgf_path, temp
 
 
-_DEFAULT_EXE_PATH, _EXE_PATH, _TEMP_PATH = _get_paths()
+_DEFAULT_EXE_PATH, _EXE_PATH, _FASTRGF_PATH, _TEMP_PATH = _get_paths()
 
 
 if not os.path.isdir(_TEMP_PATH):
@@ -102,21 +110,21 @@ def _is_executable_response(path):
         return False
 
 
-if _is_executable_response(_DEFAULT_EXE_PATH):
-    _EXE_PATH = _DEFAULT_EXE_PATH
-elif _is_executable_response(os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)):
-    _EXE_PATH = os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)
-elif not os.path.isfile(_EXE_PATH):
-    raise Exception("{0} is not executable file. Please set "
-                    "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
-elif not os.access(_EXE_PATH, os.X_OK):
-    raise Exception("{0} cannot be accessed. Please set "
-                    "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
-elif _is_executable_response(_EXE_PATH):
-    pass
-else:
-    raise Exception("{0} does not exist or {1} is not in the "
-                    "'PATH' variable.".format(_EXE_PATH, _DEFAULT_EXE_PATH))
+# if _is_executable_response(_DEFAULT_EXE_PATH):
+#     _EXE_PATH = _DEFAULT_EXE_PATH
+# elif _is_executable_response(os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)):
+#     _EXE_PATH = os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)
+# elif not os.path.isfile(_EXE_PATH):
+#     raise Exception("{0} is not executable file. Please set "
+#                     "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
+# elif not os.access(_EXE_PATH, os.X_OK):
+#     raise Exception("{0} cannot be accessed. Please set "
+#                     "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
+# elif _is_executable_response(_EXE_PATH):
+#     pass
+# else:
+#     raise Exception("{0} does not exist or {1} is not in the "
+#                     "'PATH' variable.".format(_EXE_PATH, _DEFAULT_EXE_PATH))
 
 
 @atexit.register
@@ -1320,34 +1328,39 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         with open(config_file, "w") as fw:
             fw.write("discretize.dense.max_buckets=%s\n" % self.discretize_dense_max_buckets)
             fw.write("discretize.dense.lamL2=%s\n" % self.discretize_dense_lamL2)
-            fw.write("discretize_sparse_max_features=%s\n" % self.discretize_sparse_max_features)
-            fw.write("discretize_sparse_max_buckets=%s\n" % self.discretize_sparse_max_buckets)
+            fw.write("discretize.sparse.max_features=%s\n" % self.discretize_sparse_max_features)
+            fw.write("discretize.sparse.max_buckets=%s\n" % self.discretize_sparse_max_buckets)
             fw.write("dtree.new_tree_gain_ratio=%s\n" % self.dtree_new_tree_gain_ratio)
             fw.write("dtree.loss=%s\n" % self.dtree_loss)
             fw.write("dtree.lamL1=%s\n" % self.dtree_lamL1)
             fw.write("dtree.lamL2=%s\n" % self.dtree_lamL2)
             fw.write("forest.ntrees=%s\n" % self.forest_ntrees)
 
-        # TODO(fukatani): confirm rgf.
-
-        #${exe_train} -config=${config} trn.x-file=${trn} trn.x-file_format=${orig_format}  trn.target=REAL tst.x-file=${tst} tst.x-file_format=${orig_format} tst.target=REAL model.save=${model_rgf}
         params = []
         params.append("-config=%s" % config_file)
         params.append("trn.x-file=%s" % train_x_loc)
+        params.append("trn.y-file=%s" % train_y_loc)
         params.append("trn.target=REAL")
         params.append("model.save=%s" % self.model_file)
 
-        cmd = (_FASTRGF_PATH, "forest_train", " ".join(params))
+        # TODO(fukatani): support WINDOWS
+        # cmd = (_FASTRGF_PATH + "/forest_train", ",".join(params))
+        cmd = _FASTRGF_PATH + "/forest_train " + " ".join(params)
+        print("command: ", cmd)
 
         # Train
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
-                                  universal_newlines=True).communicate()
+                                  universal_newlines=True,
+                                  shell=True).communicate()
 
         if self.verbose:
             for k in output:
                 print(k)
+
+        if not os.path.isfile(self.model_file):
+            raise Exception("Training is abnormally finished.")
 
         self._fitted = True
 
@@ -1398,14 +1411,18 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
 
         params = []
         params.append("model.load=%s" % self.model_file)
-        params.append("tst.print-forest=%s" % self.model_file)
+        # params.append("tst.print-forest=%s" % self.model_file)
+        params.append("tst.x-file=%s" % test_x_loc)
+        params.append("tst.target=REAL")
+        params.append("tst.output-prediction=%s" % pred_loc)
 
-        cmd = (_FASTRGF_PATH, "forest_predict", " ".join(params))
+        # cmd = (_FASTRGF_PATH + "/forest_predict", " ".join(params))
+        cmd = _FASTRGF_PATH + "/forest_predict " + " ".join(params)
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
-                                  universal_newlines=True).communicate()
+                                  shell=True).communicate()
 
         if self.verbose:
             for k in output:
