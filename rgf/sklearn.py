@@ -285,7 +285,127 @@ class _AtomicCounter(object):
 _COUNTER = _AtomicCounter()
 
 
-class RGFClassifier(BaseEstimator, ClassifierMixin):
+class _RGFClassifierBase(BaseEstimator, ClassifierMixin):
+    @property
+    def estimators_(self):
+        """The collection of fitted sub-estimators when `fit` is performed."""
+        if self._estimators is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._estimators
+
+    @property
+    def classes_(self):
+        """The classes labels when `fit` is performed."""
+        if self._classes is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._classes
+
+    @property
+    def n_classes_(self):
+        """The number of classes when `fit` is performed."""
+        if self._n_classes is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._n_classes
+
+    @property
+    def n_features_(self):
+        """The number of features when `fit` is performed."""
+        if self._n_features is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._n_features
+
+    @property
+    def fitted_(self):
+        """Indicates whether `fit` is performed."""
+        if self._fitted is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._fitted
+
+    @property
+    def n_iter_(self):
+        """
+        Number of iterations of coordinate descent to optimize weights
+        used in model building process depending on the specified loss function.
+        """
+        if self._n_iter is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._n_iter
+
+    def predict_proba(self, X):
+        """
+        Predict class probabilities for X.
+
+        The predicted class probabilities of an input sample are computed.
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The input samples.
+
+        Returns
+        -------
+        p : array of shape = [n_samples, n_classes].
+            The class probabilities of the input samples.
+            The order of the classes corresponds to that in the attribute classes_.
+        """
+        if self._fitted is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        X = check_array(X, accept_sparse=True)
+        n_features = X.shape[1]
+        if self._n_features != n_features:
+            raise ValueError("Number of features of the model must "
+                             "match the input. Model n_features is %s and "
+                             "input n_features is %s "
+                             % (self._n_features, n_features))
+        if self._n_classes == 2:
+            y = self._estimators[0].predict_proba(X)
+            y = _sigmoid(y)
+            y = np.c_[y, 1 - y]
+        else:
+            y = np.zeros((X.shape[0], self._n_classes))
+            for i, clf in enumerate(self._estimators):
+                class_proba = clf.predict_proba(X)
+                y[:, i] = class_proba
+
+            # In honest, I don't understand which is better
+            # softmax or normalized sigmoid for calc probability.
+            if self.calc_prob == "sigmoid":
+                y = _sigmoid(y)
+                normalizer = np.sum(y, axis=1)[:, np.newaxis]
+                normalizer[normalizer == 0.0] = 1.0
+                y /= normalizer
+            else:
+                y = softmax(y)
+        return y
+
+    def predict(self, X):
+        """
+        Predict class for X.
+
+        The predicted class of an input sample is computed.
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The input samples.
+
+        Returns
+        -------
+        y : array of shape = [n_samples]
+            The predicted classes.
+        """
+        y = self.predict_proba(X)
+        y = np.argmax(y, axis=1)
+        return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y)]
+
+
+class RGFClassifier(_RGFClassifierBase):
     """
     A Regularized Greedy Forest [1] classifier.
 
@@ -454,46 +574,6 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         self._fitted = None
 
     @property
-    def estimators_(self):
-        """The collection of fitted sub-estimators when `fit` is performed."""
-        if self._estimators is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._estimators
-
-    @property
-    def classes_(self):
-        """The classes labels when `fit` is performed."""
-        if self._classes is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._classes
-
-    @property
-    def n_classes_(self):
-        """The number of classes when `fit` is performed."""
-        if self._n_classes is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_classes
-
-    @property
-    def n_features_(self):
-        """The number of features when `fit` is performed."""
-        if self._n_features is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_features
-
-    @property
-    def fitted_(self):
-        """Indicates whether `fit` is performed."""
-        if self._fitted is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._fitted
-
-    @property
     def sl2_(self):
         """
         The concrete regularization value for the process of growing the forest
@@ -514,17 +594,6 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             raise NotFittedError(_NOT_FITTED_ERROR_DESC)
         else:
             return self._min_samples_leaf
-
-    @property
-    def n_iter_(self):
-        """
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-        """
-        if self._n_iter is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_iter
 
     def fit(self, X, y, sample_weight=None):
         """
@@ -623,73 +692,6 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
         self._fitted = True
         return self
-
-    def predict_proba(self, X):
-        """
-        Predict class probabilities for X.
-
-        The predicted class probabilities of an input sample are computed.
-
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The input samples.
-
-        Returns
-        -------
-        p : array of shape = [n_samples, n_classes].
-            The class probabilities of the input samples.
-            The order of the classes corresponds to that in the attribute classes_.
-        """
-        if self._fitted is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        X = check_array(X, accept_sparse=True)
-        n_features = X.shape[1]
-        if self._n_features != n_features:
-            raise ValueError("Number of features of the model must "
-                             "match the input. Model n_features is %s and "
-                             "input n_features is %s "
-                             % (self._n_features, n_features))
-        if self._n_classes == 2:
-            y = self._estimators[0].predict_proba(X)
-            y = _sigmoid(y)
-            y = np.c_[y, 1 - y]
-        else:
-            y = np.zeros((X.shape[0], self._n_classes))
-            for i, clf in enumerate(self._estimators):
-                class_proba = clf.predict_proba(X)
-                y[:, i] = class_proba
-
-            # In honest, I don't understand which is better
-            # softmax or normalized sigmoid for calc probability.
-            if self.calc_prob == "sigmoid":
-                y = _sigmoid(y)
-                normalizer = np.sum(y, axis=1)[:, np.newaxis]
-                normalizer[normalizer == 0.0] = 1.0
-                y /= normalizer
-            else:
-                y = softmax(y)
-        return y
-
-    def predict(self, X):
-        """
-        Predict class for X.
-
-        The predicted class of an input sample is computed.
-
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The input samples.
-
-        Returns
-        -------
-        y : array of shape = [n_samples]
-            The predicted classes.
-        """
-        y = self.predict_proba(X)
-        y = np.argmax(y, axis=1)
-        return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y)]
 
 
 class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
@@ -844,7 +846,50 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             del self.__dict__["model"]
 
 
-class RGFRegressor(BaseEstimator, RegressorMixin):
+class _RGFRegressorBase(BaseEstimator, RegressorMixin):
+    @property
+    def n_features_(self):
+        """The number of features when `fit` is performed."""
+        if self._n_features is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._n_features
+
+    @property
+    def fitted_(self):
+        """Indicates whether `fit` is performed."""
+        if self._fitted is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._fitted
+
+    @property
+    def n_iter_(self):
+        """
+        Number of iterations of coordinate descent to optimize weights
+        used in model building process depending on the specified loss function.
+        """
+        if self._n_iter is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._n_iter
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if self._fitted:
+            with open(self._latest_model_loc, 'rb') as fr:
+                state["model"] = fr.read()
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        if self._fitted:
+            with open(self._latest_model_loc, 'wb') as fw:
+                fw.write(self.__dict__["model"])
+            del self.__dict__["model"]
+
+
+class RGFRegressor(_RGFRegressorBase):
     """
     A Regularized Greedy Forest [1] regressor.
 
@@ -987,22 +1032,6 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         self._latest_model_loc = None
 
     @property
-    def n_features_(self):
-        """The number of features when `fit` is performed."""
-        if self._n_features is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_features
-
-    @property
-    def fitted_(self):
-        """Indicates whether `fit` is performed."""
-        if self._fitted is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._fitted
-
-    @property
     def sl2_(self):
         """
         The concrete regularization value for the process of growing the forest
@@ -1023,17 +1052,6 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             raise NotFittedError(_NOT_FITTED_ERROR_DESC)
         else:
             return self._min_samples_leaf
-
-    @property
-    def n_iter_(self):
-        """
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-        """
-        if self._n_iter is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_iter
 
     def fit(self, X, y, sample_weight=None):
         """
@@ -1203,22 +1221,8 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
         y_pred = np.loadtxt(pred_loc)
         return y_pred
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        if self._fitted:
-            with open(self._latest_model_loc, 'rb') as fr:
-                state["model"] = fr.read()
-        return state
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        if self._fitted:
-            with open(self._latest_model_loc, 'wb') as fw:
-                fw.write(self.__dict__["model"])
-            del self.__dict__["model"]
-
-
-class FastRGFRegressor(BaseEstimator, RegressorMixin):
+class FastRGFRegressor(_RGFRegressorBase):
     """
     A Fast Regularized Greedy Forest regressor.
     This function is alpha version.
@@ -1253,33 +1257,6 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         self._fitted = None
         self._latest_model_loc = None
         self.model_file = None
-
-    @property
-    def n_features_(self):
-        """The number of features when `fit` is performed."""
-        if self._n_features is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_features
-
-    @property
-    def fitted_(self):
-        """Indicates whether `fit` is performed."""
-        if self._fitted is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._fitted
-
-    @property
-    def n_iter_(self):
-        """
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-        """
-        if self._n_iter is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_iter
 
     def fit(self, X, y):
         """
@@ -1419,20 +1396,6 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
         y_pred = np.loadtxt(pred_loc)
         return y_pred
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        if self._fitted:
-            with open(self._latest_model_loc, 'rb') as fr:
-                state["model"] = fr.read()
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        if self._fitted:
-            with open(self._latest_model_loc, 'wb') as fw:
-                fw.write(self.__dict__["model"])
-            del self.__dict__["model"]
-
 
 class FastRGFClassifier(BaseEstimator, RegressorMixin):
     """
@@ -1465,39 +1428,16 @@ class FastRGFClassifier(BaseEstimator, RegressorMixin):
         self.verbose = verbose
         self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
         _UUIDS.append(self._file_prefix)
-        self._n_features = None
         self._fitted = None
         self._latest_model_loc = None
         self.model_file = None
+        self._estimators = None
+        self._classes = None
+        self._n_classes = None
+        self._n_features = None
+        self._fitted = None
 
-    @property
-    def n_features_(self):
-        """The number of features when `fit` is performed."""
-        if self._n_features is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_features
-
-    @property
-    def fitted_(self):
-        """Indicates whether `fit` is performed."""
-        if self._fitted is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._fitted
-
-    @property
-    def n_iter_(self):
-        """
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-        """
-        if self._n_iter is None:
-            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_iter
-
-    def fit(self, X, y):
+    def fit(self, X, y, sample_weight=None):
         """
         Build a Fast RGF Classifier from the training set (X, y).
 
@@ -1507,7 +1447,7 @@ class FastRGFClassifier(BaseEstimator, RegressorMixin):
             The training input samples.
 
         y : array-like, shape = [n_samples]
-            The target values (real numbers in regression).
+            The target values (class labels in classification).
 
         sample_weight : array-like, shape = [n_samples] or None
             Individual weights for each sample.
@@ -1517,13 +1457,12 @@ class FastRGFClassifier(BaseEstimator, RegressorMixin):
         self : object
             Returns self.
         """
-        # _validate_params(**self.get_params())
 
-        X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
+        X, y = check_X_y(X, y, accept_sparse=True)
         n_samples, self._n_features = X.shape
 
         if self.n_iter is None:
-            if self.dtree_loss == "LS":
+            if self.loss == "LS":
                 self._n_iter = 10
             else:
                 self._n_iter = 5
@@ -1531,17 +1470,112 @@ class FastRGFClassifier(BaseEstimator, RegressorMixin):
             self._n_iter = self.n_iter
 
         check_consistent_length(X, y)
+        check_classification_targets(y)
 
+        self._classes = sorted(np.unique(y))
+        self._n_classes = len(self._classes)
+
+        params = dict(max_leaf=self.max_leaf,
+                      test_interval=self.test_interval,
+                      algorithm=self.algorithm,
+                      loss=self.loss,
+                      reg_depth=self.reg_depth,
+                      l2=self.l2,
+                      sl2=self._sl2,
+                      normalize=self.normalize,
+                      min_samples_leaf=self._min_samples_leaf,
+                      n_iter=self._n_iter,
+                      n_tree_search=self.n_tree_search,
+                      opt_interval=self.opt_interval,
+                      learning_rate=self.learning_rate,
+                      memory_policy=self.memory_policy,
+                      verbose=self.verbose)
+        if self._n_classes == 2:
+            self._classes_map[0] = self._classes[0]
+            self._classes_map[1] = self._classes[1]
+            self._estimators = [None]
+            y = (y == self._classes[0]).astype(int)
+            self._estimators[0] = _RGFBinaryClassifier(**params)
+            self._estimators[0].fit(X, y, sample_weight)
+        elif self._n_classes > 2:
+            if sp.isspmatrix_dok(X):
+                X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
+            self._estimators = [None] * self._n_classes
+            ovr_list = [None] * self._n_classes
+            for i, cls_num in enumerate(self._classes):
+                self._classes_map[i] = cls_num
+                ovr_list[i] = (y == cls_num).astype(int)
+                self._estimators[i] = _RGFBinaryClassifier(**params)
+            self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(_fit_ovr_binary)(self._estimators[i],
+                                                                                     X,
+                                                                                     ovr_list[i],
+                                                                                     sample_weight)
+                                                            for i in range(self._n_classes))
+        else:
+            raise ValueError("Classifier can't predict when only one class is present.")
+
+        self._fitted = True
+        return self
+
+
+class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
+    """
+    RGF Binary Classifier.
+    Don't instantiate this class directly.
+    RGFBinaryClassifier should be instantiated only by RGFClassifier.
+    """
+    def __init__(self,
+                 max_leaf=500,
+                 test_interval=100,
+                 algorithm="RGF",
+                 loss="Log",
+                 reg_depth=1.0,
+                 l2=0.1,
+                 sl2=None,
+                 normalize=False,
+                 min_samples_leaf=10,
+                 n_iter=None,
+                 n_tree_search=1,
+                 opt_interval=100,
+                 learning_rate=0.5,
+                 memory_policy="generous",
+                 verbose=0):
+        self.max_leaf = max_leaf
+        self.test_interval = test_interval
+        self.algorithm = algorithm
+        self.loss = loss
+        self.reg_depth = reg_depth
+        self.l2 = l2
+        self.sl2 = sl2
+        self.normalize = normalize
+        self.min_samples_leaf = min_samples_leaf
+        self.n_iter = n_iter
+        self.n_tree_search = n_tree_search
+        self.opt_interval = opt_interval
+        self.learning_rate = learning_rate
+        self.memory_policy = memory_policy
+        self.verbose = verbose
+        self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
+        _UUIDS.append(self._file_prefix)
+        self._fitted = None
+        self._latest_model_loc = None
+
+    def fit(self, X, y, sample_weight):
         train_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.x")
         train_y_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.y")
-        self.model_file = os.path.join(_TEMP_PATH, self._file_prefix + ".model")
+        train_weight_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.weight")
         if sp.isspmatrix(X):
             _sparse_savetxt(train_x_loc, X)
         else:
             np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
+
+        # Convert 1 to 1, 0 to -1
+        y = 2 * y - 1
         np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
+        np.savetxt(train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
 
         # Format train command
+
         cmd = []
         cmd.append(_FASTRGF_PATH + "/forest_train")
         cmd.append("forest.ntrees=%s" % self.forest_ntrees)
@@ -1569,49 +1603,28 @@ class FastRGFClassifier(BaseEstimator, RegressorMixin):
             for k in output:
                 print(k)
 
-        if not os.path.isfile(self.model_file):
-            raise Exception("Training is abnormally finished.")
-
         self._fitted = True
-
+        # Find latest model location
+        model_glob = os.path.join(_TEMP_PATH, self._file_prefix + ".model*")
+        model_files = glob(model_glob)
+        if not model_files:
+            raise Exception('Model learning result is not found in {0}. '
+                            'Training is abnormally finished.'.format(_TEMP_PATH))
+        self._latest_model_loc = sorted(model_files, reverse=True)[0]
         return self
 
     def predict_proba(self, X):
-        """
-        Predict classifier target for X.
-
-        The predicted classification target of an input sample is computed.
-
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The input samples.
-
-        Returns
-        -------
-        y : array of shape = [n_samples]
-            The predicted values.
-        """
         if self._fitted is None:
             raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-
-        X = check_array(X, accept_sparse=True)
-        n_features = X.shape[1]
-        if self._n_features != n_features:
-            raise ValueError("Number of features of the model must "
-                             "match the input. Model n_features is %s and "
-                             "input n_features is %s "
-                             % (self._n_features, n_features))
+        if not os.path.isfile(self._latest_model_loc):
+            raise Exception('Model learning result is not found in {0}. '
+                            'This is rgf_python error.'.format(_TEMP_PATH))
 
         test_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
             _sparse_savetxt(test_x_loc, X)
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
-
-        if not os.path.isfile(self.model_file):
-            raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(_TEMP_PATH))
 
         # Format test command
         pred_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".predictions.txt")
@@ -1620,7 +1633,7 @@ class FastRGFClassifier(BaseEstimator, RegressorMixin):
         cmd.append(_FASTRGF_PATH + "/forest_predict")
         cmd.append("model.load=%s" % self.model_file)
         cmd.append("tst.x-file=%s" % test_x_loc)
-        cmd.append("tst.target=MULTICLASS")
+        cmd.append("tst.target=REAL")
         cmd.append("tst.output-prediction=%s" % pred_loc)
 
         output = subprocess.Popen(cmd,
@@ -1631,28 +1644,7 @@ class FastRGFClassifier(BaseEstimator, RegressorMixin):
             for k in output:
                 print(k)
 
-        y_pred = np.loadtxt(pred_loc)
-        return y_pred
-
-    def predict(self, X):
-        """
-        Predict class for X.
-
-        The predicted class of an input sample is computed.
-
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The input samples.
-
-        Returns
-        -------
-        y : array of shape = [n_samples]
-            The predicted classes.
-        """
-        y = self.predict_proba(X)
-        y = np.argmax(y, axis=1)
-        return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y)]
+        return np.loadtxt(pred_loc)
 
     def __getstate__(self):
         state = self.__dict__.copy()

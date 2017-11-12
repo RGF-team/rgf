@@ -11,10 +11,10 @@ perm = rng.permutation(iris.target.size)
 iris.data = iris.data[perm]
 iris.target = iris.target[perm]
 
-train_x = iris.data[:300]
-test_x = iris.data[300:]
-train_y = iris.target[:300]
-test_y = iris.target[300:]
+train_x = iris.data[:100]
+test_x = iris.data[100:]
+train_y = iris.target[:100]
+test_y = iris.target[100:]
 
 # start = time.time()
 # clf = RGFClassifier()
@@ -25,7 +25,7 @@ test_y = iris.target[300:]
 # print("score: {}".format(score))
 
 start = time.time()
-clf = FastRGFClassifier()
+clf = FastRGFClassifier(verbose=True)
 clf.fit(iris.data, iris.target)
 score = clf.score(iris.data, iris.target)
 end = time.time()
