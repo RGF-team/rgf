@@ -991,6 +991,11 @@ class RGFRegressor(_RGFRegressorBase):
     [1] Rie Johnson and Tong Zhang,
         Learning Nonlinear Functions Using Regularized Greedy Forest.
     """
+    # TODO(fukatani): Doc
+    # TODO(fukatani): Test
+    # TODO(fukatani): Other parameter
+    # TODO(fukatani): Sparse
+    # TODO(fukatani): Sample weight
     def __init__(self,
                  max_leaf=500,
                  test_interval=100,
@@ -1397,10 +1402,142 @@ class FastRGFRegressor(_RGFRegressorBase):
         return y_pred
 
 
-class FastRGFClassifier(BaseEstimator, RegressorMixin):
+class FastRGFClassifier(_RGFClassifierBase, RegressorMixin):
     """
     A Fast Regularized Greedy Forest regressor.
     This function is alpha version.
+    """
+    # TODO(fukatani): Doc
+    # TODO(fukatani): Test
+    # TODO(fukatani): Other parameter
+    # TODO(fukatani): Sparse
+    # TODO(fukatani): Sample weight
+    def __init__(self,
+                 dtree_new_tree_gain_ratio=1.0,
+                 dtree_loss="LS",  # "MODLS" or "LOGISTIC" or "LS"
+                 dtree_lamL1=10,
+                 dtree_lamL2=1000,
+                 forest_ntrees=1000,
+                 discretize_dense_max_buckets=250,
+                 discretize_dense_lamL2=10,
+                 discretize_sparse_max_features=10,
+                 discretize_sparse_max_buckets=10,
+                 n_iter=None,
+                 calc_prob="sigmoid",
+                 verbose=0):
+        self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
+        self.dtree_loss = dtree_loss
+        self.dtree_lamL1 = dtree_lamL1
+        self.dtree_lamL2 = dtree_lamL2
+        self.forest_ntrees = forest_ntrees
+        self.discretize_dense_max_buckets = discretize_dense_max_buckets
+        self.discretize_dense_lamL2 = discretize_dense_lamL2
+        self.discretize_sparse_max_features = discretize_sparse_max_features
+        self.discretize_sparse_max_buckets = discretize_sparse_max_buckets
+
+        self.n_iter = n_iter
+        self.verbose = verbose
+        self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
+        _UUIDS.append(self._file_prefix)
+        self._fitted = None
+        self._latest_model_loc = None
+        self.model_file = None
+        self._estimators = None
+        self._classes = None
+        self._classes_map = {}
+        self._n_classes = None
+        self._n_features = None
+        self._fitted = None
+        self.calc_prob = calc_prob
+
+    def fit(self, X, y, sample_weight=None):
+        """
+        Build a Fast RGF Classifier from the training set (X, y).
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The training input samples.
+
+        y : array-like, shape = [n_samples]
+            The target values (class labels in classification).
+
+        sample_weight : array-like, shape = [n_samples] or None
+            Individual weights for each sample.
+
+        Returns
+        -------
+        self : object
+            Returns self.
+        """
+
+        X, y = check_X_y(X, y, accept_sparse=True)
+        n_samples, self._n_features = X.shape
+
+        if self.n_iter is None:
+            if self.dtree_loss == "LS":
+                self._n_iter = 10
+            else:
+                self._n_iter = 5
+        else:
+            self._n_iter = self.n_iter
+
+        check_consistent_length(X, y)
+        check_classification_targets(y)
+
+        self._classes = sorted(np.unique(y))
+        self._n_classes = len(self._classes)
+
+        params = dict(dtree_new_tree_gain_ratio=self.dtree_new_tree_gain_ratio,
+                      dtree_loss=self.dtree_loss,  # "MODLS" or "LOGISTIC" or "LS"
+                      dtree_lamL1=self.dtree_lamL1,
+                      dtree_lamL2=self.dtree_lamL2,
+                      forest_ntrees=self.forest_ntrees,
+                      discretize_dense_max_buckets=self.discretize_dense_max_buckets,
+                      discretize_dense_lamL2=self.discretize_dense_lamL2,
+                      discretize_sparse_max_features=self.discretize_sparse_max_features,
+                      discretize_sparse_max_buckets=self.discretize_sparse_max_buckets,
+                      n_iter=self.n_iter,
+                      verbose=self.verbose)
+
+        if sample_weight is None:
+            sample_weight = np.ones(n_samples, dtype=np.float32)
+        else:
+            sample_weight = column_or_1d(sample_weight, warn=True)
+            if (sample_weight <= 0).any():
+                raise ValueError("Sample weights must be positive.")
+
+        if self._n_classes == 2:
+            self._classes_map[0] = self._classes[0]
+            self._classes_map[1] = self._classes[1]
+            self._estimators = [None]
+            y = (y == self._classes[0]).astype(int)
+            self._estimators[0] = _FastRGFBinaryClassifier(**params)
+            self._estimators[0].fit(X, y, sample_weight)
+        elif self._n_classes > 2:
+            if sp.isspmatrix_dok(X):
+                X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
+            self._estimators = [None] * self._n_classes
+            ovr_list = [None] * self._n_classes
+            for i, cls_num in enumerate(self._classes):
+                self._classes_map[i] = cls_num
+                ovr_list[i] = (y == cls_num).astype(int)
+                self._estimators[i] = _FastRGFBinaryClassifier(**params)
+
+            self._estimators = [self._estimators[i].fit(X, ovr_list[i], sample_weight)
+                                for i in range(self._n_classes)]
+        else:
+            raise ValueError("Classifier can't predict when only one class is present.")
+
+        self._fitted = True
+        return self
+
+
+class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
+    """
+    Fast RGF Binary Classifier.
+    Don't instantiate this class directly.
+    This class should be instantiated only by FastRGFClassifier.
     """
     def __init__(self,
                  dtree_new_tree_gain_ratio=1.0,
@@ -1429,141 +1566,17 @@ class FastRGFClassifier(BaseEstimator, RegressorMixin):
         self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
         _UUIDS.append(self._file_prefix)
         self._fitted = None
-        self._latest_model_loc = None
         self.model_file = None
         self._estimators = None
         self._classes = None
         self._n_classes = None
         self._n_features = None
-        self._fitted = None
-
-    def fit(self, X, y, sample_weight=None):
-        """
-        Build a Fast RGF Classifier from the training set (X, y).
-
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The training input samples.
-
-        y : array-like, shape = [n_samples]
-            The target values (class labels in classification).
-
-        sample_weight : array-like, shape = [n_samples] or None
-            Individual weights for each sample.
-
-        Returns
-        -------
-        self : object
-            Returns self.
-        """
-
-        X, y = check_X_y(X, y, accept_sparse=True)
-        n_samples, self._n_features = X.shape
-
-        if self.n_iter is None:
-            if self.loss == "LS":
-                self._n_iter = 10
-            else:
-                self._n_iter = 5
-        else:
-            self._n_iter = self.n_iter
-
-        check_consistent_length(X, y)
-        check_classification_targets(y)
-
-        self._classes = sorted(np.unique(y))
-        self._n_classes = len(self._classes)
-
-        params = dict(max_leaf=self.max_leaf,
-                      test_interval=self.test_interval,
-                      algorithm=self.algorithm,
-                      loss=self.loss,
-                      reg_depth=self.reg_depth,
-                      l2=self.l2,
-                      sl2=self._sl2,
-                      normalize=self.normalize,
-                      min_samples_leaf=self._min_samples_leaf,
-                      n_iter=self._n_iter,
-                      n_tree_search=self.n_tree_search,
-                      opt_interval=self.opt_interval,
-                      learning_rate=self.learning_rate,
-                      memory_policy=self.memory_policy,
-                      verbose=self.verbose)
-        if self._n_classes == 2:
-            self._classes_map[0] = self._classes[0]
-            self._classes_map[1] = self._classes[1]
-            self._estimators = [None]
-            y = (y == self._classes[0]).astype(int)
-            self._estimators[0] = _RGFBinaryClassifier(**params)
-            self._estimators[0].fit(X, y, sample_weight)
-        elif self._n_classes > 2:
-            if sp.isspmatrix_dok(X):
-                X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
-            self._estimators = [None] * self._n_classes
-            ovr_list = [None] * self._n_classes
-            for i, cls_num in enumerate(self._classes):
-                self._classes_map[i] = cls_num
-                ovr_list[i] = (y == cls_num).astype(int)
-                self._estimators[i] = _RGFBinaryClassifier(**params)
-            self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(_fit_ovr_binary)(self._estimators[i],
-                                                                                     X,
-                                                                                     ovr_list[i],
-                                                                                     sample_weight)
-                                                            for i in range(self._n_classes))
-        else:
-            raise ValueError("Classifier can't predict when only one class is present.")
-
-        self._fitted = True
-        return self
-
-
-class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
-    """
-    RGF Binary Classifier.
-    Don't instantiate this class directly.
-    RGFBinaryClassifier should be instantiated only by RGFClassifier.
-    """
-    def __init__(self,
-                 max_leaf=500,
-                 test_interval=100,
-                 algorithm="RGF",
-                 loss="Log",
-                 reg_depth=1.0,
-                 l2=0.1,
-                 sl2=None,
-                 normalize=False,
-                 min_samples_leaf=10,
-                 n_iter=None,
-                 n_tree_search=1,
-                 opt_interval=100,
-                 learning_rate=0.5,
-                 memory_policy="generous",
-                 verbose=0):
-        self.max_leaf = max_leaf
-        self.test_interval = test_interval
-        self.algorithm = algorithm
-        self.loss = loss
-        self.reg_depth = reg_depth
-        self.l2 = l2
-        self.sl2 = sl2
-        self.normalize = normalize
-        self.min_samples_leaf = min_samples_leaf
-        self.n_iter = n_iter
-        self.n_tree_search = n_tree_search
-        self.opt_interval = opt_interval
-        self.learning_rate = learning_rate
-        self.memory_policy = memory_policy
-        self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
-        _UUIDS.append(self._file_prefix)
-        self._fitted = None
-        self._latest_model_loc = None
 
     def fit(self, X, y, sample_weight):
         train_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.x")
         train_y_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.y")
         train_weight_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.weight")
+        self.model_file = os.path.join(_TEMP_PATH, self._file_prefix + ".model")
         if sp.isspmatrix(X):
             _sparse_savetxt(train_x_loc, X)
         else:
@@ -1589,7 +1602,7 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         cmd.append("dtree.lamL2=%s" % self.dtree_lamL2)
         cmd.append("trn.x-file=%s" % train_x_loc)
         cmd.append("trn.y-file=%s" % train_y_loc)
-        cmd.append("trn.target=MULTICLASS")
+        cmd.append("trn.target=BINARY")
         cmd.append("set.verbose=%s" % self.verbose)
         cmd.append("model.save=%s" % self.model_file)
 
@@ -1604,19 +1617,15 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                 print(k)
 
         self._fitted = True
-        # Find latest model location
-        model_glob = os.path.join(_TEMP_PATH, self._file_prefix + ".model*")
-        model_files = glob(model_glob)
-        if not model_files:
+        if not self.model_file:
             raise Exception('Model learning result is not found in {0}. '
                             'Training is abnormally finished.'.format(_TEMP_PATH))
-        self._latest_model_loc = sorted(model_files, reverse=True)[0]
         return self
 
     def predict_proba(self, X):
         if self._fitted is None:
             raise NotFittedError(_NOT_FITTED_ERROR_DESC)
-        if not os.path.isfile(self._latest_model_loc):
+        if not os.path.isfile(self.model_file):
             raise Exception('Model learning result is not found in {0}. '
                             'This is rgf_python error.'.format(_TEMP_PATH))
 
