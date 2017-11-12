@@ -11,11 +11,6 @@ perm = rng.permutation(iris.target.size)
 iris.data = iris.data[perm]
 iris.target = iris.target[perm]
 
-train_x = iris.data[:100]
-test_x = iris.data[100:]
-train_y = iris.target[:100]
-test_y = iris.target[100:]
-
 start = time.time()
 clf = RGFClassifier()
 clf.fit(iris.data, iris.target)
