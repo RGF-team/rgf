@@ -1432,3 +1432,238 @@ class FastRGFRegressor(BaseEstimator, RegressorMixin):
             with open(self._latest_model_loc, 'wb') as fw:
                 fw.write(self.__dict__["model"])
             del self.__dict__["model"]
+
+
+class FastRGFClassifier(BaseEstimator, RegressorMixin):
+    """
+    A Fast Regularized Greedy Forest regressor.
+    This function is alpha version.
+    """
+    def __init__(self,
+                 dtree_new_tree_gain_ratio=1.0,
+                 dtree_loss="LS",  # "MODLS" or "LOGISTIC" or "LS"
+                 dtree_lamL1=10,
+                 dtree_lamL2=1000,
+                 forest_ntrees=1000,
+                 discretize_dense_max_buckets=250,
+                 discretize_dense_lamL2=10,
+                 discretize_sparse_max_features=10,
+                 discretize_sparse_max_buckets=10,
+                 n_iter=None,
+                 verbose=0):
+        self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
+        self.dtree_loss = dtree_loss
+        self.dtree_lamL1 = dtree_lamL1
+        self.dtree_lamL2 = dtree_lamL2
+        self.forest_ntrees = forest_ntrees
+        self.discretize_dense_max_buckets = discretize_dense_max_buckets
+        self.discretize_dense_lamL2 = discretize_dense_lamL2
+        self.discretize_sparse_max_features = discretize_sparse_max_features
+        self.discretize_sparse_max_buckets = discretize_sparse_max_buckets
+
+        self.n_iter = n_iter
+        self.verbose = verbose
+        self._file_prefix = str(uuid4()) + str(_COUNTER.increment())
+        _UUIDS.append(self._file_prefix)
+        self._n_features = None
+        self._fitted = None
+        self._latest_model_loc = None
+        self.model_file = None
+
+    @property
+    def n_features_(self):
+        """The number of features when `fit` is performed."""
+        if self._n_features is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._n_features
+
+    @property
+    def fitted_(self):
+        """Indicates whether `fit` is performed."""
+        if self._fitted is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._fitted
+
+    @property
+    def n_iter_(self):
+        """
+        Number of iterations of coordinate descent to optimize weights
+        used in model building process depending on the specified loss function.
+        """
+        if self._n_iter is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+        else:
+            return self._n_iter
+
+    def fit(self, X, y):
+        """
+        Build a Fast RGF Classifier from the training set (X, y).
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The training input samples.
+
+        y : array-like, shape = [n_samples]
+            The target values (real numbers in regression).
+
+        sample_weight : array-like, shape = [n_samples] or None
+            Individual weights for each sample.
+
+        Returns
+        -------
+        self : object
+            Returns self.
+        """
+        # _validate_params(**self.get_params())
+
+        X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
+        n_samples, self._n_features = X.shape
+
+        if self.n_iter is None:
+            if self.dtree_loss == "LS":
+                self._n_iter = 10
+            else:
+                self._n_iter = 5
+        else:
+            self._n_iter = self.n_iter
+
+        check_consistent_length(X, y)
+
+        train_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.x")
+        train_y_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".train.data.y")
+        self.model_file = os.path.join(_TEMP_PATH, self._file_prefix + ".model")
+        if sp.isspmatrix(X):
+            _sparse_savetxt(train_x_loc, X)
+        else:
+            np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
+        np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
+
+        # Format train command
+        cmd = []
+        cmd.append(_FASTRGF_PATH + "/forest_train")
+        cmd.append("forest.ntrees=%s" % self.forest_ntrees)
+        cmd.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
+        cmd.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
+        cmd.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
+        cmd.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
+        cmd.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
+        cmd.append("dtree.loss=%s" % self.dtree_loss)
+        cmd.append("dtree.lamL1=%s" % self.dtree_lamL1)
+        cmd.append("dtree.lamL2=%s" % self.dtree_lamL2)
+        cmd.append("trn.x-file=%s" % train_x_loc)
+        cmd.append("trn.y-file=%s" % train_y_loc)
+        cmd.append("trn.target=MULTICLASS")
+        cmd.append("set.verbose=%s" % self.verbose)
+        cmd.append("model.save=%s" % self.model_file)
+
+        # Train
+        output = subprocess.Popen(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
+
+        if self.verbose:
+            for k in output:
+                print(k)
+
+        if not os.path.isfile(self.model_file):
+            raise Exception("Training is abnormally finished.")
+
+        self._fitted = True
+
+        return self
+
+    def predict_proba(self, X):
+        """
+        Predict classifier target for X.
+
+        The predicted classification target of an input sample is computed.
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The input samples.
+
+        Returns
+        -------
+        y : array of shape = [n_samples]
+            The predicted values.
+        """
+        if self._fitted is None:
+            raise NotFittedError(_NOT_FITTED_ERROR_DESC)
+
+        X = check_array(X, accept_sparse=True)
+        n_features = X.shape[1]
+        if self._n_features != n_features:
+            raise ValueError("Number of features of the model must "
+                             "match the input. Model n_features is %s and "
+                             "input n_features is %s "
+                             % (self._n_features, n_features))
+
+        test_x_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".test.data.x")
+        if sp.isspmatrix(X):
+            _sparse_savetxt(test_x_loc, X)
+        else:
+            np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
+
+        if not os.path.isfile(self.model_file):
+            raise Exception('Model learning result is not found in {0}. '
+                            'This is rgf_python error.'.format(_TEMP_PATH))
+
+        # Format test command
+        pred_loc = os.path.join(_TEMP_PATH, self._file_prefix + ".predictions.txt")
+
+        cmd = []
+        cmd.append(_FASTRGF_PATH + "/forest_predict")
+        cmd.append("model.load=%s" % self.model_file)
+        cmd.append("tst.x-file=%s" % test_x_loc)
+        cmd.append("tst.target=MULTICLASS")
+        cmd.append("tst.output-prediction=%s" % pred_loc)
+
+        output = subprocess.Popen(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT).communicate()
+
+        if self.verbose:
+            for k in output:
+                print(k)
+
+        y_pred = np.loadtxt(pred_loc)
+        return y_pred
+
+    def predict(self, X):
+        """
+        Predict class for X.
+
+        The predicted class of an input sample is computed.
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The input samples.
+
+        Returns
+        -------
+        y : array of shape = [n_samples]
+            The predicted classes.
+        """
+        y = self.predict_proba(X)
+        y = np.argmax(y, axis=1)
+        return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y)]
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if self._fitted:
+            with open(self._latest_model_loc, 'rb') as fr:
+                state["model"] = fr.read()
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        if self._fitted:
+            with open(self._latest_model_loc, 'wb') as fw:
+                fw.write(self.__dict__["model"])
+            del self.__dict__["model"]
