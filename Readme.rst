@@ -209,9 +209,10 @@ FAQ
 - rgf_python raised error while fitting or predicting.
 
 First, please try test and confirm install successfully.
-```
-python rgf/test/test.py
-```
+
+::
+    python rgf/test/test.py
+
 
 If you succeeded test, these pages may help you.
 
