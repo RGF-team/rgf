@@ -715,7 +715,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                 n_removed_files += _cleanup_partial(est._file_prefix, remove_from_list=True)
 
         # No more able to predict without refitting.
-        self._fitted = False
+        self._fitted = None
         return n_removed_files
 
 
@@ -1254,5 +1254,5 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             Returns the number of removed files.
         """
         # No more able to predict without refitting.
-        self._fitted = False
+        self._fitted = None
         return _cleanup_partial(self._file_prefix, remove_from_list=True)
