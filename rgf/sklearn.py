@@ -874,20 +874,6 @@ class _RGFRegressorBase(BaseEstimator, RegressorMixin):
         else:
             return self._n_iter
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        if self._fitted:
-            with open(self._latest_model_loc, 'rb') as fr:
-                state["model"] = fr.read()
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        if self._fitted:
-            with open(self._latest_model_loc, 'wb') as fw:
-                fw.write(self.__dict__["model"])
-            del self.__dict__["model"]
-
 
 class RGFRegressor(_RGFRegressorBase):
     """
@@ -1226,6 +1212,20 @@ class RGFRegressor(_RGFRegressorBase):
         y_pred = np.loadtxt(pred_loc)
         return y_pred
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if self._fitted:
+            with open(self._latest_model_loc, 'rb') as fr:
+                state["model"] = fr.read()
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        if self._fitted:
+            with open(self._latest_model_loc, 'wb') as fw:
+                fw.write(self.__dict__["model"])
+            del self.__dict__["model"]
+
 
 class FastRGFRegressor(_RGFRegressorBase):
     """
@@ -1400,6 +1400,20 @@ class FastRGFRegressor(_RGFRegressorBase):
 
         y_pred = np.loadtxt(pred_loc)
         return y_pred
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if self._fitted:
+            with open(self.model_file, 'rb') as fr:
+                state["model"] = fr.read()
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        if self._fitted:
+            with open(self.model_file, 'wb') as fw:
+                fw.write(self.__dict__["model"])
+            del self.__dict__["model"]
 
 
 class FastRGFClassifier(_RGFClassifierBase, RegressorMixin):
@@ -1658,13 +1672,13 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
     def __getstate__(self):
         state = self.__dict__.copy()
         if self._fitted:
-            with open(self._latest_model_loc, 'rb') as fr:
+            with open(self.model_file, 'rb') as fr:
                 state["model"] = fr.read()
         return state
 
     def __setstate__(self, state):
         self.__dict__.update(state)
         if self._fitted:
-            with open(self._latest_model_loc, 'wb') as fw:
+            with open(self.model_file, 'wb') as fw:
                 fw.write(self.__dict__["model"])
             del self.__dict__["model"]
