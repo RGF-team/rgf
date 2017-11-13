@@ -250,7 +250,8 @@ class TestRGFClassfier(unittest.TestCase):
         clf2 = RGFClassifier()
         clf2.fit(self.X_train, self.y_train)
 
-        clf1.cleanup()
+        self.assertNotEqual(clf1.cleanup(), 0)
+        self.assertEqual(clf1.cleanup(), 0)
 
         for est in clf1.estimators_:
             glob_file = os.path.join(_get_temp_path(), est._file_prefix + "*")
@@ -433,7 +434,8 @@ class TestRGFRegressor(unittest.TestCase):
         reg2 = RGFRegressor()
         reg2.fit(self.X_train, self.y_train)
 
-        reg1.cleanup()
+        self.assertNotEqual(reg1.cleanup(), 0)
+        self.assertEqual(reg1.cleanup(), 0)
 
         glob_file = os.path.join(_get_temp_path(), reg1._file_prefix + "*")
         self.assertFalse(glob.glob(glob_file))
