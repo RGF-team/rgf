@@ -128,6 +128,22 @@ def _cleanup():
                 os.remove(fn)
 
 
+def _cleanup_partial(uuid):
+    if uuid not in _UUIDS:
+        return
+    model_glob = os.path.join(_TEMP_PATH, uuid + "*")
+    for fn in glob(model_glob):
+        os.remove(fn)
+    _UUIDS.remove(uuid)
+
+
+def _get_temp_path():
+    """
+    For test
+    """
+    return _TEMP_PATH
+
+
 def _sigmoid(x):
     return 1.0 / (1.0 + np.exp(-x))
 
@@ -683,6 +699,17 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         y = np.argmax(y, axis=1)
         return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y)]
 
+    def cleanup(self):
+        """
+        Clean tempfile used by this model.
+        """
+        if self._estimators is not None:
+            for est in self._estimators:
+                _cleanup_partial(est._file_prefix)
+
+        # No more able to predict without refitting.
+        self._fitted = False
+
 
 class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
     """
@@ -1208,3 +1235,9 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
             with open(self._latest_model_loc, 'wb') as fw:
                 fw.write(self.__dict__["model"])
             del self.__dict__["model"]
+
+    def cleanup(self):
+        """
+        Clean tempfile used by this model.
+        """
+        _cleanup_partial(self._file_prefix)

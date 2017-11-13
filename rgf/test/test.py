@@ -1,3 +1,5 @@
+import glob
+import os
 import pickle
 import unittest
 
@@ -11,7 +13,7 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_random_state
 
-from rgf.sklearn import RGFClassifier, RGFRegressor, _cleanup
+from rgf.sklearn import RGFClassifier, RGFRegressor, _cleanup, _get_temp_path
 
 
 class TestRGFClassfier(unittest.TestCase):
@@ -241,6 +243,15 @@ class TestRGFClassfier(unittest.TestCase):
 
         np.testing.assert_allclose(y_pred1, y_pred2)
 
+    def test_cleanup(self):
+        clf = RGFClassifier()
+        clf.fit(self.X_train, self.y_train)
+        clf.cleanup()
+
+        for est in clf.estimators_:
+            glob_file = os.path.join(_get_temp_path(), est._file_prefix + "*")
+            self.assertFalse(glob.glob(glob_file))
+
 
 class TestRGFRegressor(unittest.TestCase):
     def setUp(self):
@@ -407,6 +418,14 @@ class TestRGFRegressor(unittest.TestCase):
         y_pred2 = reg2.predict(self.X_test)
 
         np.testing.assert_allclose(y_pred1, y_pred2)
+
+    def test_cleanup(self):
+        reg = RGFRegressor()
+        reg.fit(self.X_train, self.y_train)
+        reg.cleanup()
+
+        glob_file = os.path.join(_get_temp_path(), reg._file_prefix + "*")
+        self.assertFalse(glob.glob(glob_file))
 
 
 if __name__ == '__main__':
