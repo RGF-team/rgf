@@ -244,13 +244,20 @@ class TestRGFClassfier(unittest.TestCase):
         np.testing.assert_allclose(y_pred1, y_pred2)
 
     def test_cleanup(self):
-        clf = RGFClassifier()
-        clf.fit(self.X_train, self.y_train)
-        clf.cleanup()
+        clf1 = RGFClassifier()
+        clf1.fit(self.X_train, self.y_train)
 
-        for est in clf.estimators_:
+        clf2 = RGFClassifier()
+        clf2.fit(self.X_train, self.y_train)
+
+        clf1.cleanup()
+
+        for est in clf1.estimators_:
             glob_file = os.path.join(_get_temp_path(), est._file_prefix + "*")
             self.assertFalse(glob.glob(glob_file))
+
+        self.assertRaises(NotFittedError, clf1.predict, self.X_test)
+        clf2.predict(self.X_test)
 
 
 class TestRGFRegressor(unittest.TestCase):
@@ -420,12 +427,19 @@ class TestRGFRegressor(unittest.TestCase):
         np.testing.assert_allclose(y_pred1, y_pred2)
 
     def test_cleanup(self):
-        reg = RGFRegressor()
-        reg.fit(self.X_train, self.y_train)
-        reg.cleanup()
+        reg1 = RGFRegressor()
+        reg1.fit(self.X_train, self.y_train)
 
-        glob_file = os.path.join(_get_temp_path(), reg._file_prefix + "*")
+        reg2 = RGFRegressor()
+        reg2.fit(self.X_train, self.y_train)
+
+        reg1.cleanup()
+
+        glob_file = os.path.join(_get_temp_path(), reg1._file_prefix + "*")
         self.assertFalse(glob.glob(glob_file))
+
+        self.assertRaises(NotFittedError, reg1.predict, self.X_test)
+        reg2.predict(self.X_test)
 
 
 if __name__ == '__main__':
