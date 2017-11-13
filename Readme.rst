@@ -211,6 +211,7 @@ FAQ
 First, please try test and confirm install successfully.
 
 ::
+
     python rgf/test/test.py
 
 
