@@ -37,7 +37,7 @@ install:
   - pip install dist/rgf_python-$RGF_VER.tar.gz -v
 
 script:
-  - python test/test.py
+  - python tests/test.py
   - pip uninstall -y rgf_python
   - python setup.py install
-  - python test/test.py
+  - python tests/test.py
