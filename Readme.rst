@@ -222,7 +222,7 @@ If you succeeded test, these pages may help you:
 
 If you can't solve problem, feel free to report as issue.
 
-In your issue, please report your envirionment (OS, Python version and rgf_python version) and whether test is passed or not.
+In your issue, please report your environment (OS, Python version and rgf_python version) and whether test is passed or not.
 
 License
 -------
