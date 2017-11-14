@@ -212,13 +212,13 @@ First, please try test and confirm install successfully.
 
 ::
 
-    python rgf/test/test.py
+    python tests/test.py
 
 
-If you succeeded test, these pages may help you.
+If you succeeded test, these pages may help you:
 
 1. https://github.com/fukatani/rgf_python/issues/13 (Datasets including string)
-2. https://github.com/fukatani/rgf_python/issues/75 (Temp file capacity is over in kaggle kernel )
+2. https://github.com/fukatani/rgf_python/issues/75 (Temp file capacity is over in kaggle kernel)
 
 If you can't solve problem, feel free to report as issue.
 
