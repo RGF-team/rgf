@@ -123,18 +123,19 @@ else:
 def _cleanup():
     if _UUIDS is not None:
         for uuid in _UUIDS:
-            model_glob = os.path.join(_TEMP_PATH, uuid + "*")
-            for fn in glob(model_glob):
-                os.remove(fn)
+            _cleanup_partial(uuid)
 
 
-def _cleanup_partial(uuid):
-    if uuid not in _UUIDS:
-        return
-    model_glob = os.path.join(_TEMP_PATH, uuid + "*")
-    for fn in glob(model_glob):
-        os.remove(fn)
-    _UUIDS.remove(uuid)
+def _cleanup_partial(uuid, remove_from_list=False):
+    n_removed_files = 0
+    if uuid in _UUIDS:
+        model_glob = os.path.join(_TEMP_PATH, uuid + "*")
+        for fn in glob(model_glob):
+            os.remove(fn)
+            n_removed_files += 1
+        if remove_from_list:
+            _UUIDS.remove(uuid)
+    return n_removed_files
 
 
 def _get_temp_path():
@@ -701,14 +702,21 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
     def cleanup(self):
         """
-        Clean tempfile used by this model.
+        Remove tempfiles used by this model.
+
+        Returns
+        -------
+        n_removed_files : int
+            Returns the number of removed files.
         """
+        n_removed_files = 0
         if self._estimators is not None:
             for est in self._estimators:
-                _cleanup_partial(est._file_prefix)
+                n_removed_files += _cleanup_partial(est._file_prefix, remove_from_list=True)
 
         # No more able to predict without refitting.
-        self._fitted = False
+        self._fitted = None
+        return n_removed_files
 
 
 class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
@@ -1238,6 +1246,13 @@ class RGFRegressor(BaseEstimator, RegressorMixin):
 
     def cleanup(self):
         """
-        Clean tempfile used by this model.
+        Remove tempfiles used by this model.
+
+        Returns
+        -------
+        n_removed_files : int
+            Returns the number of removed files.
         """
-        _cleanup_partial(self._file_prefix)
+        # No more able to predict without refitting.
+        self._fitted = None
+        return _cleanup_partial(self._file_prefix, remove_from_list=True)

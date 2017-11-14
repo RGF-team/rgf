@@ -203,26 +203,19 @@ Using at Kaggle Kernel
 
 Now, Kaggle Kernel supports rgf\_python. Please see `this page <https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest>`__.
 
-FAQ
----
+Troubleshooting
+---------------
 
 - rgf_python raised error while fitting or predicting.
 
-First, please try test and confirm install successfully.
+First, please try to run `test.py <https://github.com/fukatani/rgf_python/blob/master/tests/test.py>`__ and confirm install successfully.
 
-::
-
-    python rgf/test/test.py
-
-
-If you succeeded test, these pages may help you.
+If you succeeded test, these pages may help you:
 
 1. https://github.com/fukatani/rgf_python/issues/13 (Datasets including string)
-2. https://github.com/fukatani/rgf_python/issues/75 (Temp file capacity is over in kaggle kernel )
+2. https://github.com/fukatani/rgf_python/issues/75 (Temp file capacity is over in kaggle kernel)
 
-If you can't solve problem, feel free to report as issue.
-
-In your issue, please report your envirionment (OS, Python version and rgf_python version) and whether test is passed or not.
+If you can't solve your problem, feel free to `open new issue <https://github.com/fukatani/rgf_python/issues/new>`__.
 
 License
 -------
