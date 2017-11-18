@@ -13,6 +13,7 @@ Features
 **Scikit-learn interface and possibility of usage for multiclass classification problem.**
 
 Original RGF implementation is available only for regression and binary classification, but rgf\_python is also available for **multiclass classification** by "One-vs-Rest" method.
+Alpha vergion Fast RGF is supported. Please see `here <https://github.com/fukatani/rgf_python/blob/fast-rgf/FastRGF.rst>`__
 
 Example:
 
@@ -210,7 +211,7 @@ rgf_python is distributed under the GNU General Public License v3 (GPLv3). Pleas
 
 rgf_python includes RGF version 1.2 which is distributed under the GPLv3. Original CLI implementation of RGF you can download at http://tongzhang-ml.org/software/rgf.
 
-We thank Rie Johnson and Tong Zhang (authors of RGF).
+Many thanks to Rie Johnson and Tong Zhang (the authors of RGF).
 
 Other
 -----
