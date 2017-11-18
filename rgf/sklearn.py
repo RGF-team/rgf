@@ -369,7 +369,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
 
     n_jobs : integer, optional (default=-1)
         The number of jobs to use for the computation.
-        The substantial number of the jobs is limited by classes_.
+        The substantial number of the jobs dependents on classes_.
         If classes_ = 2, the substantial max number of the jobs is one.
         If classes_ >= 3, the substantial max number of the jobs is the same as
         classes_.
@@ -617,8 +617,8 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
             self._estimators = [None]
             y = (y == self._classes[0]).astype(int)
             self._estimators[0] = _RGFBinaryClassifier(**params)
-            if self.n_jobs != 1:
-                print('n_jobs = {}, but RGFClassifier use one CPU because classes_ is one'.format(self.n_jobs))
+            if self.n_jobs != 1 and self.verbose:
+                print('n_jobs = {}, but RGFClassifier uses one CPU because classes_ is 2'.format(self.n_jobs))
             self._estimators[0].fit(X, y, sample_weight)
         elif self._n_classes > 2:
             if sp.isspmatrix_dok(X):
@@ -631,9 +631,9 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
                 self._estimators[i] = _RGFBinaryClassifier(**params)
 
             n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
-            substantial_njobs = n_jobs if n_jobs <= self.n_classes_ else self.n_classes_
-            if substantial_njobs < n_jobs:
-                print('n_jobs = {0}, but RGFClassifier use {1} CPUs because '
+            substantial_njobs = max(n_jobs, self.n_classes_)
+            if substantial_njobs < n_jobs  and self.verbose:
+                print('n_jobs = {0}, but RGFClassifier uses {1} CPUs because '
                       'classes_ is {2}'.format(n_jobs, substantial_njobs,
                                                self.n_classes_))
 
