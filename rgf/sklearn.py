@@ -371,7 +371,7 @@ class RGFClassifier(BaseEstimator, ClassifierMixin):
         The number of jobs to use for the computation.
         The substantial number of the jobs dependents on classes_.
         If classes_ = 2, the substantial max number of the jobs is one.
-        If classes_ >= 3, the substantial max number of the jobs is the same as
+        If classes_ > 2, the substantial max number of the jobs is the same as
         classes_.
         If n_jobs = 1, no parallel computing code is used at all regardless of
         classes_.
