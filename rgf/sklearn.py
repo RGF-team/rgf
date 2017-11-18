@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
-__all__ = ('RGFClassifier', 'RGFRegressor')
+__all__ = ('RGFClassifier', 'RGFRegressor',
+           'FastRGFClassifier', 'FastRGFRegressor')
 
 from glob import glob
 from math import ceil
@@ -142,6 +143,10 @@ else:
                     "'PATH' variable.".format(_EXE_PATH, _DEFAULT_EXE_PATH))
 
 _FASTRGF_AVAILABLE = _is_fastrgf_executable(_FASTRGF_PATH)
+
+
+def fastrgf_available():
+    return _FASTRGF_AVAILABLE
 
 
 @atexit.register
