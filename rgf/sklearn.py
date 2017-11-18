@@ -1249,18 +1249,49 @@ class RGFRegressor(_RGFRegressorBase):
 class FastRGFRegressor(_RGFRegressorBase):
     """
     A Fast Regularized Greedy Forest regressor by Tong Zhang.
+    See https://github.com/baidu/fast_rgf
+
     This function is alpha version.
+    The part of the function may be not tested, not documented and not
+    unstabled. API can be changed in the future.
+
+    Parameters
+    ----------
+    dtree_new_tree_gain_ratio : float, optional (default=1.0)
+        new tree is created when leaf-nodes gain < this value * estimated gain
+        of creating new three.
+
+    loss : string ("LS" or "MODLS" or "LOGISTIC"), optional (default="LS")
+
+    dtree_lamL1 : float, optional (default=1.0) L1 regularization parameter.
+
+    dtree_lamL2 : float, optional (default=1000.0) L2 regularization parameter.
+
+    forest_ntrees : int, optional (default=500) number of trees.
+
+    discretize_dense_max_buckets : int, optional (default=200)
+        maximum number of discretized values.
+
+    discretize_dense_lamL2 : float, optional (default=2.0)
+        L2 regularization parameter for discretization.
+
+    discretize_sparse_max_features : int, optional (default=80000)
+        maximum number of selected features.
+
+    discretize_sparse_max_buckets : int, optional (default=200)
+        maximum number of discretized values.
+
     """
     def __init__(self,
                  dtree_new_tree_gain_ratio=1.0,
                  dtree_loss="LS",
-                 dtree_lamL1=10,
+                 dtree_lamL1=1,
                  dtree_lamL2=1000,
-                 forest_ntrees=1000,
-                 discretize_dense_max_buckets=250,
+                 forest_ntrees=500,
+                 discretize_dense_max_buckets=65000,
                  discretize_dense_lamL2=10,
-                 discretize_sparse_max_features=10,
-                 discretize_sparse_max_buckets=10,
+                 discretize_sparse_max_features=80000,
+                 discretize_sparse_max_buckets=200,
                  n_iter=None,
                  verbose=0):
         if not _FASTRGF_AVAILABLE:
@@ -1441,13 +1472,43 @@ class FastRGFRegressor(_RGFRegressorBase):
 
 class FastRGFClassifier(_RGFClassifierBase, RegressorMixin):
     """
-    A Fast Regularized Greedy Forest regressor.
+    A Fast Regularized Greedy Forest classifier by Tong Zhang.
+    See https://github.com/baidu/fast_rgf
+
     This function is alpha version.
+    The part of the function may be not tested, not documented and not
+    unstabled. API can be changed in the future.
+
+    Parameters
+    ----------
+    dtree_new_tree_gain_ratio : float, optional (default=1.0)
+        new tree is created when leaf-nodes gain < this value * estimated gain
+        of creating new three.
+
+    loss : string ("LS" or "MODLS" or "LOGISTIC"), optional (default="LS")
+
+    dtree_lamL1 : float, optional (default=1.0) L1 regularization parameter.
+
+    dtree_lamL2 : float, optional (default=1000.0) L2 regularization parameter.
+
+    forest_ntrees : int, optional (default=500) number of trees.
+
+    discretize_dense_max_buckets : int, optional (default=200)
+        maximum number of discretized values.
+
+    discretize_dense_lamL2 : float, optional (default=2.0)
+        L2 regularization parameter for discretization.
+
+    discretize_sparse_max_features : int, optional (default=80000)
+        maximum number of selected features.
+
+    discretize_sparse_max_buckets : int, optional (default=200)
+        maximum number of discretized values.
+
     """
-    # TODO(fukatani): Doc
     # TODO(fukatani): Test
     # TODO(fukatani): Other parameter
-    # TODO(fukatani): Sparse
+    # TODO(fukatani): Sparse input
     # TODO(fukatani): Sample weight
     def __init__(self,
                  dtree_new_tree_gain_ratio=1.0,
