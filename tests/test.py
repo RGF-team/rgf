@@ -1,3 +1,5 @@
+import glob
+import os
 import pickle
 import unittest
 
@@ -11,7 +13,7 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_random_state
 
-from rgf.sklearn import RGFClassifier, RGFRegressor, _cleanup
+from rgf.sklearn import RGFClassifier, RGFRegressor, _cleanup, _get_temp_path
 from rgf.sklearn import FastRGFClassifier, FastRGFRegressor, fastrgf_available
 
 
@@ -66,7 +68,6 @@ class _TestRGFClassfierBase(unittest.TestCase):
 
     def test_string_y(self):
         clf = self.classifier_class()
-
         y_str = np.array(self.iris.target, dtype=str)
         y_str[y_str == '0'] = 'Zero'
         y_str[y_str == '1'] = 'One'
@@ -79,7 +80,6 @@ class _TestRGFClassfierBase(unittest.TestCase):
 
     def test_bin_string_y(self):
         clf = self.classifier_class()
-
         y_str = np.array(self.iris.target, dtype=str)
         y_str[y_str == '0'] = 'Zero'
         y_str[y_str == '1'] = 'One'
@@ -93,14 +93,12 @@ class _TestRGFClassfierBase(unittest.TestCase):
         score = accuracy_score(y_str, y_pred)
         self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
 
-    def test_sklearn_integration(self):
-        # TODO(fukatani): FastRGF bug?
-        # FastRGF doesn't work if the number of sample is too small.
-        # check_estimator(self.classifier_class)
-        pass
-
     def test_classifier_sparse_input(self):
         clf = self.classifier_class(calc_prob='softmax')
+        check_estimator(RGFClassifier)
+
+    def test_classifier_sparse_input(self):
+        clf = RGFClassifier(calc_prob='softmax')
         for sparse_format in (sparse.bsr_matrix, sparse.coo_matrix, sparse.csc_matrix,
                               sparse.csr_matrix, sparse.dia_matrix, sparse.dok_matrix, sparse.lil_matrix):
             iris_sparse = sparse_format(self.iris.data)
@@ -110,7 +108,6 @@ class _TestRGFClassfierBase(unittest.TestCase):
 
     def test_sample_weight(self):
         clf = self.classifier_class()
-
         y_pred = clf.fit(self.X_train, self.y_train).predict_proba(self.X_test)
         y_pred_weighted = clf.fit(self.X_train,
                                   self.y_train,
@@ -125,7 +122,6 @@ class _TestRGFClassfierBase(unittest.TestCase):
 
     def test_params(self):
         clf = self.classifier_class()
-
         valid_params = dict(max_leaf=300,
                             test_interval=100,
                             algorithm='RGF_Sib',
@@ -246,6 +242,23 @@ class _TestRGFClassfierBase(unittest.TestCase):
 
         np.testing.assert_allclose(y_pred1, y_pred2)
 
+    def test_cleanup(self):
+        clf1 = self.classifier_class()
+        clf1.fit(self.X_train, self.y_train)
+
+        clf2 = self.classifier_class()
+        clf2.fit(self.X_train, self.y_train)
+
+        self.assertNotEqual(clf1.cleanup(), 0)
+        self.assertEqual(clf1.cleanup(), 0)
+
+        for est in clf1.estimators_:
+            glob_file = os.path.join(_get_temp_path(), est._file_prefix + "*")
+            self.assertFalse(glob.glob(glob_file))
+
+        self.assertRaises(NotFittedError, clf1.predict, self.X_test)
+        clf2.predict(self.X_test)
+
 
 class TestRGFClassfier(_TestRGFClassfierBase):
     def setUp(self):
@@ -306,8 +319,32 @@ class TestFastRGFClassfier(_TestRGFClassfierBase):
         score = accuracy_score(self.y_train, y_pred)
         self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
 
+    def test_sklearn_integration(self):
+        # TODO(fukatani): FastRGF bug?
+        # FastRGF doesn't work if the number of sample is too small.
+        # check_estimator(self.classifier_class)
+        pass
+
+
 
 class _TestRGFRegressorBase(unittest.TestCase):
+    def test_cleanup(self):
+        clf1 = self.regressor_class()
+        clf1.fit(self.X_train, self.y_train)
+
+        clf2 = self.regressor_class()
+        clf2.fit(self.X_train, self.y_train)
+
+        self.assertNotEqual(clf1.cleanup(), 0)
+        self.assertEqual(clf1.cleanup(), 0)
+
+        for est in clf1.estimators_:
+            glob_file = os.path.join(_get_temp_path(), est._file_prefix + "*")
+            self.assertFalse(glob.glob(glob_file))
+
+        self.assertRaises(NotFittedError, clf1.predict, self.X_test)
+        clf2.predict(self.X_test)
+
     def test_regressor(self):
         reg = self.regressor_class()
         reg.fit(self.X_train, self.y_train)
@@ -429,7 +466,23 @@ class _TestRGFRegressorBase(unittest.TestCase):
                           np.ones((n_samples, 2)))
 
     def test_parallel_gridsearch(self):
-        pass
+        param_grid = dict(max_leaf=[100, 300])
+        grid = GridSearchCV(self.regressor_class(),
+                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
+        grid.fit(self.X_train, self.y_train)
+        y_pred = grid.best_estimator_.predict(self.X_test)
+        mse = mean_squared_error(self.y_test, y_pred)
+        self.assertLess(mse, 6.0)
+
+    def test_pickle(self):
+        reg = self.regressor_class()
+        param_grid = dict(max_leaf=[100, 300])
+        grid = GridSearchCV(RGFRegressor(),
+                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
+        grid.fit(self.X_train, self.y_train)
+        y_pred = grid.best_estimator_.predict(self.X_test)
+        mse = mean_squared_error(self.y_test, y_pred)
+        self.assertLess(mse, 6.0)
 
     def test_pickle(self):
         reg = self.regressor_class()
@@ -458,6 +511,22 @@ class _TestRGFRegressorBase(unittest.TestCase):
         y_pred2 = reg2.predict(self.X_test)
 
         np.testing.assert_allclose(y_pred1, y_pred2)
+
+    def test_cleanup(self):
+        reg1 = RGFRegressor()
+        reg1.fit(self.X_train, self.y_train)
+
+        reg2 = RGFRegressor()
+        reg2.fit(self.X_train, self.y_train)
+
+        self.assertNotEqual(reg1.cleanup(), 0)
+        self.assertEqual(reg1.cleanup(), 0)
+
+        glob_file = os.path.join(_get_temp_path(), reg1._file_prefix + "*")
+        self.assertFalse(glob.glob(glob_file))
+
+        self.assertRaises(NotFittedError, reg1.predict, self.X_test)
+        reg2.predict(self.X_test)
 
 
 class TestRGFRegressor(_TestRGFRegressorBase):

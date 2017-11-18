@@ -153,9 +153,26 @@ def fastrgf_available():
 def _cleanup():
     if _UUIDS is not None:
         for uuid in _UUIDS:
-            model_glob = os.path.join(_TEMP_PATH, uuid + "*")
-            for fn in glob(model_glob):
-                os.remove(fn)
+            _cleanup_partial(uuid)
+
+
+def _cleanup_partial(uuid, remove_from_list=False):
+    n_removed_files = 0
+    if uuid in _UUIDS:
+        model_glob = os.path.join(_TEMP_PATH, uuid + "*")
+        for fn in glob(model_glob):
+            os.remove(fn)
+            n_removed_files += 1
+        if remove_from_list:
+            _UUIDS.remove(uuid)
+    return n_removed_files
+
+
+def _get_temp_path():
+    """
+    For test
+    """
+    return _TEMP_PATH
 
 
 def _sigmoid(x):
@@ -426,6 +443,24 @@ class _RGFClassifierBase(BaseEstimator, ClassifierMixin):
         y = np.argmax(y, axis=1)
         return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y)]
 
+    def cleanup(self):
+        """
+        Remove tempfiles used by this model.
+
+        Returns
+        -------
+        n_removed_files : int
+            Returns the number of removed files.
+        """
+        n_removed_files = 0
+        if self._estimators is not None:
+            for est in self._estimators:
+                n_removed_files += _cleanup_partial(est._file_prefix, remove_from_list=True)
+
+        # No more able to predict without refitting.
+        self._fitted = None
+        return n_removed_files
+
 
 class RGFClassifier(_RGFClassifierBase):
     """
@@ -506,6 +541,8 @@ class RGFClassifier(_RGFClassifierBase):
         If -1 all CPUs are used.
         For n_jobs = -2, all CPUs but one are used.
         For n_jobs below -1, (n_cpus + 1 + n_jobs) are used.
+        The substantial number of jobs does not become larger than (classes_ - 1).
+        if n_jobs = 4 and classes_ = 2, the substantial number of jobs is one.
 
     memory_policy : string ("conservative" or "generous"), optional (default="generous")
         Memory using policy.
@@ -897,6 +934,19 @@ class _RGFRegressorBase(BaseEstimator, RegressorMixin):
             raise NotFittedError(_NOT_FITTED_ERROR_DESC)
         else:
             return self._n_iter
+
+    def cleanup(self):
+        """
+        Remove tempfiles used by this model.
+
+        Returns
+        -------
+        n_removed_files : int
+            Returns the number of removed files.
+        """
+        # No more able to predict without refitting.
+        self._fitted = None
+        return _cleanup_partial(self._file_prefix, remove_from_list=True)
 
 
 class RGFRegressor(_RGFRegressorBase):
