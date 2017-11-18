@@ -490,6 +490,15 @@ class TestFastRGFRegressor(_TestRGFRegressorBase):
     def test_attributes(self):
         pass
 
+    def test_input_arrays_shape(self):
+        pass
+
+    def test_sample_weight(self):
+        pass
+
+    def test_regressor_sparse_input(self):
+        pass
+
     def test_sklearn_integration(self):
         # TODO(fukatani): FastRGF bug?
         # FastRGF discretization doesn't work if the number of sample is too
