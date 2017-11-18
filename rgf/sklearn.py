@@ -32,6 +32,7 @@ _LOSSES = ("LS", "Expo", "Log")
 _FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 _SYSTEM = platform.system()
 _UUIDS = []
+_FASTRGF_AVAILABLE = False
 
 
 def _get_paths():
@@ -91,7 +92,7 @@ if not os.access(_TEMP_PATH, os.W_OK):
                     "config flag 'temp_location' to writable directory".format(_TEMP_PATH))
 
 
-def _is_executable_response(path):
+def _is_rgf_executable(path):
     temp_x_loc = os.path.join(_TEMP_PATH, 'temp.train.data.x')
     temp_y_loc = os.path.join(_TEMP_PATH, 'temp.train.data.y')
     np.savetxt(temp_x_loc, [[1, 0, 1, 0], [0, 1, 0, 1]], delimiter=' ', fmt="%s")
@@ -110,9 +111,23 @@ def _is_executable_response(path):
         return False
 
 
-if _is_executable_response(_DEFAULT_EXE_PATH):
+def _is_fastrgf_executable(path):
+    train_exec = os.path.join(path, "forest_train")
+    try:
+        subprocess.check_output([train_exec, "--help"])
+    except Exception:
+        return False
+    pred_exec = os.path.join(path, "forest_predict")
+    try:
+        subprocess.check_output([pred_exec, "--help"])
+    except Exception:
+        return False
+    return True
+
+
+if _is_rgf_executable(_DEFAULT_EXE_PATH):
     _EXE_PATH = _DEFAULT_EXE_PATH
-elif _is_executable_response(os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)):
+elif _is_rgf_executable(os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)):
     _EXE_PATH = os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)
 elif not os.path.isfile(_EXE_PATH):
     raise Exception("{0} is not executable file. Please set "
@@ -120,11 +135,13 @@ elif not os.path.isfile(_EXE_PATH):
 elif not os.access(_EXE_PATH, os.X_OK):
     raise Exception("{0} cannot be accessed. Please set "
                     "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
-elif _is_executable_response(_EXE_PATH):
+elif _is_rgf_executable(_EXE_PATH):
     pass
 else:
     raise Exception("{0} does not exist or {1} is not in the "
                     "'PATH' variable.".format(_EXE_PATH, _DEFAULT_EXE_PATH))
+
+_FASTRGF_AVAILABLE = _is_fastrgf_executable(_FASTRGF_PATH)
 
 
 @atexit.register
@@ -547,6 +564,8 @@ class RGFClassifier(_RGFClassifierBase):
                  n_jobs=-1,
                  memory_policy="generous",
                  verbose=0):
+        if not _FASTRGF_AVAILABLE:
+            raise Exception('FastRGF is not installed correctly.')
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -1229,7 +1248,7 @@ class RGFRegressor(_RGFRegressorBase):
 
 class FastRGFRegressor(_RGFRegressorBase):
     """
-    A Fast Regularized Greedy Forest regressor.
+    A Fast Regularized Greedy Forest regressor by Tong Zhang.
     This function is alpha version.
     """
     def __init__(self,
@@ -1244,6 +1263,8 @@ class FastRGFRegressor(_RGFRegressorBase):
                  discretize_sparse_max_buckets=10,
                  n_iter=None,
                  verbose=0):
+        if not _FASTRGF_AVAILABLE:
+            raise Exception('FastRGF is not installed correctly.')
         self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
         self.dtree_loss = dtree_loss
         self.dtree_lamL1 = dtree_lamL1
@@ -1324,6 +1345,8 @@ class FastRGFRegressor(_RGFRegressorBase):
         cmd.append("trn.target=REAL")
         cmd.append("set.verbose=%s" % self.verbose)
         cmd.append("model.save=%s" % self.model_file)
+
+        print(' '.join(cmd))
 
         # Train
         output = subprocess.Popen(cmd,
