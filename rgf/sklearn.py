@@ -19,7 +19,7 @@ import scipy.sparse as sp
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
-from sklearn.externals.joblib import Parallel, delayed
+from sklearn.externals.joblib import Parallel, delayed, cpu_count
 from sklearn.utils.extmath import softmax
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
@@ -537,12 +537,15 @@ class RGFClassifier(_RGFClassifierBase):
 
     n_jobs : integer, optional (default=-1)
         The number of jobs to use for the computation.
-        If 1 is given, no parallel computing code is used at all.
-        If -1 all CPUs are used.
+        The substantial number of the jobs dependents on classes_.
+        If classes_ = 2, the substantial max number of the jobs is one.
+        If classes_ > 2, the substantial max number of the jobs is the same as
+        classes_.
+        If n_jobs = 1, no parallel computing code is used at all regardless of
+        classes_.
+        If n_jobs = -1 and classes_ >= number of CPU, all CPUs are used.
         For n_jobs = -2, all CPUs but one are used.
         For n_jobs below -1, (n_cpus + 1 + n_jobs) are used.
-        The substantial number of jobs does not become larger than (classes_ - 1).
-        if n_jobs = 4 and classes_ = 2, the substantial number of jobs is one.
 
     memory_policy : string ("conservative" or "generous"), optional (default="generous")
         Memory using policy.
@@ -731,6 +734,8 @@ class RGFClassifier(_RGFClassifierBase):
             self._estimators = [None]
             y = (y == self._classes[0]).astype(int)
             self._estimators[0] = _RGFBinaryClassifier(**params)
+            if self.n_jobs != 1 and self.verbose:
+                print('n_jobs = {}, but RGFClassifier uses one CPU because classes_ is 2'.format(self.n_jobs))
             self._estimators[0].fit(X, y, sample_weight)
         elif self._n_classes > 2:
             if sp.isspmatrix_dok(X):
@@ -741,6 +746,14 @@ class RGFClassifier(_RGFClassifierBase):
                 self._classes_map[i] = cls_num
                 ovr_list[i] = (y == cls_num).astype(int)
                 self._estimators[i] = _RGFBinaryClassifier(**params)
+
+            n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
+            substantial_njobs = max(n_jobs, self.n_classes_)
+            if substantial_njobs < n_jobs  and self.verbose:
+                print('n_jobs = {0}, but RGFClassifier uses {1} CPUs because '
+                      'classes_ is {2}'.format(n_jobs, substantial_njobs,
+                                               self.n_classes_))
+
             self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(_fit_ovr_binary)(self._estimators[i],
                                                                                      X,
                                                                                      ovr_list[i],
