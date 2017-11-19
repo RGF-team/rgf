@@ -113,7 +113,7 @@ def _is_rgf_executable(path):
 
 
 def _is_fastrgf_executable(path):
-    train_exec = os.path.join(path, "forest_trai")
+    train_exec = os.path.join(path, "forest_train")
     try:
         subprocess.check_output([train_exec, "--help"])
     except Exception:
