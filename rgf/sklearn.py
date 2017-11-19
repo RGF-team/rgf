@@ -113,7 +113,7 @@ def _is_rgf_executable(path):
 
 
 def _is_fastrgf_executable(path):
-    train_exec = os.path.join(path, "forest_train")
+    train_exec = os.path.join(path, "forest_trai")
     try:
         subprocess.check_output([train_exec, "--help"])
     except Exception:
@@ -606,8 +606,6 @@ class RGFClassifier(_RGFClassifierBase):
                  n_jobs=-1,
                  memory_policy="generous",
                  verbose=0):
-        if not _FASTRGF_AVAILABLE:
-            raise Exception('FastRGF is not installed correctly.')
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
