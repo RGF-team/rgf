@@ -10,7 +10,7 @@ from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
 from rgf import util
-import rgf.sklearn
+import rgf
 
 
 class FastRGFRegressor(util.RGFRegressorBase):
@@ -65,7 +65,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
                  discretize_sparse_max_buckets=200,
                  n_iter=None,
                  verbose=0):
-        if not rgf.sklearn.fastrgf_available():
+        if not rgf.fastrgf_available():
             raise Exception('FastRGF is not installed correctly.')
         self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
         self.dtree_loss = dtree_loss
@@ -79,8 +79,8 @@ class FastRGFRegressor(util.RGFRegressorBase):
 
         self.n_iter = n_iter
         self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(rgf.sklearn._COUNTER.increment())
-        rgf.sklearn._UUIDS.append(self._file_prefix)
+        self._file_prefix = str(uuid4()) + str(rgf.COUNTER.increment())
+        rgf.UUIDS.append(self._file_prefix)
         self._n_features = None
         self._fitted = None
         self._latest_model_loc = None
@@ -121,9 +121,9 @@ class FastRGFRegressor(util.RGFRegressorBase):
 
         check_consistent_length(X, y)
 
-        train_x_loc = os.path.join(rgf.sklearn.get_temp_path(), self._file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(rgf.sklearn.get_temp_path(), self._file_prefix + ".train.data.y")
-        self.model_file = os.path.join(rgf.sklearn.get_temp_path(), self._file_prefix + ".model")
+        train_x_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".train.data.x")
+        train_y_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".train.data.y")
+        self.model_file = os.path.join(rgf.get_temp_path(), self._file_prefix + ".model")
         if sp.isspmatrix(X):
             util.sparse_savetxt(train_x_loc, X)
         else:
@@ -132,7 +132,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
 
         # Format train command
         cmd = []
-        cmd.append(rgf.sklearn.get_fastrgf_path() + "/forest_train")
+        cmd.append(rgf.get_fastrgf_path() + "/forest_train")
         cmd.append("forest.ntrees=%s" % self.forest_ntrees)
         cmd.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
         cmd.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
@@ -195,7 +195,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
                              "input n_features is %s "
                              % (self._n_features, n_features))
 
-        test_x_loc = os.path.join(rgf.sklearn.get_temp_path(), self._file_prefix + ".test.data.x")
+        test_x_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
             util.sparse_savetxt(test_x_loc, X)
         else:
@@ -203,13 +203,13 @@ class FastRGFRegressor(util.RGFRegressorBase):
 
         if not os.path.isfile(self.model_file):
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(rgf.sklearn.get_temp_path()))
+                            'This is rgf_python error.'.format(rgf.get_temp_path()))
 
         # Format test command
-        pred_loc = os.path.join(rgf.sklearn.get_temp_path(), self._file_prefix + ".predictions.txt")
+        pred_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".predictions.txt")
 
         cmd = []
-        cmd.append(rgf.sklearn.get_fastrgf_path() + "/forest_predict")
+        cmd.append(rgf.get_fastrgf_path() + "/forest_predict")
         cmd.append("model.load=%s" % self.model_file)
         cmd.append("tst.x-file=%s" % test_x_loc)
         cmd.append("tst.target=REAL")
@@ -306,8 +306,8 @@ class FastRGFClassifier(util.RGFClassifierBase, RegressorMixin):
 
         self.n_iter = n_iter
         self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(rgf.sklearn._COUNTER.increment())
-        rgf.sklearn._UUIDS.append(self._file_prefix)
+        self._file_prefix = str(uuid4()) + str(rgf.COUNTER.increment())
+        rgf.UUIDS.append(self._file_prefix)
         self._fitted = None
         self._latest_model_loc = None
         self.model_file = None
@@ -432,8 +432,8 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
         self.n_iter = n_iter
         self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(rgf.sklearn._COUNTER.increment())
-        rgf.sklearn._UUIDS.append(self._file_prefix)
+        self._file_prefix = str(uuid4()) + str(rgf.COUNTER.increment())
+        rgf.UUIDS.append(self._file_prefix)
         self._fitted = None
         self.model_file = None
         self._estimators = None
@@ -442,10 +442,10 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self._n_features = None
 
     def fit(self, X, y, sample_weight):
-        train_x_loc = os.path.join(rgf.sklearn.get_temp_path(), self._file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(rgf.sklearn.get_temp_path(), self._file_prefix + ".train.data.y")
-        train_weight_loc = os.path.join(rgf.sklearn.get_temp_path(), self._file_prefix + ".train.data.weight")
-        self.model_file = os.path.join(rgf.sklearn.get_temp_path(), self._file_prefix + ".model")
+        train_x_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".train.data.x")
+        train_y_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".train.data.y")
+        train_weight_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".train.data.weight")
+        self.model_file = os.path.join(rgf.get_temp_path(), self._file_prefix + ".model")
         if sp.isspmatrix(X):
             util.sparse_savetxt(train_x_loc, X)
         else:
@@ -459,7 +459,7 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         # Format train command
 
         cmd = []
-        cmd.append(rgf.sklearn.get_fastrgf_path() + "/forest_train")
+        cmd.append(rgf.get_fastrgf_path() + "/forest_train")
         cmd.append("forest.ntrees=%s" % self.forest_ntrees)
         cmd.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
         cmd.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
@@ -488,7 +488,7 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self._fitted = True
         if not self.model_file:
             raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(rgf.sklearn.get_temp_path()))
+                            'Training is abnormally finished.'.format(rgf.get_temp_path()))
         return self
 
     def predict_proba(self, X):
@@ -496,19 +496,19 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             raise NotFittedError(util.not_fitted_error_desc())
         if not os.path.isfile(self.model_file):
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(rgf.sklearn.get_temp_path()))
+                            'This is rgf_python error.'.format(rgf.get_temp_path()))
 
-        test_x_loc = os.path.join(rgf.sklearn.get_temp_path(), self._file_prefix + ".test.data.x")
+        test_x_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
             util.sparse_savetxt(test_x_loc, X)
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
         # Format test command
-        pred_loc = os.path.join(rgf.sklearn.get_temp_path(), self._file_prefix + ".predictions.txt")
+        pred_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".predictions.txt")
 
         cmd = []
-        cmd.append(rgf.sklearn.get_fastrgf_path() + "/forest_predict")
+        cmd.append(rgf.get_fastrgf_path() + "/forest_predict")
         cmd.append("model.load=%s" % self.model_file)
         cmd.append("tst.x-file=%s" % test_x_loc)
         cmd.append("tst.target=REAL")

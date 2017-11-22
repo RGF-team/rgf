@@ -6,7 +6,7 @@ from sklearn.externals import six
 from sklearn.utils.extmath import softmax
 from sklearn.utils.validation import check_array
 
-import rgf.sklearn
+import rgf
 
 
 def not_fitted_error_desc():
@@ -171,7 +171,7 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
         n_removed_files = 0
         if self._estimators is not None:
             for est in self._estimators:
-                n_removed_files += rgf.sklearn.cleanup_partial(est._file_prefix,
+                n_removed_files += rgf.cleanup_partial(est._file_prefix,
                                                                remove_from_list=True)
 
         # No more able to predict without refitting.
@@ -218,5 +218,5 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
         """
         # No more able to predict without refitting.
         self._fitted = None
-        return rgf.sklearn.cleanup_partial(self._file_prefix,
+        return rgf.cleanup_partial(self._file_prefix,
                                            remove_from_list=True)

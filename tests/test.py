@@ -13,8 +13,9 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_random_state
 
-from rgf.sklearn import RGFClassifier, RGFRegressor, cleanup, get_temp_path
-from rgf.sklearn import FastRGFClassifier, FastRGFRegressor, fastrgf_available
+from rgf.sklearn import RGFClassifier, RGFRegressor
+from rgf.sklearn import FastRGFClassifier, FastRGFRegressor
+from rgf import cleanup, get_temp_path, fastrgf_available
 
 
 class _TestRGFClassfierBase(unittest.TestCase):
