@@ -13,7 +13,7 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_random_state
 
-from rgf.sklearn import RGFClassifier, RGFRegressor, _cleanup, _get_temp_path
+from rgf.sklearn import RGFClassifier, RGFRegressor, cleanup, get_temp_path
 from rgf.sklearn import FastRGFClassifier, FastRGFRegressor, fastrgf_available
 
 
@@ -210,7 +210,7 @@ class _TestRGFClassfierBase(unittest.TestCase):
         s = pickle.dumps(clf)
 
         # Remove model file
-        _cleanup()
+        cleanup()
 
         reg2 = pickle.loads(s)
         y_pred2 = reg2.predict(self.X_test)
@@ -224,7 +224,7 @@ class _TestRGFClassfierBase(unittest.TestCase):
         joblib.dump(clf, 'test_clf.pkl')
 
         # Remove model file
-        _cleanup()
+        cleanup()
 
         clf2 = joblib.load('test_clf.pkl')
         y_pred2 = clf2.predict(self.X_test)
@@ -242,7 +242,7 @@ class _TestRGFClassfierBase(unittest.TestCase):
         self.assertEqual(clf1.cleanup(), 0)
 
         for est in clf1.estimators_:
-            glob_file = os.path.join(_get_temp_path(), est._file_prefix + "*")
+            glob_file = os.path.join(get_temp_path(), est._file_prefix + "*")
             self.assertFalse(glob.glob(glob_file))
 
         self.assertRaises(NotFittedError, clf1.predict, self.X_test)
@@ -321,21 +321,21 @@ class _TestRGFRegressorBase(unittest.TestCase):
         raise unittest.SkipTest('')
 
     def test_cleanup(self):
-        clf1 = self.regressor_class()
-        clf1.fit(self.X_train, self.y_train)
+        reg1 = self.regressor_class()
+        reg1.fit(self.X_train, self.y_train)
 
-        clf2 = self.regressor_class()
-        clf2.fit(self.X_train, self.y_train)
+        reg2 = self.regressor_class()
+        reg2.fit(self.X_train, self.y_train)
 
-        self.assertNotEqual(clf1.cleanup(), 0)
-        self.assertEqual(clf1.cleanup(), 0)
+        self.assertNotEqual(reg1.cleanup(), 0)
+        self.assertEqual(reg1.cleanup(), 0)
 
-        for est in clf1.estimators_:
-            glob_file = os.path.join(_get_temp_path(), est._file_prefix + "*")
+        for est in reg1.estimators_:
+            glob_file = os.path.join(get_temp_path(), est._file_prefix + "*")
             self.assertFalse(glob.glob(glob_file))
 
-        self.assertRaises(NotFittedError, clf1.predict, self.X_test)
-        clf2.predict(self.X_test)
+        self.assertRaises(NotFittedError, reg1.predict, self.X_test)
+        reg2.predict(self.X_test)
 
     def test_regressor(self):
         reg = self.regressor_class()
@@ -483,7 +483,7 @@ class _TestRGFRegressorBase(unittest.TestCase):
         s = pickle.dumps(reg)
 
         # Remove model file
-        _cleanup()
+        cleanup()
 
         reg2 = pickle.loads(s)
         y_pred2 = reg2.predict(self.X_test)
@@ -497,7 +497,7 @@ class _TestRGFRegressorBase(unittest.TestCase):
         joblib.dump(reg, 'test_reg.pkl')
 
         # Remove model file
-        _cleanup()
+        cleanup()
 
         reg2 = joblib.load('test_reg.pkl')
         y_pred2 = reg2.predict(self.X_test)
@@ -514,7 +514,7 @@ class _TestRGFRegressorBase(unittest.TestCase):
         self.assertNotEqual(reg1.cleanup(), 0)
         self.assertEqual(reg1.cleanup(), 0)
 
-        glob_file = os.path.join(_get_temp_path(), reg1._file_prefix + "*")
+        glob_file = os.path.join(get_temp_path(), reg1._file_prefix + "*")
         self.assertFalse(glob.glob(glob_file))
 
         self.assertRaises(NotFittedError, reg1.predict, self.X_test)
