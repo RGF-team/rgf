@@ -35,7 +35,7 @@ Install rgf_python by `here <https://github.com/fukatani/rgf_python#installation
     make 
     make install
 
-If you succeeded to make FastRGF, /path/to/fast_rgt/bin/forest_train and /path/to/fast_rgt/bin/forest_train shoulg exist.
+If you succeeded to make FastRGF, /path/to/fast_rgt/bin/forest_train and /path/to/fast_rgt/bin/forest_train should exist.
 And you should indicate FastRGF location by ``~/.rgfrc`` file:
 
 ex.
