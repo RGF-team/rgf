@@ -85,9 +85,8 @@ class _TestRGFClassfierBase(unittest.TestCase):
         score = accuracy_score(y_str, y_pred)
         self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
 
-    def test_classifier_sparse_input(self):
-        clf = self.classifier_class(calc_prob='softmax')
-        check_estimator(RGFClassifier)
+    def test_sklearn_integration(self):
+        check_estimator(self.classifier_class)
 
     def test_classifier_sparse_input(self):
         clf = RGFClassifier(calc_prob='softmax')
@@ -294,7 +293,12 @@ class TestFastRGFClassfier(_TestRGFClassfierBase):
         pass
 
     def test_input_arrays_shape(self):
-        pass
+        #TODO(fukatani): Sample weight
+        clf = self.classifier_class()
+
+        n_samples = self.y_train.shape[0]
+        self.assertRaises(ValueError, clf.fit, self.X_train,
+                          self.y_train[:(n_samples - 1)])
 
     def test_sample_weight(self):
         pass
@@ -471,16 +475,6 @@ class _TestRGFRegressorBase(unittest.TestCase):
 
     def test_pickle(self):
         reg = self.regressor_class()
-        param_grid = dict(max_leaf=[100, 300])
-        grid = GridSearchCV(RGFRegressor(),
-                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
-        grid.fit(self.X_train, self.y_train)
-        y_pred = grid.best_estimator_.predict(self.X_test)
-        mse = mean_squared_error(self.y_test, y_pred)
-        self.assertLess(mse, 6.0)
-
-    def test_pickle(self):
-        reg = self.regressor_class()
         reg.fit(self.X_train, self.y_train)
         y_pred1 = reg.predict(self.X_test)
         s = pickle.dumps(reg)
@@ -555,7 +549,12 @@ class TestFastRGFRegressor(_TestRGFRegressorBase):
         pass
 
     def test_input_arrays_shape(self):
-        pass
+        # TODO(fukatani): Sample weight is unimplemented.
+        reg = self.regressor_class()
+
+        n_samples = self.y_train.shape[0]
+        self.assertRaises(ValueError, reg.fit, self.X_train,
+                          self.y_train[:(n_samples - 1)])
 
     def test_sample_weight(self):
         pass
