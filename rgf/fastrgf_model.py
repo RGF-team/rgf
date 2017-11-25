@@ -54,7 +54,6 @@ class FastRGFRegressor(util.RGFRegressorBase):
     # TODO(fukatani): Test
     # TODO(fukatani): Other parameter
     # TODO(fukatani): Sparse input
-    # TODO(fukatani): Sample weight
     def __init__(self,
                  dtree_new_tree_gain_ratio=1.0,
                  dtree_loss="LS",
@@ -88,7 +87,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
         self._latest_model_loc = None
         self.model_file = None
 
-    def fit(self, X, y):
+    def fit(self, X, y, sample_weight=None):
         """
         Build a Fast RGF Regressor from the training set (X, y).
 
@@ -121,16 +120,24 @@ class FastRGFRegressor(util.RGFRegressorBase):
         else:
             self._n_iter = self.n_iter
 
-        check_consistent_length(X, y)
+        if sample_weight is None:
+            sample_weight = np.ones(n_samples, dtype=np.float32)
+        else:
+            sample_weight = column_or_1d(sample_weight, warn=True)
+            if (sample_weight <= 0).any():
+                raise ValueError("Sample weights must be positive.")
+        check_consistent_length(X, y, sample_weight)
 
         train_x_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".train.data.x")
         train_y_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".train.data.y")
+        train_weight_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".train.data.weight")
         self.model_file = os.path.join(rgf.get_temp_path(), self._file_prefix + ".model")
         if sp.isspmatrix(X):
             util.sparse_savetxt(train_x_loc, X)
         else:
             np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
         np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
+        np.savetxt(train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
 
         # Format train command
         cmd = []
@@ -146,6 +153,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
         cmd.append("dtree.lamL2=%s" % self.dtree_lamL2)
         cmd.append("trn.x-file=%s" % train_x_loc)
         cmd.append("trn.y-file=%s" % train_y_loc)
+        cmd.append("trn.w-file=%s" % train_weight_loc)
         cmd.append("trn.target=REAL")
         cmd.append("set.verbose=%s" % self.verbose)
         cmd.append("model.save=%s" % self.model_file)
@@ -282,7 +290,6 @@ class FastRGFClassifier(util.RGFClassifierBase, RegressorMixin):
     # TODO(fukatani): Test
     # TODO(fukatani): Other parameter
     # TODO(fukatani): Sparse input
-    # TODO(fukatani): Sample weight
     def __init__(self,
                  dtree_new_tree_gain_ratio=1.0,
                  dtree_loss="LS",  # "MODLS" or "LOGISTIC" or "LS"
@@ -353,7 +360,13 @@ class FastRGFClassifier(util.RGFClassifierBase, RegressorMixin):
         else:
             self._n_iter = self.n_iter
 
-        check_consistent_length(X, y)
+        if sample_weight is None:
+            sample_weight = np.ones(n_samples, dtype=np.float32)
+        else:
+            sample_weight = column_or_1d(sample_weight, warn=True)
+            if (sample_weight <= 0).any():
+                raise ValueError("Sample weights must be positive.")
+        check_consistent_length(X, y, sample_weight)
         check_classification_targets(y)
 
         self._classes = sorted(np.unique(y))
@@ -473,6 +486,7 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         cmd.append("dtree.lamL2=%s" % self.dtree_lamL2)
         cmd.append("trn.x-file=%s" % train_x_loc)
         cmd.append("trn.y-file=%s" % train_y_loc)
+        cmd.append("trn.w-file=%s" % train_weight_loc)
         cmd.append("trn.target=BINARY")
         cmd.append("set.verbose=%s" % self.verbose)
         cmd.append("model.save=%s" % self.model_file)

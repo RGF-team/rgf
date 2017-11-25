@@ -292,16 +292,20 @@ class TestFastRGFClassfier(_TestRGFClassfierBase):
     def test_attributes(self):
         pass
 
-    def test_input_arrays_shape(self):
-        #TODO(fukatani): Sample weight
-        clf = self.classifier_class()
-
-        n_samples = self.y_train.shape[0]
-        self.assertRaises(ValueError, clf.fit, self.X_train,
-                          self.y_train[:(n_samples - 1)])
-
     def test_sample_weight(self):
-        pass
+        clf = self.classifier_class()
+        y_pred = clf.fit(self.X_train, self.y_train).predict_proba(self.X_test)
+        y_pred_weighted = clf.fit(self.X_train,
+                                  self.y_train,
+                                  np.ones(self.y_train.shape[0])
+                                  ).predict_proba(self.X_test)
+        np.testing.assert_allclose(y_pred, y_pred_weighted)
+        # TODO(fukatani): FastRGF bug?
+        # does not work if weight is too small
+        # weights = np.ones(self.y_train.shape[0]) * 0.01
+        # weights[0] = 100
+        # y_pred_weighted = clf.fit(self.X_train, self.y_train, weights).predict(self.X_test)
+        # np.testing.assert_equal(y_pred_weighted, np.full(self.y_test.shape[0], self.y_test[0]))
 
     def test_classifier_sparse_input(self):
         pass
@@ -548,16 +552,27 @@ class TestFastRGFRegressor(_TestRGFRegressorBase):
     def test_attributes(self):
         pass
 
-    def test_input_arrays_shape(self):
-        # TODO(fukatani): Sample weight is unimplemented.
+    def test_sample_weight(self):
         reg = self.regressor_class()
 
-        n_samples = self.y_train.shape[0]
-        self.assertRaises(ValueError, reg.fit, self.X_train,
-                          self.y_train[:(n_samples - 1)])
-
-    def test_sample_weight(self):
-        pass
+        y_pred = reg.fit(self.X_train, self.y_train).predict(self.X_test)
+        y_pred_weighted = reg.fit(self.X_train,
+                                  self.y_train,
+                                  np.ones(self.y_train.shape[0])
+                                  ).predict(self.X_test)
+        np.testing.assert_allclose(y_pred, y_pred_weighted)
+        # TODO(fukatani): FastRGF bug?
+        # does not work if weight is too small
+        # np.random.seed(42)
+        # idx = np.random.choice(400, 80, replace=False)
+        # self.X_train[idx] = -99999  # Add some outliers
+        # y_pred_corrupt = reg.fit(self.X_train, self.y_train).predict(self.X_test)
+        # mse_corrupt = mean_squared_error(self.y_test, y_pred_corrupt)
+        # weights = np.ones(self.y_train.shape[0]) * 100
+        # weights[idx] = 1  # Eliminate outliers
+        # y_pred_weighted = reg.fit(self.X_train, self.y_train, weights).predict(self.X_test)
+        # mse_fixed = mean_squared_error(self.y_test, y_pred_weighted)
+        # self.assertLess(mse_fixed, mse_corrupt)
 
     def test_regressor_sparse_input(self):
         pass
