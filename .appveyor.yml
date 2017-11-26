@@ -38,3 +38,13 @@ test_script:
   - pip uninstall -y rgf_python
   - python setup.py install
   - python tests/test.py
+
+after_test:
+  - IF "%PLATFORM%"=="x64" (
+    python setup.py bdist_wheel --plat-name=win-amd64 --universal)
+    ELSE (
+    python setup.py bdist_wheel --plat-name=win32 --universal)
+
+artifacts:
+  - path: python-package/dist/*
+    name: pip
