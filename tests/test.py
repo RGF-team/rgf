@@ -25,7 +25,7 @@ class _TestRGFClassfierBase(unittest.TestCase):
         raise unittest.SkipTest('')
 
     def test_classifier(self):
-        clf = self.classifier_class()
+        clf = self.classifier_class(verbose=5)
         clf.fit(self.iris.data, self.iris.target)
 
         proba_sum = clf.predict_proba(self.iris.data).sum(axis=1)
