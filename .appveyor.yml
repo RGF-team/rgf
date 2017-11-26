@@ -39,7 +39,8 @@ install:
   - cmake .. -G "MinGW Makefiles"
   - mingw32-make
   - mingw32-make install
-  - copy "../bin/*.exe" %HOMEPATH%
+  - cd ../bin
+  - copy *.exe %HOMEPATH%
   - cd ../..
 
 test_script:
