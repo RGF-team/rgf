@@ -111,79 +111,6 @@ class _TestRGFClassfierBase(unittest.TestCase):
         y_pred_weighted = clf.fit(self.X_train, self.y_train, weights).predict(self.X_test)
         np.testing.assert_equal(y_pred_weighted, np.full(self.y_test.shape[0], self.y_test[0]))
 
-    def test_params(self):
-        clf = self.classifier_class()
-        valid_params = dict(max_leaf=300,
-                            test_interval=100,
-                            algorithm='RGF_Sib',
-                            loss='Log',
-                            reg_depth=1.1,
-                            l2=0.1,
-                            sl2=None,
-                            normalize=False,
-                            min_samples_leaf=9,
-                            n_iter=None,
-                            n_tree_search=2,
-                            opt_interval=100,
-                            learning_rate=0.4,
-                            calc_prob='sigmoid',
-                            n_jobs=-1,
-                            memory_policy='conservative',
-                            verbose=True)
-        clf.set_params(**valid_params)
-        clf.fit(self.X_train, self.y_train)
-
-        non_valid_params = dict(max_leaf=0,
-                                test_interval=0,
-                                algorithm='RGF_Test',
-                                loss=True,
-                                reg_depth=0.1,
-                                l2=11,
-                                sl2=-1.1,
-                                normalize='False',
-                                min_samples_leaf=0.7,
-                                n_iter=11.1,
-                                n_tree_search=0,
-                                opt_interval=100.1,
-                                learning_rate=-0.5,
-                                calc_prob=True,
-                                n_jobs='-1',
-                                memory_policy='Generos',
-                                verbose=-1)
-        for key in non_valid_params:
-            clf.set_params(**valid_params)  # Reset to valid params
-            clf.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
-            self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
-
-    def test_attributes(self):
-        clf = self.classifier_class()
-        attributes = ('estimators_', 'classes_', 'n_classes_', 'n_features_', 'fitted_',
-                      'sl2_', 'min_samples_leaf_', 'n_iter_')
-
-        for attr in attributes:
-            self.assertRaises(NotFittedError, getattr, clf, attr)
-        clf.fit(self.X_train, self.y_train)
-        self.assertEqual(len(clf.estimators_), len(np.unique(self.y_train)))
-        np.testing.assert_array_equal(clf.classes_, sorted(np.unique(self.y_train)))
-        self.assertEqual(clf.n_classes_, len(clf.estimators_))
-        self.assertEqual(clf.n_features_, self.X_train.shape[-1])
-        self.assertTrue(clf.fitted_)
-        if clf.sl2 is None:
-            self.assertEqual(clf.sl2_, clf.l2)
-        else:
-            self.assertEqual(clf.sl2_, clf.sl2)
-        if clf.min_samples_leaf < 1:
-            self.assertLessEqual(clf.min_samples_leaf_, 0.5 * self.X_train.shape[0])
-        else:
-            self.assertEqual(clf.min_samples_leaf_, clf.min_samples_leaf)
-        if clf.n_iter is None:
-            if clf.loss == "LS":
-                self.assertEqual(clf.n_iter_, 10)
-            else:
-                self.assertEqual(clf.n_iter_, 5)
-        else:
-            self.assertEqual(clf.n_iter_, clf.n_iter)
-
     def test_input_arrays_shape(self):
         clf = self.classifier_class()
 
@@ -267,6 +194,79 @@ class TestRGFClassfier(_TestRGFClassfierBase):
             train_test_split(self.iris.data, self.iris.target,
                              test_size=0.2, random_state=42)
 
+    def test_params(self):
+        clf = self.classifier_class()
+        valid_params = dict(max_leaf=300,
+                            test_interval=100,
+                            algorithm='RGF_Sib',
+                            loss='Log',
+                            reg_depth=1.1,
+                            l2=0.1,
+                            sl2=None,
+                            normalize=False,
+                            min_samples_leaf=9,
+                            n_iter=None,
+                            n_tree_search=2,
+                            opt_interval=100,
+                            learning_rate=0.4,
+                            calc_prob='sigmoid',
+                            n_jobs=-1,
+                            memory_policy='conservative',
+                            verbose=True)
+        clf.set_params(**valid_params)
+        clf.fit(self.X_train, self.y_train)
+
+        non_valid_params = dict(max_leaf=0,
+                                test_interval=0,
+                                algorithm='RGF_Test',
+                                loss=True,
+                                reg_depth=0.1,
+                                l2=11,
+                                sl2=-1.1,
+                                normalize='False',
+                                min_samples_leaf=0.7,
+                                n_iter=11.1,
+                                n_tree_search=0,
+                                opt_interval=100.1,
+                                learning_rate=-0.5,
+                                calc_prob=True,
+                                n_jobs='-1',
+                                memory_policy='Generos',
+                                verbose=-1)
+        for key in non_valid_params:
+            clf.set_params(**valid_params)  # Reset to valid params
+            clf.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
+            self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
+
+    def test_attributes(self):
+        clf = self.classifier_class()
+        attributes = ('estimators_', 'classes_', 'n_classes_', 'n_features_', 'fitted_',
+                      'sl2_', 'min_samples_leaf_', 'n_iter_')
+
+        for attr in attributes:
+            self.assertRaises(NotFittedError, getattr, clf, attr)
+        clf.fit(self.X_train, self.y_train)
+        self.assertEqual(len(clf.estimators_), len(np.unique(self.y_train)))
+        np.testing.assert_array_equal(clf.classes_, sorted(np.unique(self.y_train)))
+        self.assertEqual(clf.n_classes_, len(clf.estimators_))
+        self.assertEqual(clf.n_features_, self.X_train.shape[-1])
+        self.assertTrue(clf.fitted_)
+        if clf.sl2 is None:
+            self.assertEqual(clf.sl2_, clf.l2)
+        else:
+            self.assertEqual(clf.sl2_, clf.sl2)
+        if clf.min_samples_leaf < 1:
+            self.assertLessEqual(clf.min_samples_leaf_, 0.5 * self.X_train.shape[0])
+        else:
+            self.assertEqual(clf.min_samples_leaf_, clf.min_samples_leaf)
+        if clf.n_iter is None:
+            if clf.loss == "LS":
+                self.assertEqual(clf.n_iter_, 10)
+            else:
+                self.assertEqual(clf.n_iter_, 5)
+        else:
+            self.assertEqual(clf.n_iter_, clf.n_iter)
+
 
 class TestFastRGFClassfier(_TestRGFClassfierBase):
     def setUp(self):
@@ -321,7 +321,6 @@ class TestFastRGFClassfier(_TestRGFClassfierBase):
         # FastRGF doesn't work if the number of sample is too small.
         # check_estimator(self.classifier_class)
         pass
-
 
 
 class _TestRGFRegressorBase(unittest.TestCase):
@@ -386,72 +385,6 @@ class _TestRGFRegressorBase(unittest.TestCase):
         y_pred_weighted = reg.fit(self.X_train, self.y_train, weights).predict(self.X_test)
         mse_fixed = mean_squared_error(self.y_test, y_pred_weighted)
         self.assertLess(mse_fixed, mse_corrupt)
-
-    def test_params(self):
-        reg = self.regressor_class()
-
-        valid_params = dict(max_leaf=300,
-                            test_interval=100,
-                            algorithm='RGF_Sib',
-                            loss='Log',
-                            reg_depth=1.1,
-                            l2=0.1,
-                            sl2=None,
-                            normalize=False,
-                            min_samples_leaf=9,
-                            n_iter=None,
-                            n_tree_search=2,
-                            opt_interval=100,
-                            learning_rate=0.4,
-                            memory_policy='conservative',
-                            verbose=True)
-        reg.set_params(**valid_params)
-        reg.fit(self.X_train, self.y_train)
-
-        non_valid_params = dict(max_leaf=0,
-                                test_interval=0,
-                                algorithm='RGF_Test',
-                                loss=True,
-                                reg_depth=0.1,
-                                l2=11,
-                                sl2=-1.1,
-                                normalize='False',
-                                min_samples_leaf=0.7,
-                                n_iter=11.1,
-                                n_tree_search=0,
-                                opt_interval=100.1,
-                                learning_rate=-0.5,
-                                memory_policy='Generos',
-                                verbose=-1)
-        for key in non_valid_params:
-            reg.set_params(**valid_params)  # Reset to valid params
-            reg.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
-            self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train)
-
-    def test_attributes(self):
-        reg = self.regressor_class()
-        attributes = ('n_features_', 'fitted_', 'sl2_', 'min_samples_leaf_', 'n_iter_')
-
-        for attr in attributes:
-            self.assertRaises(NotFittedError, getattr, reg, attr)
-        reg.fit(self.X_train, self.y_train)
-        self.assertEqual(reg.n_features_, self.X_train.shape[-1])
-        self.assertTrue(reg.fitted_)
-        if reg.sl2 is None:
-            self.assertEqual(reg.sl2_, reg.l2)
-        else:
-            self.assertEqual(reg.sl2_, reg.sl2)
-        if reg.min_samples_leaf < 1:
-            self.assertLessEqual(reg.min_samples_leaf_, 0.5 * self.X_train.shape[0])
-        else:
-            self.assertEqual(reg.min_samples_leaf_, reg.min_samples_leaf)
-        if reg.n_iter is None:
-            if reg.loss == "LS":
-                self.assertEqual(reg.n_iter_, 10)
-            else:
-                self.assertEqual(reg.n_iter_, 5)
-        else:
-            self.assertEqual(reg.n_iter_, reg.n_iter)
 
     def test_input_arrays_shape(self):
         reg = self.regressor_class()
@@ -528,6 +461,72 @@ class TestRGFRegressor(_TestRGFRegressorBase):
                                                  noise=1.0)
         self.X_train, self.y_train = self.X[:400], self.y[:400]
         self.X_test, self.y_test = self.X[400:], self.y[400:]
+
+    def test_params(self):
+        reg = self.regressor_class()
+
+        valid_params = dict(max_leaf=300,
+                            test_interval=100,
+                            algorithm='RGF_Sib',
+                            loss='Log',
+                            reg_depth=1.1,
+                            l2=0.1,
+                            sl2=None,
+                            normalize=False,
+                            min_samples_leaf=9,
+                            n_iter=None,
+                            n_tree_search=2,
+                            opt_interval=100,
+                            learning_rate=0.4,
+                            memory_policy='conservative',
+                            verbose=True)
+        reg.set_params(**valid_params)
+        reg.fit(self.X_train, self.y_train)
+
+        non_valid_params = dict(max_leaf=0,
+                                test_interval=0,
+                                algorithm='RGF_Test',
+                                loss=True,
+                                reg_depth=0.1,
+                                l2=11,
+                                sl2=-1.1,
+                                normalize='False',
+                                min_samples_leaf=0.7,
+                                n_iter=11.1,
+                                n_tree_search=0,
+                                opt_interval=100.1,
+                                learning_rate=-0.5,
+                                memory_policy='Generos',
+                                verbose=-1)
+        for key in non_valid_params:
+            reg.set_params(**valid_params)  # Reset to valid params
+            reg.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
+            self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train)
+
+    def test_attributes(self):
+        reg = self.regressor_class()
+        attributes = ('n_features_', 'fitted_', 'sl2_', 'min_samples_leaf_', 'n_iter_')
+
+        for attr in attributes:
+            self.assertRaises(NotFittedError, getattr, reg, attr)
+        reg.fit(self.X_train, self.y_train)
+        self.assertEqual(reg.n_features_, self.X_train.shape[-1])
+        self.assertTrue(reg.fitted_)
+        if reg.sl2 is None:
+            self.assertEqual(reg.sl2_, reg.l2)
+        else:
+            self.assertEqual(reg.sl2_, reg.sl2)
+        if reg.min_samples_leaf < 1:
+            self.assertLessEqual(reg.min_samples_leaf_, 0.5 * self.X_train.shape[0])
+        else:
+            self.assertEqual(reg.min_samples_leaf_, reg.min_samples_leaf)
+        if reg.n_iter is None:
+            if reg.loss == "LS":
+                self.assertEqual(reg.n_iter_, 10)
+            else:
+                self.assertEqual(reg.n_iter_, 5)
+        else:
+            self.assertEqual(reg.n_iter_, reg.n_iter)
 
 
 class TestFastRGFRegressor(_TestRGFRegressorBase):
