@@ -46,5 +46,5 @@ after_test:
     python setup.py bdist_wheel --plat-name=win32 --universal)
 
 artifacts:
-  - path: python-package/dist/*
+  - path: dist/*
     name: pip
