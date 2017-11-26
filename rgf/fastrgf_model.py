@@ -53,7 +53,6 @@ class FastRGFRegressor(util.RGFRegressorBase):
     """
     # TODO(fukatani): Test
     # TODO(fukatani): Other parameter
-    # TODO(fukatani): Sparse input
     def __init__(self,
                  dtree_new_tree_gain_ratio=1.0,
                  dtree_loss="LS",
@@ -133,7 +132,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
         train_weight_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".train.data.weight")
         self.model_file = os.path.join(rgf.get_temp_path(), self._file_prefix + ".model")
         if sp.isspmatrix(X):
-            util.sparse_savetxt(train_x_loc, X)
+            util.sparse_savetxt(train_x_loc, X, including_header=False)
         else:
             np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
         np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
@@ -151,6 +150,8 @@ class FastRGFRegressor(util.RGFRegressorBase):
         cmd.append("dtree.loss=%s" % self.dtree_loss)
         cmd.append("dtree.lamL1=%s" % self.dtree_lamL1)
         cmd.append("dtree.lamL2=%s" % self.dtree_lamL2)
+        if sp.isspmatrix(X):
+            cmd.append("trn.x-file_format=x.sparse")
         cmd.append("trn.x-file=%s" % train_x_loc)
         cmd.append("trn.y-file=%s" % train_y_loc)
         cmd.append("trn.w-file=%s" % train_weight_loc)
@@ -207,7 +208,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
 
         test_x_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
-            util.sparse_savetxt(test_x_loc, X)
+            util.sparse_savetxt(test_x_loc, X, including_header=False)
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
@@ -222,6 +223,8 @@ class FastRGFRegressor(util.RGFRegressorBase):
         cmd.append(rgf.get_fastrgf_path() + "/forest_predict")
         cmd.append("model.load=%s" % self.model_file)
         cmd.append("tst.x-file=%s" % test_x_loc)
+        if sp.isspmatrix(X):
+            cmd.append("tst.x-file_format=x.sparse")
         cmd.append("tst.target=REAL")
         cmd.append("tst.output-prediction=%s" % pred_loc)
 
@@ -289,7 +292,6 @@ class FastRGFClassifier(util.RGFClassifierBase, RegressorMixin):
     """
     # TODO(fukatani): Test
     # TODO(fukatani): Other parameter
-    # TODO(fukatani): Sparse input
     def __init__(self,
                  dtree_new_tree_gain_ratio=1.0,
                  dtree_loss="LS",  # "MODLS" or "LOGISTIC" or "LS"
@@ -462,7 +464,7 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         train_weight_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".train.data.weight")
         self.model_file = os.path.join(rgf.get_temp_path(), self._file_prefix + ".model")
         if sp.isspmatrix(X):
-            util.sparse_savetxt(train_x_loc, X)
+            util.sparse_savetxt(train_x_loc, X, including_header=False)
         else:
             np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
 
@@ -487,6 +489,8 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         cmd.append("trn.x-file=%s" % train_x_loc)
         cmd.append("trn.y-file=%s" % train_y_loc)
         cmd.append("trn.w-file=%s" % train_weight_loc)
+        if sp.isspmatrix(X):
+            cmd.append("trn.x-file_format=x.sparse")
         cmd.append("trn.target=BINARY")
         cmd.append("set.verbose=%s" % self.verbose)
         cmd.append("model.save=%s" % self.model_file)
@@ -516,7 +520,7 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
         test_x_loc = os.path.join(rgf.get_temp_path(), self._file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
-            util.sparse_savetxt(test_x_loc, X)
+            util.sparse_savetxt(test_x_loc, X, including_header=False)
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
@@ -527,6 +531,8 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         cmd.append(rgf.get_fastrgf_path() + "/forest_predict")
         cmd.append("model.load=%s" % self.model_file)
         cmd.append("tst.x-file=%s" % test_x_loc)
+        if sp.isspmatrix(X):
+            cmd.append("tst.x-file_format=x.sparse")
         cmd.append("tst.target=REAL")
         cmd.append("tst.output-prediction=%s" % pred_loc)
 

@@ -307,9 +307,6 @@ class TestFastRGFClassfier(_TestRGFClassfierBase):
         # y_pred_weighted = clf.fit(self.X_train, self.y_train, weights).predict(self.X_test)
         # np.testing.assert_equal(y_pred_weighted, np.full(self.y_test.shape[0], self.y_test[0]))
 
-    def test_classifier_sparse_input(self):
-        pass
-
     def test_parallel_gridsearch(self):
         param_grid = dict(forest_ntrees=[100, 300])
         grid = GridSearchCV(self.classifier_class(),
@@ -573,9 +570,6 @@ class TestFastRGFRegressor(_TestRGFRegressorBase):
         # y_pred_weighted = reg.fit(self.X_train, self.y_train, weights).predict(self.X_test)
         # mse_fixed = mean_squared_error(self.y_test, y_pred_weighted)
         # self.assertLess(mse_fixed, mse_corrupt)
-
-    def test_regressor_sparse_input(self):
-        pass
 
     def test_sklearn_integration(self):
         # TODO(fukatani): FastRGF bug?
