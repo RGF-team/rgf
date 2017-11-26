@@ -123,15 +123,6 @@ class _TestRGFClassfierBase(unittest.TestCase):
                           self.y_train,
                           np.ones((n_samples, 2)))
 
-    def test_parallel_gridsearch(self):
-        param_grid = dict(max_leaf=[100, 300])
-        grid = GridSearchCV(self.classifier_class(n_jobs=1),
-                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
-        grid.fit(self.X_train, self.y_train)
-        y_pred = grid.best_estimator_.predict(self.X_train)
-        score = accuracy_score(self.y_train, y_pred)
-        self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
-
     def test_pickle(self):
         clf = self.classifier_class()
         clf.fit(self.X_train, self.y_train)
@@ -267,6 +258,15 @@ class TestRGFClassfier(_TestRGFClassfierBase):
         else:
             self.assertEqual(clf.n_iter_, clf.n_iter)
 
+    def test_parallel_gridsearch(self):
+        param_grid = dict(max_leaf=[100, 300])
+        grid = GridSearchCV(self.classifier_class(n_jobs=1),
+                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
+        grid.fit(self.X_train, self.y_train)
+        y_pred = grid.best_estimator_.predict(self.X_train)
+        score = accuracy_score(self.y_train, y_pred)
+        self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
+
 
 class TestFastRGFClassfier(_TestRGFClassfierBase):
     def setUp(self):
@@ -309,8 +309,8 @@ class TestFastRGFClassfier(_TestRGFClassfierBase):
 
     def test_parallel_gridsearch(self):
         param_grid = dict(forest_ntrees=[100, 300])
-        grid = GridSearchCV(self.classifier_class(),
-                            param_grid=param_grid, refit=True, cv=2, verbose=0)
+        grid = GridSearchCV(self.classifier_class(n_jobs=1),
+                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
         y_pred = grid.best_estimator_.predict(self.X_train)
         score = accuracy_score(self.y_train, y_pred)
@@ -397,15 +397,6 @@ class _TestRGFRegressorBase(unittest.TestCase):
                           self.X_train,
                           self.y_train,
                           np.ones((n_samples, 2)))
-
-    def test_parallel_gridsearch(self):
-        param_grid = dict(max_leaf=[100, 300])
-        grid = GridSearchCV(self.regressor_class(),
-                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
-        grid.fit(self.X_train, self.y_train)
-        y_pred = grid.best_estimator_.predict(self.X_test)
-        mse = mean_squared_error(self.y_test, y_pred)
-        self.assertLess(mse, 6.0)
 
     def test_pickle(self):
         reg = self.regressor_class()
@@ -528,6 +519,15 @@ class TestRGFRegressor(_TestRGFRegressorBase):
         else:
             self.assertEqual(reg.n_iter_, reg.n_iter)
 
+    def test_parallel_gridsearch(self):
+        param_grid = dict(max_leaf=[100, 300])
+        grid = GridSearchCV(self.regressor_class(),
+                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
+        grid.fit(self.X_train, self.y_train)
+        y_pred = grid.best_estimator_.predict(self.X_test)
+        mse = mean_squared_error(self.y_test, y_pred)
+        self.assertLess(mse, 6.0)
+
 
 class TestFastRGFRegressor(_TestRGFRegressorBase):
     def setUp(self):
@@ -578,7 +578,13 @@ class TestFastRGFRegressor(_TestRGFRegressorBase):
         pass
 
     def test_parallel_gridsearch(self):
-        pass
+        param_grid = dict(forest_ntrees=[100, 300])
+        grid = GridSearchCV(self.regressor_class(n_jobs=1),
+                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
+        grid.fit(self.X_train, self.y_train)
+        y_pred = grid.best_estimator_.predict(self.X_test)
+        mse = mean_squared_error(self.y_test, y_pred)
+        self.assertLess(mse, 6.0)
 
 
 if __name__ == '__main__':

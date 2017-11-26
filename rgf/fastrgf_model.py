@@ -8,6 +8,7 @@ import numpy as np
 import scipy.sparse as sp
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from sklearn.exceptions import NotFittedError
+from sklearn.externals.joblib import cpu_count
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
@@ -63,6 +64,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
                  discretize_sparse_max_features=80000,
                  discretize_sparse_max_buckets=200,
                  n_iter=None,
+                 n_jobs=-1,
                  verbose=0):
         if not util.fastrgf_available():
             raise Exception('FastRGF is not installed correctly.')
@@ -77,6 +79,13 @@ class FastRGFRegressor(util.RGFRegressorBase):
         self.discretize_sparse_max_buckets = discretize_sparse_max_buckets
 
         self.n_iter = n_iter
+        self.n_jobs = n_jobs
+        if self.n_jobs == -1:
+            self.nthreads = 0
+        elif n_jobs < 0:
+            self.nthreads = cpu_count() + n_jobs + 1
+        else:
+            self.nthreads = n_jobs
         self.verbose = verbose
         self._file_prefix = str(uuid4()) + str(util.COUNTER.increment())
         util.UUIDS.append(self._file_prefix)
@@ -155,6 +164,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
         cmd.append("trn.y-file=%s" % train_y_loc)
         cmd.append("trn.w-file=%s" % train_weight_loc)
         cmd.append("trn.target=REAL")
+        cmd.append("set.nthreads=%s" % self.nthreads)
         cmd.append("set.verbose=%s" % self.verbose)
         cmd.append("model.save=%s" % self.model_file)
 
@@ -226,6 +236,8 @@ class FastRGFRegressor(util.RGFRegressorBase):
             cmd.append("tst.x-file_format=x.sparse")
         cmd.append("tst.target=REAL")
         cmd.append("tst.output-prediction=%s" % pred_loc)
+        cmd.append("set.nthreads=%s" % self.nthreads)
+        cmd.append("set.verbose=%s" % self.verbose)
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
@@ -303,6 +315,7 @@ class FastRGFClassifier(util.RGFClassifierBase, RegressorMixin):
                  discretize_sparse_max_buckets=10,
                  n_iter=None,
                  calc_prob="sigmoid",
+                 n_jobs=-1,
                  verbose=0):
         self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
         self.dtree_loss = dtree_loss
@@ -315,6 +328,7 @@ class FastRGFClassifier(util.RGFClassifierBase, RegressorMixin):
         self.discretize_sparse_max_buckets = discretize_sparse_max_buckets
 
         self.n_iter = n_iter
+        self.n_jobs = n_jobs
         self.verbose = verbose
         self._file_prefix = str(uuid4()) + str(util.COUNTER.increment())
         util.UUIDS.append(self._file_prefix)
@@ -383,6 +397,7 @@ class FastRGFClassifier(util.RGFClassifierBase, RegressorMixin):
                       discretize_sparse_max_features=self.discretize_sparse_max_features,
                       discretize_sparse_max_buckets=self.discretize_sparse_max_buckets,
                       n_iter=self.n_iter,
+                      n_jobs=self.n_jobs,
                       verbose=self.verbose)
 
         if sample_weight is None:
@@ -435,6 +450,7 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                  discretize_sparse_max_features=10,
                  discretize_sparse_max_buckets=10,
                  n_iter=None,
+                 n_jobs=-1,
                  verbose=0):
         self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
         self.dtree_loss = dtree_loss
@@ -447,6 +463,13 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.discretize_sparse_max_buckets = discretize_sparse_max_buckets
 
         self.n_iter = n_iter
+        self.n_jobs = n_jobs
+        if self.n_jobs == -1:
+            self.nthreads = 0
+        elif n_jobs < 0:
+            self.nthreads = cpu_count() + n_jobs + 1
+        else:
+            self.nthreads = n_jobs
         self.verbose = verbose
         self._file_prefix = str(uuid4()) + str(util.COUNTER.increment())
         util.UUIDS.append(self._file_prefix)
@@ -491,6 +514,7 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         if sp.isspmatrix(X):
             cmd.append("trn.x-file_format=x.sparse")
         cmd.append("trn.target=BINARY")
+        cmd.append("set.nthreads=%s" % self.nthreads)
         cmd.append("set.verbose=%s" % self.verbose)
         cmd.append("model.save=%s" % self.model_file)
 
@@ -534,6 +558,8 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             cmd.append("tst.x-file_format=x.sparse")
         cmd.append("tst.target=REAL")
         cmd.append("tst.output-prediction=%s" % pred_loc)
+        cmd.append("set.nthreads=%s" % self.nthreads)
+        cmd.append("set.verbose=%s" % self.verbose)
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
