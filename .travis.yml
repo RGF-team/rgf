@@ -36,6 +36,15 @@ install:
   - python setup.py sdist --formats gztar
   - pip install dist/rgf_python-$RGF_VER.tar.gz -v
 
+# Temp solution for testing FastRGF
+  - git clone https://github.com/baidu/fast_rgf.git
+  - cd fast_rgf/build
+  - cmake ..
+  - make
+  - make install
+  - cp ../bin/forest_train ../bin/forest_predict ~/
+  - cd ../..
+
 script:
   - python tests/test.py
   - pip uninstall -y rgf_python
