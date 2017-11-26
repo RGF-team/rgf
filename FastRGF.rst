@@ -28,18 +28,31 @@ Installation
 
 Install rgf_python according to `this guide <https://github.com/fukatani/rgf_python#installation>`__.
 
+Then compile FastRGF:
+
+::
+
+    git clone https://github.com/baidu/fast_rgf.git
+    cd build/
+    cmake .. -G "MinGW Makefiles"
+    make 
+    make install
+
+On Windows compilation only with MinGW is supported now:
+
 ::
 
     git clone https://github.com/baidu/fast_rgf.git
     cd build/
     cmake ..
-    make 
-    make install
+    mingw32-make 
+    mingw32-make install
 
-If you succeeded to make FastRGF, /path/to/fast_rgf/bin/forest_train and /path/to/fast_rgf/bin/forest_predict should exist.
+If you succeeded to make FastRGF, ``forest_train`` and ``forest_predict`` executable files should exist in ``fast_rgf/bin`` folder.
 And you should indicate FastRGF location by ``~/.rgfrc`` file:
 
 ex.
+
 ::
 
     exe_location=C:/Program Files/RGF/bin/rgf.exe
