@@ -34,7 +34,7 @@ Then compile FastRGF:
 
     git clone https://github.com/baidu/fast_rgf.git
     cd build/
-    cmake .. -G "MinGW Makefiles"
+    cmake ..
     make 
     make install
 
@@ -44,7 +44,7 @@ On Windows compilation only with MinGW is supported now:
 
     git clone https://github.com/baidu/fast_rgf.git
     cd build/
-    cmake ..
+    cmake .. -G "MinGW Makefiles"
     mingw32-make 
     mingw32-make install
 
