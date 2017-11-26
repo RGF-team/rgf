@@ -8,7 +8,8 @@ Features
 
 **Scikit-learn interface for FastRGF and possibility of usage for multiclass classification problem.**
 
-FastRGF feature is alpha version.
+FastRGF feature is **alpha version**.
+
 The part of the function may be not tested, not documented and not unstabled. API can be changed in the future.
 
 Example
@@ -25,7 +26,7 @@ Software Requirements
 Installation
 ------------
 
-Install rgf_python by `here <https://github.com/fukatani/rgf_python#installation>`__.
+Install rgf_python according to `this guide <https://github.com/fukatani/rgf_python#installation>`__.
 
 ::
 
@@ -35,7 +36,7 @@ Install rgf_python by `here <https://github.com/fukatani/rgf_python#installation
     make 
     make install
 
-If you succeeded to make FastRGF, /path/to/fast_rgt/bin/forest_train and /path/to/fast_rgt/bin/forest_train should exist.
+If you succeeded to make FastRGF, /path/to/fast_rgf/bin/forest_train and /path/to/fast_rgf/bin/forest_predict should exist.
 And you should indicate FastRGF location by ``~/.rgfrc`` file:
 
 ex.
