@@ -28,7 +28,9 @@ Installation
 
 Install rgf_python according to `this guide <https://github.com/fukatani/rgf_python#installation>`__.
 
-Then compile FastRGF:
+Then compile FastRGF.
+
+Note that we test only g++-5 and newer compilators.
 
 ::
 
@@ -38,7 +40,7 @@ Then compile FastRGF:
     make 
     make install
 
-On Windows compilation only with MinGW is supported now:
+On Windows compilation only with `MinGW-w64 <https://mingw-w64.org/doku.php>`__ is supported because only this version provides POSIX threads:
 
 ::
 
