@@ -23,6 +23,7 @@ before_install:
       curl https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
     else
       sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
+      sudo apt-get update;
       sudo apt-get install gcc-5;
       sudo apt-get install g++-5;
       export CXX=g++-5;
