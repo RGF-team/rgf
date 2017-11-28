@@ -6,6 +6,7 @@ language: generic
 os:
   - linux
   - osx
+osx_image: xcode8.3  # Delete this line tomorrow after updating Travis
 
 env:
   - PYTHON_VERSION=2.7
@@ -15,6 +16,10 @@ env:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew install gcc;
+      brew link --overwrite gcc;
+      export CXX=g++-7;
+      export CC=gcc-7;
       curl https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
     else
       wget https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh -O miniconda.sh;
@@ -35,6 +40,15 @@ install:
   - conda install -q numpy scipy nose pandas scikit-learn
   - python setup.py sdist --formats gztar
   - pip install dist/rgf_python-$RGF_VER.tar.gz -v
+
+# Temp solution for testing FastRGF
+  - git clone https://github.com/baidu/fast_rgf.git
+  - cd fast_rgf/build
+  - cmake ..
+  - make
+  - make install
+  - cp ../bin/forest_train ../bin/forest_predict ~/
+  - cd ../..
 
 script:
   - python tests/test.py

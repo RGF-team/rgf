@@ -33,6 +33,16 @@ install:
   - python setup.py sdist --formats gztar
   - pip install dist\rgf_python-%RGF_VER%.tar.gz -v
 
+# Temp solution for testing FastRGF
+  - git clone https://github.com/baidu/fast_rgf.git
+  - cd fast_rgf/build
+  - cmake .. -G "MinGW Makefiles"
+  - mingw32-make
+  - mingw32-make install
+  - cd ../bin
+  - copy *.exe %HOMEPATH%
+  - cd ../..
+
 test_script:
   - python tests/test.py
   - pip uninstall -y rgf_python
