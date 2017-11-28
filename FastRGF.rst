@@ -6,7 +6,7 @@ The wrapper of machine learning algorithm **FastRGF** `[1] <#reference>`__ for P
 Features
 --------
 
-**Scikit-learn interface for FastRGF and possibility of usage for multiclass classification problem.**
+**Scikit-learn interface for FastRGF.**
 
 FastRGF feature is **alpha version**.
 
@@ -63,4 +63,3 @@ Reference
 ---------
 
 [1] `Tong Zhang, FastRGF <https://github.com/baidu/fast_rgf>`__ 
-
