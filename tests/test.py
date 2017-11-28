@@ -275,7 +275,7 @@ class TestFastRGFClassfier(_TestRGFClassfierBase):
 
         # Iris
         self.classifier_class = FastRGFClassifier
-        self.kwargs = {'n_jobs' : 2, 'verbose' : 5}
+        self.kwargs = {'n_jobs' : 8, 'verbose' : 1}
         iris = datasets.load_iris()
         rng = check_random_state(0)
         perm = rng.permutation(iris.target.size)
@@ -538,7 +538,7 @@ class TestFastRGFRegressor(_TestRGFRegressorBase):
 
         # Friedman1
         self.regressor_class = FastRGFRegressor
-        self.kwargs = {'n_jobs': 2, 'verbose': 5}
+        self.kwargs = {'n_jobs': 8, 'verbose': 1}
         self.X, self.y = datasets.make_friedman1(n_samples=500,
                                                  random_state=1,
                                                  noise=1.0)
@@ -552,7 +552,7 @@ class TestFastRGFRegressor(_TestRGFRegressorBase):
         pass
 
     def test_sample_weight(self):
-        reg = self.regressor_class()
+        reg = self.regressor_class(**self.kwargs)
 
         y_pred = reg.fit(self.X_train, self.y_train).predict(self.X_test)
         y_pred_weighted = reg.fit(self.X_train,
