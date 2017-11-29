@@ -6,7 +6,6 @@ language: generic
 os:
   - linux
   - osx
-osx_image: xcode8.3  # Delete this line tomorrow after updating Travis
 
 env:
   - PYTHON_VERSION=2.7
@@ -16,20 +15,18 @@ env:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew install gcc-7;
-      brew link --overwrite gcc;
-      export CXX=g++-7;
-      export CC=gcc-7;
+      brew update;
+      brew install gcc@5;
+      brew link --overwrite gcc@5;
       curl https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
     else
       sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
       sudo apt-get update;
-      sudo apt-get install gcc-5;
       sudo apt-get install g++-5;
-      export CXX=g++-5;
-      export CC=gcc-5;
       wget https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
+
+  - export CXX=g++-5 && export CC=gcc-5
 
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
