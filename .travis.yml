@@ -41,3 +41,16 @@ script:
   - pip uninstall -y rgf_python
   - python setup.py install
   - python tests/test.py
+
+deploy:
+  file_glob: true
+  file: dist/*
+  skip_cleanup: true
+  draft: true
+  provider:pypi
+  user: ryofuka
+  password:
+    secure: P1KOY+0sMVw3Fq44hWbYyrt7mYFBA9BnxWyy8AGy7AOrZzCXQs8uGBGqwm4PINNmaZnYdNL3okWnUQKEOHcYlp25K2Aqv+JZhckweEq3g3szK9TXja/IxtwbvkGBgR8s7PxvY+H5motxh4ACP3d3s8IgIlkM9lC64ac6LAU56ED57OmPWHMUsJrJd5QTh4AQz0a6MeZQ/VJq62PTE+m4WjT3ZDyORsfhKW9M08n0Zcdiv1Jmc8BnPGg/nlWP3hk9FHYpjrirhHOdQ0dBYi0Bh93IGzHZD7BCVyyn1f0l13+czSmB2zxm6qRPrsVC8LGdgazwVAEhJsINk9USr8Qx2nwMTOiwlEHP39NDcAu60NCie2cWpmqbUJ3fDUjkk6zpW4q7vxmEU2LWl1lOEWkhVixtF21PlnLgK6oZ0/9Py1pAb3FkuMTzyXhhfPvln0y9zPT+JR4jRzdWxPgepiOn0FGtX70FdWeCFTLp54kbXE7PFYvPhWRdFE5xsB80oCV0LwLpfpm7ewsfEBTI6iTS7ti/bitdKb5NSX5mvC7YlMtWm1rTiVjdF9Z2igdNhvGMQckfWEHHhDnC8A8mWDq3xs9bKdbGBvncdXD3KeAJDx72+z4vg4zyBcyGa+EQjcY8v3wban9+EZ4ceUN89jRvqSPX7u59S8pPhppAbuHEsjw=
+  on:
+    tags: true
+
