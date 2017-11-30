@@ -22,7 +22,7 @@ install:
             $env:MINICONDA += "-x64";
             $env:PATH += ";C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin"
         }
-        else {$env:PATH += ";C:\MinGW\bin"}
+        else {$env:PATH += ";C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin"}
   - set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
