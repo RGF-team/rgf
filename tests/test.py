@@ -588,7 +588,3 @@ class TestFastRGFRegressor(_TestRGFRegressorBase):
         y_pred = grid.best_estimator_.predict(self.X_test)
         mse = mean_squared_error(self.y_test, y_pred)
         self.assertLess(mse, 6.0)
-
-
-if __name__ == '__main__':
-    unittest.main()

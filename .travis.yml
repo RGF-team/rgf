@@ -38,7 +38,7 @@ before_install:
   - RGF_VER=$(head -n 1 rgf/VERSION)
 
 install:
-  - conda install -q numpy scipy nose pandas scikit-learn
+  - conda install -q numpy scipy nose pandas scikit-learn pytest
   - python setup.py sdist --formats gztar
   - pip install dist/rgf_python-$RGF_VER.tar.gz -v
 
@@ -52,7 +52,7 @@ install:
   - cd ../..
 
 script:
-  - python tests/test.py
+  - pytest tests/ examples/ -o "python_files=*.py" -v
   - pip uninstall -y rgf_python
   - python setup.py install
-  - python tests/test.py
+  - pytest tests/ examples/ -o "python_files=*.py" -v

@@ -26,7 +26,7 @@ install:
   - set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose pandas scikit-learn
+  - conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose pandas scikit-learn pytest
   - activate test-environment
   - conda install mkl=2017.0.3  # Temp fix. Delete the line in the future when compatebility will be fixed.
   - ps: $env:RGF_VER = (Get-Content rgf\VERSION).trim()
@@ -44,7 +44,7 @@ install:
   - cd ../..
 
 test_script:
-  - python tests/test.py
+  - pytest tests/ examples/ -o "python_files=*.py" -v
   - pip uninstall -y rgf_python
   - python setup.py install
-  - python tests/test.py
+  - pytest tests/ examples/ -o "python_files=*.py" -v
