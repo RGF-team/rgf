@@ -44,7 +44,7 @@ install:
   - cd ../..
 
 test_script:
-  - pytest tests/ examples/ -o "python_files=*.py" -v
+  - pytest tests/ -o "python_files=*.py" -v
   - pip uninstall -y rgf_python
   - python setup.py install
-  - pytest tests/ examples/ -o "python_files=*.py" -v
+  - pytest tests/ -o "python_files=*.py" -v
