@@ -53,4 +53,5 @@ deploy:
 
   on:
     branch: master
+    condition: "$PYTHON_VERSION = 3.6"
 
