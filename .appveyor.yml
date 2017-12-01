@@ -16,7 +16,10 @@ environment:
     - PYTHON_VERSION: 3.6
       MINICONDA: C:\Miniconda36
 
+clone_depth: 50
+
 install:
+  - git submodule update --init --recursive  # retrieve fast_rgf
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%  # Delete sh.exe from PATH (mingw32-make fix)
   - ps: if($env:PLATFORM -eq "x64") {
             $env:MINICONDA += "-x64";
@@ -34,14 +37,13 @@ install:
   - pip install dist\rgf_python-%RGF_VER%.tar.gz -v
 
 # Temp solution for testing FastRGF
-  - git clone https://github.com/baidu/fast_rgf.git
-  - cd fast_rgf/build
+  - cd include/fast_rgf/build
   - cmake .. -G "MinGW Makefiles"
   - mingw32-make
   - mingw32-make install
   - cd ../bin
   - copy *.exe %HOMEPATH%
-  - cd ../..
+  - cd ../../..
 
 test_script:
   - python tests/test.py
