@@ -18,9 +18,6 @@ from sklearn.utils.extmath import softmax
 from sklearn.utils.validation import check_array
 
 
-with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as _f:
-    __version__ = _f.read().strip()
-
 _NOT_FITTED_ERROR_DESC = "Estimator not fitted, call `fit` before exploiting the model."
 _SYSTEM = platform.system()
 UUIDS = []
