@@ -8,9 +8,9 @@ os:
   - osx
 
 env:
-  # - PYTHON_VERSION=2.7
-  # - PYTHON_VERSION=3.4
-  # - PYTHON_VERSION=3.5
+  - PYTHON_VERSION=2.7
+  - PYTHON_VERSION=3.4
+  - PYTHON_VERSION=3.5
   - PYTHON_VERSION=3.6
 
 before_install:
@@ -61,5 +61,5 @@ deploy:
   on:
     branch: master
     condition: "$PYTHON_VERSION = 3.6"
-    tags: 2.1.1
+    tags: true
 
