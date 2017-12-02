@@ -8,9 +8,9 @@ os:
   - osx
 
 env:
-  - PYTHON_VERSION=2.7
-  - PYTHON_VERSION=3.4
-  - PYTHON_VERSION=3.5
+  # - PYTHON_VERSION=2.7
+  # - PYTHON_VERSION=3.4
+  # - PYTHON_VERSION=3.5
   - PYTHON_VERSION=3.6
 
 before_install:
@@ -42,9 +42,19 @@ script:
   - python setup.py install
   - python tests/test.py
 
+before_deploy:
+  - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
+  -     python setup.py bdist_wheel --plat-name=any --universal
+  - else
+  -     python setup.py bdist_wheel --plat-name=manylinux1_x86_64 --universal
+  - fi
+  - git config --local user.name fukatani
+  - git config --local user.email nannyakannya@gmail.com
+  - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
+
 deploy:
   file_glob: true
-  file: dist/*
+  file: dist/*.whl
   skip_cleanup: true
   draft: true
   provider: releases
