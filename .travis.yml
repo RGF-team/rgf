@@ -58,14 +58,24 @@ script:
   - python setup.py install
   - pytest tests/ -o "python_files=*.py" -v
 
+before_deploy:
+  - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
+      python setup.py bdist_wheel --plat-name=osx --universal;
+    else
+      python setup.py bdist_wheel --plat-name=manylinux1_x86_64 --universal;
+    fi
+
 deploy:
   file_glob: true
-  file: dist/*
+  file: dist/*.whl
   skip_cleanup: true
   draft: true
   provider: releases
   api-key:
-    secure: "olzOF+bBxUWpfgRmb3dKhHt0szfHiQlJAR8mjBGZa/DBlAQL006V6Xv0iOFBc/v2WkQRSSbysHDFifa2VnCLd7Qdp1DZZLGIwXWA/KJ5jTvGPJu90+BomRBv8+b+iFi3aTGz1NC713YJh4D5gf6CUfZ1Yd2gQ3drbLuVN+qBYm7tnagABwcd/Yq8g/lbGJoYvd51e2z8pGJdiCu5/ckv/MQW9jfjneANRToG3uYPbOc9p6/BIJX35m6643SorXxHrPayygmdgjV9mVSU0HzmErDEViTr+5cQtkUl6dKi8q+CiJRWQc7UWbOqb2CbYJBHQ+cIuTmZFKxHZpk0FM1q/360rI/I/kx4xFrpskA+xhzEr5Ev7fwsJvJGbp8VH56I/QAsZ6rOuXhLmgedRClX0QwkFwSM+ndVxRBFhql7YUxrnXlYFs/cgeTkA4rwfCbpc7zSjlfPNc/VtJC9qvKTfiKQg2IL785BGf6dBXNCjw9WseWFrG5cNwcQWirEHOJjGWx5adXxFD+nxVcF8W5ER3tesqT13Nlk4+RIa3oZmEgEN/QYok7fungrdEvKDaoBC3L6RTZszv2uNbIn5T0imvNmos8f7JrOcxIkF7nkGmneMyrDKAXmNiKHqfTVkcNQkOpoQOCnHRY3gsWoE24bCDo9t73fZ/c2uWL/tCGnaOA="
+    secure: "WGMJ/0VoQ34g1m9k6RkxLOS796HRgK0M8JsVUSs2zW3miwmGGRvh5p8cn+IlOJD0uJyZQksueyN5aEVwUZ5tDuNHb21CDUDupxNjt74EqWAB1fc9Dp72sSWImIPY6PEA/f8OTwQKI00B9WfDJJMPOdlPN57gq7+DlJLsEtWxXssvs/l5JiBc4qO1CwA+y4460cpTrBgB3VnhAF6tju6H4dJtj8lWtXdnFc9gUF/3xTi1QliGrE4doQyLoNOAr4pzNgNjeUjkw9yVKUfa2XsQhyCcLZjBg4Z1t4P15nN/NRaQv/IaYu2WjbRIW1bVadfHUVmuf5F2oRLmR2KrWaJSYTd7wsr+6/Pd/ejZXoL5XJCjCFRxJKHbdL4zIUJa50Auqw6NAwoZSqrLatfsxEjXZaUhaGPg63f44GOA8RSB4X3txPwTXPwXCb8QSq51rfm2zPe6UEvfiVGlyylHtTwP+GKqy1Ml4q+0HPCjne1qufLtNhy+Ke6rD7KgODJi/XElmJwhF8pPCeDp+AmMYbd+Ppid0sISJFCv4IJmAl3FUJ5dtH/wGFUWMQDH8zsF1v94AFXmuO0zvaoOnKOC7P+j3/UXqOUopdC4z0YYqkjJU+OkWO/rnhHhFoWQjys3f1D1q/++yF7wwEu/DkUbxr/29YV2hfa5yH/gHusLmX01d1o="
 
   on:
     branch: master
+    condition: "$PYTHON_VERSION = 3.6"
+    tags: true
+
