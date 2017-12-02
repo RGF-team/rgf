@@ -44,13 +44,10 @@ script:
 
 before_deploy:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
-      python setup.py bdist_wheel --plat-name=any --universal;
+      python setup.py bdist_wheel --plat-name=osx --universal;
     else
       python setup.py bdist_wheel --plat-name=manylinux1_x86_64 --universal;
     fi
-  - git config --local user.name fukatani
-  - git config --local user.email nannyakannya@gmail.com
-  - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 
 deploy:
   file_glob: true
@@ -64,4 +61,5 @@ deploy:
   on:
     branch: master
     condition: "$PYTHON_VERSION = 3.6"
+    tags: 2.1.1
 
