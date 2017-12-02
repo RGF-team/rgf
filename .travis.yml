@@ -49,6 +49,12 @@ before_deploy:
     else
       python setup.py bdist_wheel --plat-name=manylinux1_x86_64 --universal;
       python setup.py bdist_wheel --plat-name=manylinux1_i686 --universal;
+      cd dist;
+      zip -d rgf_python-${RGF_VER}-py2.py3-none-manylinux1_i686.whl rgf/rgf;
+      mkdir rgf;
+      wget some_url -O rgf/rgf;
+      zip rgf_python-${RGF_VER}-py2.py3-none-manylinux1_i686.whl rgf/rgf;
+      cd ..;
     fi
 
 deploy:
