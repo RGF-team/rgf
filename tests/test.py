@@ -17,7 +17,7 @@ from sklearn.utils.validation import check_random_state
 
 from rgf.sklearn import RGFClassifier, RGFRegressor
 from rgf.sklearn import FastRGFClassifier, FastRGFRegressor
-from rgf.util import cleanup, get_temp_path, fastrgf_available
+from rgf.utils import cleanup, get_temp_path, fastrgf_available
 
 
 class _TestRGFClassfierBase(unittest.TestCase):
