@@ -132,7 +132,6 @@ def _fit_ovr_binary(binary_clf, X, y, sample_weight):
     return binary_clf.fit(X, y, sample_weight)
 
 
-
 class RGFClassifier(utils.RGFClassifierBase):
     """
     A Regularized Greedy Forest [1] classifier.
@@ -587,7 +586,6 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             with open(self._latest_model_loc, 'wb') as fw:
                 fw.write(self.__dict__["model"])
             del self.__dict__["model"]
-
 
 
 class RGFRegressor(utils.RGFRegressorBase):
