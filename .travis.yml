@@ -62,4 +62,3 @@ deploy:
     branch: master
     condition: "$PYTHON_VERSION = 3.6"
     tags: true
-
