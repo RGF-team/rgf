@@ -17,34 +17,16 @@ environment:
       MINICONDA: C:\Miniconda36
 
 install:
-  - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%  # Delete sh.exe from PATH (mingw32-make fix)
   - ps: if($env:PLATFORM -eq "x64") {
             $env:MINICONDA += "-x64";
-            $env:PATH += ";C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin"
         }
-        else {$env:PATH += ";C:\MinGW\bin"}
   - set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose pandas scikit-learn
   - activate test-environment
   - conda install mkl=2017.0.3  # Temp fix. Delete the line in the future when compatebility will be fixed.
-  - ps: $env:RGF_VER = (Get-Content rgf\VERSION).trim()
-  - python setup.py sdist --formats gztar
-  - pip install dist\rgf_python-%RGF_VER%.tar.gz -v
+  - pip install rgf_python -v
 
 test_script:
   - python tests/test.py
-  - pip uninstall -y rgf_python
-  - python setup.py install
-  - python tests/test.py
-
-after_test:
-  - IF "%PLATFORM%"=="x64" (
-    python setup.py bdist_wheel --plat-name=win-amd64 --universal)
-    ELSE (
-    python setup.py bdist_wheel --plat-name=win32 --universal)
-
-artifacts:
-  - path: dist/*
-    name: pip
