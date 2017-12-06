@@ -97,10 +97,10 @@ def _is_executable_response(path):
     params.append("reg_L2=%s" % 1)
 
     try:
-        try:
-            os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-        except Exception:
-            pass
+        os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    except Exception:
+        pass
+    try:
         subprocess.check_output((path, "train", ",".join(params)))
         return True
     except Exception:
