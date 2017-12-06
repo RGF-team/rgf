@@ -16,7 +16,7 @@ from sklearn.exceptions import NotFittedError
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
-from rgf import util
+from rgf import utils
 
 
 _ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
@@ -132,8 +132,7 @@ def _fit_ovr_binary(binary_clf, X, y, sample_weight):
     return binary_clf.fit(X, y, sample_weight)
 
 
-
-class RGFClassifier(util.RGFClassifierBase):
+class RGFClassifier(utils.RGFClassifierBase):
     """
     A Regularized Greedy Forest [1] classifier.
 
@@ -313,7 +312,7 @@ class RGFClassifier(util.RGFClassifierBase):
         used in model building process.
         """
         if self._sl2 is None:
-            raise NotFittedError(util.not_fitted_error_desc())
+            raise NotFittedError(utils.not_fitted_error_desc())
         else:
             return self._sl2
 
@@ -324,7 +323,7 @@ class RGFClassifier(util.RGFClassifierBase):
         used in model building process.
         """
         if self._min_samples_leaf is None:
-            raise NotFittedError(util.not_fitted_error_desc())
+            raise NotFittedError(utils.not_fitted_error_desc())
         else:
             return self._min_samples_leaf
 
@@ -474,17 +473,17 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.learning_rate = learning_rate
         self.memory_policy = memory_policy
         self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(util.COUNTER.increment())
-        util.UUIDS.append(self._file_prefix)
+        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
+        utils.UUIDS.append(self._file_prefix)
         self._fitted = None
         self._latest_model_loc = None
 
     def fit(self, X, y, sample_weight):
-        train_x_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".train.data.y")
-        train_weight_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".train.data.weight")
+        train_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.x")
+        train_y_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.y")
+        train_weight_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.weight")
         if sp.isspmatrix(X):
-            util.sparse_savetxt(train_x_loc, X)
+            utils.sparse_savetxt(train_x_loc, X)
         else:
             np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
 
@@ -516,10 +515,10 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         params.append("opt_interval=%s" % self.opt_interval)
         params.append("opt_stepsize=%s" % self.learning_rate)
         params.append("memory_policy=%s" % self.memory_policy.title())
-        params.append("model_fn_prefix=%s" % os.path.join(util.get_temp_path(), self._file_prefix + ".model"))
+        params.append("model_fn_prefix=%s" % os.path.join(utils.get_temp_path(), self._file_prefix + ".model"))
         params.append("train_w_fn=%s" % train_weight_loc)
 
-        cmd = (util.get_exe_path(), "train", ",".join(params))
+        cmd = (utils.get_exe_path(), "train", ",".join(params))
 
         # Train
         output = subprocess.Popen(cmd,
@@ -533,35 +532,35 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
 
         self._fitted = True
         # Find latest model location
-        model_glob = os.path.join(util.get_temp_path(), self._file_prefix + ".model*")
+        model_glob = os.path.join(utils.get_temp_path(), self._file_prefix + ".model*")
         model_files = glob(model_glob)
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(util.get_temp_path()))
+                            'Training is abnormally finished.'.format(utils.get_temp_path()))
         self._latest_model_loc = sorted(model_files, reverse=True)[0]
         return self
 
     def predict_proba(self, X):
         if self._fitted is None:
-            raise NotFittedError(util.not_fitted_error_desc())
+            raise NotFittedError(utils.not_fitted_error_desc())
         if not os.path.isfile(self._latest_model_loc):
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(util.get_temp_path()))
+                            'This is rgf_python error.'.format(utils.get_temp_path()))
 
-        test_x_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".test.data.x")
+        test_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
-            util.sparse_savetxt(test_x_loc, X)
+            utils.sparse_savetxt(test_x_loc, X)
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
         # Format test command
-        pred_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".predictions.txt")
+        pred_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".predictions.txt")
         params = []
         params.append("test_x_fn=%s" % test_x_loc)
         params.append("prediction_fn=%s" % pred_loc)
         params.append("model_fn=%s" % self._latest_model_loc)
 
-        cmd = (util.get_exe_path(), "predict", ",".join(params))
+        cmd = (utils.get_exe_path(), "predict", ",".join(params))
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
@@ -589,8 +588,7 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             del self.__dict__["model"]
 
 
-
-class RGFRegressor(util.RGFRegressorBase):
+class RGFRegressor(utils.RGFRegressorBase):
     """
     A Regularized Greedy Forest [1] regressor.
 
@@ -726,8 +724,8 @@ class RGFRegressor(util.RGFRegressorBase):
         self.learning_rate = learning_rate
         self.memory_policy = memory_policy
         self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(util.COUNTER.increment())
-        util.UUIDS.append(self._file_prefix)
+        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
+        utils.UUIDS.append(self._file_prefix)
         self._n_features = None
         self._fitted = None
         self._latest_model_loc = None
@@ -739,7 +737,7 @@ class RGFRegressor(util.RGFRegressorBase):
         used in model building process.
         """
         if self._sl2 is None:
-            raise NotFittedError(util.not_fitted_error_desc())
+            raise NotFittedError(utils.not_fitted_error_desc())
         else:
             return self._sl2
 
@@ -750,7 +748,7 @@ class RGFRegressor(util.RGFRegressorBase):
         used in model building process.
         """
         if self._min_samples_leaf is None:
-            raise NotFittedError(util.not_fitted_error_desc())
+            raise NotFittedError(utils.not_fitted_error_desc())
         else:
             return self._min_samples_leaf
 
@@ -805,11 +803,11 @@ class RGFRegressor(util.RGFRegressorBase):
                 raise ValueError("Sample weights must be positive.")
         check_consistent_length(X, y, sample_weight)
 
-        train_x_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".train.data.y")
-        train_weight_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".train.data.weight")
+        train_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.x")
+        train_y_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.y")
+        train_weight_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.weight")
         if sp.isspmatrix(X):
-            util.sparse_savetxt(train_x_loc, X)
+            utils.sparse_savetxt(train_x_loc, X)
         else:
             np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
         np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
@@ -838,10 +836,10 @@ class RGFRegressor(util.RGFRegressorBase):
         params.append("opt_interval=%s" % self.opt_interval)
         params.append("opt_stepsize=%s" % self.learning_rate)
         params.append("memory_policy=%s" % self.memory_policy.title())
-        params.append("model_fn_prefix=%s" % os.path.join(util.get_temp_path(), self._file_prefix + ".model"))
+        params.append("model_fn_prefix=%s" % os.path.join(utils.get_temp_path(), self._file_prefix + ".model"))
         params.append("train_w_fn=%s" % train_weight_loc)
 
-        cmd = (util.get_exe_path(), "train", ",".join(params))
+        cmd = (utils.get_exe_path(), "train", ",".join(params))
 
         # Train
         output = subprocess.Popen(cmd,
@@ -856,11 +854,11 @@ class RGFRegressor(util.RGFRegressorBase):
         self._fitted = True
 
         # Find latest model location
-        model_glob = os.path.join(util.get_temp_path(), self._file_prefix + ".model*")
+        model_glob = os.path.join(utils.get_temp_path(), self._file_prefix + ".model*")
         model_files = glob(model_glob)
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(util.get_temp_path()))
+                            'Training is abnormally finished.'.format(utils.get_temp_path()))
         self._latest_model_loc = sorted(model_files, reverse=True)[0]
         return self
 
@@ -881,7 +879,7 @@ class RGFRegressor(util.RGFRegressorBase):
             The predicted values.
         """
         if self._fitted is None:
-            raise NotFittedError(util.not_fitted_error_desc())
+            raise NotFittedError(utils.not_fitted_error_desc())
 
         X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
@@ -891,24 +889,24 @@ class RGFRegressor(util.RGFRegressorBase):
                              "input n_features is %s "
                              % (self._n_features, n_features))
 
-        test_x_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".test.data.x")
+        test_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
-            util.sparse_savetxt(test_x_loc, X)
+            utils.sparse_savetxt(test_x_loc, X)
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
         if not os.path.isfile(self._latest_model_loc):
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(util.get_temp_path()))
+                            'This is rgf_python error.'.format(utils.get_temp_path()))
 
         # Format test command
-        pred_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".predictions.txt")
+        pred_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".predictions.txt")
         params = []
         params.append("test_x_fn=%s" % test_x_loc)
         params.append("prediction_fn=%s" % pred_loc)
         params.append("model_fn=%s" % self._latest_model_loc)
 
-        cmd = (util.get_exe_path(), "predict", ",".join(params))
+        cmd = (utils.get_exe_path(), "predict", ",".join(params))
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
