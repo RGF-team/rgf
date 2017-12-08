@@ -11,6 +11,7 @@ import codecs
 import numbers
 import os
 import platform
+import stat
 import subprocess
 
 import numpy as np
@@ -95,6 +96,10 @@ def _is_executable_response(path):
     params.append("model_fn_prefix=%s" % os.path.join(_TEMP_PATH, "temp.model"))
     params.append("reg_L2=%s" % 1)
 
+    try:
+        os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    except Exception:
+        pass
     try:
         subprocess.check_output((path, "train", ",".join(params)))
         return True
