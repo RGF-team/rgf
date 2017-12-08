@@ -6,6 +6,7 @@ import codecs
 import glob
 import os
 import platform
+import stat
 import subprocess
 from threading import Lock
 
@@ -113,7 +114,10 @@ def _is_rgf_executable(path):
     params.append("train_y_fn=%s" % temp_y_loc)
     params.append("model_fn_prefix=%s" % os.path.join(_TEMP_PATH, "temp.model"))
     params.append("reg_L2=%s" % 1)
-
+    try:
+        os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    except Exception:
+        pass
     try:
         subprocess.check_output((path, "train", ",".join(params)))
         return True
