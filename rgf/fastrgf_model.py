@@ -400,13 +400,6 @@ class FastRGFClassifier(utils.RGFClassifierBase, RegressorMixin):
                       n_jobs=self.n_jobs,
                       verbose=self.verbose)
 
-        if sample_weight is None:
-            sample_weight = np.ones(n_samples, dtype=np.float32)
-        else:
-            sample_weight = column_or_1d(sample_weight, warn=True)
-            if (sample_weight <= 0).any():
-                raise ValueError("Sample weights must be positive.")
-
         if self._n_classes == 2:
             self._classes_map[0] = self._classes[0]
             self._classes_map[1] = self._classes[1]
