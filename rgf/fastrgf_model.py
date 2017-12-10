@@ -265,7 +265,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
             del self.__dict__["model"]
 
 
-class FastRGFClassifier(utils.RGFClassifierBase, RegressorMixin):
+class FastRGFClassifier(utils.RGFClassifierBase):
     """
     A Fast Regularized Greedy Forest classifier by Tong Zhang.
     See https://github.com/baidu/fast_rgf
