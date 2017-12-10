@@ -12,10 +12,10 @@ from sklearn.externals.joblib import cpu_count
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
-from rgf import util
+from rgf import utils
 
 
-class FastRGFRegressor(util.RGFRegressorBase):
+class FastRGFRegressor(utils.RGFRegressorBase):
     """
     A Fast Regularized Greedy Forest regressor by Tong Zhang.
     See https://github.com/baidu/fast_rgf
@@ -66,7 +66,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
                  n_iter=None,
                  n_jobs=-1,
                  verbose=0):
-        if not util.fastrgf_available():
+        if not utils.fastrgf_available():
             raise Exception('FastRGF is not installed correctly.')
         self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
         self.dtree_loss = dtree_loss
@@ -87,8 +87,8 @@ class FastRGFRegressor(util.RGFRegressorBase):
         else:
             self.nthreads = n_jobs
         self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(util.COUNTER.increment())
-        util.UUIDS.append(self._file_prefix)
+        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
+        utils.UUIDS.append(self._file_prefix)
         self._n_features = None
         self._fitted = None
         self._latest_model_loc = None
@@ -135,12 +135,12 @@ class FastRGFRegressor(util.RGFRegressorBase):
                 raise ValueError("Sample weights must be positive.")
         check_consistent_length(X, y, sample_weight)
 
-        train_x_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".train.data.y")
-        train_weight_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".train.data.weight")
-        self.model_file = os.path.join(util.get_temp_path(), self._file_prefix + ".model")
+        train_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.x")
+        train_y_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.y")
+        train_weight_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.weight")
+        self.model_file = os.path.join(utils.get_temp_path(), self._file_prefix + ".model")
         if sp.isspmatrix(X):
-            util.sparse_savetxt(train_x_loc, X, including_header=False)
+            utils.sparse_savetxt(train_x_loc, X, including_header=False)
         else:
             np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
         np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
@@ -148,7 +148,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
 
         # Format train command
         cmd = []
-        cmd.append(util.get_fastrgf_path() + "/forest_train")
+        cmd.append(utils.get_fastrgf_path() + "/forest_train")
         cmd.append("forest.ntrees=%s" % self.forest_ntrees)
         cmd.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
         cmd.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
@@ -205,7 +205,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
             The predicted values.
         """
         if self._fitted is None:
-            raise NotFittedError(util.not_fitted_error_desc())
+            raise NotFittedError(utils.not_fitted_error_desc())
 
         X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
@@ -215,21 +215,21 @@ class FastRGFRegressor(util.RGFRegressorBase):
                              "input n_features is %s "
                              % (self._n_features, n_features))
 
-        test_x_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".test.data.x")
+        test_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
-            util.sparse_savetxt(test_x_loc, X, including_header=False)
+            utils.sparse_savetxt(test_x_loc, X, including_header=False)
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
         if not os.path.isfile(self.model_file):
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(util.get_temp_path()))
+                            'This is rgf_python error.'.format(utils.get_temp_path()))
 
         # Format test command
-        pred_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".predictions.txt")
+        pred_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".predictions.txt")
 
         cmd = []
-        cmd.append(util.get_fastrgf_path() + "/forest_predict")
+        cmd.append(utils.get_fastrgf_path() + "/forest_predict")
         cmd.append("model.load=%s" % self.model_file)
         cmd.append("tst.x-file=%s" % test_x_loc)
         if sp.isspmatrix(X):
@@ -265,7 +265,7 @@ class FastRGFRegressor(util.RGFRegressorBase):
             del self.__dict__["model"]
 
 
-class FastRGFClassifier(util.RGFClassifierBase, RegressorMixin):
+class FastRGFClassifier(utils.RGFClassifierBase, RegressorMixin):
     """
     A Fast Regularized Greedy Forest classifier by Tong Zhang.
     See https://github.com/baidu/fast_rgf
@@ -330,8 +330,8 @@ class FastRGFClassifier(util.RGFClassifierBase, RegressorMixin):
         self.n_iter = n_iter
         self.n_jobs = n_jobs
         self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(util.COUNTER.increment())
-        util.UUIDS.append(self._file_prefix)
+        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
+        utils.UUIDS.append(self._file_prefix)
         self._fitted = None
         self._latest_model_loc = None
         self.model_file = None
@@ -471,8 +471,8 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         else:
             self.nthreads = n_jobs
         self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(util.COUNTER.increment())
-        util.UUIDS.append(self._file_prefix)
+        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
+        utils.UUIDS.append(self._file_prefix)
         self._fitted = None
         self.model_file = None
         self._estimators = None
@@ -481,12 +481,12 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self._n_features = None
 
     def fit(self, X, y, sample_weight):
-        train_x_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".train.data.y")
-        train_weight_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".train.data.weight")
-        self.model_file = os.path.join(util.get_temp_path(), self._file_prefix + ".model")
+        train_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.x")
+        train_y_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.y")
+        train_weight_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.weight")
+        self.model_file = os.path.join(utils.get_temp_path(), self._file_prefix + ".model")
         if sp.isspmatrix(X):
-            util.sparse_savetxt(train_x_loc, X, including_header=False)
+            utils.sparse_savetxt(train_x_loc, X, including_header=False)
         else:
             np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
 
@@ -498,7 +498,7 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         # Format train command
 
         cmd = []
-        cmd.append(util.get_fastrgf_path() + "/forest_train")
+        cmd.append(utils.get_fastrgf_path() + "/forest_train")
         cmd.append("forest.ntrees=%s" % self.forest_ntrees)
         cmd.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
         cmd.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
@@ -531,27 +531,27 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self._fitted = True
         if not self.model_file:
             raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(util.get_temp_path()))
+                            'Training is abnormally finished.'.format(utils.get_temp_path()))
         return self
 
     def predict_proba(self, X):
         if self._fitted is None:
-            raise NotFittedError(util.not_fitted_error_desc())
+            raise NotFittedError(utils.not_fitted_error_desc())
         if not os.path.isfile(self.model_file):
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(util.get_temp_path()))
+                            'This is rgf_python error.'.format(utils.get_temp_path()))
 
-        test_x_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".test.data.x")
+        test_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
-            util.sparse_savetxt(test_x_loc, X, including_header=False)
+            utils.sparse_savetxt(test_x_loc, X, including_header=False)
         else:
             np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
 
         # Format test command
-        pred_loc = os.path.join(util.get_temp_path(), self._file_prefix + ".predictions.txt")
+        pred_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".predictions.txt")
 
         cmd = []
-        cmd.append(util.get_fastrgf_path() + "/forest_predict")
+        cmd.append(utils.get_fastrgf_path() + "/forest_predict")
         cmd.append("model.load=%s" % self.model_file)
         cmd.append("tst.x-file=%s" % test_x_loc)
         if sp.isspmatrix(X):
