@@ -14,7 +14,7 @@ Features
 
 Original RGF implementation is available only for regression and binary classification, but rgf\_python is also available for **multiclass classification** by "One-vs-Rest" method.
 
-**Alpha version** Fast RGF is supported. Please see `this guide <https://github.com/fukatani/rgf_python/blob/master/FastRGF.rst>`__.
+FastRGF (**alpha version**) is supported. Please see `this guide <https://github.com/fukatani/rgf_python/blob/master/FastRGF.rst>`__.
 
 Example:
 

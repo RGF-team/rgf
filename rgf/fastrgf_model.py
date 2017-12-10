@@ -96,7 +96,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 
     def fit(self, X, y, sample_weight=None):
         """
-        Build a Fast RGF Regressor from the training set (X, y).
+        Build a FastRGF Regressor from the training set (X, y).
 
         Parameters
         ----------
@@ -345,7 +345,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
 
     def fit(self, X, y, sample_weight=None):
         """
-        Build a Fast RGF Classifier from the training set (X, y).
+        Build a FastRGF Classifier from the training set (X, y).
 
         Parameters
         ----------
@@ -428,7 +428,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
 
 class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
     """
-    Fast RGF Binary Classifier.
+    FastRGF Binary Classifier.
     Don't instantiate this class directly.
     This class should be instantiated only by FastRGFClassifier.
     """

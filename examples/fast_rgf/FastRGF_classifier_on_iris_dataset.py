@@ -24,7 +24,7 @@ clf = FastRGFClassifier()
 clf.fit(iris.data, iris.target)
 score = clf.score(iris.data, iris.target)
 end = time.time()
-print("Fast RGF: {} sec".format(end - start))
+print("FastRGF: {} sec".format(end - start))
 print("score: {}".format(score))
 
 start = time.time()
