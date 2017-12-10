@@ -16,7 +16,7 @@ from sklearn.exceptions import NotFittedError
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
-from rgf import utils
+from . import utils
 
 
 _ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")

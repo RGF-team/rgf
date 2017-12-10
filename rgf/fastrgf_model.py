@@ -12,7 +12,7 @@ from sklearn.externals.joblib import cpu_count
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
-from rgf import utils
+from . import utils
 
 
 class FastRGFRegressor(utils.RGFRegressorBase):
