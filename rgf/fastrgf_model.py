@@ -168,8 +168,6 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         cmd.append("set.verbose=%s" % self.verbose)
         cmd.append("model.save=%s" % self.model_file)
 
-        print(' '.join(cmd))
-
         # Train
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
@@ -375,6 +373,13 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         else:
             self._n_iter = self.n_iter
 
+        if self.n_jobs == -1:
+            self._n_jobs = 0
+        elif self.n_jobs < 0:
+            self._n_jobs = cpu_count() + self.n_jobs + 1
+        else:
+            self._n_jobs = self.n_jobs
+
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
         else:
@@ -396,8 +401,8 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                       discretize_dense_lamL2=self.discretize_dense_lamL2,
                       discretize_sparse_max_features=self.discretize_sparse_max_features,
                       discretize_sparse_max_buckets=self.discretize_sparse_max_buckets,
-                      n_iter=self.n_iter,
-                      n_jobs=self.n_jobs,
+                      n_iter=self._n_iter,
+                      nthreads=self._n_jobs,
                       verbose=self.verbose)
 
         if self._n_classes == 2:
@@ -405,175 +410,21 @@ class FastRGFClassifier(utils.RGFClassifierBase):
             self._classes_map[1] = self._classes[1]
             self._estimators = [None]
             y = (y == self._classes[0]).astype(int)
-            self._estimators[0] = _FastRGFBinaryClassifier(**params)
-            self._estimators[0].fit(X, y, sample_weight)
+            self._estimators[0] = utils.RGFBinaryClassifier(fast_rgf=True,
+                                                            **params).fit(X, y, sample_weight)
         elif self._n_classes > 2:
             if sp.isspmatrix_dok(X):
                 X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
             self._estimators = [None] * self._n_classes
-            ovr_list = [None] * self._n_classes
             for i, cls_num in enumerate(self._classes):
                 self._classes_map[i] = cls_num
-                ovr_list[i] = (y == cls_num).astype(int)
-                self._estimators[i] = _FastRGFBinaryClassifier(**params)
+                self._estimators[i] = utils.RGFBinaryClassifier(fast_rgf=True,
+                                                                **params).fit(X, (y == cls_num).astype(int),
+                                                                              sample_weight)
 
-            self._estimators = [self._estimators[i].fit(X, ovr_list[i], sample_weight)
-                                for i in range(self._n_classes)]
         else:
             raise ValueError("Classifier can't predict when only one class is present.")
 
         self._fitted = True
+
         return self
-
-
-class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
-    """
-    FastRGF Binary Classifier.
-    Don't instantiate this class directly.
-    This class should be instantiated only by FastRGFClassifier.
-    """
-    def __init__(self,
-                 dtree_new_tree_gain_ratio=1.0,
-                 dtree_loss="LS",  # "MODLS" or "LOGISTIC" or "LS"
-                 dtree_lamL1=10,
-                 dtree_lamL2=1000,
-                 forest_ntrees=1000,
-                 discretize_dense_max_buckets=250,
-                 discretize_dense_lamL2=10,
-                 discretize_sparse_max_features=10,
-                 discretize_sparse_max_buckets=10,
-                 n_iter=None,
-                 n_jobs=-1,
-                 verbose=0):
-        self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
-        self.dtree_loss = dtree_loss
-        self.dtree_lamL1 = dtree_lamL1
-        self.dtree_lamL2 = dtree_lamL2
-        self.forest_ntrees = forest_ntrees
-        self.discretize_dense_max_buckets = discretize_dense_max_buckets
-        self.discretize_dense_lamL2 = discretize_dense_lamL2
-        self.discretize_sparse_max_features = discretize_sparse_max_features
-        self.discretize_sparse_max_buckets = discretize_sparse_max_buckets
-
-        self.n_iter = n_iter
-        self.n_jobs = n_jobs
-        if self.n_jobs == -1:
-            self.nthreads = 0
-        elif n_jobs < 0:
-            self.nthreads = cpu_count() + n_jobs + 1
-        else:
-            self.nthreads = n_jobs
-        self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
-        utils.UUIDS.append(self._file_prefix)
-        self._fitted = None
-        self.model_file = None
-        self._estimators = None
-        self._classes = None
-        self._n_classes = None
-        self._n_features = None
-
-    def fit(self, X, y, sample_weight):
-        train_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.y")
-        train_weight_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.weight")
-        self.model_file = os.path.join(utils.get_temp_path(), self._file_prefix + ".model")
-        if sp.isspmatrix(X):
-            utils.sparse_savetxt(train_x_loc, X, including_header=False)
-        else:
-            np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
-
-        # Convert 1 to 1, 0 to -1
-        y = 2 * y - 1
-        np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
-        np.savetxt(train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
-
-        # Format train command
-
-        cmd = []
-        cmd.append(utils.get_fastrgf_path() + "/forest_train")
-        cmd.append("forest.ntrees=%s" % self.forest_ntrees)
-        cmd.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
-        cmd.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
-        cmd.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
-        cmd.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
-        cmd.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
-        cmd.append("dtree.loss=%s" % self.dtree_loss)
-        cmd.append("dtree.lamL1=%s" % self.dtree_lamL1)
-        cmd.append("dtree.lamL2=%s" % self.dtree_lamL2)
-        cmd.append("trn.x-file=%s" % train_x_loc)
-        cmd.append("trn.y-file=%s" % train_y_loc)
-        cmd.append("trn.w-file=%s" % train_weight_loc)
-        if sp.isspmatrix(X):
-            cmd.append("trn.x-file_format=x.sparse")
-        cmd.append("trn.target=BINARY")
-        cmd.append("set.nthreads=%s" % self.nthreads)
-        cmd.append("set.verbose=%s" % self.verbose)
-        cmd.append("model.save=%s" % self.model_file)
-
-        # Train
-        output = subprocess.Popen(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  universal_newlines=True).communicate()
-
-        if self.verbose:
-            for k in output:
-                print(k)
-
-        self._fitted = True
-        if not self.model_file:
-            raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.get_temp_path()))
-        return self
-
-    def predict_proba(self, X):
-        if self._fitted is None:
-            raise NotFittedError(utils.not_fitted_error_desc())
-        if not os.path.isfile(self.model_file):
-            raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(utils.get_temp_path()))
-
-        test_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".test.data.x")
-        if sp.isspmatrix(X):
-            utils.sparse_savetxt(test_x_loc, X, including_header=False)
-        else:
-            np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
-
-        # Format test command
-        pred_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".predictions.txt")
-
-        cmd = []
-        cmd.append(utils.get_fastrgf_path() + "/forest_predict")
-        cmd.append("model.load=%s" % self.model_file)
-        cmd.append("tst.x-file=%s" % test_x_loc)
-        if sp.isspmatrix(X):
-            cmd.append("tst.x-file_format=x.sparse")
-        cmd.append("tst.target=REAL")
-        cmd.append("tst.output-prediction=%s" % pred_loc)
-        cmd.append("set.nthreads=%s" % self.nthreads)
-        cmd.append("set.verbose=%s" % self.verbose)
-
-        output = subprocess.Popen(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT).communicate()
-
-        if self.verbose:
-            for k in output:
-                print(k)
-
-        return np.loadtxt(pred_loc)
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        if self._fitted:
-            with open(self.model_file, 'rb') as fr:
-                state["model"] = fr.read()
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        if self._fitted:
-            with open(self.model_file, 'wb') as fw:
-                fw.write(self.__dict__["model"])
-            del self.__dict__["model"]

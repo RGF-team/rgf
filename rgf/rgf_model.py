@@ -128,10 +128,6 @@ def _validate_params(max_leaf,
         raise ValueError("n_jobs must be an integer, got {0}.".format(type(n_jobs)))
 
 
-def _fit_ovr_binary(binary_clf, X, y, sample_weight):
-    return binary_clf.fit(X, y, sample_weight)
-
-
 
 class RGFClassifier(utils.RGFClassifierBase):
     """
@@ -404,7 +400,7 @@ class RGFClassifier(utils.RGFClassifierBase):
             self._classes_map[1] = self._classes[1]
             self._estimators = [None]
             y = (y == self._classes[0]).astype(int)
-            self._estimators[0] = _RGFBinaryClassifier(**params)
+            self._estimators[0] = utils.RGFBinaryClassifier(fast_rgf=False, **params)
             if self.n_jobs != 1 and self.verbose:
                 print('n_jobs = {}, but RGFClassifier uses one CPU because classes_ is 2'.format(self.n_jobs))
             self._estimators[0].fit(X, y, sample_weight)
@@ -416,7 +412,7 @@ class RGFClassifier(utils.RGFClassifierBase):
             for i, cls_num in enumerate(self._classes):
                 self._classes_map[i] = cls_num
                 ovr_list[i] = (y == cls_num).astype(int)
-                self._estimators[i] = _RGFBinaryClassifier(**params)
+                self._estimators[i] = utils.RGFBinaryClassifier(fast_rgf=False, **params)
 
             n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
             substantial_njobs = max(n_jobs, self.n_classes_)
@@ -425,7 +421,7 @@ class RGFClassifier(utils.RGFClassifierBase):
                       'classes_ is {2}'.format(n_jobs, substantial_njobs,
                                                self.n_classes_))
 
-            self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(_fit_ovr_binary)(self._estimators[i],
+            self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(utils._fit_ovr_binary)(self._estimators[i],
                                                                                      X,
                                                                                      ovr_list[i],
                                                                                      sample_weight)
@@ -434,160 +430,8 @@ class RGFClassifier(utils.RGFClassifierBase):
             raise ValueError("Classifier can't predict when only one class is present.")
 
         self._fitted = True
+
         return self
-
-
-class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
-    """
-    RGF Binary Classifier.
-    Don't instantiate this class directly.
-    RGFBinaryClassifier should be instantiated only by RGFClassifier.
-    """
-    def __init__(self,
-                 max_leaf=500,
-                 test_interval=100,
-                 algorithm="RGF",
-                 loss="Log",
-                 reg_depth=1.0,
-                 l2=0.1,
-                 sl2=None,
-                 normalize=False,
-                 min_samples_leaf=10,
-                 n_iter=None,
-                 n_tree_search=1,
-                 opt_interval=100,
-                 learning_rate=0.5,
-                 memory_policy="generous",
-                 verbose=0):
-        self.max_leaf = max_leaf
-        self.test_interval = test_interval
-        self.algorithm = algorithm
-        self.loss = loss
-        self.reg_depth = reg_depth
-        self.l2 = l2
-        self.sl2 = sl2
-        self.normalize = normalize
-        self.min_samples_leaf = min_samples_leaf
-        self.n_iter = n_iter
-        self.n_tree_search = n_tree_search
-        self.opt_interval = opt_interval
-        self.learning_rate = learning_rate
-        self.memory_policy = memory_policy
-        self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
-        utils.UUIDS.append(self._file_prefix)
-        self._fitted = None
-        self._latest_model_loc = None
-
-    def fit(self, X, y, sample_weight):
-        train_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.y")
-        train_weight_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.weight")
-        if sp.isspmatrix(X):
-            utils.sparse_savetxt(train_x_loc, X)
-        else:
-            np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
-
-        # Convert 1 to 1, 0 to -1
-        y = 2 * y - 1
-        np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
-        np.savetxt(train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
-
-        # Format train command
-        params = []
-        if self.verbose > 0:
-            params.append("Verbose")
-        if self.verbose > 5:
-            params.append("Verbose_opt")  # Add some info on weight optimization
-        if self.normalize:
-            params.append("NormalizeTarget")
-        params.append("train_x_fn=%s" % train_x_loc)
-        params.append("train_y_fn=%s" % train_y_loc)
-        params.append("algorithm=%s" % self.algorithm)
-        params.append("loss=%s" % self.loss)
-        params.append("max_leaf_forest=%s" % self.max_leaf)
-        params.append("test_interval=%s" % self.test_interval)
-        params.append("reg_L2=%s" % self.l2)
-        params.append("reg_sL2=%s" % self.sl2)
-        params.append("reg_depth=%s" % self.reg_depth)
-        params.append("min_pop=%s" % self.min_samples_leaf)
-        params.append("num_iteration_opt=%s" % self.n_iter)
-        params.append("num_tree_search=%s" % self.n_tree_search)
-        params.append("opt_interval=%s" % self.opt_interval)
-        params.append("opt_stepsize=%s" % self.learning_rate)
-        params.append("memory_policy=%s" % self.memory_policy.title())
-        params.append("model_fn_prefix=%s" % os.path.join(utils.get_temp_path(), self._file_prefix + ".model"))
-        params.append("train_w_fn=%s" % train_weight_loc)
-
-        cmd = (utils.get_exe_path(), "train", ",".join(params))
-
-        # Train
-        output = subprocess.Popen(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  universal_newlines=True).communicate()
-
-        if self.verbose:
-            for k in output:
-                print(k)
-
-        self._fitted = True
-        # Find latest model location
-        model_glob = os.path.join(utils.get_temp_path(), self._file_prefix + ".model*")
-        model_files = glob(model_glob)
-        if not model_files:
-            raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.get_temp_path()))
-        self._latest_model_loc = sorted(model_files, reverse=True)[0]
-        return self
-
-    def predict_proba(self, X):
-        if self._fitted is None:
-            raise NotFittedError(utils.not_fitted_error_desc())
-        if not os.path.isfile(self._latest_model_loc):
-            raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(utils.get_temp_path()))
-
-        test_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".test.data.x")
-        if sp.isspmatrix(X):
-            utils.sparse_savetxt(test_x_loc, X)
-        else:
-            np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
-
-        # Format test command
-        pred_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".predictions.txt")
-        params = []
-        params.append("test_x_fn=%s" % test_x_loc)
-        params.append("prediction_fn=%s" % pred_loc)
-        params.append("model_fn=%s" % self._latest_model_loc)
-
-        cmd = (utils.get_exe_path(), "predict", ",".join(params))
-
-        output = subprocess.Popen(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  universal_newlines=True).communicate()
-
-        if self.verbose:
-            for k in output:
-                print(k)
-
-        return np.loadtxt(pred_loc)
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        if self._fitted:
-            with open(self._latest_model_loc, 'rb') as fr:
-                state["model"] = fr.read()
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        if self._fitted:
-            with open(self._latest_model_loc, 'wb') as fw:
-                fw.write(self.__dict__["model"])
-            del self.__dict__["model"]
-
 
 
 class RGFRegressor(utils.RGFRegressorBase):
