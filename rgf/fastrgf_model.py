@@ -96,7 +96,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 
     def fit(self, X, y, sample_weight=None):
         """
-        Build a Fast RGF Regressor from the training set (X, y).
+        Build a FastRGF Regressor from the training set (X, y).
 
         Parameters
         ----------
@@ -265,7 +265,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
             del self.__dict__["model"]
 
 
-class FastRGFClassifier(utils.RGFClassifierBase, RegressorMixin):
+class FastRGFClassifier(utils.RGFClassifierBase):
     """
     A Fast Regularized Greedy Forest classifier by Tong Zhang.
     See https://github.com/baidu/fast_rgf
@@ -345,7 +345,7 @@ class FastRGFClassifier(utils.RGFClassifierBase, RegressorMixin):
 
     def fit(self, X, y, sample_weight=None):
         """
-        Build a Fast RGF Classifier from the training set (X, y).
+        Build a FastRGF Classifier from the training set (X, y).
 
         Parameters
         ----------
@@ -400,13 +400,6 @@ class FastRGFClassifier(utils.RGFClassifierBase, RegressorMixin):
                       n_jobs=self.n_jobs,
                       verbose=self.verbose)
 
-        if sample_weight is None:
-            sample_weight = np.ones(n_samples, dtype=np.float32)
-        else:
-            sample_weight = column_or_1d(sample_weight, warn=True)
-            if (sample_weight <= 0).any():
-                raise ValueError("Sample weights must be positive.")
-
         if self._n_classes == 2:
             self._classes_map[0] = self._classes[0]
             self._classes_map[1] = self._classes[1]
@@ -435,7 +428,7 @@ class FastRGFClassifier(utils.RGFClassifierBase, RegressorMixin):
 
 class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
     """
-    Fast RGF Binary Classifier.
+    FastRGF Binary Classifier.
     Don't instantiate this class directly.
     This class should be instantiated only by FastRGFClassifier.
     """

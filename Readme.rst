@@ -14,7 +14,7 @@ Features
 
 Original RGF implementation is available only for regression and binary classification, but rgf\_python is also available for **multiclass classification** by "One-vs-Rest" method.
 
-**Alpha version** Fast RGF is supported. Please see `this guide <https://github.com/fukatani/rgf_python/blob/master/FastRGF.rst>`__
+FastRGF (**alpha version**) is supported. Please see `this guide <https://github.com/fukatani/rgf_python/blob/master/FastRGF.rst>`__.
 
 Example:
 
@@ -225,6 +225,8 @@ License
 rgf_python is distributed under the GNU General Public License v3 (GPLv3). Please read file `LICENSE <https://github.com/fukatani/rgf_python/blob/master/LICENSE>`__ for more information.
 
 rgf_python includes RGF version 1.2 which is distributed under the GPLv3. Original CLI implementation of RGF you can download at http://tongzhang-ml.org/software/rgf.
+
+rgf_python includes FastRGF version 0.5 which is distributed under the MIT license. Original CLI implementation of FastRGF you can download at https://github.com/baidu/fast_rgf.
 
 Many thanks to Rie Johnson and Tong Zhang (the authors of RGF).
 
