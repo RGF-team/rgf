@@ -8,8 +8,8 @@ import os
 import platform
 import stat
 import subprocess
-from uuid import uuid4
 from threading import Lock
+from uuid import uuid4
 
 import numpy as np
 import scipy.sparse as sp
