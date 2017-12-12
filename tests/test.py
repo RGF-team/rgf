@@ -536,7 +536,7 @@ class TestFastRGFRegressor(_TestRGFRegressorBase):
 
         # Friedman1
         self.regressor_class = FastRGFRegressor
-        self.kwargs = {'verbose' : 1}
+        self.kwargs = {'verbose': 1}
         self.X, self.y = datasets.make_friedman1(n_samples=500,
                                                  random_state=1,
                                                  noise=1.0)
