@@ -132,7 +132,6 @@ def _fit_ovr_binary(binary_clf, X, y, sample_weight):
     return binary_clf.fit(X, y, sample_weight)
 
 
-
 class RGFClassifier(utils.RGFClassifierBase):
     """
     A Regularized Greedy Forest [1] classifier.
@@ -420,7 +419,7 @@ class RGFClassifier(utils.RGFClassifierBase):
 
             n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
             substantial_njobs = max(n_jobs, self.n_classes_)
-            if substantial_njobs < n_jobs  and self.verbose:
+            if substantial_njobs < n_jobs and self.verbose:
                 print('n_jobs = {0}, but RGFClassifier uses {1} CPUs because '
                       'classes_ is {2}'.format(n_jobs, substantial_njobs,
                                                self.n_classes_))
@@ -587,7 +586,6 @@ class _RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             with open(self._latest_model_loc, 'wb') as fw:
                 fw.write(self.__dict__["model"])
             del self.__dict__["model"]
-
 
 
 class RGFRegressor(utils.RGFRegressorBase):
