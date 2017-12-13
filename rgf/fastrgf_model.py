@@ -26,9 +26,18 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 
     Parameters
     ----------
+    dtree_max_level : int, optional (default=6)
+        maximum level of the tree.
+
+    dtree_max_nodes : int, optional (default=50)
+        maximum number of leaf nodes in best-first search.
+
     dtree_new_tree_gain_ratio : float, optional (default=1.0)
         new tree is created when leaf-nodes gain < this value * estimated gain
         of creating new three.
+
+    dtree_min_sample : int, optional (default=5)
+        minimum sample per node.
 
     loss : string ("LS" or "MODLS" or "LOGISTIC"), optional (default="LS")
 
@@ -54,7 +63,10 @@ class FastRGFRegressor(utils.RGFRegressorBase):
     # TODO(fukatani): Test
     # TODO(fukatani): Other parameter
     def __init__(self,
+                 dtree_max_level=6,
+                 dtree_max_nodes=50,
                  dtree_new_tree_gain_ratio=1.0,
+                 dtree_min_sample=5,
                  dtree_loss="LS",
                  dtree_lamL1=1,
                  dtree_lamL2=1000,
@@ -68,6 +80,9 @@ class FastRGFRegressor(utils.RGFRegressorBase):
                  verbose=0):
         if not utils.fastrgf_available():
             raise Exception('FastRGF is not installed correctly.')
+        self.dtree_max_level = dtree_max_level
+        self.dtree_max_nodes = dtree_max_nodes
+        self.dtree_min_sample = dtree_min_sample
         self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
         self.dtree_loss = dtree_loss
         self.dtree_lamL1 = dtree_lamL1
@@ -154,7 +169,10 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         cmd.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
         cmd.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
         cmd.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
+        cmd.append("dtree.max_level=%s" % self.dtree_max_level)
+        cmd.append("dtree.max_nodes=%s" % self.dtree_max_nodes)
         cmd.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
+        cmd.append("dtree.min_sample=%s" % self.dtree_min_sample)
         cmd.append("dtree.loss=%s" % self.dtree_loss)
         cmd.append("dtree.lamL1=%s" % self.dtree_lamL1)
         cmd.append("dtree.lamL2=%s" % self.dtree_lamL2)
@@ -276,9 +294,18 @@ class FastRGFClassifier(utils.RGFClassifierBase):
 
     Parameters
     ----------
+    dtree_max_level : int, optional (default=6)
+        maximum level of the tree.
+
+    dtree_max_nodes : int, optional (default=50)
+        maximum number of leaf nodes in best-first search.
+
     dtree_new_tree_gain_ratio : float, optional (default=1.0)
         new tree is created when leaf-nodes gain < this value * estimated gain
         of creating new three.
+
+    dtree_min_sample : int, optional (default=5)
+        minimum sample per node.
 
     loss : string ("LS" or "MODLS" or "LOGISTIC"), optional (default="LS")
 
@@ -304,7 +331,10 @@ class FastRGFClassifier(utils.RGFClassifierBase):
     # TODO(fukatani): Test
     # TODO(fukatani): Other parameter
     def __init__(self,
+                 dtree_max_level=6,
+                 dtree_max_nodes=50,
                  dtree_new_tree_gain_ratio=1.0,
+                 dtree_min_sample=5,
                  dtree_loss="LS",  # "MODLS" or "LOGISTIC" or "LS"
                  dtree_lamL1=10,
                  dtree_lamL2=1000,
@@ -317,7 +347,10 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                  calc_prob="sigmoid",
                  n_jobs=-1,
                  verbose=0):
+        self.dtree_max_level = dtree_max_level
+        self.dtree_max_nodes = dtree_max_nodes
         self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
+        self.dtree_min_sample = dtree_min_sample
         self.dtree_loss = dtree_loss
         self.dtree_lamL1 = dtree_lamL1
         self.dtree_lamL2 = dtree_lamL2
@@ -387,7 +420,10 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         self._classes = sorted(np.unique(y))
         self._n_classes = len(self._classes)
 
-        params = dict(dtree_new_tree_gain_ratio=self.dtree_new_tree_gain_ratio,
+        params = dict(dtree_max_level=self.dtree_max_level,
+                      dtree_max_nodes=self.dtree_max_nodes,
+                      dtree_new_tree_gain_ratio=self.dtree_new_tree_gain_ratio,
+                      dtree_min_sample=self.dtree_min_sample,
                       dtree_loss=self.dtree_loss,  # "MODLS" or "LOGISTIC" or "LS"
                       dtree_lamL1=self.dtree_lamL1,
                       dtree_lamL2=self.dtree_lamL2,
@@ -433,7 +469,10 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
     This class should be instantiated only by FastRGFClassifier.
     """
     def __init__(self,
+                 dtree_max_level=6,
+                 dtree_max_nodes=50,
                  dtree_new_tree_gain_ratio=1.0,
+                 dtree_min_sample=5,
                  dtree_loss="LS",  # "MODLS" or "LOGISTIC" or "LS"
                  dtree_lamL1=10,
                  dtree_lamL2=1000,
@@ -445,7 +484,10 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
                  n_iter=None,
                  n_jobs=-1,
                  verbose=0):
+        self.dtree_max_level = dtree_max_level
+        self.dtree_max_nodes = dtree_max_nodes
         self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
+        self.dtree_min_sample = dtree_min_sample
         self.dtree_loss = dtree_loss
         self.dtree_lamL1 = dtree_lamL1
         self.dtree_lamL2 = dtree_lamL2
@@ -497,7 +539,10 @@ class _FastRGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         cmd.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
         cmd.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
         cmd.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
+        cmd.append("dtree.max_level=%s" % self.dtree_max_level)
+        cmd.append("dtree.max_nodes=%s" % self.dtree_max_nodes)
         cmd.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
+        cmd.append("dtree.min_sample=%s" % self.dtree_min_sample)
         cmd.append("dtree.loss=%s" % self.dtree_loss)
         cmd.append("dtree.lamL1=%s" % self.dtree_lamL1)
         cmd.append("dtree.lamL2=%s" % self.dtree_lamL2)
