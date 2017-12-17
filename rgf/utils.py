@@ -24,6 +24,7 @@ with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as _f:
     __version__ = _f.read().strip()
 
 _NOT_FITTED_ERROR_DESC = "Estimator not fitted, call `fit` before exploiting the model."
+_NOT_IMPLEMENTED_ERROR_DESC = "This method isn't implemented in base class."
 _SYSTEM = platform.system()
 UUIDS = []
 _FASTRGF_AVAILABLE = False
@@ -406,14 +407,8 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
         return cleanup_partial(self._file_prefix, remove_from_list=True)
 
 
-class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
-    """
-    RGF Binary Classifier.
-    Don't instantiate this class directly.
-    This class should be instantiated only by RGFClassifier or FastRGFClassifier.
-    """
-    def __init__(self, fast_rgf=False, **kwargs):
-        self.fast_rgf = fast_rgf
+class RGFBinaryClassifierBase(BaseEstimator, ClassifierMixin):
+    def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -422,71 +417,24 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
         self.fitted = None
 
     def fit(self, X, y, sample_weight):
-        train_x_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.y")
-        train_weight_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.weight")
-        model_file = os.path.join(get_temp_path(), self.file_prefix + ".model")
+        self.train_x_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.x")
+        self.train_y_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.y")
+        self.train_weight_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.weight")
+        self.model_file_loc = os.path.join(get_temp_path(), self.file_prefix + ".model")
 
         if sp.isspmatrix(X):
-            sparse_savetxt(train_x_loc, X, including_header=not self.fast_rgf)
+            self.save_sparse_X(self.train_x_loc, X)
+            self.is_sparse_train_X = True
         else:
-            np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
+            np.savetxt(self.train_x_loc, X, delimiter=' ', fmt="%s")
+            self.is_sparse_train_X = False
 
         # Convert 1 to 1, 0 to -1
         y = 2 * y - 1
-        np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
-        np.savetxt(train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
+        np.savetxt(self.train_y_loc, y, delimiter=' ', fmt="%s")
+        np.savetxt(self.train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
 
-        # Format train command
-        params = []
-        if self.fast_rgf:
-            params.append("forest.ntrees=%s" % self.forest_ntrees)
-            params.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
-            params.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
-            params.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
-            params.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
-            params.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
-            params.append("dtree.loss=%s" % self.dtree_loss)
-            params.append("dtree.lamL1=%s" % self.dtree_lamL1)
-            params.append("dtree.lamL2=%s" % self.dtree_lamL2)
-            params.append("trn.x-file=%s" % train_x_loc)
-            params.append("trn.y-file=%s" % train_y_loc)
-            params.append("trn.w-file=%s" % train_weight_loc)
-            if sp.isspmatrix(X):
-                params.append("trn.x-file_format=x.sparse")
-            params.append("trn.target=BINARY")
-            params.append("set.nthreads=%s" % self.nthreads)
-            params.append("set.verbose=%s" % self.verbose)
-            params.append("model.save=%s" % model_file)
-
-            cmd = [get_fastrgf_path() + "/forest_train"]
-            cmd.extend(params)
-        else:
-            if self.verbose > 0:
-                params.append("Verbose")
-            if self.verbose > 5:
-                params.append("Verbose_opt")  # Add some info on weight optimization
-            if self.normalize:
-                params.append("NormalizeTarget")
-            params.append("train_x_fn=%s" % train_x_loc)
-            params.append("train_y_fn=%s" % train_y_loc)
-            params.append("algorithm=%s" % self.algorithm)
-            params.append("loss=%s" % self.loss)
-            params.append("max_leaf_forest=%s" % self.max_leaf)
-            params.append("test_interval=%s" % self.test_interval)
-            params.append("reg_L2=%s" % self.l2)
-            params.append("reg_sL2=%s" % self.sl2)
-            params.append("reg_depth=%s" % self.reg_depth)
-            params.append("min_pop=%s" % self.min_samples_leaf)
-            params.append("num_iteration_opt=%s" % self.n_iter)
-            params.append("num_tree_search=%s" % self.n_tree_search)
-            params.append("opt_interval=%s" % self.opt_interval)
-            params.append("opt_stepsize=%s" % self.learning_rate)
-            params.append("memory_policy=%s" % self.memory_policy.title())
-            params.append("model_fn_prefix=%s" % model_file)
-            params.append("train_w_fn=%s" % train_weight_loc)
-
-            cmd = (get_exe_path(), "train", ",".join(params))
+        cmd = self.get_train_command()
 
         # Train
         output = subprocess.Popen(cmd,
@@ -498,22 +446,10 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             for k in output:
                 print(k)
 
-        if not self.fast_rgf:
-            # Find latest model location
-            model_glob = os.path.join(get_temp_path(), self.file_prefix + ".model*")
-            model_files = glob.glob(model_glob)
-            if not model_files:
-                raise Exception('Model learning result is not found in {0}. '
-                                'Training is abnormally finished.'.format(get_temp_path()))
-            self.model_file = sorted(model_files, reverse=True)[0]
-        else:
-            if not os.path.isfile(model_file):
-                raise Exception('Model learning result is not found in {0}. '
-                                'Training is abnormally finished.'.format(get_temp_path()))
-            self.model_file = model_file
+        self.find_model_file()
 
         self.fitted = True
-							        
+					        
         return self
 
     def predict_proba(self, X):
@@ -523,34 +459,17 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             raise Exception('Model learning result is not found in {0}. '
                             'This is rgf_python error.'.format(get_temp_path()))
 
-        test_x_loc = os.path.join(get_temp_path(), self.file_prefix + ".test.data.x")
+        self.test_x_loc = os.path.join(get_temp_path(), self.file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
-            sparse_savetxt(test_x_loc, X, including_header=not self.fast_rgf)
+            self.save_sparse_X(self.test_x_loc, X)
+            self.is_sparse_test_X = True
         else:
-            np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
+            np.savetxt(self.test_x_loc, X, delimiter=' ', fmt="%s")
+            self.is_sparse_test_X = False
 
-        pred_loc = os.path.join(get_temp_path(), self.file_prefix + ".predictions.txt")
+        self.pred_loc = os.path.join(get_temp_path(), self.file_prefix + ".predictions.txt")
 
-        # Format test command
-        params = []
-        if self.fast_rgf:
-            params.append("model.load=%s" % self.model_file)
-            params.append("tst.x-file=%s" % test_x_loc)
-            if sp.isspmatrix(X):
-                params.append("tst.x-file_format=x.sparse")
-            params.append("tst.target=REAL")
-            params.append("tst.output-prediction=%s" % pred_loc)
-            params.append("set.nthreads=%s" % self.nthreads)
-            params.append("set.verbose=%s" % self.verbose)
-
-            cmd = [get_fastrgf_path() + "/forest_predict"]
-            cmd.extend(params)
-        else:
-            params.append("test_x_fn=%s" % test_x_loc)
-            params.append("prediction_fn=%s" % pred_loc)
-            params.append("model_fn=%s" % self.model_file)
-
-            cmd = (get_exe_path(), "predict", ",".join(params))
+        cmd = self.get_test_command()
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
@@ -560,7 +479,19 @@ class RGFBinaryClassifier(BaseEstimator, ClassifierMixin):
             for k in output:
                 print(k)
 
-        return np.loadtxt(pred_loc)
+        return np.loadtxt(self.pred_loc)
+
+    def save_sparse_X(self, X):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+
+    def get_train_command(self):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+
+    def find_model_file(self):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+
+    def get_test_command(self):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
 
     def __getstate__(self):
         state = self.__dict__.copy()

@@ -410,17 +410,16 @@ class FastRGFClassifier(utils.RGFClassifierBase):
             self._classes_map[1] = self._classes[1]
             self._estimators = [None]
             y = (y == self._classes[0]).astype(int)
-            self._estimators[0] = utils.RGFBinaryClassifier(fast_rgf=True,
-                                                            **params).fit(X, y, sample_weight)
+            self._estimators[0] = FastRGFBinaryClassifier(**params).fit(X, y, sample_weight)
         elif self._n_classes > 2:
             if sp.isspmatrix_dok(X):
                 X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
             self._estimators = [None] * self._n_classes
             for i, cls_num in enumerate(self._classes):
                 self._classes_map[i] = cls_num
-                self._estimators[i] = utils.RGFBinaryClassifier(fast_rgf=True,
-                                                                **params).fit(X, (y == cls_num).astype(int),
-                                                                              sample_weight)
+                self._estimators[i] = FastRGFBinaryClassifier(**params).fit(X,
+                                                                            (y == cls_num).astype(int),
+                                                                            sample_weight)
 
         else:
             raise ValueError("Classifier can't predict when only one class is present.")
@@ -428,3 +427,56 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         self._fitted = True
 
         return self
+
+
+class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
+    def save_sparse_X(self, path, X):
+        utils.sparse_savetxt(path, X, including_header=False)
+
+    def get_train_command(self):
+        params = []
+        params.append("forest.ntrees=%s" % self.forest_ntrees)
+        params.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
+        params.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
+        params.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
+        params.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
+        params.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
+        params.append("dtree.loss=%s" % self.dtree_loss)
+        params.append("dtree.lamL1=%s" % self.dtree_lamL1)
+        params.append("dtree.lamL2=%s" % self.dtree_lamL2)
+        params.append("trn.x-file=%s" % self.train_x_loc)
+        params.append("trn.y-file=%s" % self.train_y_loc)
+        params.append("trn.w-file=%s" % self.train_weight_loc)
+        if self.is_sparse_train_X:
+            params.append("trn.x-file_format=x.sparse")
+        params.append("trn.target=BINARY")
+        params.append("set.nthreads=%s" % self.nthreads)
+        params.append("set.verbose=%s" % self.verbose)
+        params.append("model.save=%s" % self.model_file_loc)
+
+        cmd = [utils.get_fastrgf_path() + "/forest_train"]
+        cmd.extend(params)
+
+        return cmd
+
+    def find_model_file(self):
+        if not os.path.isfile(self.model_file_loc):
+            raise Exception('Model learning result is not found in {0}. '
+                            'Training is abnormally finished.'.format(utils.get_temp_path()))
+        self.model_file = self.model_file_loc
+
+    def get_test_command(self):
+        params = []
+        params.append("model.load=%s" % self.model_file)
+        params.append("tst.x-file=%s" % self.test_x_loc)
+        if self.is_sparse_test_X:
+            params.append("tst.x-file_format=x.sparse")
+        params.append("tst.target=BINARY")
+        params.append("tst.output-prediction=%s" % self.pred_loc)
+        params.append("set.nthreads=%s" % self.nthreads)
+        params.append("set.verbose=%s" % self.verbose)
+
+        cmd = [utils.get_fastrgf_path() + "/forest_predict"]
+        cmd.extend(params)
+
+        return cmd
