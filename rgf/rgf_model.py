@@ -403,7 +403,7 @@ class RGFClassifier(utils.RGFClassifierBase):
             self._classes_map[1] = self._classes[1]
             self._estimators = [None]
             y = (y == self._classes[0]).astype(int)
-            self._estimators[0] = RGFBinaryClassifier(**params)
+            self._estimators[0] = _RGFBinaryClassifier(**params)
             if self.n_jobs != 1 and self.verbose:
                 print('n_jobs = {}, but RGFClassifier uses one CPU because classes_ is 2'.format(self.n_jobs))
             self._estimators[0].fit(X, y, sample_weight)
@@ -415,7 +415,7 @@ class RGFClassifier(utils.RGFClassifierBase):
             for i, cls_num in enumerate(self._classes):
                 self._classes_map[i] = cls_num
                 ovr_list[i] = (y == cls_num).astype(int)
-                self._estimators[i] = RGFBinaryClassifier(**params)
+                self._estimators[i] = _RGFBinaryClassifier(**params)
 
             n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
             substantial_njobs = max(n_jobs, self.n_classes_)
@@ -784,7 +784,7 @@ class RGFRegressor(utils.RGFRegressorBase):
             del self.__dict__["model"]
 
 
-class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
+class _RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
     def save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=True)
 

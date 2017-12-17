@@ -446,16 +446,16 @@ class FastRGFClassifier(utils.RGFClassifierBase):
             self._classes_map[1] = self._classes[1]
             self._estimators = [None]
             y = (y == self._classes[0]).astype(int)
-            self._estimators[0] = FastRGFBinaryClassifier(**params).fit(X, y, sample_weight)
+            self._estimators[0] = _FastRGFBinaryClassifier(**params).fit(X, y, sample_weight)
         elif self._n_classes > 2:
             if sp.isspmatrix_dok(X):
                 X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
             self._estimators = [None] * self._n_classes
             for i, cls_num in enumerate(self._classes):
                 self._classes_map[i] = cls_num
-                self._estimators[i] = FastRGFBinaryClassifier(**params).fit(X,
-                                                                            (y == cls_num).astype(int),
-                                                                            sample_weight)
+                self._estimators[i] = _FastRGFBinaryClassifier(**params).fit(X,
+                                                                             (y == cls_num).astype(int),
+                                                                             sample_weight)
 
         else:
             raise ValueError("Classifier can't predict when only one class is present.")
@@ -465,7 +465,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         return self
 
 
-class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
+class _FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
     def save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=False)
 
