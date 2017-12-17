@@ -128,6 +128,9 @@ def _validate_params(max_leaf,
         raise ValueError("n_jobs must be an integer, got {0}.".format(type(n_jobs)))
 
 
+def _fit_ovr_binary(binary_clf, X, y, sample_weight):
+    return binary_clf.fit(X, y, sample_weight)
+
 
 class RGFClassifier(utils.RGFClassifierBase):
     """
@@ -416,7 +419,7 @@ class RGFClassifier(utils.RGFClassifierBase):
 
             n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
             substantial_njobs = max(n_jobs, self.n_classes_)
-            if substantial_njobs < n_jobs  and self.verbose:
+            if substantial_njobs < n_jobs and self.verbose:
                 print('n_jobs = {0}, but RGFClassifier uses {1} CPUs because '
                       'classes_ is {2}'.format(n_jobs, substantial_njobs,
                                                self.n_classes_))

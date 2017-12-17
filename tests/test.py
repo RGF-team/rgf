@@ -15,73 +15,84 @@ from sklearn.utils.validation import check_random_state
 
 from rgf.sklearn import RGFClassifier, RGFRegressor
 from rgf.sklearn import FastRGFClassifier, FastRGFRegressor
-from rgf.utils import cleanup, get_temp_path, fastrgf_available
+from rgf.utils import cleanup, get_temp_path
 
 
-class _TestRGFClassfierBase(unittest.TestCase):
+class RGFClassfierBaseTest(object):
     def setUp(self):
-        raise unittest.SkipTest('')
+        iris = datasets.load_iris()
+        rng = check_random_state(0)
+        perm = rng.permutation(iris.target.size)
+        iris.data = iris.data[perm]
+        iris.target = iris.target[perm]
+
+        self.X_train, self.X_test, self.y_train, self.y_test = \
+            train_test_split(iris.data, iris.target,
+                             test_size=0.2, random_state=42)
+
+        y_str_train = np.array(self.y_train, dtype=str)
+        y_str_train[y_str_train == '0'] = 'Zero'
+        y_str_train[y_str_train == '1'] = 'One'
+        y_str_train[y_str_train == '2'] = 'Two'
+        self.y_str_train = y_str_train
+        y_str_test = np.array(self.y_test, dtype=str)
+        y_str_test[y_str_test == '0'] = 'Zero'
+        y_str_test[y_str_test == '1'] = 'One'
+        y_str_test[y_str_test == '2'] = 'Two'
+        self.y_str_test = y_str_test
 
     def test_classifier(self):
         clf = self.classifier_class(**self.kwargs)
-        clf.fit(self.iris.data, self.iris.target)
+        clf.fit(self.X_train, self.y_train)
 
-        proba_sum = clf.predict_proba(self.iris.data).sum(axis=1)
-        np.testing.assert_almost_equal(proba_sum, np.ones(self.iris.target.shape[0]))
+        proba_sum = clf.predict_proba(self.X_test).sum(axis=1)
+        np.testing.assert_almost_equal(proba_sum, np.ones(self.y_test.shape[0]))
 
-        score = clf.score(self.iris.data, self.iris.target)
-        print('Score: {0:.5f}'.format(score))
-        self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
+        score = clf.score(self.X_test, self.y_test)
+        self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
 
     def test_softmax_classifier(self):
         clf = self.classifier_class(calc_prob='softmax', **self.kwargs)
-        clf.fit(self.iris.data, self.iris.target)
+        clf.fit(self.X_train, self.y_train)
 
-        proba_sum = clf.predict_proba(self.iris.data).sum(axis=1)
-        np.testing.assert_almost_equal(proba_sum, np.ones(self.iris.target.shape[0]))
+        proba_sum = clf.predict_proba(self.X_test).sum(axis=1)
+        np.testing.assert_almost_equal(proba_sum, np.ones(self.y_test.shape[0]))
 
-        score = clf.score(self.iris.data, self.iris.target)
-        print('Score: {0:.5f}'.format(score))
-        self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
+        score = clf.score(self.X_test, self.y_test)
+        self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
 
     def test_bin_classifier(self):
         clf = self.classifier_class(**self.kwargs)
-        bin_target = (self.iris.target == 2).astype(int)
-        clf.fit(self.iris.data, bin_target)
+        bin_target_train = (self.y_train == 2).astype(int)
+        bin_target_test = (self.y_test == 2).astype(int)
+        clf.fit(self.X_train, bin_target_train)
 
-        proba_sum = clf.predict_proba(self.iris.data).sum(axis=1)
-        np.testing.assert_almost_equal(proba_sum, np.ones(bin_target.shape[0]))
+        proba_sum = clf.predict_proba(self.X_test).sum(axis=1)
+        np.testing.assert_almost_equal(proba_sum, np.ones(bin_target_test.shape[0]))
 
-        score = clf.score(self.iris.data, bin_target)
-        print('Score: {0:.5f}'.format(score))
-        self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
+        score = clf.score(self.X_test, bin_target_test)
+        self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
 
     def test_string_y(self):
         clf = self.classifier_class(**self.kwargs)
-        y_str = np.array(self.iris.target, dtype=str)
-        y_str[y_str == '0'] = 'Zero'
-        y_str[y_str == '1'] = 'One'
-        y_str[y_str == '2'] = 'Two'
 
-        clf.fit(self.iris.data, y_str)
-        y_pred = clf.predict(self.iris.data)
-        score = accuracy_score(y_str, y_pred)
-        self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
+        clf.fit(self.X_train, self.y_str_train)
+        y_pred = clf.predict(self.X_test)
+        score = accuracy_score(self.y_str_test, y_pred)
+        self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
 
     def test_bin_string_y(self):
         clf = self.classifier_class(**self.kwargs)
-        y_str = np.array(self.iris.target, dtype=str)
-        y_str[y_str == '0'] = 'Zero'
-        y_str[y_str == '1'] = 'One'
-        y_str[y_str == '2'] = 'Two'
 
-        bin_X = self.iris.data[self.iris.target != 0]
-        y_str = y_str[y_str != 'Zero']
+        bin_X_train = self.X_train[self.y_train != 0]
+        bin_X_test = self.X_test[self.y_test != 0]
+        y_str_train = self.y_str_train[self.y_str_train != 'Zero']
+        y_str_test = self.y_str_test[self.y_str_test != 'Zero']
 
-        clf.fit(bin_X, y_str)
-        y_pred = clf.predict(bin_X)
-        score = accuracy_score(y_str, y_pred)
-        self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
+        clf.fit(bin_X_train, y_str_train)
+        y_pred = clf.predict(bin_X_test)
+        score = accuracy_score(y_str_test, y_pred)
+        self.assertGreaterEqual(score, 0.75, "Failed with score = {0:.5f}".format(score))
 
     def test_sklearn_integration(self):
         check_estimator(self.classifier_class)
@@ -90,10 +101,11 @@ class _TestRGFClassfierBase(unittest.TestCase):
         clf = self.classifier_class(calc_prob='softmax', **self.kwargs)
         for sparse_format in (sparse.bsr_matrix, sparse.coo_matrix, sparse.csc_matrix,
                               sparse.csr_matrix, sparse.dia_matrix, sparse.dok_matrix, sparse.lil_matrix):
-            iris_sparse = sparse_format(self.iris.data)
-            clf.fit(iris_sparse, self.iris.target)
-            score = clf.score(iris_sparse, self.iris.target)
-            self.assertGreater(score, 0.8, "Failed with score = {0:.5f}".format(score))
+            sparse_X_train = sparse_format(self.X_train)
+            sparse_X_test = sparse_format(self.X_test)
+            clf.fit(sparse_X_train, self.y_train)
+            score = clf.score(sparse_X_test, self.y_test)
+            self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
 
     def test_sample_weight(self):
         clf = self.classifier_class(**self.kwargs)
@@ -122,24 +134,24 @@ class _TestRGFClassfierBase(unittest.TestCase):
                           np.ones((n_samples, 2)))
 
     def test_pickle(self):
-        clf = self.classifier_class(**self.kwargs)
-        clf.fit(self.X_train, self.y_train)
-        y_pred1 = clf.predict(self.X_test)
-        s = pickle.dumps(clf)
+        clf1 = self.classifier_class(**self.kwargs)
+        clf1.fit(self.X_train, self.y_train)
+        y_pred1 = clf1.predict(self.X_test)
+        s = pickle.dumps(clf1)
 
         # Remove model file
         cleanup()
 
-        reg2 = pickle.loads(s)
-        y_pred2 = reg2.predict(self.X_test)
+        clf2 = pickle.loads(s)
+        y_pred2 = clf2.predict(self.X_test)
 
         np.testing.assert_allclose(y_pred1, y_pred2)
 
     def test_joblib_pickle(self):
-        clf = self.classifier_class(**self.kwargs)
-        clf.fit(self.X_train, self.y_train)
-        y_pred1 = clf.predict(self.X_test)
-        joblib.dump(clf, 'test_clf.pkl')
+        clf1 = self.classifier_class(**self.kwargs)
+        clf1.fit(self.X_train, self.y_train)
+        y_pred1 = clf1.predict(self.X_test)
+        joblib.dump(clf1, 'test_clf.pkl')
 
         # Remove model file
         cleanup()
@@ -167,21 +179,12 @@ class _TestRGFClassfierBase(unittest.TestCase):
         clf2.predict(self.X_test)
 
 
-class TestRGFClassfier(_TestRGFClassfierBase):
+class TestRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
     def setUp(self):
-        # Iris
         self.classifier_class = RGFClassifier
         self.kwargs = {}
-        iris = datasets.load_iris()
-        rng = check_random_state(0)
-        perm = rng.permutation(iris.target.size)
-        iris.data = iris.data[perm]
-        iris.target = iris.target[perm]
-        self.iris = iris
 
-        self.X_train, self.X_test, self.y_train, self.y_test = \
-            train_test_split(self.iris.data, self.iris.target,
-                             test_size=0.2, random_state=42)
+        super(TestRGFClassfier, self).setUp()
 
     def test_params(self):
         clf = self.classifier_class(**self.kwargs)
@@ -261,29 +264,17 @@ class TestRGFClassfier(_TestRGFClassfierBase):
         grid = GridSearchCV(self.classifier_class(n_jobs=1),
                             param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
-        y_pred = grid.best_estimator_.predict(self.X_train)
-        score = accuracy_score(self.y_train, y_pred)
-        self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
+        y_pred = grid.best_estimator_.predict(self.X_test)
+        score = accuracy_score(self.y_test, y_pred)
+        self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
 
 
-class TestFastRGFClassfier(_TestRGFClassfierBase):
+class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
     def setUp(self):
-        if not fastrgf_available():
-            raise unittest.SkipTest('FastRGF CI will be supported in the future')
-
-        # Iris
         self.classifier_class = FastRGFClassifier
-        self.kwargs = {'verbose': 1}
-        iris = datasets.load_iris()
-        rng = check_random_state(0)
-        perm = rng.permutation(iris.target.size)
-        iris.data = iris.data[perm]
-        iris.target = iris.target[perm]
-        self.iris = iris
+        self.kwargs = {}
 
-        self.X_train, self.X_test, self.y_train, self.y_test = \
-            train_test_split(self.iris.data, self.iris.target,
-                             test_size=0.2, random_state=42)
+        super(TestFastRGFClassfier, self).setUp()
 
     def test_params(self):
         pass
@@ -311,9 +302,9 @@ class TestFastRGFClassfier(_TestRGFClassfierBase):
         grid = GridSearchCV(self.classifier_class(n_jobs=1),
                             param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
-        y_pred = grid.best_estimator_.predict(self.X_train)
-        score = accuracy_score(self.y_train, y_pred)
-        self.assertGreater(score, 0.95, "Failed with score = {0:.5f}".format(score))
+        y_pred = grid.best_estimator_.predict(self.X_test)
+        score = accuracy_score(self.y_test, y_pred)
+        self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
 
     def test_sklearn_integration(self):
         # TODO(fukatani): FastRGF bug?
@@ -322,34 +313,20 @@ class TestFastRGFClassfier(_TestRGFClassfierBase):
         pass
 
 
-class _TestRGFRegressorBase(unittest.TestCase):
+class RGFRegressorBaseTest(object):
     def setUp(self):
-        raise unittest.SkipTest('')
-
-    def test_cleanup(self):
-        reg1 = self.regressor_class(**self.kwargs)
-        reg1.fit(self.X_train, self.y_train)
-
-        reg2 = self.regressor_class(**self.kwargs)
-        reg2.fit(self.X_train, self.y_train)
-
-        self.assertNotEqual(reg1.cleanup(), 0)
-        self.assertEqual(reg1.cleanup(), 0)
-
-        for est in reg1.estimators_:
-            glob_file = os.path.join(get_temp_path(), est._file_prefix + "*")
-            self.assertFalse(glob.glob(glob_file))
-
-        self.assertRaises(NotFittedError, reg1.predict, self.X_test)
-        reg2.predict(self.X_test)
+        self.X, self.y = datasets.make_friedman1(n_samples=500,
+                                                 random_state=1,
+                                                 noise=1.0)
+        self.X_train, self.y_train = self.X[:400], self.y[:400]
+        self.X_test, self.y_test = self.X[400:], self.y[400:]
 
     def test_regressor(self):
         reg = self.regressor_class(**self.kwargs)
         reg.fit(self.X_train, self.y_train)
         y_pred = reg.predict(self.X_test)
         mse = mean_squared_error(self.y_test, y_pred)
-        print("MSE: {0:.5f}".format(mse))
-        self.assertLess(mse, 6.0)
+        self.assertLess(mse, self.mse, "Failed with MSE = {0:.5f}".format(mse))
 
     def test_sklearn_integration(self):
         check_estimator(self.regressor_class)
@@ -358,11 +335,12 @@ class _TestRGFRegressorBase(unittest.TestCase):
         reg = self.regressor_class(**self.kwargs)
         for sparse_format in (sparse.bsr_matrix, sparse.coo_matrix, sparse.csc_matrix,
                               sparse.csr_matrix, sparse.dia_matrix, sparse.dok_matrix, sparse.lil_matrix):
-            X_sparse = sparse_format(self.X)
-            reg.fit(X_sparse, self.y)
-            y_pred = reg.predict(X_sparse)
-            mse = mean_squared_error(self.y, y_pred)
-            self.assertLess(mse, 6.0)
+            X_sparse_train = sparse_format(self.X_train)
+            X_sparse_test = sparse_format(self.X_test)
+            reg.fit(X_sparse_train, self.y_train)
+            y_pred = reg.predict(X_sparse_test)
+            mse = mean_squared_error(self.y_test, y_pred)
+            self.assertLess(mse, self.mse, "Failed with MSE = {0:.5f}".format(mse))
 
     def test_sample_weight(self):
         reg = self.regressor_class(**self.kwargs)
@@ -398,10 +376,10 @@ class _TestRGFRegressorBase(unittest.TestCase):
                           np.ones((n_samples, 2)))
 
     def test_pickle(self):
-        reg = self.regressor_class(**self.kwargs)
-        reg.fit(self.X_train, self.y_train)
-        y_pred1 = reg.predict(self.X_test)
-        s = pickle.dumps(reg)
+        reg1 = self.regressor_class(**self.kwargs)
+        reg1.fit(self.X_train, self.y_train)
+        y_pred1 = reg1.predict(self.X_test)
+        s = pickle.dumps(reg1)
 
         # Remove model file
         cleanup()
@@ -412,10 +390,10 @@ class _TestRGFRegressorBase(unittest.TestCase):
         np.testing.assert_allclose(y_pred1, y_pred2)
 
     def test_joblib_pickle(self):
-        reg = self.regressor_class(**self.kwargs)
-        reg.fit(self.X_train, self.y_train)
-        y_pred1 = reg.predict(self.X_test)
-        joblib.dump(reg, 'test_reg.pkl')
+        reg1 = self.regressor_class(**self.kwargs)
+        reg1.fit(self.X_train, self.y_train)
+        y_pred1 = reg1.predict(self.X_test)
+        joblib.dump(reg1, 'test_reg.pkl')
 
         # Remove model file
         cleanup()
@@ -442,16 +420,14 @@ class _TestRGFRegressorBase(unittest.TestCase):
         reg2.predict(self.X_test)
 
 
-class TestRGFRegressor(_TestRGFRegressorBase):
+class TestRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
     def setUp(self):
-        # Friedman1
         self.regressor_class = RGFRegressor
         self.kwargs = {}
-        self.X, self.y = datasets.make_friedman1(n_samples=500,
-                                                 random_state=1,
-                                                 noise=1.0)
-        self.X_train, self.y_train = self.X[:400], self.y[:400]
-        self.X_test, self.y_test = self.X[400:], self.y[400:]
+
+        self.mse = 2.0353275768
+
+        super(TestRGFRegressor, self).setUp()
 
     def test_params(self):
         reg = self.regressor_class(**self.kwargs)
@@ -526,22 +502,17 @@ class TestRGFRegressor(_TestRGFRegressorBase):
         grid.fit(self.X_train, self.y_train)
         y_pred = grid.best_estimator_.predict(self.X_test)
         mse = mean_squared_error(self.y_test, y_pred)
-        self.assertLess(mse, 6.0)
+        self.assertLess(mse, self.mse, "Failed with MSE = {0:.5f}".format(mse))
 
 
-class TestFastRGFRegressor(_TestRGFRegressorBase):
+class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
     def setUp(self):
-        if not fastrgf_available():
-            raise unittest.SkipTest('FastRGF CI will be supported in the future')
-
-        # Friedman1
         self.regressor_class = FastRGFRegressor
-        self.kwargs = {'verbose' : 1}
-        self.X, self.y = datasets.make_friedman1(n_samples=500,
-                                                 random_state=1,
-                                                 noise=1.0)
-        self.X_train, self.y_train = self.X[:400], self.y[:400]
-        self.X_test, self.y_test = self.X[400:], self.y[400:]
+        self.kwargs = {}
+
+        self.mse = 2.4973827527
+
+        super(TestFastRGFRegressor, self).setUp()
 
     def test_params(self):
         pass
@@ -579,10 +550,16 @@ class TestFastRGFRegressor(_TestRGFRegressorBase):
         pass
 
     def test_parallel_gridsearch(self):
-        param_grid = dict(forest_ntrees=[100, 300])
+        param_grid = dict(forest_ntrees=[100, 500])
         grid = GridSearchCV(self.regressor_class(n_jobs=1),
                             param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
         y_pred = grid.best_estimator_.predict(self.X_test)
         mse = mean_squared_error(self.y_test, y_pred)
-        self.assertLess(mse, 6.0)
+        self.assertLess(mse, self.mse, "Failed with MSE = {0:.5f}".format(mse))
+
+    # TODO FastRGF bug?
+    # MSE with sparse input is higher than with dense one
+    def test_regressor_sparse_input(self):
+        self.mse = 2.5522511545
+        super(TestFastRGFRegressor, self).test_regressor_sparse_input()
