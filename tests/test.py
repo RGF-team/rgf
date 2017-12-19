@@ -172,7 +172,7 @@ class RGFClassfierBaseTest(object):
         self.assertEqual(clf1.cleanup(), 0)
 
         for est in clf1.estimators_:
-            glob_file = os.path.join(get_temp_path(), est._file_prefix + "*")
+            glob_file = os.path.join(get_temp_path(), est.file_prefix + "*")
             self.assertFalse(glob.glob(glob_file))
 
         self.assertRaises(NotFittedError, clf1.predict, self.X_test)

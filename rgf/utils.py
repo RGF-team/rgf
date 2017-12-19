@@ -9,6 +9,7 @@ import platform
 import stat
 import subprocess
 from threading import Lock
+from uuid import uuid4
 
 import numpy as np
 import scipy.sparse as sp
@@ -23,6 +24,7 @@ with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as _f:
     __version__ = _f.read().strip()
 
 _NOT_FITTED_ERROR_DESC = "Estimator not fitted, call `fit` before exploiting the model."
+_NOT_IMPLEMENTED_ERROR_DESC = "This method isn't implemented in base class."
 _SYSTEM = platform.system()
 UUIDS = []
 _FASTRGF_AVAILABLE = False
@@ -220,6 +222,10 @@ def sigmoid(x):
     return 1.0 / (1.0 + np.exp(-x))
 
 
+def _fit_ovr_binary(binary_clf, X, y, sample_weight):
+    return binary_clf.fit(X, y, sample_weight)
+
+
 class RGFClassifierBase(BaseEstimator, ClassifierMixin):
     @property
     def estimators_(self):
@@ -351,7 +357,7 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
         n_removed_files = 0
         if self._estimators is not None:
             for est in self._estimators:
-                n_removed_files += cleanup_partial(est._file_prefix,
+                n_removed_files += cleanup_partial(est.file_prefix,
                                                    remove_from_list=True)
 
         # No more able to predict without refitting.
@@ -399,3 +405,104 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
         # No more able to predict without refitting.
         self._fitted = None
         return cleanup_partial(self._file_prefix, remove_from_list=True)
+
+
+class RGFBinaryClassifierBase(BaseEstimator, ClassifierMixin):
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+        self.file_prefix = str(uuid4()) + str(COUNTER.increment())
+        UUIDS.append(self.file_prefix)
+        self.fitted = None
+
+    def fit(self, X, y, sample_weight):
+        self.train_x_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.x")
+        self.train_y_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.y")
+        self.train_weight_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.weight")
+        self.model_file_loc = os.path.join(get_temp_path(), self.file_prefix + ".model")
+
+        if sp.isspmatrix(X):
+            self.save_sparse_X(self.train_x_loc, X)
+            self.is_sparse_train_X = True
+        else:
+            np.savetxt(self.train_x_loc, X, delimiter=' ', fmt="%s")
+            self.is_sparse_train_X = False
+
+        # Convert 1 to 1, 0 to -1
+        y = 2 * y - 1
+        np.savetxt(self.train_y_loc, y, delimiter=' ', fmt="%s")
+        np.savetxt(self.train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
+
+        cmd = self.get_train_command()
+
+        # Train
+        output = subprocess.Popen(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
+
+        if self.verbose:
+            for k in output:
+                print(k)
+
+        self.find_model_file()
+
+        self.fitted = True
+					        
+        return self
+
+    def predict_proba(self, X):
+        if self.fitted is None:
+            raise NotFittedError(not_fitted_error_desc())
+        if not os.path.isfile(self.model_file):
+            raise Exception('Model learning result is not found in {0}. '
+                            'This is rgf_python error.'.format(get_temp_path()))
+
+        self.test_x_loc = os.path.join(get_temp_path(), self.file_prefix + ".test.data.x")
+        if sp.isspmatrix(X):
+            self.save_sparse_X(self.test_x_loc, X)
+            self.is_sparse_test_X = True
+        else:
+            np.savetxt(self.test_x_loc, X, delimiter=' ', fmt="%s")
+            self.is_sparse_test_X = False
+
+        self.pred_loc = os.path.join(get_temp_path(), self.file_prefix + ".predictions.txt")
+
+        cmd = self.get_test_command()
+
+        output = subprocess.Popen(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT).communicate()
+
+        if self.verbose:
+            for k in output:
+                print(k)
+
+        return np.loadtxt(self.pred_loc)
+
+    def save_sparse_X(self, X):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+
+    def get_train_command(self):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+
+    def find_model_file(self):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+
+    def get_test_command(self):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if self.fitted:
+            with open(self.model_file, 'rb') as fr:
+                state["model"] = fr.read()
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        if self.fitted:
+            with open(self.model_file, 'wb') as fw:
+                fw.write(self.__dict__["model"])
+            del self.__dict__["model"]
