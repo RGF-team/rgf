@@ -17,7 +17,8 @@ from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
 from sklearn.utils.extmath import softmax
-from sklearn.utils.validation import check_array
+from sklearn.utils.multiclass import check_classification_targets
+from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
 
 with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as _f:
@@ -278,6 +279,64 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
         else:
             return self._n_iter
 
+    def fit(self, X, y, sample_weight=None):
+        """
+        Build a classifier from the training set (X, y).
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The training input samples.
+
+        y : array-like, shape = [n_samples]
+            The target values (class labels in classification).
+
+        sample_weight : array-like, shape = [n_samples] or None
+            Individual weights for each sample.
+
+        Returns
+        -------
+        self : object
+            Returns self.
+        """
+        self._validate_params(self.get_params())
+        self._set_params_with_dependencies()
+
+        X, y = check_X_y(X, y, accept_sparse=True)
+        n_samples, self._n_features = X.shape
+
+        if sample_weight is None:
+            sample_weight = np.ones(n_samples, dtype=np.float32)
+        else:
+            sample_weight = column_or_1d(sample_weight, warn=True)
+            if (sample_weight <= 0).any():
+                raise ValueError("Sample weights must be positive.")
+        check_consistent_length(X, y, sample_weight)
+        check_classification_targets(y)
+
+        self._classes = sorted(np.unique(y))
+        self._n_classes = len(self._classes)
+
+        params = self._get_params()
+
+        if self._n_classes == 2:
+            self._classes_map[0] = self._classes[0]
+            self._classes_map[1] = self._classes[1]
+            self._estimators = [None]
+            y = (y == self._classes[0]).astype(int)
+            self._fit_binary_task(X, y, sample_weight, params)
+        elif self._n_classes > 2:
+            if sp.isspmatrix_dok(X):
+                X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
+            self._estimators = [None] * self._n_classes
+            self._fit_multiclass_task(X, y, sample_weight, params)
+        else:
+            raise ValueError("Classifier can't predict when only one class is present.")
+
+        self._fitted = True
+
+        return self
+
     def predict_proba(self, X):
         """
         Predict class probabilities for X.
@@ -363,6 +422,21 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
         # No more able to predict without refitting.
         self._fitted = None
         return n_removed_files
+
+    def _validate_params(self, params):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _set_params_with_dependencies(self):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _get_params(self):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _fit_binary_task(self, X, y, sample_weight, params):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _fit_multiclass_task(self, X, y, sample_weight, params):
+        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
 
 
 class RGFRegressorBase(BaseEstimator, RegressorMixin):

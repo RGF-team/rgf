@@ -24,23 +24,23 @@ _LOSSES = ("LS", "Expo", "Log")
 _FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 
 
-def _validate_params(max_leaf,
-                     test_interval,
-                     algorithm,
-                     loss,
-                     reg_depth,
-                     l2,
-                     sl2,
-                     normalize,
-                     min_samples_leaf,
-                     n_iter,
-                     n_tree_search,
-                     opt_interval,
-                     learning_rate,
-                     verbose,
-                     memory_policy,
-                     calc_prob="sigmoid",
-                     n_jobs=-1):
+def _validate_rgf_params(max_leaf,
+                         test_interval,
+                         algorithm,
+                         loss,
+                         reg_depth,
+                         l2,
+                         sl2,
+                         normalize,
+                         min_samples_leaf,
+                         n_iter,
+                         n_tree_search,
+                         opt_interval,
+                         learning_rate,
+                         verbose,
+                         memory_policy,
+                         calc_prob="sigmoid",
+                         n_jobs=-1):
     if not isinstance(max_leaf, (numbers.Integral, np.integer)):
         raise ValueError("max_leaf must be an integer, got {0}.".format(type(max_leaf)))
     elif max_leaf <= 0:
@@ -126,10 +126,6 @@ def _validate_params(max_leaf,
 
     if not isinstance(n_jobs, (numbers.Integral, np.integer)):
         raise ValueError("n_jobs must be an integer, got {0}.".format(type(n_jobs)))
-
-
-def _fit_ovr_binary(binary_clf, X, y, sample_weight):
-    return binary_clf.fit(X, y, sample_weight)
 
 
 class RGFClassifier(utils.RGFClassifierBase):
@@ -299,8 +295,10 @@ class RGFClassifier(utils.RGFClassifierBase):
         self.n_jobs = n_jobs
         self.memory_policy = memory_policy
         self.verbose = verbose
+
         self._estimators = None
         self._classes = None
+        self._classes_map = {}
         self._n_classes = None
         self._n_features = None
         self._fitted = None
@@ -327,31 +325,10 @@ class RGFClassifier(utils.RGFClassifierBase):
         else:
             return self._min_samples_leaf
 
-    def fit(self, X, y, sample_weight=None):
-        """
-        Build a RGF Classifier from the training set (X, y).
+    def _validate_params(self, params):
+        _validate_rgf_params(**params)
 
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The training input samples.
-
-        y : array-like, shape = [n_samples]
-            The target values (class labels in classification).
-
-        sample_weight : array-like, shape = [n_samples] or None
-            Individual weights for each sample.
-
-        Returns
-        -------
-        self : object
-            Returns self.
-        """
-        _validate_params(**self.get_params())
-
-        X, y = check_X_y(X, y, accept_sparse=True)
-        n_samples, self._n_features = X.shape
-
+    def _set_params_with_dependencies(self):
         if self.sl2 is None:
             self._sl2 = self.l2
         else:
@@ -370,71 +347,48 @@ class RGFClassifier(utils.RGFClassifierBase):
         else:
             self._n_iter = self.n_iter
 
-        if sample_weight is None:
-            sample_weight = np.ones(n_samples, dtype=np.float32)
-        else:
-            sample_weight = column_or_1d(sample_weight, warn=True)
-            if (sample_weight <= 0).any():
-                raise ValueError("Sample weights must be positive.")
-        check_consistent_length(X, y, sample_weight)
-        check_classification_targets(y)
+    def _get_params(self):
+        return dict(max_leaf=self.max_leaf,
+                    test_interval=self.test_interval,
+                    algorithm=self.algorithm,
+                    loss=self.loss,
+                    reg_depth=self.reg_depth,
+                    l2=self.l2,
+                    sl2=self._sl2,
+                    normalize=self.normalize,
+                    min_samples_leaf=self._min_samples_leaf,
+                    n_iter=self._n_iter,
+                    n_tree_search=self.n_tree_search,
+                    opt_interval=self.opt_interval,
+                    learning_rate=self.learning_rate,
+                    memory_policy=self.memory_policy,
+                    verbose=self.verbose)
 
-        self._classes = sorted(np.unique(y))
-        self._n_classes = len(self._classes)
-        self._classes_map = {}
+    def _fit_binary_task(self, X, y, sample_weight, params):
+        if self.n_jobs != 1 and self.verbose:
+            print('n_jobs = {}, but RGFClassifier uses one CPU because classes_ is 2'.format(self.n_jobs))
 
-        params = dict(max_leaf=self.max_leaf,
-                      test_interval=self.test_interval,
-                      algorithm=self.algorithm,
-                      loss=self.loss,
-                      reg_depth=self.reg_depth,
-                      l2=self.l2,
-                      sl2=self._sl2,
-                      normalize=self.normalize,
-                      min_samples_leaf=self._min_samples_leaf,
-                      n_iter=self._n_iter,
-                      n_tree_search=self.n_tree_search,
-                      opt_interval=self.opt_interval,
-                      learning_rate=self.learning_rate,
-                      memory_policy=self.memory_policy,
-                      verbose=self.verbose)
-        if self._n_classes == 2:
-            self._classes_map[0] = self._classes[0]
-            self._classes_map[1] = self._classes[1]
-            self._estimators = [None]
-            y = (y == self._classes[0]).astype(int)
-            self._estimators[0] = RGFBinaryClassifier(**params)
-            if self.n_jobs != 1 and self.verbose:
-                print('n_jobs = {}, but RGFClassifier uses one CPU because classes_ is 2'.format(self.n_jobs))
-            self._estimators[0].fit(X, y, sample_weight)
-        elif self._n_classes > 2:
-            if sp.isspmatrix_dok(X):
-                X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
-            self._estimators = [None] * self._n_classes
-            ovr_list = [None] * self._n_classes
-            for i, cls_num in enumerate(self._classes):
-                self._classes_map[i] = cls_num
-                ovr_list[i] = (y == cls_num).astype(int)
-                self._estimators[i] = RGFBinaryClassifier(**params)
+        self._estimators[0] = RGFBinaryClassifier(**params).fit(X, y, sample_weight)
 
-            n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
-            substantial_njobs = max(n_jobs, self.n_classes_)
-            if substantial_njobs < n_jobs and self.verbose:
-                print('n_jobs = {0}, but RGFClassifier uses {1} CPUs because '
-                      'classes_ is {2}'.format(n_jobs, substantial_njobs,
-                                               self.n_classes_))
+    def _fit_multiclass_task(self, X, y, sample_weight, params):
+        ovr_list = [None] * self._n_classes
+        for i, cls_num in enumerate(self._classes):
+            self._classes_map[i] = cls_num
+            ovr_list[i] = (y == cls_num).astype(int)
+            self._estimators[i] = RGFBinaryClassifier(**params)
 
-            self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(utils._fit_ovr_binary)(self._estimators[i],
-                                                                                           X,
-                                                                                           ovr_list[i],
-                                                                                           sample_weight)
-                                                            for i in range(self._n_classes))
-        else:
-            raise ValueError("Classifier can't predict when only one class is present.")
+        n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
+        substantial_njobs = max(n_jobs, self.n_classes_)
+        if substantial_njobs < n_jobs and self.verbose:
+            print('n_jobs = {0}, but RGFClassifier uses {1} CPUs because '
+                  'classes_ is {2}'.format(n_jobs, substantial_njobs,
+                                           self.n_classes_))
 
-        self._fitted = True
-
-        return self
+        self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(utils._fit_ovr_binary)(self._estimators[i],
+                                                                                       X,
+                                                                                       ovr_list[i],
+                                                                                       sample_weight)
+                                                        for i in range(self._n_classes))
 
 
 class RGFRegressor(utils.RGFRegressorBase):
@@ -621,7 +575,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         self : object
             Returns self.
         """
-        _validate_params(**self.get_params())
+        _validate_rgf_params(**self.get_params())
 
         X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
         n_samples, self._n_features = X.shape
