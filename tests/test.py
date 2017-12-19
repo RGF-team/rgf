@@ -41,6 +41,8 @@ class RGFClassfierBaseTest(object):
         y_str_test[y_str_test == '2'] = 'Two'
         self.y_str_test = y_str_test
 
+        self.accuracy = 0.9
+
     def test_classifier(self):
         clf = self.classifier_class(**self.kwargs)
         clf.fit(self.X_train, self.y_train)
@@ -49,7 +51,7 @@ class RGFClassfierBaseTest(object):
         np.testing.assert_almost_equal(proba_sum, np.ones(self.y_test.shape[0]))
 
         score = clf.score(self.X_test, self.y_test)
-        self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
+        self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
     def test_softmax_classifier(self):
         clf = self.classifier_class(calc_prob='softmax', **self.kwargs)
@@ -59,7 +61,7 @@ class RGFClassfierBaseTest(object):
         np.testing.assert_almost_equal(proba_sum, np.ones(self.y_test.shape[0]))
 
         score = clf.score(self.X_test, self.y_test)
-        self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
+        self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
     def test_bin_classifier(self):
         clf = self.classifier_class(**self.kwargs)
@@ -71,7 +73,7 @@ class RGFClassfierBaseTest(object):
         np.testing.assert_almost_equal(proba_sum, np.ones(bin_target_test.shape[0]))
 
         score = clf.score(self.X_test, bin_target_test)
-        self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
+        self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
     def test_string_y(self):
         clf = self.classifier_class(**self.kwargs)
@@ -79,9 +81,11 @@ class RGFClassfierBaseTest(object):
         clf.fit(self.X_train, self.y_str_train)
         y_pred = clf.predict(self.X_test)
         score = accuracy_score(self.y_str_test, y_pred)
-        self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
+        self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
     def test_bin_string_y(self):
+        self.accuracy = 0.75
+
         clf = self.classifier_class(**self.kwargs)
 
         bin_X_train = self.X_train[self.y_train != 0]
@@ -92,7 +96,7 @@ class RGFClassfierBaseTest(object):
         clf.fit(bin_X_train, y_str_train)
         y_pred = clf.predict(bin_X_test)
         score = accuracy_score(y_str_test, y_pred)
-        self.assertGreaterEqual(score, 0.75, "Failed with score = {0:.5f}".format(score))
+        self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
     def test_sklearn_integration(self):
         check_estimator(self.classifier_class)
@@ -105,7 +109,7 @@ class RGFClassfierBaseTest(object):
             sparse_X_test = sparse_format(self.X_test)
             clf.fit(sparse_X_train, self.y_train)
             score = clf.score(sparse_X_test, self.y_test)
-            self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
+            self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
     def test_sample_weight(self):
         clf = self.classifier_class(**self.kwargs)
@@ -266,7 +270,7 @@ class TestRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
         grid.fit(self.X_train, self.y_train)
         y_pred = grid.best_estimator_.predict(self.X_test)
         score = accuracy_score(self.y_test, y_pred)
-        self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
+        self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
 
 class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
@@ -304,7 +308,7 @@ class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
         grid.fit(self.X_train, self.y_train)
         y_pred = grid.best_estimator_.predict(self.X_test)
         score = accuracy_score(self.y_test, y_pred)
-        self.assertGreaterEqual(score, 0.9, "Failed with score = {0:.5f}".format(score))
+        self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
     def test_sklearn_integration(self):
         # TODO(fukatani): FastRGF bug?
