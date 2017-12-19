@@ -2,8 +2,8 @@ from __future__ import absolute_import
 
 import os
 
-from .rgf_model import RGFRegressor, RGFClassifier
-from .fastrgf_model import FastRGFRegressor, FastRGFClassifier
+from rgf.rgf_model import RGFRegressor, RGFClassifier
+from rgf.fastrgf_model import FastRGFRegressor, FastRGFClassifier
 
 
 __all__ = ('RGFClassifier', 'RGFRegressor',
