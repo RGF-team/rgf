@@ -514,7 +514,7 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
         self.regressor_class = FastRGFRegressor
         self.kwargs = {}
 
-        self.mse = 2.4973827527
+        self.mse = 2.5522511545
 
         super(TestFastRGFRegressor, self).setUp()
 
