@@ -6,7 +6,6 @@ from uuid import uuid4
 
 import numpy as np
 import scipy.sparse as sp
-from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from sklearn.exceptions import NotFittedError
 from sklearn.externals.joblib import cpu_count
 from sklearn.utils.multiclass import check_classification_targets
@@ -45,7 +44,13 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 
     dtree_lamL2 : float, optional (default=1000.0) L2 regularization parameter.
 
+    forest_opt : 'rgf' or 'epsilon-greedy', optional (default='rgf')
+        optimization method for training forest
+
     forest_ntrees : int, optional (default=500) number of trees.
+
+    forest_stepsize : float optional (default=0.001)
+        step size of epsilon-greedy boosting (inactive for rgf)
 
     discretize_dense_max_buckets : int, optional (default=200)
         maximum number of discretized values.
@@ -53,15 +58,26 @@ class FastRGFRegressor(utils.RGFRegressorBase):
     discretize_dense_lamL2 : float, optional (default=2.0)
         L2 regularization parameter for discretization.
 
+    discretize_dense_min_bucket_weights : float, optional (default=5.0)
+        minimum sum of data weights for each discretized value.
+
     discretize_sparse_max_features : int, optional (default=80000)
         maximum number of selected features.
 
     discretize_sparse_max_buckets : int, optional (default=200)
         maximum number of discretized values.
 
+    discretize_sparse_lamL2 : float, optional (default=2.0)
+        L2 regularization parameter for discretization.
+
+    discretize_sparse_min_bucket_weights : float, optional (default=5.0)
+        minimum sum of data weights for each discretized value.
+
+    discretize_sparse_min_occurences : int, optional (default=5)
+        minimum number of occurrences for a feature to be selected
+
     """
     # TODO(fukatani): Test
-    # TODO(fukatani): Other parameter
     def __init__(self,
                  dtree_max_level=6,
                  dtree_max_nodes=50,
@@ -70,11 +86,17 @@ class FastRGFRegressor(utils.RGFRegressorBase):
                  dtree_loss="LS",
                  dtree_lamL1=1,
                  dtree_lamL2=1000,
+                 forest_opt='rgf',
                  forest_ntrees=500,
+                 forest_stepsize=0.001,
                  discretize_dense_max_buckets=65000,
-                 discretize_dense_lamL2=10,
+                 discretize_dense_lamL2=2.0,
+                 discretize_dense_min_bucket_weights=5.0,
                  discretize_sparse_max_features=80000,
                  discretize_sparse_max_buckets=200,
+                 discretize_sparse_lamL2=2.0,
+                 discretize_sparse_min_bucket_weights=5.0,
+                 discretize_sparse_min_occurences=5,
                  n_iter=None,
                  n_jobs=-1,
                  verbose=0):
@@ -87,11 +109,17 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         self.dtree_loss = dtree_loss
         self.dtree_lamL1 = dtree_lamL1
         self.dtree_lamL2 = dtree_lamL2
+        self.forest_opt = forest_opt
         self.forest_ntrees = forest_ntrees
+        self.forest_stepsize = forest_stepsize
         self.discretize_dense_max_buckets = discretize_dense_max_buckets
         self.discretize_dense_lamL2 = discretize_dense_lamL2
+        self.discretize_dense_min_bucket_weights = discretize_dense_min_bucket_weights
         self.discretize_sparse_max_features = discretize_sparse_max_features
         self.discretize_sparse_max_buckets = discretize_sparse_max_buckets
+        self.discretize_sparse_lamL2 = discretize_sparse_lamL2
+        self.discretize_sparse_min_bucket_weights = discretize_sparse_min_bucket_weights
+        self.discretize_sparse_min_occurences = discretize_sparse_min_occurences
 
         self.n_iter = n_iter
         self.n_jobs = n_jobs
@@ -165,10 +193,16 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         cmd = []
         cmd.append(utils.get_fastrgf_path() + "/forest_train")
         cmd.append("forest.ntrees=%s" % self.forest_ntrees)
+        cmd.append("forest.stepsize=%s" % self.forest_stepsize)
+        cmd.append("forest.opt=%s" % self.forest_opt)
+        cmd.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
         cmd.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
+        cmd.append("discretize.dense.min_bucket_weights=%s" % self.discretize_dense_min_bucket_weights)
         cmd.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
         cmd.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
-        cmd.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
+        cmd.append("discretize.sparse.lamL2=%s" % self.discretize_sparse_lamL2)
+        cmd.append("discretize.sparse.min_bucket_weights=%s" % self.discretize_sparse_min_bucket_weights)
+        cmd.append("discretize.sparse.min_occrrences=%s" % self.discretize_sparse_min_occurences)
         cmd.append("dtree.max_level=%s" % self.dtree_max_level)
         cmd.append("dtree.max_nodes=%s" % self.dtree_max_nodes)
         cmd.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
@@ -311,7 +345,13 @@ class FastRGFClassifier(utils.RGFClassifierBase):
 
     dtree_lamL2 : float, optional (default=1000.0) L2 regularization parameter.
 
+    forest_opt : 'rgf' or 'epsilon-greedy', optional (default='rgf')
+        optimization method for training forest
+
     forest_ntrees : int, optional (default=500) number of trees.
+
+    forest_stepsize : float optional (default=0.001)
+        step size of epsilon-greedy boosting (inactive for rgf)
 
     discretize_dense_max_buckets : int, optional (default=200)
         maximum number of discretized values.
@@ -319,15 +359,26 @@ class FastRGFClassifier(utils.RGFClassifierBase):
     discretize_dense_lamL2 : float, optional (default=2.0)
         L2 regularization parameter for discretization.
 
+    discretize_dense_min_bucket_weights : float, optional (default=5.0)
+        minimum sum of data weights for each discretized value.
+
     discretize_sparse_max_features : int, optional (default=80000)
         maximum number of selected features.
 
     discretize_sparse_max_buckets : int, optional (default=200)
         maximum number of discretized values.
 
+    discretize_sparse_lamL2 : float, optional (default=2.0)
+        L2 regularization parameter for discretization.
+
+    discretize_sparse_min_bucket_weights : float, optional (default=5.0)
+        minimum sum of data weights for each discretized value.
+
+    discretize_sparse_min_occurences : int, optional (default=5)
+        minimum number of occurrences for a feature to be selected
+
     """
     # TODO(fukatani): Test
-    # TODO(fukatani): Other parameter
     def __init__(self,
                  dtree_max_level=6,
                  dtree_max_nodes=50,
@@ -336,11 +387,17 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                  dtree_loss="LS",  # "MODLS" or "LOGISTIC" or "LS"
                  dtree_lamL1=10,
                  dtree_lamL2=1000,
-                 forest_ntrees=1000,
+                 forest_opt='rgf',
+                 forest_ntrees=500,
+                 forest_stepsize=0.001,
                  discretize_dense_max_buckets=250,
                  discretize_dense_lamL2=10,
+                 discretize_dense_min_bucket_weights=5.0,
                  discretize_sparse_max_features=10,
                  discretize_sparse_max_buckets=10,
+                 discretize_sparse_lamL2=2.0,
+                 discretize_sparse_min_bucket_weights=5.0,
+                 discretize_sparse_min_occurences=5,
                  n_iter=None,
                  calc_prob="sigmoid",
                  n_jobs=-1,
@@ -352,11 +409,17 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         self.dtree_loss = dtree_loss
         self.dtree_lamL1 = dtree_lamL1
         self.dtree_lamL2 = dtree_lamL2
+        self.forest_opt = forest_opt
         self.forest_ntrees = forest_ntrees
+        self.forest_stepsize = forest_stepsize
         self.discretize_dense_max_buckets = discretize_dense_max_buckets
         self.discretize_dense_lamL2 = discretize_dense_lamL2
+        self.discretize_dense_min_bucket_weights = discretize_dense_min_bucket_weights
         self.discretize_sparse_max_features = discretize_sparse_max_features
         self.discretize_sparse_max_buckets = discretize_sparse_max_buckets
+        self.discretize_sparse_lamL2 = discretize_sparse_lamL2
+        self.discretize_sparse_min_bucket_weights = discretize_sparse_min_bucket_weights
+        self.discretize_sparse_min_occurences = discretize_sparse_min_occurences
 
         self.n_iter = n_iter
         self.n_jobs = n_jobs
@@ -432,11 +495,17 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                       dtree_loss=self.dtree_loss,  # "MODLS" or "LOGISTIC" or "LS"
                       dtree_lamL1=self.dtree_lamL1,
                       dtree_lamL2=self.dtree_lamL2,
+                      forest_opt=self.forest_opt,
                       forest_ntrees=self.forest_ntrees,
+                      forest_stepsize=self.forest_stepsize,
                       discretize_dense_max_buckets=self.discretize_dense_max_buckets,
                       discretize_dense_lamL2=self.discretize_dense_lamL2,
+                      discretize_dense_min_bucket_weights=self.discretize_dense_min_bucket_weights,
                       discretize_sparse_max_features=self.discretize_sparse_max_features,
                       discretize_sparse_max_buckets=self.discretize_sparse_max_buckets,
+                      discretize_sparse_lamL2=self.discretize_sparse_lamL2,
+                      discretize_sparse_min_bucket_weights=self.discretize_sparse_min_bucket_weights,
+                      discretize_sparse_min_occurences=self.discretize_sparse_min_occurences,
                       n_iter=self._n_iter,
                       nthreads=self._n_jobs,
                       verbose=self.verbose)
@@ -472,10 +541,16 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
     def get_train_command(self):
         params = []
         params.append("forest.ntrees=%s" % self.forest_ntrees)
+        params.append("forest.stepsize=%s" % self.forest_stepsize)
+        params.append("forest.opt=%s" % self.forest_opt)
+        params.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
         params.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
+        params.append("discretize.dense.min_bucket_weights=%s" % self.discretize_dense_min_bucket_weights)
         params.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
         params.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
-        params.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
+        params.append("discretize.sparse.lamL2=%s" % self.discretize_sparse_lamL2)
+        params.append("discretize.sparse.min_bucket_weights=%s" % self.discretize_sparse_min_bucket_weights)
+        params.append("discretize.sparse.min_occrrences=%s" % self.discretize_sparse_min_occurences)
         params.append("dtree.max_level=%s" % self.dtree_max_level)
         params.append("dtree.max_nodes=%s" % self.dtree_max_nodes)
         params.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
