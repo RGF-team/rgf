@@ -14,6 +14,10 @@ from sklearn.utils.validation import check_array, check_consistent_length, check
 from rgf import utils
 
 
+def _validate_fast_rgf_params(**kwargs):
+    pass
+
+
 class FastRGFRegressor(utils.RGFRegressorBase):
     """
     A Fast Regularized Greedy Forest regressor by Tong Zhang.
@@ -422,45 +426,21 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         self.discretize_sparse_min_occurences = discretize_sparse_min_occurences
 
         self.n_iter = n_iter
+        self.calc_prob = calc_prob
         self.n_jobs = n_jobs
         self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
-        utils.UUIDS.append(self._file_prefix)
-        self._fitted = None
-        self._latest_model_loc = None
-        self.model_file = None
+
         self._estimators = None
         self._classes = None
         self._classes_map = {}
         self._n_classes = None
         self._n_features = None
         self._fitted = None
-        self.calc_prob = calc_prob
 
-    def fit(self, X, y, sample_weight=None):
-        """
-        Build a FastRGF Classifier from the training set (X, y).
+    def _validate_params(self, params):
+        _validate_fast_rgf_params(**params)
 
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The training input samples.
-
-        y : array-like, shape = [n_samples]
-            The target values (class labels in classification).
-
-        sample_weight : array-like, shape = [n_samples] or None
-            Individual weights for each sample.
-
-        Returns
-        -------
-        self : object
-            Returns self.
-        """
-
-        X, y = check_X_y(X, y, accept_sparse=True)
-        n_samples, self._n_features = X.shape
-
+    def _set_params_with_dependencies(self):
         if self.n_iter is None:
             if self.dtree_loss == "LS":
                 self._n_iter = 10
@@ -476,62 +456,38 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         else:
             self._n_jobs = self.n_jobs
 
-        if sample_weight is None:
-            sample_weight = np.ones(n_samples, dtype=np.float32)
-        else:
-            sample_weight = column_or_1d(sample_weight, warn=True)
-            if (sample_weight <= 0).any():
-                raise ValueError("Sample weights must be positive.")
-        check_consistent_length(X, y, sample_weight)
-        check_classification_targets(y)
+    def _get_params(self):
+        return dict(dtree_max_level=self.dtree_max_level,
+                    dtree_max_nodes=self.dtree_max_nodes,
+                    dtree_new_tree_gain_ratio=self.dtree_new_tree_gain_ratio,
+                    dtree_min_sample=self.dtree_min_sample,
+                    dtree_loss=self.dtree_loss,
+                    dtree_lamL1=self.dtree_lamL1,
+                    dtree_lamL2=self.dtree_lamL2,
+                    forest_opt=self.forest_opt,
+                    forest_ntrees=self.forest_ntrees,
+                    forest_stepsize=self.forest_stepsize,
+                    discretize_dense_max_buckets=self.discretize_dense_max_buckets,
+                    discretize_dense_lamL2=self.discretize_dense_lamL2,
+                    discretize_dense_min_bucket_weights=self.discretize_dense_min_bucket_weights,
+                    discretize_sparse_max_features=self.discretize_sparse_max_features,
+                    discretize_sparse_max_buckets=self.discretize_sparse_max_buckets,
+                    discretize_sparse_lamL2=self.discretize_sparse_lamL2,
+                    discretize_sparse_min_bucket_weights=self.discretize_sparse_min_bucket_weights,
+                    discretize_sparse_min_occurences=self.discretize_sparse_min_occurences,
+                    n_iter=self._n_iter,
+                    nthreads=self._n_jobs,
+                    verbose=self.verbose)
 
-        self._classes = sorted(np.unique(y))
-        self._n_classes = len(self._classes)
+    def _fit_binary_task(self, X, y, sample_weight, params):
+        self._estimators[0] = FastRGFBinaryClassifier(**params).fit(X, y, sample_weight)
 
-        params = dict(dtree_max_level=self.dtree_max_level,
-                      dtree_max_nodes=self.dtree_max_nodes,
-                      dtree_new_tree_gain_ratio=self.dtree_new_tree_gain_ratio,
-                      dtree_min_sample=self.dtree_min_sample,
-                      dtree_loss=self.dtree_loss,  # "MODLS" or "LOGISTIC" or "LS"
-                      dtree_lamL1=self.dtree_lamL1,
-                      dtree_lamL2=self.dtree_lamL2,
-                      forest_opt=self.forest_opt,
-                      forest_ntrees=self.forest_ntrees,
-                      forest_stepsize=self.forest_stepsize,
-                      discretize_dense_max_buckets=self.discretize_dense_max_buckets,
-                      discretize_dense_lamL2=self.discretize_dense_lamL2,
-                      discretize_dense_min_bucket_weights=self.discretize_dense_min_bucket_weights,
-                      discretize_sparse_max_features=self.discretize_sparse_max_features,
-                      discretize_sparse_max_buckets=self.discretize_sparse_max_buckets,
-                      discretize_sparse_lamL2=self.discretize_sparse_lamL2,
-                      discretize_sparse_min_bucket_weights=self.discretize_sparse_min_bucket_weights,
-                      discretize_sparse_min_occurences=self.discretize_sparse_min_occurences,
-                      n_iter=self._n_iter,
-                      nthreads=self._n_jobs,
-                      verbose=self.verbose)
-
-        if self._n_classes == 2:
-            self._classes_map[0] = self._classes[0]
-            self._classes_map[1] = self._classes[1]
-            self._estimators = [None]
-            y = (y == self._classes[0]).astype(int)
-            self._estimators[0] = FastRGFBinaryClassifier(**params).fit(X, y, sample_weight)
-        elif self._n_classes > 2:
-            if sp.isspmatrix_dok(X):
-                X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
-            self._estimators = [None] * self._n_classes
+    def _fit_multiclass_task(self, X, y, sample_weight, params):
             for i, cls_num in enumerate(self._classes):
                 self._classes_map[i] = cls_num
                 self._estimators[i] = FastRGFBinaryClassifier(**params).fit(X,
                                                                             (y == cls_num).astype(int),
                                                                             sample_weight)
-
-        else:
-            raise ValueError("Classifier can't predict when only one class is present.")
-
-        self._fitted = True
-
-        return self
 
 
 class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
