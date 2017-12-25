@@ -101,7 +101,6 @@ class FastRGFRegressor(utils.RGFRegressorBase):
                  discretize_sparse_lamL2=2.0,
                  discretize_sparse_min_bucket_weights=5.0,
                  discretize_sparse_min_occurences=5,
-                 n_iter=None,
                  n_jobs=-1,
                  verbose=0):
         if not utils.fastrgf_available():
@@ -125,6 +124,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         self.discretize_sparse_min_bucket_weights = discretize_sparse_min_bucket_weights
         self.discretize_sparse_min_occurences = discretize_sparse_min_occurences
         self.n_jobs = n_jobs
+        self._n_jobs = None
         self.verbose = verbose
 
         self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
@@ -136,14 +136,6 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         _validate_fast_rgf_params(**params)
 
     def _set_params_with_dependencies(self):
-        if self.n_iter is None:
-            if self.dtree_loss == "LS":
-                self._n_iter = 10
-            else:
-                self._n_iter = 5
-        else:
-            self._n_iter = self.n_iter
-
         if self.n_jobs == -1:
             self._n_jobs = 0
         elif self.n_jobs < 0:
@@ -295,7 +287,6 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                  discretize_sparse_lamL2=2.0,
                  discretize_sparse_min_bucket_weights=5.0,
                  discretize_sparse_min_occurences=5,
-                 n_iter=None,
                  calc_prob="sigmoid",
                  n_jobs=-1,
                  verbose=0):
@@ -318,9 +309,9 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         self.discretize_sparse_min_bucket_weights = discretize_sparse_min_bucket_weights
         self.discretize_sparse_min_occurences = discretize_sparse_min_occurences
 
-        self.n_iter = n_iter
         self.calc_prob = calc_prob
         self.n_jobs = n_jobs
+        self._n_jobs = None
         self.verbose = verbose
 
         self._estimators = None
@@ -334,14 +325,6 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         _validate_fast_rgf_params(**params)
 
     def _set_params_with_dependencies(self):
-        if self.n_iter is None:
-            if self.dtree_loss == "LS":
-                self._n_iter = 10
-            else:
-                self._n_iter = 5
-        else:
-            self._n_iter = self.n_iter
-
         if self.n_jobs == -1:
             self._n_jobs = 0
         elif self.n_jobs < 0:
@@ -368,8 +351,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                     discretize_sparse_lamL2=self.discretize_sparse_lamL2,
                     discretize_sparse_min_bucket_weights=self.discretize_sparse_min_bucket_weights,
                     discretize_sparse_min_occurences=self.discretize_sparse_min_occurences,
-                    n_iter=self._n_iter,
-                    nthreads=self._n_jobs,
+                    n_jobs=self._n_jobs,
                     verbose=self.verbose)
 
     def _fit_binary_task(self, X, y, sample_weight, params):
@@ -413,7 +395,7 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         if self.is_sparse_train_X:
             params.append("trn.x-file_format=x.sparse")
         params.append("trn.target=BINARY")
-        params.append("set.nthreads=%s" % self.nthreads)
+        params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self.model_file_loc)
 
@@ -436,7 +418,7 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
             params.append("tst.x-file_format=x.sparse")
         params.append("tst.target=BINARY")
         params.append("tst.output-prediction=%s" % self.pred_loc)
-        params.append("set.nthreads=%s" % self.nthreads)
+        params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
 
         cmd = [utils.get_fastrgf_path() + "/forest_predict"]
