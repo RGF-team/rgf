@@ -291,6 +291,17 @@ class RGFRegressor(utils.RGFRegressorBase):
         else:
             return self._min_samples_leaf
 
+    @property
+    def n_iter_(self):
+        """
+        Number of iterations of coordinate descent to optimize weights
+        used in model building process depending on the specified loss function.
+        """
+        if self._n_iter is None:
+            raise NotFittedError(not_fitted_error_desc())
+        else:
+            return self._n_iter
+
     def _validate_params(self, params):
         _validate_rgf_params(**params)
 
@@ -561,6 +572,17 @@ class RGFClassifier(utils.RGFClassifierBase):
             raise NotFittedError(utils.not_fitted_error_desc())
         else:
             return self._min_samples_leaf
+
+    @property
+    def n_iter_(self):
+        """
+        Number of iterations of coordinate descent to optimize weights
+        used in model building process depending on the specified loss function.
+        """
+        if self._n_iter is None:
+            raise NotFittedError(not_fitted_error_desc())
+        else:
+            return self._n_iter
 
     def _validate_params(self, params):
         _validate_rgf_params(**params)

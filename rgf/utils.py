@@ -244,17 +244,6 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
         else:
             return self._fitted
 
-    @property
-    def n_iter_(self):
-        """
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-        """
-        if self._n_iter is None:
-            raise NotFittedError(not_fitted_error_desc())
-        else:
-            return self._n_iter
-
     def fit(self, X, y, sample_weight=None):
         """
         Build a regressor from the training set (X, y).
@@ -460,17 +449,6 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
             raise NotFittedError(not_fitted_error_desc())
         else:
             return self._fitted
-
-    @property
-    def n_iter_(self):
-        """
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-        """
-        if self._n_iter is None:
-            raise NotFittedError(not_fitted_error_desc())
-        else:
-            return self._n_iter
 
     def fit(self, X, y, sample_weight=None):
         """
