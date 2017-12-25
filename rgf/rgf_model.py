@@ -128,6 +128,243 @@ def _validate_rgf_params(max_leaf,
         raise ValueError("n_jobs must be an integer, got {0}.".format(type(n_jobs)))
 
 
+class RGFRegressor(utils.RGFRegressorBase):
+    """
+    A Regularized Greedy Forest [1] regressor.
+
+    Tuning parameters detailed instruction:
+        https://github.com/fukatani/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf
+
+    Parameters
+    ----------
+    max_leaf : int, optional (default=500)
+        Training will be terminated when the number of
+        leaf nodes in the forest reaches this value.
+
+    test_interval : int, optional (default=100)
+        Test interval in terms of the number of leaf nodes.
+
+    algorithm : string ("RGF" or "RGF_Opt" or "RGF_Sib"), optional (default="RGF")
+        Regularization algorithm.
+        RGF: RGF with L2 regularization on leaf-only models.
+        RGF Opt: RGF with min-penalty regularization.
+        RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
+
+    loss : string ("LS" or "Expo" or "Log"), optional (default="LS")
+        Loss function.
+
+    reg_depth : float, optional (default=1.0)
+        Must be no smaller than 1.0.
+        Meant for being used with algorithm="RGF Opt"|"RGF Sib".
+        A larger value penalizes deeper nodes more severely.
+
+    l2 : float, optional (default=0.1)
+        Used to control the degree of L2 regularization.
+
+    sl2 : float or None, optional (default=None)
+        Override L2 regularization parameter l2
+        for the process of growing the forest.
+        That is, if specified, the weight correction process uses l2
+        and the forest growing process uses sl2.
+        If None, no override takes place and
+        l2 is used throughout training.
+
+    normalize : boolean, optional (default=True)
+        If True, training targets are normalized
+        so that the average becomes zero.
+
+    min_samples_leaf : int or float, optional (default=10)
+        Minimum number of training data points in each leaf node.
+        If int, then consider min_samples_leaf as the minimum number.
+        If float, then min_samples_leaf is a percentage and
+        ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
+
+    n_iter : int or None, optional (default=None)
+        Number of iterations of coordinate descent to optimize weights.
+        If None, 10 is used for loss="LS" and 5 for loss="Expo"|"Log".
+
+    n_tree_search : int, optional (default=1)
+        Number of trees to be searched for the nodes to split.
+        The most recently grown trees are searched first.
+
+    opt_interval : int, optional (default=100)
+        Weight optimization interval in terms of the number of leaf nodes.
+        For example, by default, weight optimization is performed
+        every time approximately 100 leaf nodes are newly added to the forest.
+
+    learning_rate : float, optional (default=0.5)
+        Step size of Newton updates used in coordinate descent to optimize weights.
+
+    memory_policy : string ("conservative" or "generous"), optional (default="generous")
+        Memory using policy.
+        Generous: it runs faster using more memory by keeping the sorted orders
+        of the features on memory for reuse.
+        Conservative: it uses less memory at the expense of longer runtime. Try only when
+        with default value it uses too much memory.
+
+    verbose : int, optional (default=0)
+        Controls the verbosity of the tree building process.
+
+    Attributes:
+    -----------
+    n_features_ : int
+        The number of features when `fit` is performed.
+
+    fitted_ : boolean
+        Indicates whether `fit` is performed.
+
+    sl2_ : float
+        The concrete regularization value for the process of growing the forest
+        when `fit` is performed.
+
+    min_samples_leaf_ : int
+        Minimum number of training data points in each leaf node
+        used in model building process.
+
+    n_iter_ : int
+        Number of iterations of coordinate descent to optimize weights
+        used in model building process depending on the specified loss function.
+
+    Reference
+    ---------
+    [1] Rie Johnson and Tong Zhang,
+        Learning Nonlinear Functions Using Regularized Greedy Forest.
+    """
+    def __init__(self,
+                 max_leaf=500,
+                 test_interval=100,
+                 algorithm="RGF",
+                 loss="LS",
+                 reg_depth=1.0,
+                 l2=0.1,
+                 sl2=None,
+                 normalize=True,
+                 min_samples_leaf=10,
+                 n_iter=None,
+                 n_tree_search=1,
+                 opt_interval=100,
+                 learning_rate=0.5,
+                 memory_policy="generous",
+                 verbose=0):
+        self.max_leaf = max_leaf
+        self.test_interval = test_interval
+        self.algorithm = algorithm
+        self.loss = loss
+        self.reg_depth = reg_depth
+        self.l2 = l2
+        self.sl2 = sl2
+        self._sl2 = None
+        self.normalize = normalize
+        self.min_samples_leaf = min_samples_leaf
+        self._min_samples_leaf = None
+        self.n_iter = n_iter
+        self._n_iter = None
+        self.n_tree_search = n_tree_search
+        self.opt_interval = opt_interval
+        self.learning_rate = learning_rate
+        self.memory_policy = memory_policy
+        self.verbose = verbose
+        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
+        utils.UUIDS.append(self._file_prefix)
+        self._n_features = None
+        self._fitted = None
+
+    @property
+    def sl2_(self):
+        """
+        The concrete regularization value for the process of growing the forest
+        used in model building process.
+        """
+        if self._sl2 is None:
+            raise NotFittedError(utils.not_fitted_error_desc())
+        else:
+            return self._sl2
+
+    @property
+    def min_samples_leaf_(self):
+        """
+        Minimum number of training data points in each leaf node
+        used in model building process.
+        """
+        if self._min_samples_leaf is None:
+            raise NotFittedError(utils.not_fitted_error_desc())
+        else:
+            return self._min_samples_leaf
+
+    def _validate_params(self, params):
+        _validate_rgf_params(**params)
+
+    def _set_params_with_dependencies(self):
+        if self.sl2 is None:
+            self._sl2 = self.l2
+        else:
+            self._sl2 = self.sl2
+
+        if isinstance(self.min_samples_leaf, _FLOATS):
+            self._min_samples_leaf = ceil(self.min_samples_leaf * n_samples)
+        else:
+            self._min_samples_leaf = self.min_samples_leaf
+
+        if self.n_iter is None:
+            if self.loss == "LS":
+                self._n_iter = 10
+            else:
+                self._n_iter = 5
+        else:
+            self._n_iter = self.n_iter
+
+    def _get_train_command(self):
+        params = []
+        if self.verbose > 0:
+            params.append("Verbose")
+        if self.verbose > 5:
+            params.append("Verbose_opt")  # Add some info on weight optimization
+        if self.normalize:
+            params.append("NormalizeTarget")
+        params.append("train_x_fn=%s" % self._train_x_loc)
+        params.append("train_y_fn=%s" % self._train_y_loc)
+        params.append("algorithm=%s" % self.algorithm)
+        params.append("loss=%s" % self.loss)
+        params.append("max_leaf_forest=%s" % self.max_leaf)
+        params.append("test_interval=%s" % self.test_interval)
+        params.append("reg_L2=%s" % self.l2)
+        params.append("reg_sL2=%s" % self._sl2)
+        params.append("reg_depth=%s" % self.reg_depth)
+        params.append("min_pop=%s" % self._min_samples_leaf)
+        params.append("num_iteration_opt=%s" % self._n_iter)
+        params.append("num_tree_search=%s" % self.n_tree_search)
+        params.append("opt_interval=%s" % self.opt_interval)
+        params.append("opt_stepsize=%s" % self.learning_rate)
+        params.append("memory_policy=%s" % self.memory_policy.title())
+        params.append("model_fn_prefix=%s" % self._model_file_loc)
+        params.append("train_w_fn=%s" % self._train_weight_loc)
+
+        cmd = (utils.get_exe_path(), "train", ",".join(params))
+
+        return cmd
+
+    def _get_test_command(self):
+        params = []
+        params.append("test_x_fn=%s" % self._test_x_loc)
+        params.append("prediction_fn=%s" % self._pred_loc)
+        params.append("model_fn=%s" % self._model_file)
+
+        cmd = (utils.get_exe_path(), "predict", ",".join(params))
+
+        return cmd
+
+    def _save_sparse_X(self, path, X):
+        utils.sparse_savetxt(path, X, including_header=False)
+
+    def find_model_file(self):
+        # Find latest model location
+        model_files = glob(self._model_file_loc)
+        if not model_files:
+            raise Exception('Model learning result is not found in {0}. '
+                            'Training is abnormally finished.'.format(utils.get_temp_path()))
+        self._model_file = sorted(model_files, reverse=True)[0]
+
+
 class RGFClassifier(utils.RGFClassifierBase):
     """
     A Regularized Greedy Forest [1] classifier.
@@ -391,353 +628,6 @@ class RGFClassifier(utils.RGFClassifierBase):
                                                         for i in range(self._n_classes))
 
 
-class RGFRegressor(utils.RGFRegressorBase):
-    """
-    A Regularized Greedy Forest [1] regressor.
-
-    Tuning parameters detailed instruction:
-        https://github.com/fukatani/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf
-
-    Parameters
-    ----------
-    max_leaf : int, optional (default=500)
-        Training will be terminated when the number of
-        leaf nodes in the forest reaches this value.
-
-    test_interval : int, optional (default=100)
-        Test interval in terms of the number of leaf nodes.
-
-    algorithm : string ("RGF" or "RGF_Opt" or "RGF_Sib"), optional (default="RGF")
-        Regularization algorithm.
-        RGF: RGF with L2 regularization on leaf-only models.
-        RGF Opt: RGF with min-penalty regularization.
-        RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
-
-    loss : string ("LS" or "Expo" or "Log"), optional (default="LS")
-        Loss function.
-
-    reg_depth : float, optional (default=1.0)
-        Must be no smaller than 1.0.
-        Meant for being used with algorithm="RGF Opt"|"RGF Sib".
-        A larger value penalizes deeper nodes more severely.
-
-    l2 : float, optional (default=0.1)
-        Used to control the degree of L2 regularization.
-
-    sl2 : float or None, optional (default=None)
-        Override L2 regularization parameter l2
-        for the process of growing the forest.
-        That is, if specified, the weight correction process uses l2
-        and the forest growing process uses sl2.
-        If None, no override takes place and
-        l2 is used throughout training.
-
-    normalize : boolean, optional (default=True)
-        If True, training targets are normalized
-        so that the average becomes zero.
-
-    min_samples_leaf : int or float, optional (default=10)
-        Minimum number of training data points in each leaf node.
-        If int, then consider min_samples_leaf as the minimum number.
-        If float, then min_samples_leaf is a percentage and
-        ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
-
-    n_iter : int or None, optional (default=None)
-        Number of iterations of coordinate descent to optimize weights.
-        If None, 10 is used for loss="LS" and 5 for loss="Expo"|"Log".
-
-    n_tree_search : int, optional (default=1)
-        Number of trees to be searched for the nodes to split.
-        The most recently grown trees are searched first.
-
-    opt_interval : int, optional (default=100)
-        Weight optimization interval in terms of the number of leaf nodes.
-        For example, by default, weight optimization is performed
-        every time approximately 100 leaf nodes are newly added to the forest.
-
-    learning_rate : float, optional (default=0.5)
-        Step size of Newton updates used in coordinate descent to optimize weights.
-
-    memory_policy : string ("conservative" or "generous"), optional (default="generous")
-        Memory using policy.
-        Generous: it runs faster using more memory by keeping the sorted orders
-        of the features on memory for reuse.
-        Conservative: it uses less memory at the expense of longer runtime. Try only when
-        with default value it uses too much memory.
-
-    verbose : int, optional (default=0)
-        Controls the verbosity of the tree building process.
-
-    Attributes:
-    -----------
-    n_features_ : int
-        The number of features when `fit` is performed.
-
-    fitted_ : boolean
-        Indicates whether `fit` is performed.
-
-    sl2_ : float
-        The concrete regularization value for the process of growing the forest
-        when `fit` is performed.
-
-    min_samples_leaf_ : int
-        Minimum number of training data points in each leaf node
-        used in model building process.
-
-    n_iter_ : int
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-
-    Reference
-    ---------
-    [1] Rie Johnson and Tong Zhang,
-        Learning Nonlinear Functions Using Regularized Greedy Forest.
-    """
-    def __init__(self,
-                 max_leaf=500,
-                 test_interval=100,
-                 algorithm="RGF",
-                 loss="LS",
-                 reg_depth=1.0,
-                 l2=0.1,
-                 sl2=None,
-                 normalize=True,
-                 min_samples_leaf=10,
-                 n_iter=None,
-                 n_tree_search=1,
-                 opt_interval=100,
-                 learning_rate=0.5,
-                 memory_policy="generous",
-                 verbose=0):
-        self.max_leaf = max_leaf
-        self.test_interval = test_interval
-        self.algorithm = algorithm
-        self.loss = loss
-        self.reg_depth = reg_depth
-        self.l2 = l2
-        self.sl2 = sl2
-        self._sl2 = None
-        self.normalize = normalize
-        self.min_samples_leaf = min_samples_leaf
-        self._min_samples_leaf = None
-        self.n_iter = n_iter
-        self._n_iter = None
-        self.n_tree_search = n_tree_search
-        self.opt_interval = opt_interval
-        self.learning_rate = learning_rate
-        self.memory_policy = memory_policy
-        self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
-        utils.UUIDS.append(self._file_prefix)
-        self._n_features = None
-        self._fitted = None
-        self._latest_model_loc = None
-
-    @property
-    def sl2_(self):
-        """
-        The concrete regularization value for the process of growing the forest
-        used in model building process.
-        """
-        if self._sl2 is None:
-            raise NotFittedError(utils.not_fitted_error_desc())
-        else:
-            return self._sl2
-
-    @property
-    def min_samples_leaf_(self):
-        """
-        Minimum number of training data points in each leaf node
-        used in model building process.
-        """
-        if self._min_samples_leaf is None:
-            raise NotFittedError(utils.not_fitted_error_desc())
-        else:
-            return self._min_samples_leaf
-
-    def fit(self, X, y, sample_weight=None):
-        """
-        Build a RGF Regressor from the training set (X, y).
-
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The training input samples.
-
-        y : array-like, shape = [n_samples]
-            The target values (real numbers in regression).
-
-        sample_weight : array-like, shape = [n_samples] or None
-            Individual weights for each sample.
-
-        Returns
-        -------
-        self : object
-            Returns self.
-        """
-        _validate_rgf_params(**self.get_params())
-
-        X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
-        n_samples, self._n_features = X.shape
-
-        if self.sl2 is None:
-            self._sl2 = self.l2
-        else:
-            self._sl2 = self.sl2
-
-        if isinstance(self.min_samples_leaf, _FLOATS):
-            self._min_samples_leaf = ceil(self.min_samples_leaf * n_samples)
-        else:
-            self._min_samples_leaf = self.min_samples_leaf
-
-        if self.n_iter is None:
-            if self.loss == "LS":
-                self._n_iter = 10
-            else:
-                self._n_iter = 5
-        else:
-            self._n_iter = self.n_iter
-
-        if sample_weight is None:
-            sample_weight = np.ones(n_samples, dtype=np.float32)
-        else:
-            sample_weight = column_or_1d(sample_weight, warn=True)
-            if (sample_weight <= 0).any():
-                raise ValueError("Sample weights must be positive.")
-        check_consistent_length(X, y, sample_weight)
-
-        train_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.y")
-        train_weight_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.weight")
-        if sp.isspmatrix(X):
-            utils.sparse_savetxt(train_x_loc, X)
-        else:
-            np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
-        np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
-        np.savetxt(train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
-
-        # Format train command
-        params = []
-        if self.verbose > 0:
-            params.append("Verbose")
-        if self.verbose > 5:
-            params.append("Verbose_opt")  # Add some info on weight optimization
-        if self.normalize:
-            params.append("NormalizeTarget")
-        params.append("train_x_fn=%s" % train_x_loc)
-        params.append("train_y_fn=%s" % train_y_loc)
-        params.append("algorithm=%s" % self.algorithm)
-        params.append("loss=%s" % self.loss)
-        params.append("max_leaf_forest=%s" % self.max_leaf)
-        params.append("test_interval=%s" % self.test_interval)
-        params.append("reg_L2=%s" % self.l2)
-        params.append("reg_sL2=%s" % self._sl2)
-        params.append("reg_depth=%s" % self.reg_depth)
-        params.append("min_pop=%s" % self._min_samples_leaf)
-        params.append("num_iteration_opt=%s" % self._n_iter)
-        params.append("num_tree_search=%s" % self.n_tree_search)
-        params.append("opt_interval=%s" % self.opt_interval)
-        params.append("opt_stepsize=%s" % self.learning_rate)
-        params.append("memory_policy=%s" % self.memory_policy.title())
-        params.append("model_fn_prefix=%s" % os.path.join(utils.get_temp_path(), self._file_prefix + ".model"))
-        params.append("train_w_fn=%s" % train_weight_loc)
-
-        cmd = (utils.get_exe_path(), "train", ",".join(params))
-
-        # Train
-        output = subprocess.Popen(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  universal_newlines=True).communicate()
-
-        if self.verbose:
-            for k in output:
-                print(k)
-
-        self._fitted = True
-
-        # Find latest model location
-        model_glob = os.path.join(utils.get_temp_path(), self._file_prefix + ".model*")
-        model_files = glob(model_glob)
-        if not model_files:
-            raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.get_temp_path()))
-        self._latest_model_loc = sorted(model_files, reverse=True)[0]
-        return self
-
-    def predict(self, X):
-        """
-        Predict regression target for X.
-
-        The predicted regression target of an input sample is computed.
-
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The input samples.
-
-        Returns
-        -------
-        y : array of shape = [n_samples]
-            The predicted values.
-        """
-        if self._fitted is None:
-            raise NotFittedError(utils.not_fitted_error_desc())
-
-        X = check_array(X, accept_sparse=True)
-        n_features = X.shape[1]
-        if self._n_features != n_features:
-            raise ValueError("Number of features of the model must "
-                             "match the input. Model n_features is %s and "
-                             "input n_features is %s "
-                             % (self._n_features, n_features))
-
-        test_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".test.data.x")
-        if sp.isspmatrix(X):
-            utils.sparse_savetxt(test_x_loc, X)
-        else:
-            np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
-
-        if not os.path.isfile(self._latest_model_loc):
-            raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(utils.get_temp_path()))
-
-        # Format test command
-        pred_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".predictions.txt")
-        params = []
-        params.append("test_x_fn=%s" % test_x_loc)
-        params.append("prediction_fn=%s" % pred_loc)
-        params.append("model_fn=%s" % self._latest_model_loc)
-
-        cmd = (utils.get_exe_path(), "predict", ",".join(params))
-
-        output = subprocess.Popen(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  universal_newlines=True).communicate()
-
-        if self.verbose:
-            for k in output:
-                print(k)
-
-        y_pred = np.loadtxt(pred_loc)
-        return y_pred
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        if self._fitted:
-            with open(self._latest_model_loc, 'rb') as fr:
-                state["model"] = fr.read()
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        if self._fitted:
-            with open(self._latest_model_loc, 'wb') as fw:
-                fw.write(self.__dict__["model"])
-            del self.__dict__["model"]
-
-
 class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
     def save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=True)
@@ -774,8 +664,7 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
 
     def find_model_file(self):
         # Find latest model location
-        model_glob = os.path.join(utils.get_temp_path(), self.file_prefix + ".model*")
-        model_files = glob(model_glob)
+        model_files = glob(self.model_file_loc)
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
                             'Training is abnormally finished.'.format(utils.get_temp_path()))
