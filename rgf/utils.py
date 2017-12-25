@@ -276,10 +276,11 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
             Returns self.
         """
         self._validate_params(self.get_params())
-        self._set_params_with_dependencies()
 
         X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
         n_samples, self._n_features = X.shape
+
+        self._set_params_with_dependencies()
 
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
@@ -492,10 +493,11 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
             Returns self.
         """
         self._validate_params(self.get_params())
-        self._set_params_with_dependencies()
 
         X, y = check_X_y(X, y, accept_sparse=True)
         n_samples, self._n_features = X.shape
+
+        self._set_params_with_dependencies()
 
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float32)
