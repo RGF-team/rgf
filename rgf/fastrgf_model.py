@@ -178,11 +178,11 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 
         return cmd
 
-    def _get_test_command(self):
+    def _get_test_command(self, is_sparse_x):
         params = []
-        params.append("model.load=%s" % self._model_file_loc)
+        params.append("model.load=%s" % self._model_file)
         params.append("tst.x-file=%s" % self._test_x_loc)
-        if self._is_sparse_test_X:
+        if is_sparse_x:
             params.append("tst.x-file_format=x.sparse")
         params.append("tst.target=REAL")
         params.append("tst.output-prediction=%s" % self._pred_loc)

@@ -280,16 +280,18 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
         check_consistent_length(X, y, sample_weight)
 
         self._train_x_loc = os.path.join(get_temp_path(), self._file_prefix + ".train.data.x")
+        self._test_x_loc = os.path.join(get_temp_path(), self._file_prefix + ".test.data.x")
         self._train_y_loc = os.path.join(get_temp_path(), self._file_prefix + ".train.data.y")
         self._train_weight_loc = os.path.join(get_temp_path(), self._file_prefix + ".train.data.weight")
         self._model_file_loc = os.path.join(get_temp_path(), self._file_prefix + ".model")
+        self._pred_loc = os.path.join(get_temp_path(), self._file_prefix + ".predictions.txt")
 
         if sp.isspmatrix(X):
             self._save_sparse_X(self._train_x_loc, X)
             self._is_sparse_train_X = True
         else:
-            np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
-            self.is_sparse_train_X = False
+            np.savetxt(self._train_x_loc, X, delimiter=' ', fmt="%s")
+            self._is_sparse_train_X = False
         np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
         np.savetxt(self._train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
 
@@ -329,7 +331,7 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
         """
         if self._fitted is None:
             raise NotFittedError(not_fitted_error_desc())
-        if not os.path.isfile(self._model_file_loc):
+        if not os.path.isfile(self._model_file):
             raise Exception('Model learning result is not found in {0}. '
                             'This is rgf_python error.'.format(get_temp_path()))
 
@@ -341,17 +343,14 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
                              "input n_features is %s "
                              % (self._n_features, n_features))
 
-        self._test_x_loc = os.path.join(get_temp_path(), self._file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
             self._save_sparse_X(self._test_x_loc, X)
-            self._is_sparse_test_X = True
+            is_sparse_test_X = True
         else:
             np.savetxt(self._test_x_loc, X, delimiter=' ', fmt="%s")
-            self._is_sparse_test_X = False
+            is_sparse_test_X = False
 
-        self._pred_loc = os.path.join(get_temp_path(), self._file_prefix + ".predictions.txt")
-
-        cmd = self._get_test_command()
+        cmd = self._get_test_command(is_sparse_test_X)
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
@@ -385,7 +384,7 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
     def _get_train_command(self):
         raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
 
-    def _get_test_command(self):
+    def _get_test_command(self, is_sparse_x):
         raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
 
     def _save_sparse_X(self, path, X):
@@ -622,9 +621,11 @@ class RGFBinaryClassifierBase(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y, sample_weight):
         self.train_x_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.x")
+        self.test_x_loc = os.path.join(get_temp_path(), self.file_prefix + ".test.data.x")
         self.train_y_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.y")
         self.train_weight_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.weight")
         self.model_file_loc = os.path.join(get_temp_path(), self.file_prefix + ".model")
+        self.pred_loc = os.path.join(get_temp_path(), self.file_prefix + ".predictions.txt")
 
         if sp.isspmatrix(X):
             self.save_sparse_X(self.train_x_loc, X)
@@ -663,15 +664,12 @@ class RGFBinaryClassifierBase(BaseEstimator, ClassifierMixin):
             raise Exception('Model learning result is not found in {0}. '
                             'This is rgf_python error.'.format(get_temp_path()))
 
-        self.test_x_loc = os.path.join(get_temp_path(), self.file_prefix + ".test.data.x")
         if sp.isspmatrix(X):
             self.save_sparse_X(self.test_x_loc, X)
             self.is_sparse_test_X = True
         else:
             np.savetxt(self.test_x_loc, X, delimiter=' ', fmt="%s")
             self.is_sparse_test_X = False
-
-        self.pred_loc = os.path.join(get_temp_path(), self.file_prefix + ".predictions.txt")
 
         cmd = self.get_test_command()
 

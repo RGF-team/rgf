@@ -298,7 +298,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         used in model building process depending on the specified loss function.
         """
         if self._n_iter is None:
-            raise NotFittedError(not_fitted_error_desc())
+            raise NotFittedError(utils.not_fitted_error_desc())
         else:
             return self._n_iter
 
@@ -354,7 +354,7 @@ class RGFRegressor(utils.RGFRegressorBase):
 
         return cmd
 
-    def _get_test_command(self):
+    def _get_test_command(self, is_sparse_x):
         params = []
         params.append("test_x_fn=%s" % self._test_x_loc)
         params.append("prediction_fn=%s" % self._pred_loc)
@@ -365,11 +365,11 @@ class RGFRegressor(utils.RGFRegressorBase):
         return cmd
 
     def _save_sparse_X(self, path, X):
-        utils.sparse_savetxt(path, X, including_header=False)
+        utils.sparse_savetxt(path, X, including_header=True)
 
-    def find_model_file(self):
+    def _find_model_file(self):
         # Find latest model location
-        model_files = glob(self._model_file_loc)
+        model_files = glob(self._model_file_loc + "*")
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
                             'Training is abnormally finished.'.format(utils.get_temp_path()))
@@ -580,7 +580,7 @@ class RGFClassifier(utils.RGFClassifierBase):
         used in model building process depending on the specified loss function.
         """
         if self._n_iter is None:
-            raise NotFittedError(not_fitted_error_desc())
+            raise NotFittedError(utils.not_fitted_error_desc())
         else:
             return self._n_iter
 
@@ -686,7 +686,7 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
 
     def find_model_file(self):
         # Find latest model location
-        model_files = glob(self.model_file_loc)
+        model_files = glob(self.model_file_loc + "*")
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
                             'Training is abnormally finished.'.format(utils.get_temp_path()))
