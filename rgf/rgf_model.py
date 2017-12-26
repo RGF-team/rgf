@@ -152,6 +152,9 @@ class RGFRegressor(utils.RGFRegressorBase):
 
     loss : string ("LS" or "Expo" or "Log"), optional (default="LS")
         Loss function.
+        LS: Square loss.
+        Expo: Exponential loss.
+        Log: Logistic loss.
 
     reg_depth : float, optional (default=1.0)
         Must be no smaller than 1.0.
@@ -215,7 +218,7 @@ class RGFRegressor(utils.RGFRegressorBase):
 
     sl2_ : float
         The concrete regularization value for the process of growing the forest
-        when `fit` is performed.
+        used in model building process.
 
     min_samples_leaf_ : int
         Minimum number of training data points in each leaf node
