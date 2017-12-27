@@ -101,7 +101,6 @@ class FastRGFRegressor(utils.RGFRegressorBase):
                  discretize_sparse_lamL2=2.0,
                  discretize_sparse_min_bucket_weights=5.0,
                  discretize_sparse_min_occurences=5,
-                 n_iter=None,
                  n_jobs=-1,
                  verbose=0):
         if not utils.fastrgf_available():
@@ -124,199 +123,85 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         self.discretize_sparse_lamL2 = discretize_sparse_lamL2
         self.discretize_sparse_min_bucket_weights = discretize_sparse_min_bucket_weights
         self.discretize_sparse_min_occurences = discretize_sparse_min_occurences
-
-        self.n_iter = n_iter
         self.n_jobs = n_jobs
-        if self.n_jobs == -1:
-            self.nthreads = 0
-        elif n_jobs < 0:
-            self.nthreads = cpu_count() + n_jobs + 1
-        else:
-            self.nthreads = n_jobs
+        self._n_jobs = None
         self.verbose = verbose
+
         self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
         utils.UUIDS.append(self._file_prefix)
         self._n_features = None
         self._fitted = None
-        self._latest_model_loc = None
-        self.model_file = None
 
-    def fit(self, X, y, sample_weight=None):
-        """
-        Build a FastRGF Regressor from the training set (X, y).
+    def _validate_params(self, params):
+        _validate_fast_rgf_params(**params)
 
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The training input samples.
-
-        y : array-like, shape = [n_samples]
-            The target values (real numbers in regression).
-
-        sample_weight : array-like, shape = [n_samples] or None
-            Individual weights for each sample.
-
-        Returns
-        -------
-        self : object
-            Returns self.
-        """
-        # _validate_params(**self.get_params())
-
-        X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
-        n_samples, self._n_features = X.shape
-
-        if self.n_iter is None:
-            if self.dtree_loss == "LS":
-                self._n_iter = 10
-            else:
-                self._n_iter = 5
+    def _set_params_with_dependencies(self):
+        if self.n_jobs == -1:
+            self._n_jobs = 0
+        elif self.n_jobs < 0:
+            self._n_jobs = cpu_count() + self.n_jobs + 1
         else:
-            self._n_iter = self.n_iter
+            self._n_jobs = self.n_jobs
 
-        if sample_weight is None:
-            sample_weight = np.ones(n_samples, dtype=np.float32)
-        else:
-            sample_weight = column_or_1d(sample_weight, warn=True)
-            if (sample_weight <= 0).any():
-                raise ValueError("Sample weights must be positive.")
-        check_consistent_length(X, y, sample_weight)
+    def _get_train_command(self):
+        params = []
+        params.append("forest.ntrees=%s" % self.forest_ntrees)
+        params.append("forest.stepsize=%s" % self.forest_stepsize)
+        params.append("forest.opt=%s" % self.forest_opt)
+        params.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
+        params.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
+        params.append("discretize.dense.min_bucket_weights=%s" % self.discretize_dense_min_bucket_weights)
+        params.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
+        params.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
+        params.append("discretize.sparse.lamL2=%s" % self.discretize_sparse_lamL2)
+        params.append("discretize.sparse.min_bucket_weights=%s" % self.discretize_sparse_min_bucket_weights)
+        params.append("discretize.sparse.min_occrrences=%s" % self.discretize_sparse_min_occurences)
+        params.append("dtree.max_level=%s" % self.dtree_max_level)
+        params.append("dtree.max_nodes=%s" % self.dtree_max_nodes)
+        params.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
+        params.append("dtree.min_sample=%s" % self.dtree_min_sample)
+        params.append("dtree.loss=%s" % self.dtree_loss)
+        params.append("dtree.lamL1=%s" % self.dtree_lamL1)
+        params.append("dtree.lamL2=%s" % self.dtree_lamL2)
+        if self._is_sparse_train_X:
+            params.append("trn.x-file_format=x.sparse")
+        params.append("trn.x-file=%s" % self._train_x_loc)
+        params.append("trn.y-file=%s" % self._train_y_loc)
+        params.append("trn.w-file=%s" % self._train_weight_loc)
+        params.append("trn.target=REAL")
+        params.append("set.nthreads=%s" % self._n_jobs)
+        params.append("set.verbose=%s" % self.verbose)
+        params.append("model.save=%s" % self._model_file_loc)
 
-        train_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.x")
-        train_y_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.y")
-        train_weight_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".train.data.weight")
-        self.model_file = os.path.join(utils.get_temp_path(), self._file_prefix + ".model")
-        if sp.isspmatrix(X):
-            utils.sparse_savetxt(train_x_loc, X, including_header=False)
-        else:
-            np.savetxt(train_x_loc, X, delimiter=' ', fmt="%s")
-        np.savetxt(train_y_loc, y, delimiter=' ', fmt="%s")
-        np.savetxt(train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
+        cmd = [utils.get_fastrgf_path() + "/forest_train"]
+        cmd.extend(params)
 
-        # Format train command
-        cmd = []
-        cmd.append(utils.get_fastrgf_path() + "/forest_train")
-        cmd.append("forest.ntrees=%s" % self.forest_ntrees)
-        cmd.append("forest.stepsize=%s" % self.forest_stepsize)
-        cmd.append("forest.opt=%s" % self.forest_opt)
-        cmd.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
-        cmd.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
-        cmd.append("discretize.dense.min_bucket_weights=%s" % self.discretize_dense_min_bucket_weights)
-        cmd.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
-        cmd.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
-        cmd.append("discretize.sparse.lamL2=%s" % self.discretize_sparse_lamL2)
-        cmd.append("discretize.sparse.min_bucket_weights=%s" % self.discretize_sparse_min_bucket_weights)
-        cmd.append("discretize.sparse.min_occrrences=%s" % self.discretize_sparse_min_occurences)
-        cmd.append("dtree.max_level=%s" % self.dtree_max_level)
-        cmd.append("dtree.max_nodes=%s" % self.dtree_max_nodes)
-        cmd.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
-        cmd.append("dtree.min_sample=%s" % self.dtree_min_sample)
-        cmd.append("dtree.loss=%s" % self.dtree_loss)
-        cmd.append("dtree.lamL1=%s" % self.dtree_lamL1)
-        cmd.append("dtree.lamL2=%s" % self.dtree_lamL2)
-        if sp.isspmatrix(X):
-            cmd.append("trn.x-file_format=x.sparse")
-        cmd.append("trn.x-file=%s" % train_x_loc)
-        cmd.append("trn.y-file=%s" % train_y_loc)
-        cmd.append("trn.w-file=%s" % train_weight_loc)
-        cmd.append("trn.target=REAL")
-        cmd.append("set.nthreads=%s" % self.nthreads)
-        cmd.append("set.verbose=%s" % self.verbose)
-        cmd.append("model.save=%s" % self.model_file)
+        return cmd
 
-        # Train
-        output = subprocess.Popen(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  universal_newlines=True).communicate()
+    def _get_test_command(self, is_sparse_x):
+        params = []
+        params.append("model.load=%s" % self._model_file)
+        params.append("tst.x-file=%s" % self._test_x_loc)
+        if is_sparse_x:
+            params.append("tst.x-file_format=x.sparse")
+        params.append("tst.target=REAL")
+        params.append("tst.output-prediction=%s" % self._pred_loc)
+        params.append("set.nthreads=%s" % self._n_jobs)
+        params.append("set.verbose=%s" % self.verbose)
 
-        if self.verbose:
-            for k in output:
-                print(k)
+        cmd = [utils.get_fastrgf_path() + "/forest_predict"]
+        cmd.extend(params)
 
-        if not os.path.isfile(self.model_file):
-            raise Exception("Training is abnormally finished.")
+        return cmd
 
-        self._fitted = True
+    def _save_sparse_X(self, path, X):
+        utils.sparse_savetxt(path, X, including_header=False)
 
-        # Find latest model location
-        return self
-
-    def predict(self, X):
-        """
-        Predict regression target for X.
-
-        The predicted regression target of an input sample is computed.
-
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The input samples.
-
-        Returns
-        -------
-        y : array of shape = [n_samples]
-            The predicted values.
-        """
-        if self._fitted is None:
-            raise NotFittedError(utils.not_fitted_error_desc())
-
-        X = check_array(X, accept_sparse=True)
-        n_features = X.shape[1]
-        if self._n_features != n_features:
-            raise ValueError("Number of features of the model must "
-                             "match the input. Model n_features is %s and "
-                             "input n_features is %s "
-                             % (self._n_features, n_features))
-
-        test_x_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".test.data.x")
-        if sp.isspmatrix(X):
-            utils.sparse_savetxt(test_x_loc, X, including_header=False)
-        else:
-            np.savetxt(test_x_loc, X, delimiter=' ', fmt="%s")
-
-        if not os.path.isfile(self.model_file):
+    def _find_model_file(self):
+        if not os.path.isfile(self._model_file_loc):
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(utils.get_temp_path()))
-
-        # Format test command
-        pred_loc = os.path.join(utils.get_temp_path(), self._file_prefix + ".predictions.txt")
-
-        cmd = []
-        cmd.append(utils.get_fastrgf_path() + "/forest_predict")
-        cmd.append("model.load=%s" % self.model_file)
-        cmd.append("tst.x-file=%s" % test_x_loc)
-        if sp.isspmatrix(X):
-            cmd.append("tst.x-file_format=x.sparse")
-        cmd.append("tst.target=REAL")
-        cmd.append("tst.output-prediction=%s" % pred_loc)
-        cmd.append("set.nthreads=%s" % self.nthreads)
-        cmd.append("set.verbose=%s" % self.verbose)
-
-        output = subprocess.Popen(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT).communicate()
-
-        if self.verbose:
-            for k in output:
-                print(k)
-
-        y_pred = np.loadtxt(pred_loc)
-        return y_pred
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        if self._fitted:
-            with open(self.model_file, 'rb') as fr:
-                state["model"] = fr.read()
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        if self._fitted:
-            with open(self.model_file, 'wb') as fw:
-                fw.write(self.__dict__["model"])
-            del self.__dict__["model"]
+                            'Training is abnormally finished.'.format(utils.get_temp_path()))
+        self._model_file = self._model_file_loc
 
 
 class FastRGFClassifier(utils.RGFClassifierBase):
@@ -402,7 +287,6 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                  discretize_sparse_lamL2=2.0,
                  discretize_sparse_min_bucket_weights=5.0,
                  discretize_sparse_min_occurences=5,
-                 n_iter=None,
                  calc_prob="sigmoid",
                  n_jobs=-1,
                  verbose=0):
@@ -425,9 +309,9 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         self.discretize_sparse_min_bucket_weights = discretize_sparse_min_bucket_weights
         self.discretize_sparse_min_occurences = discretize_sparse_min_occurences
 
-        self.n_iter = n_iter
         self.calc_prob = calc_prob
         self.n_jobs = n_jobs
+        self._n_jobs = None
         self.verbose = verbose
 
         self._estimators = None
@@ -441,14 +325,6 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         _validate_fast_rgf_params(**params)
 
     def _set_params_with_dependencies(self):
-        if self.n_iter is None:
-            if self.dtree_loss == "LS":
-                self._n_iter = 10
-            else:
-                self._n_iter = 5
-        else:
-            self._n_iter = self.n_iter
-
         if self.n_jobs == -1:
             self._n_jobs = 0
         elif self.n_jobs < 0:
@@ -475,8 +351,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                     discretize_sparse_lamL2=self.discretize_sparse_lamL2,
                     discretize_sparse_min_bucket_weights=self.discretize_sparse_min_bucket_weights,
                     discretize_sparse_min_occurences=self.discretize_sparse_min_occurences,
-                    n_iter=self._n_iter,
-                    nthreads=self._n_jobs,
+                    n_jobs=self._n_jobs,
                     verbose=self.verbose)
 
     def _fit_binary_task(self, X, y, sample_weight, params):
@@ -520,7 +395,7 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         if self.is_sparse_train_X:
             params.append("trn.x-file_format=x.sparse")
         params.append("trn.target=BINARY")
-        params.append("set.nthreads=%s" % self.nthreads)
+        params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self.model_file_loc)
 
@@ -543,7 +418,7 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
             params.append("tst.x-file_format=x.sparse")
         params.append("tst.target=BINARY")
         params.append("tst.output-prediction=%s" % self.pred_loc)
-        params.append("set.nthreads=%s" % self.nthreads)
+        params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
 
         cmd = [utils.get_fastrgf_path() + "/forest_predict"]
