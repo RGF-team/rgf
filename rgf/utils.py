@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-
 import atexit
 import codecs
 import glob
@@ -21,14 +20,11 @@ from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
 
-with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as _f:
-    __version__ = _f.read().strip()
-
-_NOT_FITTED_ERROR_DESC = "Estimator not fitted, call `fit` before exploiting the model."
-_NOT_IMPLEMENTED_ERROR_DESC = "This method isn't implemented in base class."
-_SYSTEM = platform.system()
+FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
+NOT_FITTED_ERROR_DESC = "Estimator not fitted, call `fit` before exploiting the model."
+NOT_IMPLEMENTED_ERROR_DESC = "This method isn't implemented in base class."
+SYSTEM = platform.system()
 UUIDS = []
-_FASTRGF_AVAILABLE = False
 
 
 @atexit.register
@@ -40,7 +36,7 @@ def cleanup():
 def cleanup_partial(uuid, remove_from_list=False):
     n_removed_files = 0
     if uuid in UUIDS:
-        model_glob = os.path.join(_TEMP_PATH, uuid + "*")
+        model_glob = os.path.join(TEMP_PATH, uuid + "*")
         for fn in glob.glob(model_glob):
             os.remove(fn)
             n_removed_files += 1
@@ -49,7 +45,7 @@ def cleanup_partial(uuid, remove_from_list=False):
     return n_removed_files
 
 
-def _get_paths():
+def get_paths():
     config = six.moves.configparser.RawConfigParser()
     path = os.path.join(os.path.expanduser('~'), '.rgfrc')
 
@@ -64,7 +60,7 @@ def _get_paths():
     except Exception:
         pass
 
-    if _SYSTEM in ('Windows', 'Microsoft'):
+    if SYSTEM in ('Windows', 'Microsoft'):
         try:
             rgf_exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
         except Exception:
@@ -96,26 +92,26 @@ def _get_paths():
     return def_exe, rgf_exe, fast_rgf_path, temp
 
 
-_DEFAULT_EXE_PATH, _EXE_PATH, _FASTRGF_PATH, _TEMP_PATH = _get_paths()
+DEFAULT_EXE_PATH, EXE_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
 
 
-if not os.path.isdir(_TEMP_PATH):
-    os.makedirs(_TEMP_PATH)
-if not os.access(_TEMP_PATH, os.W_OK):
+if not os.path.isdir(TEMP_PATH):
+    os.makedirs(TEMP_PATH)
+if not os.access(TEMP_PATH, os.W_OK):
     raise Exception("{0} is not writable directory. Please set "
-                    "config flag 'temp_location' to writable directory".format(_TEMP_PATH))
+                    "config flag 'temp_location' to writable directory".format(TEMP_PATH))
 
 
-def _is_rgf_executable(path):
-    temp_x_loc = os.path.join(_TEMP_PATH, 'temp.train.data.x')
-    temp_y_loc = os.path.join(_TEMP_PATH, 'temp.train.data.y')
+def is_rgf_executable(path):
+    temp_x_loc = os.path.join(TEMP_PATH, 'temp.train.data.x')
+    temp_y_loc = os.path.join(TEMP_PATH, 'temp.train.data.y')
     np.savetxt(temp_x_loc, [[1, 0, 1, 0], [0, 1, 0, 1]], delimiter=' ', fmt="%s")
     np.savetxt(temp_y_loc, [1, -1], delimiter=' ', fmt="%s")
     UUIDS.append('temp')
     params = []
     params.append("train_x_fn=%s" % temp_x_loc)
     params.append("train_y_fn=%s" % temp_y_loc)
-    params.append("model_fn_prefix=%s" % os.path.join(_TEMP_PATH, "temp.model"))
+    params.append("model_fn_prefix=%s" % os.path.join(TEMP_PATH, "temp.model"))
     params.append("reg_L2=%s" % 1)
     try:
         os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
@@ -128,7 +124,7 @@ def _is_rgf_executable(path):
         return False
 
 
-def _is_fastrgf_executable(path):
+def is_fastrgf_executable(path):
     train_exec = os.path.join(path, "forest_train")
     try:
         subprocess.check_output([train_exec, "--help"])
@@ -142,42 +138,26 @@ def _is_fastrgf_executable(path):
     return True
 
 
-if _is_rgf_executable(_DEFAULT_EXE_PATH):
-    _EXE_PATH = _DEFAULT_EXE_PATH
-elif _is_rgf_executable(os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)):
-    _EXE_PATH = os.path.join(os.path.dirname(__file__), _DEFAULT_EXE_PATH)
-elif not os.path.isfile(_EXE_PATH):
+if is_rgf_executable(DEFAULT_EXE_PATH):
+    EXE_PATH = DEFAULT_EXE_PATH
+elif is_rgf_executable(os.path.join(os.path.dirname(__file__), DEFAULT_EXE_PATH)):
+    EXE_PATH = os.path.join(os.path.dirname(__file__), DEFAULT_EXE_PATH)
+elif not os.path.isfile(EXE_PATH):
     raise Exception("{0} is not executable file. Please set "
-                    "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
-elif not os.access(_EXE_PATH, os.X_OK):
+                    "config flag 'exe_location' to RGF execution file.".format(EXE_PATH))
+elif not os.access(EXE_PATH, os.X_OK):
     raise Exception("{0} cannot be accessed. Please set "
-                    "config flag 'exe_location' to RGF execution file.".format(_EXE_PATH))
-elif _is_rgf_executable(_EXE_PATH):
+                    "config flag 'exe_location' to RGF execution file.".format(EXE_PATH))
+elif is_rgf_executable(EXE_PATH):
     pass
 else:
     raise Exception("{0} does not exist or {1} is not in the "
-                    "'PATH' variable.".format(_EXE_PATH, _DEFAULT_EXE_PATH))
+                    "'PATH' variable.".format(EXE_PATH, DEFAULT_EXE_PATH))
 
-_FASTRGF_AVAILABLE = _is_fastrgf_executable(_FASTRGF_PATH)
-
-
-def fastrgf_available():
-    return _FASTRGF_AVAILABLE
+FASTRGF_AVAILABLE = is_fastrgf_executable(FASTRGF_PATH)
 
 
-def get_temp_path():
-    return _TEMP_PATH
-
-
-def get_exe_path():
-    return _EXE_PATH
-
-
-def get_fastrgf_path():
-    return _FASTRGF_PATH
-
-
-class _AtomicCounter(object):
+class AtomicCounter(object):
     def __init__(self):
         self.value = 0
         self._lock = Lock()
@@ -188,11 +168,7 @@ class _AtomicCounter(object):
             return self.value
 
 
-COUNTER = _AtomicCounter()
-
-
-def not_fitted_error_desc():
-    return "Estimator not fitted, call `fit` before exploiting the model."
+COUNTER = AtomicCounter()
 
 
 def sparse_savetxt(filename, input_array, including_header=True):
@@ -223,7 +199,7 @@ def sigmoid(x):
     return 1.0 / (1.0 + np.exp(-x))
 
 
-def _fit_ovr_binary(binary_clf, X, y, sample_weight):
+def fit_ovr_binary(binary_clf, X, y, sample_weight):
     return binary_clf.fit(X, y, sample_weight)
 
 
@@ -232,7 +208,7 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
     def n_features_(self):
         """The number of features when `fit` is performed."""
         if self._n_features is None:
-            raise NotFittedError(not_fitted_error_desc())
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._n_features
 
@@ -240,7 +216,7 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
     def fitted_(self):
         """Indicates whether `fit` is performed."""
         if self._fitted is None:
-            raise NotFittedError(not_fitted_error_desc())
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._fitted
 
@@ -279,12 +255,12 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
                 raise ValueError("Sample weights must be positive.")
         check_consistent_length(X, y, sample_weight)
 
-        self._train_x_loc = os.path.join(get_temp_path(), self._file_prefix + ".train.data.x")
-        self._test_x_loc = os.path.join(get_temp_path(), self._file_prefix + ".test.data.x")
-        self._train_y_loc = os.path.join(get_temp_path(), self._file_prefix + ".train.data.y")
-        self._train_weight_loc = os.path.join(get_temp_path(), self._file_prefix + ".train.data.weight")
-        self._model_file_loc = os.path.join(get_temp_path(), self._file_prefix + ".model")
-        self._pred_loc = os.path.join(get_temp_path(), self._file_prefix + ".predictions.txt")
+        self._train_x_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.x")
+        self._test_x_loc = os.path.join(TEMP_PATH, self._file_prefix + ".test.data.x")
+        self._train_y_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.y")
+        self._train_weight_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.weight")
+        self._model_file_loc = os.path.join(TEMP_PATH, self._file_prefix + ".model")
+        self._pred_loc = os.path.join(TEMP_PATH, self._file_prefix + ".predictions.txt")
 
         if sp.isspmatrix(X):
             self._save_sparse_X(self._train_x_loc, X)
@@ -330,10 +306,10 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
             The predicted values.
         """
         if self._fitted is None:
-            raise NotFittedError(not_fitted_error_desc())
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
         if not os.path.isfile(self._model_file):
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(get_temp_path()))
+                            'This is rgf_python error.'.format(TEMP_PATH))
 
         X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
@@ -376,22 +352,22 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
         return cleanup_partial(self._file_prefix, remove_from_list=True)
 
     def _validate_params(self, params):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _set_params_with_dependencies(self):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _get_train_command(self):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _get_test_command(self, is_sparse_x):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _save_sparse_X(self, path, X):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _find_model_file(self):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -413,7 +389,7 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
     def estimators_(self):
         """The collection of fitted sub-estimators when `fit` is performed."""
         if self._estimators is None:
-            raise NotFittedError(not_fitted_error_desc())
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._estimators
 
@@ -421,7 +397,7 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
     def classes_(self):
         """The classes labels when `fit` is performed."""
         if self._classes is None:
-            raise NotFittedError(not_fitted_error_desc())
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._classes
 
@@ -429,7 +405,7 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
     def n_classes_(self):
         """The number of classes when `fit` is performed."""
         if self._n_classes is None:
-            raise NotFittedError(not_fitted_error_desc())
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._n_classes
 
@@ -437,7 +413,7 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
     def n_features_(self):
         """The number of features when `fit` is performed."""
         if self._n_features is None:
-            raise NotFittedError(not_fitted_error_desc())
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._n_features
 
@@ -445,7 +421,7 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
     def fitted_(self):
         """Indicates whether `fit` is performed."""
         if self._fitted is None:
-            raise NotFittedError(not_fitted_error_desc())
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._fitted
 
@@ -526,7 +502,7 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
             The order of the classes corresponds to that in the attribute classes_.
         """
         if self._fitted is None:
-            raise NotFittedError(not_fitted_error_desc())
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
         X = check_array(X, accept_sparse=True)
         n_features = X.shape[1]
         if self._n_features != n_features:
@@ -595,19 +571,19 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
         return n_removed_files
 
     def _validate_params(self, params):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _set_params_with_dependencies(self):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _get_params(self):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _fit_binary_task(self, X, y, sample_weight, params):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _fit_multiclass_task(self, X, y, sample_weight, params):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
 
 class RGFBinaryClassifierBase(BaseEstimator, ClassifierMixin):
@@ -620,12 +596,12 @@ class RGFBinaryClassifierBase(BaseEstimator, ClassifierMixin):
         self.fitted = None
 
     def fit(self, X, y, sample_weight):
-        self.train_x_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.x")
-        self.test_x_loc = os.path.join(get_temp_path(), self.file_prefix + ".test.data.x")
-        self.train_y_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.y")
-        self.train_weight_loc = os.path.join(get_temp_path(), self.file_prefix + ".train.data.weight")
-        self.model_file_loc = os.path.join(get_temp_path(), self.file_prefix + ".model")
-        self.pred_loc = os.path.join(get_temp_path(), self.file_prefix + ".predictions.txt")
+        self.train_x_loc = os.path.join(TEMP_PATH, self.file_prefix + ".train.data.x")
+        self.test_x_loc = os.path.join(TEMP_PATH, self.file_prefix + ".test.data.x")
+        self.train_y_loc = os.path.join(TEMP_PATH, self.file_prefix + ".train.data.y")
+        self.train_weight_loc = os.path.join(TEMP_PATH, self.file_prefix + ".train.data.weight")
+        self.model_file_loc = os.path.join(TEMP_PATH, self.file_prefix + ".model")
+        self.pred_loc = os.path.join(TEMP_PATH, self.file_prefix + ".predictions.txt")
 
         if sp.isspmatrix(X):
             self.save_sparse_X(self.train_x_loc, X)
@@ -659,10 +635,10 @@ class RGFBinaryClassifierBase(BaseEstimator, ClassifierMixin):
 
     def predict_proba(self, X):
         if self.fitted is None:
-            raise NotFittedError(not_fitted_error_desc())
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
         if not os.path.isfile(self.model_file):
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(get_temp_path()))
+                            'This is rgf_python error.'.format(TEMP_PATH))
 
         if sp.isspmatrix(X):
             self.save_sparse_X(self.test_x_loc, X)
@@ -684,16 +660,16 @@ class RGFBinaryClassifierBase(BaseEstimator, ClassifierMixin):
         return np.loadtxt(self.pred_loc)
 
     def save_sparse_X(self, X):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def get_train_command(self):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def find_model_file(self):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def get_test_command(self):
-        raise NotImplementedError(_NOT_IMPLEMENTED_ERROR_DESC)
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def __getstate__(self):
         state = self.__dict__.copy()

@@ -1,20 +1,14 @@
 from __future__ import absolute_import
 
 import os
-import subprocess
 from uuid import uuid4
 
-import numpy as np
-import scipy.sparse as sp
-from sklearn.exceptions import NotFittedError
 from sklearn.externals.joblib import cpu_count
-from sklearn.utils.multiclass import check_classification_targets
-from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
 from rgf import utils
 
 
-def _validate_fast_rgf_params(**kwargs):
+def validate_fast_rgf_params(**kwargs):
     pass
 
 
@@ -103,7 +97,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
                  discretize_sparse_min_occurences=5,
                  n_jobs=-1,
                  verbose=0):
-        if not utils.fastrgf_available():
+        if not utils.FASTRGF_AVAILABLE:
             raise Exception('FastRGF is not installed correctly.')
         self.dtree_max_level = dtree_max_level
         self.dtree_max_nodes = dtree_max_nodes
@@ -133,7 +127,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         self._fitted = None
 
     def _validate_params(self, params):
-        _validate_fast_rgf_params(**params)
+        validate_fast_rgf_params(**params)
 
     def _set_params_with_dependencies(self):
         if self.n_jobs == -1:
@@ -173,7 +167,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self._model_file_loc)
 
-        cmd = [utils.get_fastrgf_path() + "/forest_train"]
+        cmd = [utils.FASTRGF_PATH + "/forest_train"]
         cmd.extend(params)
 
         return cmd
@@ -189,7 +183,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         params.append("set.nthreads=%s" % self._n_jobs)
         params.append("set.verbose=%s" % self.verbose)
 
-        cmd = [utils.get_fastrgf_path() + "/forest_predict"]
+        cmd = [utils.FASTRGF_PATH + "/forest_predict"]
         cmd.extend(params)
 
         return cmd
@@ -200,7 +194,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
     def _find_model_file(self):
         if not os.path.isfile(self._model_file_loc):
             raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.get_temp_path()))
+                            'Training is abnormally finished.'.format(utils.TEMP_PATH))
         self._model_file = self._model_file_loc
 
 
@@ -322,7 +316,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         self._fitted = None
 
     def _validate_params(self, params):
-        _validate_fast_rgf_params(**params)
+        validate_fast_rgf_params(**params)
 
     def _set_params_with_dependencies(self):
         if self.n_jobs == -1:
@@ -399,7 +393,7 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self.model_file_loc)
 
-        cmd = [utils.get_fastrgf_path() + "/forest_train"]
+        cmd = [utils.FASTRGF_PATH + "/forest_train"]
         cmd.extend(params)
 
         return cmd
@@ -407,7 +401,7 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
     def find_model_file(self):
         if not os.path.isfile(self.model_file_loc):
             raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.get_temp_path()))
+                            'Training is abnormally finished.'.format(utils.TEMP_PATH))
         self.model_file = self.model_file_loc
 
     def get_test_command(self):
@@ -421,7 +415,7 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
 
-        cmd = [utils.get_fastrgf_path() + "/forest_predict"]
+        cmd = [utils.FASTRGF_PATH + "/forest_predict"]
         cmd.extend(params)
 
         return cmd
