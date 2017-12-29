@@ -17,6 +17,8 @@ Example
 
 Examples could be found `here <https://github.com/fukatani/rgf_python/tree/master/examples>`__.
 
+Note that since the dataset size is small, FastRGF is not faster than RGF in this example.
+
 Software Requirements
 ---------------------
 
@@ -60,6 +62,13 @@ ex.
     exe_location=C:/Program Files/RGF/bin/rgf.exe
     temp_location=C:/Program Files/RGF/temp
     fastrgf_location=C:/Program Files/fast_rgf/bin
+
+Known Issues
+------------
+* FastRGF clashes if training dataset is too small. (<100)
+* FastRGF clashes if sample weight is too big for one sample.
+
+ex. sample weight = [1, 0.001, 0.001, ..., 0.001]
 
 Reference
 ---------
