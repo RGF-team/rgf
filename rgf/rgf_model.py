@@ -1,46 +1,39 @@
 from __future__ import absolute_import
 
-from glob import glob
-import os
-from math import ceil
 import numbers
-import subprocess
+from glob import glob
+from math import ceil
 from uuid import uuid4
 
 import numpy as np
-import scipy.sparse as sp
 from sklearn.externals import six
 from sklearn.externals.joblib import Parallel, delayed, cpu_count
-from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.exceptions import NotFittedError
-from sklearn.utils.multiclass import check_classification_targets
-from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
 from rgf import utils
 
 
-_ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
-_LOSSES = ("LS", "Expo", "Log")
-_FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
+ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
+LOSSES = ("LS", "Expo", "Log")
 
 
-def _validate_rgf_params(max_leaf,
-                         test_interval,
-                         algorithm,
-                         loss,
-                         reg_depth,
-                         l2,
-                         sl2,
-                         normalize,
-                         min_samples_leaf,
-                         n_iter,
-                         n_tree_search,
-                         opt_interval,
-                         learning_rate,
-                         verbose,
-                         memory_policy,
-                         calc_prob="sigmoid",
-                         n_jobs=-1):
+def validate_rgf_params(max_leaf,
+                        test_interval,
+                        algorithm,
+                        loss,
+                        reg_depth,
+                        l2,
+                        sl2,
+                        normalize,
+                        min_samples_leaf,
+                        n_iter,
+                        n_tree_search,
+                        opt_interval,
+                        learning_rate,
+                        verbose,
+                        memory_policy,
+                        calc_prob="sigmoid",
+                        n_jobs=-1):
     if not isinstance(max_leaf, (numbers.Integral, np.integer)):
         raise ValueError("max_leaf must be an integer, got {0}.".format(type(max_leaf)))
     elif max_leaf <= 0:
@@ -53,25 +46,25 @@ def _validate_rgf_params(max_leaf,
 
     if not isinstance(algorithm, six.string_types):
         raise ValueError("algorithm must be a string, got {0}.".format(type(algorithm)))
-    elif algorithm not in _ALGORITHMS:
+    elif algorithm not in ALGORITHMS:
         raise ValueError("algorithm must be 'RGF' or 'RGF_Opt' or 'RGF_Sib' but was %r." % algorithm)
 
     if not isinstance(loss, six.string_types):
         raise ValueError("loss must be a string, got {0}.".format(type(loss)))
-    elif loss not in _LOSSES:
+    elif loss not in LOSSES:
         raise ValueError("loss must be 'LS' or 'Expo' or 'Log' but was %r." % loss)
 
-    if not isinstance(reg_depth, (numbers.Integral, np.integer, _FLOATS)):
+    if not isinstance(reg_depth, (numbers.Integral, np.integer, utils.FLOATS)):
         raise ValueError("test_interval must be an integer or float, got {0}.".format(type(reg_depth)))
     elif reg_depth < 1:
         raise ValueError("reg_depth must be no smaller than 1.0 but was %r." % reg_depth)
 
-    if not isinstance(l2, _FLOATS):
+    if not isinstance(l2, utils.FLOATS):
         raise ValueError("l2 must be a float, got {0}.".format(type(l2)))
     elif l2 < 0:
         raise ValueError("l2 must be no smaller than 0.0 but was %r." % l2)
 
-    if not isinstance(sl2, (type(None), _FLOATS)):
+    if not isinstance(sl2, (type(None), utils.FLOATS)):
         raise ValueError("sl2 must be a float or None, got {0}.".format(type(sl2)))
     elif sl2 is not None and sl2 < 0:
         raise ValueError("sl2 must be no smaller than 0.0 but was %r." % sl2)
@@ -83,7 +76,7 @@ def _validate_rgf_params(max_leaf,
     if isinstance(min_samples_leaf, (numbers.Integral, np.integer)):
         if min_samples_leaf < 1:
             raise ValueError(err_desc)
-    elif isinstance(min_samples_leaf, _FLOATS):
+    elif isinstance(min_samples_leaf, utils.FLOATS):
         if not 0.0 < min_samples_leaf <= 0.5:
             raise ValueError(err_desc)
     else:
@@ -104,7 +97,7 @@ def _validate_rgf_params(max_leaf,
     elif opt_interval < 1:
         raise ValueError("opt_interval must be no smaller than 1 but was %r." % opt_interval)
 
-    if not isinstance(learning_rate, _FLOATS):
+    if not isinstance(learning_rate, utils.FLOATS):
         raise ValueError("learning_rate must be a float, got {0}.".format(type(learning_rate)))
     elif learning_rate <= 0:
         raise ValueError("learning_rate must be greater than 0 but was %r." % learning_rate)
@@ -279,7 +272,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         used in model building process.
         """
         if self._sl2 is None:
-            raise NotFittedError(utils.not_fitted_error_desc())
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._sl2
 
@@ -290,7 +283,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         used in model building process.
         """
         if self._min_samples_leaf is None:
-            raise NotFittedError(utils.not_fitted_error_desc())
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._min_samples_leaf
 
@@ -301,12 +294,12 @@ class RGFRegressor(utils.RGFRegressorBase):
         used in model building process depending on the specified loss function.
         """
         if self._n_iter is None:
-            raise NotFittedError(utils.not_fitted_error_desc())
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._n_iter
 
     def _validate_params(self, params):
-        _validate_rgf_params(**params)
+        validate_rgf_params(**params)
 
     def _set_params_with_dependencies(self):
         if self.sl2 is None:
@@ -314,7 +307,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         else:
             self._sl2 = self.sl2
 
-        if isinstance(self.min_samples_leaf, _FLOATS):
+        if isinstance(self.min_samples_leaf, utils.FLOATS):
             self._min_samples_leaf = ceil(self.min_samples_leaf * n_samples)
         else:
             self._min_samples_leaf = self.min_samples_leaf
@@ -353,7 +346,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         params.append("model_fn_prefix=%s" % self._model_file_loc)
         params.append("train_w_fn=%s" % self._train_weight_loc)
 
-        cmd = (utils.get_exe_path(), "train", ",".join(params))
+        cmd = (utils.EXE_PATH, "train", ",".join(params))
 
         return cmd
 
@@ -363,7 +356,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         params.append("prediction_fn=%s" % self._pred_loc)
         params.append("model_fn=%s" % self._model_file)
 
-        cmd = (utils.get_exe_path(), "predict", ",".join(params))
+        cmd = (utils.EXE_PATH, "predict", ",".join(params))
 
         return cmd
 
@@ -375,7 +368,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         model_files = glob(self._model_file_loc + "*")
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.get_temp_path()))
+                            'Training is abnormally finished.'.format(utils.TEMP_PATH))
         self._model_file = sorted(model_files, reverse=True)[0]
 
 
@@ -561,7 +554,7 @@ class RGFClassifier(utils.RGFClassifierBase):
         used in model building process.
         """
         if self._sl2 is None:
-            raise NotFittedError(utils.not_fitted_error_desc())
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._sl2
 
@@ -572,7 +565,7 @@ class RGFClassifier(utils.RGFClassifierBase):
         used in model building process.
         """
         if self._min_samples_leaf is None:
-            raise NotFittedError(utils.not_fitted_error_desc())
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._min_samples_leaf
 
@@ -583,12 +576,12 @@ class RGFClassifier(utils.RGFClassifierBase):
         used in model building process depending on the specified loss function.
         """
         if self._n_iter is None:
-            raise NotFittedError(utils.not_fitted_error_desc())
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._n_iter
 
     def _validate_params(self, params):
-        _validate_rgf_params(**params)
+        validate_rgf_params(**params)
 
     def _set_params_with_dependencies(self):
         if self.sl2 is None:
@@ -596,7 +589,7 @@ class RGFClassifier(utils.RGFClassifierBase):
         else:
             self._sl2 = self.sl2
 
-        if isinstance(self.min_samples_leaf, _FLOATS):
+        if isinstance(self.min_samples_leaf, utils.FLOATS):
             self._min_samples_leaf = ceil(self.min_samples_leaf * n_samples)
         else:
             self._min_samples_leaf = self.min_samples_leaf
@@ -646,10 +639,10 @@ class RGFClassifier(utils.RGFClassifierBase):
                   'classes_ is {2}'.format(n_jobs, substantial_njobs,
                                            self.n_classes_))
 
-        self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(utils._fit_ovr_binary)(self._estimators[i],
-                                                                                       X,
-                                                                                       ovr_list[i],
-                                                                                       sample_weight)
+        self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(utils.fit_ovr_binary)(self._estimators[i],
+                                                                                      X,
+                                                                                      ovr_list[i],
+                                                                                      sample_weight)
                                                         for i in range(self._n_classes))
 
 
@@ -683,7 +676,7 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("model_fn_prefix=%s" % self.model_file_loc)
         params.append("train_w_fn=%s" % self.train_weight_loc)
 
-        cmd = (utils.get_exe_path(), "train", ",".join(params))
+        cmd = (utils.EXE_PATH, "train", ",".join(params))
 
         return cmd
 
@@ -692,7 +685,7 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         model_files = glob(self.model_file_loc + "*")
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.get_temp_path()))
+                            'Training is abnormally finished.'.format(utils.TEMP_PATH))
         self.model_file = sorted(model_files, reverse=True)[0]
 
     def get_test_command(self):
@@ -701,6 +694,6 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("prediction_fn=%s" % self.pred_loc)
         params.append("model_fn=%s" % self.model_file)
 
-        cmd = (utils.get_exe_path(), "predict", ",".join(params))
+        cmd = (utils.EXE_PATH, "predict", ",".join(params))
 
         return cmd
