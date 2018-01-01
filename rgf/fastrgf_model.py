@@ -74,6 +74,14 @@ class FastRGFRegressor(utils.RGFRegressorBase):
     discretize_sparse_min_occurences : int, optional (default=5)
         minimum number of occurrences for a feature to be selected
 
+    discretize_sparse_missing_type : int, float or None, optional (default=None)
+        if specified, this value will be treated as missing
+
+    n_jobs : integer, optional (default=-1)
+        the number of jobs to use for the computation
+
+    verbose : int, optional (default=0)
+        controls the verbosity of the tree building process
     """
     # TODO(fukatani): Test
     def __init__(self,
@@ -95,6 +103,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
                  discretize_sparse_lamL2=2.0,
                  discretize_sparse_min_bucket_weights=5.0,
                  discretize_sparse_min_occurences=5,
+                 discretize_sparse_missing_type=None,
                  n_jobs=-1,
                  verbose=0):
         if not utils.FASTRGF_AVAILABLE:
@@ -117,6 +126,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         self.discretize_sparse_lamL2 = discretize_sparse_lamL2
         self.discretize_sparse_min_bucket_weights = discretize_sparse_min_bucket_weights
         self.discretize_sparse_min_occurences = discretize_sparse_min_occurences
+        self.discretize_sparse_missing_type = discretize_sparse_missing_type
         self.n_jobs = n_jobs
         self._n_jobs = None
         self.verbose = verbose
@@ -189,7 +199,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         return cmd
 
     def _save_sparse_X(self, path, X):
-        utils.sparse_savetxt(path, X, including_header=False)
+        utils.sparse_savetxt(path, X, including_header=False, missing_value=self.discretize_sparse_missing_type)
 
     def _find_model_file(self):
         if not os.path.isfile(self._model_file_loc):
@@ -260,6 +270,14 @@ class FastRGFClassifier(utils.RGFClassifierBase):
     discretize_sparse_min_occurences : int, optional (default=5)
         minimum number of occurrences for a feature to be selected
 
+    discretize_sparse_missing_type : int, float or None, optional (default=None)
+        if specified, this value will be treated as missing
+
+    n_jobs : integer, optional (default=-1)
+        the number of jobs to use for the computation
+
+    verbose : int, optional (default=0)
+        controls the verbosity of the tree building process
     """
     # TODO(fukatani): Test
     def __init__(self,
@@ -281,6 +299,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                  discretize_sparse_lamL2=2.0,
                  discretize_sparse_min_bucket_weights=5.0,
                  discretize_sparse_min_occurences=5,
+                 discretize_sparse_missing_type=None,
                  calc_prob="sigmoid",
                  n_jobs=-1,
                  verbose=0):
@@ -302,6 +321,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         self.discretize_sparse_lamL2 = discretize_sparse_lamL2
         self.discretize_sparse_min_bucket_weights = discretize_sparse_min_bucket_weights
         self.discretize_sparse_min_occurences = discretize_sparse_min_occurences
+        self.discretize_sparse_missing_type = discretize_sparse_missing_type
 
         self.calc_prob = calc_prob
         self.n_jobs = n_jobs
@@ -345,6 +365,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                     discretize_sparse_lamL2=self.discretize_sparse_lamL2,
                     discretize_sparse_min_bucket_weights=self.discretize_sparse_min_bucket_weights,
                     discretize_sparse_min_occurences=self.discretize_sparse_min_occurences,
+                    discretize_sparse_missing_type = self.discretize_sparse_missing_type,
                     n_jobs=self._n_jobs,
                     verbose=self.verbose)
 
@@ -361,7 +382,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
 
 class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
     def save_sparse_X(self, path, X):
-        utils.sparse_savetxt(path, X, including_header=False)
+        utils.sparse_savetxt(path, X, including_header=False, missing_value=self.discretize_sparse_missing_type)
 
     def get_train_command(self):
         params = []
