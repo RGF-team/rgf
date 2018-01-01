@@ -330,7 +330,8 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT).communicate()
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
@@ -651,7 +652,8 @@ class RGFBinaryClassifierBase(BaseEstimator, ClassifierMixin):
 
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT).communicate()
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
 
         if self.verbose:
             for k in output:
