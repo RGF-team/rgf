@@ -370,7 +370,6 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
     def save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=False)
 
-
     def save_dense_files(self, X, y, sample_weight):
         self.train_x_loc = self.train_x_loc[:-2]
         np.savetxt(self.train_x_loc, np.c_[sample_weight, y, X], delimiter=' ', fmt="%s")
