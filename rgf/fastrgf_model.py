@@ -74,6 +74,11 @@ class FastRGFRegressor(utils.RGFRegressorBase):
     discretize_sparse_min_occurences : int, optional (default=5)
         minimum number of occurrences for a feature to be selected
 
+    n_jobs : integer, optional (default=-1)
+        the number of jobs to use for the computation
+
+    verbose : int, optional (default=0)
+        controls the verbosity of the tree building process
     """
     # TODO(fukatani): Test
     def __init__(self,
@@ -260,6 +265,11 @@ class FastRGFClassifier(utils.RGFClassifierBase):
     discretize_sparse_min_occurences : int, optional (default=5)
         minimum number of occurrences for a feature to be selected
 
+    n_jobs : integer, optional (default=-1)
+        the number of jobs to use for the computation
+
+    verbose : int, optional (default=0)
+        controls the verbosity of the tree building process
     """
     # TODO(fukatani): Test
     def __init__(self,
