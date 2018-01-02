@@ -16,7 +16,7 @@ def validate_fast_rgf_params(**kwargs):
 class FastRGFRegressor(utils.RGFRegressorBase):
     """
     A Fast Regularized Greedy Forest regressor by Tong Zhang.
-    See https://github.com/baidu/fast_rgf
+    See https://github.com/baidu/fast_rgf.
 
     This function is alpha version.
     The part of the function may be not tested, not documented and not
@@ -24,105 +24,116 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 
     Parameters
     ----------
-    dtree_max_level : int, optional (default=6)
-        maximum level of the tree.
+    n_estimators : int, optional (default=500)
+        The number of trees in the forest.
 
-    dtree_max_nodes : int, optional (default=50)
-        maximum number of leaf nodes in best-first search.
+    max_depth : int, optional (default=6)
+        Maximum tree depth.
 
-    dtree_new_tree_gain_ratio : float, optional (default=1.0)
-        new tree is created when leaf-nodes gain < this value * estimated gain
-        of creating new three.
+    max_leaf : int, optional (default=50)
+        Maximum number of leaf nodes in best-first search.
 
-    dtree_min_sample : int, optional (default=5)
-        minimum sample per node.
+    tree_gain_ratio : float, optional (default=1.0)
+        New tree is created when leaf-nodes gain < this value * estimated gain
+        of creating new tree.
 
-    loss : string ("LS" or "MODLS" or "LOGISTIC"), optional (default="LS")
+    min_samples_leaf : int or float, optional (default=5)
+        Minimum number of training data points in each leaf node.
+        If int, then consider min_samples_leaf as the minimum number.
+        If float, then min_samples_leaf is a percentage and
+        ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
 
-    dtree_lamL1 : float, optional (default=1.0) L1 regularization parameter.
+    l1 : float, optional (default=1.0)
+        Used to control the degree of L1 regularization.
 
-    dtree_lamL2 : float, optional (default=1000.0) L2 regularization parameter.
+    l2 : float, optional (default=1000.0)
+        Used to control the degree of L2 regularization.
 
-    forest_opt : 'rgf' or 'epsilon-greedy', optional (default='rgf')
-        optimization method for training forest
+    opt_algorithm : string ("rgf" or "epsilon-greedy"), optional (default="rgf")
+        Optimization method for training forest.
 
-    forest_ntrees : int, optional (default=500) number of trees.
+    learning_rate : float, optional (default=0.001)
+        Step size of epsilon-greedy boosting.
+        Meant for being used with opt_algorithm="epsilon-greedy".
 
-    forest_stepsize : float optional (default=0.001)
-        step size of epsilon-greedy boosting (inactive for rgf)
+    max_bin : int or None, optional (default=None)
+        Maximum number of discretized values (bins).
+        If None, 65000 is used for dense data and 200 for sparse data.
 
-    discretize_dense_max_buckets : int, optional (default=200)
-        maximum number of discretized values.
+    min_child_weight : float, optional (default=5.0)
+        Minimum sum of data weights for each discretized value (bin).
 
-    discretize_dense_lamL2 : float, optional (default=2.0)
-        L2 regularization parameter for discretization.
+    data_l2 : float, optional (default=2.0)
+        Used to control the degree of L2 regularization for discretization.
 
-    discretize_dense_min_bucket_weights : float, optional (default=5.0)
-        minimum sum of data weights for each discretized value.
+    sparse_max_features : int, optional (default=80000)
+        Maximum number of selected features.
+        Meant for being used with sparse data.
 
-    discretize_sparse_max_features : int, optional (default=80000)
-        maximum number of selected features.
-
-    discretize_sparse_max_buckets : int, optional (default=200)
-        maximum number of discretized values.
-
-    discretize_sparse_lamL2 : float, optional (default=2.0)
-        L2 regularization parameter for discretization.
-
-    discretize_sparse_min_bucket_weights : float, optional (default=5.0)
-        minimum sum of data weights for each discretized value.
-
-    discretize_sparse_min_occurences : int, optional (default=5)
-        minimum number of occurrences for a feature to be selected
+    sparse_min_occurences : int, optional (default=5)
+        Minimum number of occurrences for a feature to be selected.
+        Meant for being used with sparse data.
 
     n_jobs : integer, optional (default=-1)
-        the number of jobs to use for the computation
+        The number of jobs to run in parallel for both fit and predict.
+        If -1, all CPUs are used.
+        If -2, all CPUs but one are used.
+        If < -1, (n_cpus + 1 + n_jobs) are used.
 
     verbose : int, optional (default=0)
-        controls the verbosity of the tree building process
+        Controls the verbosity of the tree building process.
+
+    Attributes:
+    -----------
+    n_features_ : int
+        The number of features when `fit` is performed.
+
+    fitted_ : boolean
+        Indicates whether `fit` is performed.
+
+    max_bin_ : int
+        The concrete maximum number of discretized values (bins)
+        used in model building process for given data.
+
+    min_samples_leaf_ : int
+        Minimum number of training data points in each leaf node
+        used in model building process.
     """
     # TODO(fukatani): Test
     def __init__(self,
-                 dtree_max_level=6,
-                 dtree_max_nodes=50,
-                 dtree_new_tree_gain_ratio=1.0,
-                 dtree_min_sample=5,
-                 dtree_loss="LS",
-                 dtree_lamL1=1,
-                 dtree_lamL2=1000,
-                 forest_opt='rgf',
-                 forest_ntrees=500,
-                 forest_stepsize=0.001,
-                 discretize_dense_max_buckets=65000,
-                 discretize_dense_lamL2=2.0,
-                 discretize_dense_min_bucket_weights=5.0,
-                 discretize_sparse_max_features=80000,
-                 discretize_sparse_max_buckets=200,
-                 discretize_sparse_lamL2=2.0,
-                 discretize_sparse_min_bucket_weights=5.0,
-                 discretize_sparse_min_occurences=5,
+                 n_estimators=500,
+                 max_depth=6,
+                 max_leaf=50,
+                 tree_gain_ratio=1.0,
+                 min_samples_leaf=5,
+                 l1=1.0,
+                 l2=1000.0,
+                 opt_algorithm="rgf",
+                 learning_rate=0.001,
+                 max_bin=None,
+                 min_child_weight=5.0,
+                 data_l2=2.0,
+                 sparse_max_features=80000,
+                 sparse_min_occurences=5,
                  n_jobs=-1,
                  verbose=0):
         if not utils.FASTRGF_AVAILABLE:
             raise Exception('FastRGF is not installed correctly.')
-        self.dtree_max_level = dtree_max_level
-        self.dtree_max_nodes = dtree_max_nodes
-        self.dtree_min_sample = dtree_min_sample
-        self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
-        self.dtree_loss = dtree_loss
-        self.dtree_lamL1 = dtree_lamL1
-        self.dtree_lamL2 = dtree_lamL2
-        self.forest_opt = forest_opt
-        self.forest_ntrees = forest_ntrees
-        self.forest_stepsize = forest_stepsize
-        self.discretize_dense_max_buckets = discretize_dense_max_buckets
-        self.discretize_dense_lamL2 = discretize_dense_lamL2
-        self.discretize_dense_min_bucket_weights = discretize_dense_min_bucket_weights
-        self.discretize_sparse_max_features = discretize_sparse_max_features
-        self.discretize_sparse_max_buckets = discretize_sparse_max_buckets
-        self.discretize_sparse_lamL2 = discretize_sparse_lamL2
-        self.discretize_sparse_min_bucket_weights = discretize_sparse_min_bucket_weights
-        self.discretize_sparse_min_occurences = discretize_sparse_min_occurences
+        self.n_estimators = n_estimators
+        self.max_depth = max_depth
+        self.max_leaf = max_leaf
+        self.tree_gain_ratio = tree_gain_ratio
+        self.min_samples_leaf = min_samples_leaf
+        self.l1 = l1
+        self.l2 = l2
+        self.opt_algorithm = opt_algorithm
+        self.learning_rate = learning_rate
+        self.max_bin = max_bin
+        self._max_bin = None
+        self.min_child_weight = min_child_weight
+        self.data_l2 = data_l2
+        self.sparse_max_features = sparse_max_features
+        self.sparse_min_occurences = sparse_min_occurences
         self.n_jobs = n_jobs
         self._n_jobs = None
         self.verbose = verbose
@@ -132,10 +143,45 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         self._n_features = None
         self._fitted = None
 
+    @property
+    def max_bin_(self):
+        """
+        The concrete maximum number of discretized values (bins)
+        used in model building process for given data.
+        """
+        if self._max_bin is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
+        else:
+            return self._max_bin
+
+    @property
+    def min_samples_leaf_(self):
+        """
+        Minimum number of training data points in each leaf node
+        used in model building process.
+        """
+        if self._min_samples_leaf is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
+        else:
+            return self._min_samples_leaf
+
     def _validate_params(self, params):
         validate_fast_rgf_params(**params)
 
     def _set_params_with_dependencies(self):
+        if self.max_bin is None:
+            if self._is_sparse_train_X:
+                self._max_bin = 200
+            else:
+                self._max_bin = 65000
+        else:
+            self._max_bin = self.max_bin
+
+        if isinstance(self.min_samples_leaf, utils.FLOATS):
+            self._min_samples_leaf = ceil(self.min_samples_leaf * self._n_samples)
+        else:
+            self._min_samples_leaf = self.min_samples_leaf
+
         if self.n_jobs == -1:
             self._n_jobs = 0
         elif self.n_jobs < 0:
@@ -145,29 +191,28 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 
     def _get_train_command(self):
         params = []
-        params.append("forest.ntrees=%s" % self.forest_ntrees)
-        params.append("forest.stepsize=%s" % self.forest_stepsize)
-        params.append("forest.opt=%s" % self.forest_opt)
-        params.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
-        params.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
-        params.append("discretize.dense.min_bucket_weights=%s" % self.discretize_dense_min_bucket_weights)
-        params.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
-        params.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
-        params.append("discretize.sparse.lamL2=%s" % self.discretize_sparse_lamL2)
-        params.append("discretize.sparse.min_bucket_weights=%s" % self.discretize_sparse_min_bucket_weights)
-        params.append("discretize.sparse.min_occrrences=%s" % self.discretize_sparse_min_occurences)
-        params.append("dtree.max_level=%s" % self.dtree_max_level)
-        params.append("dtree.max_nodes=%s" % self.dtree_max_nodes)
-        params.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
-        params.append("dtree.min_sample=%s" % self.dtree_min_sample)
-        params.append("dtree.loss=%s" % self.dtree_loss)
-        params.append("dtree.lamL1=%s" % self.dtree_lamL1)
-        params.append("dtree.lamL2=%s" % self.dtree_lamL2)
+        params.append("forest.ntrees=%s" % self.n_estimators)
+        params.append("forest.stepsize=%s" % self.learning_rate)
+        params.append("forest.opt=%s" % self.opt_algorithm)
+        params.append("dtree.max_level=%s" % self.max_depth)
+        params.append("dtree.max_nodes=%s" % self.max_leaf)
+        params.append("dtree.new_tree_gain_ratio=%s" % self.tree_gain_ratio)
+        params.append("dtree.min_sample=%s" % self._min_samples_leaf)
+        params.append("dtree.lamL1=%s" % self.l1)
+        params.append("dtree.lamL2=%s" % self.l2)
         if self._is_sparse_train_X:
+            params.append("discretize.sparse.max_features=%s" % self.sparse_max_features)
+            params.append("discretize.sparse.max_buckets=%s" % self._max_bin)
+            params.append("discretize.sparse.lamL2=%s" % self.data_l2)
+            params.append("discretize.sparse.min_bucket_weights=%s" % self.min_child_weight)
+            params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
             params.append("trn.x-file_format=x.sparse")
             params.append("trn.y-file=%s" % self._train_y_loc)
             params.append("trn.w-file=%s" % self._train_weight_loc)
         else:
+            params.append("discretize.dense.max_buckets=%s" % self._max_bin)
+            params.append("discretize.dense.lamL2=%s" % self.data_l2)
+            params.append("discretize.dense.min_bucket_weights=%s" % self.min_child_weight)
             params.append("trn.x-file_format=w.y.x")
         params.append("trn.x-file=%s" % self._train_x_loc)
         params.append("trn.target=REAL")
@@ -213,7 +258,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 class FastRGFClassifier(utils.RGFClassifierBase):
     """
     A Fast Regularized Greedy Forest classifier by Tong Zhang.
-    See https://github.com/baidu/fast_rgf
+    See https://github.com/baidu/fast_rgf.
 
     This function is alpha version.
     The part of the function may be not tested, not documented and not
@@ -221,104 +266,135 @@ class FastRGFClassifier(utils.RGFClassifierBase):
 
     Parameters
     ----------
-    dtree_max_level : int, optional (default=6)
-        maximum level of the tree.
+    n_estimators : int, optional (default=500)
+        The number of trees in the forest.
 
-    dtree_max_nodes : int, optional (default=50)
-        maximum number of leaf nodes in best-first search.
+    max_depth : int, optional (default=6)
+        Maximum tree depth.
 
-    dtree_new_tree_gain_ratio : float, optional (default=1.0)
-        new tree is created when leaf-nodes gain < this value * estimated gain
-        of creating new three.
+    max_leaf : int, optional (default=50)
+        Maximum number of leaf nodes in best-first search.
 
-    dtree_min_sample : int, optional (default=5)
-        minimum sample per node.
+    tree_gain_ratio : float, optional (default=1.0)
+        New tree is created when leaf-nodes gain < this value * estimated gain
+        of creating new tree.
+
+    min_samples_leaf : int or float, optional (default=5)
+        Minimum number of training data points in each leaf node.
+        If int, then consider min_samples_leaf as the minimum number.
+        If float, then min_samples_leaf is a percentage and
+        ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
 
     loss : string ("LS" or "MODLS" or "LOGISTIC"), optional (default="LS")
+        Loss function.
+        LS: Least squares loss.
+        MODLS: Modified least squares loss.
+        LOGISTIC: Logistic loss.
 
-    dtree_lamL1 : float, optional (default=1.0) L1 regularization parameter.
+    l1 : float, optional (default=1.0)
+        Used to control the degree of L1 regularization.
 
-    dtree_lamL2 : float, optional (default=1000.0) L2 regularization parameter.
+    l2 : float, optional (default=1000.0)
+        Used to control the degree of L2 regularization.
 
-    forest_opt : 'rgf' or 'epsilon-greedy', optional (default='rgf')
-        optimization method for training forest
+    opt_algorithm : string ("rgf" or "epsilon-greedy"), optional (default="rgf")
+        Optimization method for training forest.
 
-    forest_ntrees : int, optional (default=500) number of trees.
+    learning_rate : float, optional (default=0.001)
+        Step size of epsilon-greedy boosting.
+        Meant for being used with opt_algorithm="epsilon-greedy".
 
-    forest_stepsize : float optional (default=0.001)
-        step size of epsilon-greedy boosting (inactive for rgf)
+    max_bin : int or None, optional (default=None)
+        Maximum number of discretized values (bins).
+        If None, 65000 is used for dense data and 200 for sparse data.
 
-    discretize_dense_max_buckets : int, optional (default=200)
-        maximum number of discretized values.
+    min_child_weight : float, optional (default=5.0)
+        Minimum sum of data weights for each discretized value (bin).
 
-    discretize_dense_lamL2 : float, optional (default=2.0)
-        L2 regularization parameter for discretization.
+    data_l2 : float, optional (default=2.0)
+        Used to control the degree of L2 regularization for discretization.
 
-    discretize_dense_min_bucket_weights : float, optional (default=5.0)
-        minimum sum of data weights for each discretized value.
+    sparse_max_features : int, optional (default=80000)
+        Maximum number of selected features.
+        Meant for being used with sparse data.
 
-    discretize_sparse_max_features : int, optional (default=80000)
-        maximum number of selected features.
+    sparse_min_occurences : int, optional (default=5)
+        Minimum number of occurrences for a feature to be selected.
+        Meant for being used with sparse data.
 
-    discretize_sparse_max_buckets : int, optional (default=200)
-        maximum number of discretized values.
-
-    discretize_sparse_lamL2 : float, optional (default=2.0)
-        L2 regularization parameter for discretization.
-
-    discretize_sparse_min_bucket_weights : float, optional (default=5.0)
-        minimum sum of data weights for each discretized value.
-
-    discretize_sparse_min_occurences : int, optional (default=5)
-        minimum number of occurrences for a feature to be selected
+    calc_prob : string ("sigmoid" or "softmax"), optional (default="sigmoid")
+        Method of probability calculation.
 
     n_jobs : integer, optional (default=-1)
-        the number of jobs to use for the computation
+        The number of jobs to run in parallel for both fit and predict.
+        If -1, all CPUs are used.
+        If -2, all CPUs but one are used.
+        If < -1, (n_cpus + 1 + n_jobs) are used.
 
     verbose : int, optional (default=0)
-        controls the verbosity of the tree building process
+        Controls the verbosity of the tree building process.
+
+    Attributes:
+    -----------
+    estimators_ : list of binary classifiers
+        The collection of fitted sub-estimators when `fit` is performed.
+
+    classes_ : array of shape = [n_classes]
+        The classes labels when `fit` is performed.
+
+    n_classes_ : int
+        The number of classes when `fit` is performed.
+
+    n_features_ : int
+        The number of features when `fit` is performed.
+
+    fitted_ : boolean
+        Indicates whether `fit` is performed.
+
+    max_bin_ : int
+        The concrete maximum number of discretized values (bins)
+        used in model building process for given data.
+
+    min_samples_leaf_ : int
+        Minimum number of training data points in each leaf node
+        used in model building process.
     """
     # TODO(fukatani): Test
     def __init__(self,
-                 dtree_max_level=6,
-                 dtree_max_nodes=50,
-                 dtree_new_tree_gain_ratio=1.0,
-                 dtree_min_sample=5,
-                 dtree_loss="LS",  # "MODLS" or "LOGISTIC" or "LS"
-                 dtree_lamL1=10,
-                 dtree_lamL2=1000,
-                 forest_opt='rgf',
-                 forest_ntrees=500,
-                 forest_stepsize=0.001,
-                 discretize_dense_max_buckets=250,
-                 discretize_dense_lamL2=10,
-                 discretize_dense_min_bucket_weights=5.0,
-                 discretize_sparse_max_features=10,
-                 discretize_sparse_max_buckets=10,
-                 discretize_sparse_lamL2=2.0,
-                 discretize_sparse_min_bucket_weights=5.0,
-                 discretize_sparse_min_occurences=5,
+                 n_estimators=500,
+                 max_depth=6,
+                 max_leaf=50,
+                 tree_gain_ratio=1.0,
+                 min_samples_leaf=5,
+                 loss="LS",
+                 l1=1.0,
+                 l2=1000.0,
+                 opt_algorithm="rgf",
+                 learning_rate=0.001,
+                 max_bin=None,
+                 min_child_weight=5.0,
+                 data_l2=2.0,
+                 sparse_max_features=80000,
+                 sparse_min_occurences=5,
                  calc_prob="sigmoid",
                  n_jobs=-1,
                  verbose=0):
-        self.dtree_max_level = dtree_max_level
-        self.dtree_max_nodes = dtree_max_nodes
-        self.dtree_new_tree_gain_ratio = dtree_new_tree_gain_ratio
-        self.dtree_min_sample = dtree_min_sample
-        self.dtree_loss = dtree_loss
-        self.dtree_lamL1 = dtree_lamL1
-        self.dtree_lamL2 = dtree_lamL2
-        self.forest_opt = forest_opt
-        self.forest_ntrees = forest_ntrees
-        self.forest_stepsize = forest_stepsize
-        self.discretize_dense_max_buckets = discretize_dense_max_buckets
-        self.discretize_dense_lamL2 = discretize_dense_lamL2
-        self.discretize_dense_min_bucket_weights = discretize_dense_min_bucket_weights
-        self.discretize_sparse_max_features = discretize_sparse_max_features
-        self.discretize_sparse_max_buckets = discretize_sparse_max_buckets
-        self.discretize_sparse_lamL2 = discretize_sparse_lamL2
-        self.discretize_sparse_min_bucket_weights = discretize_sparse_min_bucket_weights
-        self.discretize_sparse_min_occurences = discretize_sparse_min_occurences
+        self.n_estimators = n_estimators
+        self.max_depth = max_depth
+        self.max_leaf = max_leaf
+        self.tree_gain_ratio = tree_gain_ratio
+        self.min_samples_leaf = min_samples_leaf
+        self.loss = loss
+        self.l1 = l1
+        self.l2 = l2
+        self.opt_algorithm = opt_algorithm
+        self.learning_rate = learning_rate
+        self.max_bin = max_bin
+        self._max_bin = None
+        self.min_child_weight = min_child_weight
+        self.data_l2 = data_l2
+        self.sparse_max_features = sparse_max_features
+        self.sparse_min_occurences = sparse_min_occurences
 
         self.calc_prob = calc_prob
         self.n_jobs = n_jobs
@@ -332,10 +408,45 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         self._n_features = None
         self._fitted = None
 
+    @property
+    def max_bin_(self):
+        """
+        The concrete maximum number of discretized values (bins)
+        used in model building process for given data.
+        """
+        if self._max_bin is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
+        else:
+            return self._max_bin
+
+    @property
+    def min_samples_leaf_(self):
+        """
+        Minimum number of training data points in each leaf node
+        used in model building process.
+        """
+        if self._min_samples_leaf is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
+        else:
+            return self._min_samples_leaf
+
     def _validate_params(self, params):
         validate_fast_rgf_params(**params)
 
     def _set_params_with_dependencies(self):
+        if self.max_bin is None:
+            if self._is_sparse_train_X:
+                self._max_bin = 200
+            else:
+                self._max_bin = 65000
+        else:
+            self._max_bin = self.max_bin
+
+        if isinstance(self.min_samples_leaf, utils.FLOATS):
+            self._min_samples_leaf = ceil(self.min_samples_leaf * self._n_samples)
+        else:
+            self._min_samples_leaf = self.min_samples_leaf
+
         if self.n_jobs == -1:
             self._n_jobs = 0
         elif self.n_jobs < 0:
@@ -344,24 +455,21 @@ class FastRGFClassifier(utils.RGFClassifierBase):
             self._n_jobs = self.n_jobs
 
     def _get_params(self):
-        return dict(dtree_max_level=self.dtree_max_level,
-                    dtree_max_nodes=self.dtree_max_nodes,
-                    dtree_new_tree_gain_ratio=self.dtree_new_tree_gain_ratio,
-                    dtree_min_sample=self.dtree_min_sample,
-                    dtree_loss=self.dtree_loss,
-                    dtree_lamL1=self.dtree_lamL1,
-                    dtree_lamL2=self.dtree_lamL2,
-                    forest_opt=self.forest_opt,
-                    forest_ntrees=self.forest_ntrees,
-                    forest_stepsize=self.forest_stepsize,
-                    discretize_dense_max_buckets=self.discretize_dense_max_buckets,
-                    discretize_dense_lamL2=self.discretize_dense_lamL2,
-                    discretize_dense_min_bucket_weights=self.discretize_dense_min_bucket_weights,
-                    discretize_sparse_max_features=self.discretize_sparse_max_features,
-                    discretize_sparse_max_buckets=self.discretize_sparse_max_buckets,
-                    discretize_sparse_lamL2=self.discretize_sparse_lamL2,
-                    discretize_sparse_min_bucket_weights=self.discretize_sparse_min_bucket_weights,
-                    discretize_sparse_min_occurences=self.discretize_sparse_min_occurences,
+        return dict(max_depth=self.max_depth,
+                    max_leaf=self.max_leaf,
+                    tree_gain_ratio=self.tree_gain_ratio,
+                    min_samples_leaf=self._min_samples_leaf,
+                    loss=self.loss,
+                    l1=self.l1,
+                    l2=self.l2,
+                    opt_algorithm=self.opt_algorithm,
+                    n_estimators=self.n_estimators,
+                    learning_rate=self.learning_rate,
+                    max_bin=self._max_bin,
+                    data_l2=self.data_l2,
+                    min_child_weight=self.min_child_weight,
+                    sparse_max_features=self.sparse_max_features,
+                    sparse_min_occurences=self.sparse_min_occurences,
                     n_jobs=self._n_jobs,
                     verbose=self.verbose)
 
@@ -386,29 +494,29 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
 
     def get_train_command(self):
         params = []
-        params.append("forest.ntrees=%s" % self.forest_ntrees)
-        params.append("forest.stepsize=%s" % self.forest_stepsize)
-        params.append("forest.opt=%s" % self.forest_opt)
-        params.append("discretize.dense.max_buckets=%s" % self.discretize_dense_max_buckets)
-        params.append("discretize.dense.lamL2=%s" % self.discretize_dense_lamL2)
-        params.append("discretize.dense.min_bucket_weights=%s" % self.discretize_dense_min_bucket_weights)
-        params.append("discretize.sparse.max_features=%s" % self.discretize_sparse_max_features)
-        params.append("discretize.sparse.max_buckets=%s" % self.discretize_sparse_max_buckets)
-        params.append("discretize.sparse.lamL2=%s" % self.discretize_sparse_lamL2)
-        params.append("discretize.sparse.min_bucket_weights=%s" % self.discretize_sparse_min_bucket_weights)
-        params.append("discretize.sparse.min_occrrences=%s" % self.discretize_sparse_min_occurences)
-        params.append("dtree.max_level=%s" % self.dtree_max_level)
-        params.append("dtree.max_nodes=%s" % self.dtree_max_nodes)
-        params.append("dtree.new_tree_gain_ratio=%s" % self.dtree_new_tree_gain_ratio)
-        params.append("dtree.min_sample=%s" % self.dtree_min_sample)
-        params.append("dtree.loss=%s" % self.dtree_loss)
-        params.append("dtree.lamL1=%s" % self.dtree_lamL1)
-        params.append("dtree.lamL2=%s" % self.dtree_lamL2)
+        params.append("forest.ntrees=%s" % self.n_estimators)
+        params.append("forest.stepsize=%s" % self.learning_rate)
+        params.append("forest.opt=%s" % self.opt_algorithm)
+        params.append("dtree.max_level=%s" % self.max_depth)
+        params.append("dtree.max_nodes=%s" % self.max_leaf)
+        params.append("dtree.new_tree_gain_ratio=%s" % self.tree_gain_ratio)
+        params.append("dtree.min_sample=%s" % self.min_samples_leaf)
+        params.append("dtree.loss=%s" % self.loss)
+        params.append("dtree.lamL1=%s" % self.l1)
+        params.append("dtree.lamL2=%s" % self.l2)
         if self.is_sparse_train_X:
+            params.append("discretize.sparse.max_features=%s" % self.sparse_max_features)
+            params.append("discretize.sparse.max_buckets=%s" % self.max_bin)
+            params.append("discretize.sparse.lamL2=%s" % self.data_l2)
+            params.append("discretize.sparse.min_bucket_weights=%s" % self.min_child_weight)
+            params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
             params.append("trn.x-file_format=x.sparse")
             params.append("trn.y-file=%s" % self.train_y_loc)
             params.append("trn.w-file=%s" % self.train_weight_loc)
         else:
+            params.append("discretize.dense.max_buckets=%s" % self.max_bin)
+            params.append("discretize.dense.lamL2=%s" % self.data_l2)
+            params.append("discretize.dense.min_bucket_weights=%s" % self.min_child_weight)
             params.append("trn.x-file_format=w.y.x")
         params.append("trn.x-file=%s" % self.train_x_loc)
         params.append("trn.target=BINARY")

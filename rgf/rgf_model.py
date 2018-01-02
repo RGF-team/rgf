@@ -308,7 +308,7 @@ class RGFRegressor(utils.RGFRegressorBase):
             self._sl2 = self.sl2
 
         if isinstance(self.min_samples_leaf, utils.FLOATS):
-            self._min_samples_leaf = ceil(self.min_samples_leaf * n_samples)
+            self._min_samples_leaf = ceil(self.min_samples_leaf * self._n_samples)
         else:
             self._min_samples_leaf = self.min_samples_leaf
 
@@ -595,7 +595,7 @@ class RGFClassifier(utils.RGFClassifierBase):
             self._sl2 = self.sl2
 
         if isinstance(self.min_samples_leaf, utils.FLOATS):
-            self._min_samples_leaf = ceil(self.min_samples_leaf * n_samples)
+            self._min_samples_leaf = ceil(self.min_samples_leaf * self._n_samples)
         else:
             self._min_samples_leaf = self.min_samples_leaf
 

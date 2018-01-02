@@ -243,12 +243,10 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
         self._validate_params(self.get_params())
 
         X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
-        n_samples, self._n_features = X.shape
-
-        self._set_params_with_dependencies()
+        self._n_samples, self._n_features = X.shape
 
         if sample_weight is None:
-            sample_weight = np.ones(n_samples, dtype=np.float32)
+            sample_weight = np.ones(self._n_samples, dtype=np.float32)
         else:
             sample_weight = column_or_1d(sample_weight, warn=True)
             if (sample_weight <= 0).any():
@@ -270,6 +268,8 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
         else:
             self._save_dense_files(X, y, sample_weight)
             self._is_sparse_train_X = False
+
+        self._set_params_with_dependencies()
 
         cmd = self._get_train_command()
 
@@ -452,12 +452,14 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
         self._validate_params(self.get_params())
 
         X, y = check_X_y(X, y, accept_sparse=True)
-        n_samples, self._n_features = X.shape
-
-        self._set_params_with_dependencies()
+        if sp.isspmatrix(X):
+            self._is_sparse_train_X = True
+        else:
+            self._is_sparse_train_X = False
+        self._n_samples, self._n_features = X.shape
 
         if sample_weight is None:
-            sample_weight = np.ones(n_samples, dtype=np.float32)
+            sample_weight = np.ones(self._n_samples, dtype=np.float32)
         else:
             sample_weight = column_or_1d(sample_weight, warn=True)
             if (sample_weight <= 0).any():
@@ -467,6 +469,8 @@ class RGFClassifierBase(BaseEstimator, ClassifierMixin):
 
         self._classes = sorted(np.unique(y))
         self._n_classes = len(self._classes)
+
+        self._set_params_with_dependencies()
 
         params = self._get_params()
 
