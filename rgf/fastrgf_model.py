@@ -172,7 +172,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self._model_file_loc)
 
-        cmd = [utils.FASTRGF_PATH + "/forest_train"]
+        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_train")]
         cmd.extend(params)
 
         return cmd
@@ -188,7 +188,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         params.append("set.nthreads=%s" % self._n_jobs)
         params.append("set.verbose=%s" % self.verbose)
 
-        cmd = [utils.FASTRGF_PATH + "/forest_predict"]
+        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_predict")]
         cmd.extend(params)
 
         return cmd
@@ -403,7 +403,7 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self.model_file_loc)
 
-        cmd = [utils.FASTRGF_PATH + "/forest_train"]
+        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_train")]
         cmd.extend(params)
 
         return cmd
@@ -425,7 +425,7 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
 
-        cmd = [utils.FASTRGF_PATH + "/forest_predict"]
+        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_predict")]
         cmd.extend(params)
 
         return cmd
