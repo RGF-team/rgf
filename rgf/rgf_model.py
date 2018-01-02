@@ -363,6 +363,11 @@ class RGFRegressor(utils.RGFRegressorBase):
     def _save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=True)
 
+    def _save_dense_files(self, X, y, sample_weight):
+        np.savetxt(self._train_x_loc, X, delimiter=' ', fmt="%s")
+        np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
+        np.savetxt(self._train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
+
     def _find_model_file(self):
         # Find latest model location
         model_files = glob(self._model_file_loc + "*")
@@ -649,6 +654,11 @@ class RGFClassifier(utils.RGFClassifierBase):
 class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
     def save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=True)
+
+    def save_dense_files(self, X, y, sample_weight):
+        np.savetxt(self.train_x_loc, X, delimiter=' ', fmt="%s")
+        np.savetxt(self.train_y_loc, y, delimiter=' ', fmt="%s")
+        np.savetxt(self.train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
 
     def get_train_command(self):
         params = []

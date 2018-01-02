@@ -264,12 +264,12 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
 
         if sp.isspmatrix(X):
             self._save_sparse_X(self._train_x_loc, X)
+            np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
+            np.savetxt(self._train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
             self._is_sparse_train_X = True
         else:
-            np.savetxt(self._train_x_loc, X, delimiter=' ', fmt="%s")
+            self._save_dense_files(X, y, sample_weight)
             self._is_sparse_train_X = False
-        np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
-        np.savetxt(self._train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
 
         cmd = self._get_train_command()
 
@@ -365,6 +365,9 @@ class RGFRegressorBase(BaseEstimator, RegressorMixin):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _save_sparse_X(self, path, X):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _save_dense_files(self, X, y, sample_weight):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _find_model_file(self):
@@ -604,17 +607,17 @@ class RGFBinaryClassifierBase(BaseEstimator, ClassifierMixin):
         self.model_file_loc = os.path.join(TEMP_PATH, self.file_prefix + ".model")
         self.pred_loc = os.path.join(TEMP_PATH, self.file_prefix + ".predictions.txt")
 
-        if sp.isspmatrix(X):
-            self.save_sparse_X(self.train_x_loc, X)
-            self.is_sparse_train_X = True
-        else:
-            np.savetxt(self.train_x_loc, X, delimiter=' ', fmt="%s")
-            self.is_sparse_train_X = False
-
         # Convert 1 to 1, 0 to -1
         y = 2 * y - 1
-        np.savetxt(self.train_y_loc, y, delimiter=' ', fmt="%s")
-        np.savetxt(self.train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
+
+        if sp.isspmatrix(X):
+            self.save_sparse_X(self.train_x_loc, X)
+            np.savetxt(self.train_y_loc, y, delimiter=' ', fmt="%s")
+            np.savetxt(self.train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
+            self.is_sparse_train_X = True
+        else:
+            self.save_dense_files(X, y, sample_weight)
+            self.is_sparse_train_X = False
 
         cmd = self.get_train_command()
 
@@ -662,6 +665,9 @@ class RGFBinaryClassifierBase(BaseEstimator, ClassifierMixin):
         return np.loadtxt(self.pred_loc)
 
     def save_sparse_X(self, X):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+
+    def save_dense_files(self, X, y, sample_weight):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def get_train_command(self):

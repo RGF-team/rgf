@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import os
 from uuid import uuid4
 
+import numpy as np
 from sklearn.externals.joblib import cpu_count
 
 from rgf import utils
@@ -164,9 +165,11 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         params.append("dtree.lamL2=%s" % self.dtree_lamL2)
         if self._is_sparse_train_X:
             params.append("trn.x-file_format=x.sparse")
+            params.append("trn.y-file=%s" % self._train_y_loc)
+            params.append("trn.w-file=%s" % self._train_weight_loc)
+        else:
+            params.append("trn.x-file_format=w.y.x")
         params.append("trn.x-file=%s" % self._train_x_loc)
-        params.append("trn.y-file=%s" % self._train_y_loc)
-        params.append("trn.w-file=%s" % self._train_weight_loc)
         params.append("trn.target=REAL")
         params.append("set.nthreads=%s" % self._n_jobs)
         params.append("set.verbose=%s" % self.verbose)
@@ -195,6 +198,10 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 
     def _save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=False)
+
+    def _save_dense_files(self, X, y, sample_weight):
+        self._train_x_loc = self._train_x_loc[:-2]
+        np.savetxt(self._train_x_loc, np.c_[sample_weight, y, X], delimiter=' ', fmt="%s")
 
     def _find_model_file(self):
         if not os.path.isfile(self._model_file_loc):
@@ -373,6 +380,10 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
     def save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=False)
 
+    def save_dense_files(self, X, y, sample_weight):
+        self.train_x_loc = self.train_x_loc[:-2]
+        np.savetxt(self.train_x_loc, np.c_[sample_weight, y, X], delimiter=' ', fmt="%s")
+
     def get_train_command(self):
         params = []
         params.append("forest.ntrees=%s" % self.forest_ntrees)
@@ -393,11 +404,13 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("dtree.loss=%s" % self.dtree_loss)
         params.append("dtree.lamL1=%s" % self.dtree_lamL1)
         params.append("dtree.lamL2=%s" % self.dtree_lamL2)
-        params.append("trn.x-file=%s" % self.train_x_loc)
-        params.append("trn.y-file=%s" % self.train_y_loc)
-        params.append("trn.w-file=%s" % self.train_weight_loc)
         if self.is_sparse_train_X:
             params.append("trn.x-file_format=x.sparse")
+            params.append("trn.y-file=%s" % self.train_y_loc)
+            params.append("trn.w-file=%s" % self.train_weight_loc)
+        else:
+            params.append("trn.x-file_format=w.y.x")
+        params.append("trn.x-file=%s" % self.train_x_loc)
         params.append("trn.target=BINARY")
         params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
