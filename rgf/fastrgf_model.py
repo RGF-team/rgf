@@ -26,62 +26,78 @@ class FastRGFRegressor(utils.RGFRegressorBase):
     ----------
     n_estimators : int, optional (default=500)
         The number of trees in the forest.
+        (Original name: forest.ntrees.)
 
     max_depth : int, optional (default=6)
         Maximum tree depth.
+        (Original name: dtree.max_level.)
 
     max_leaf : int, optional (default=50)
         Maximum number of leaf nodes in best-first search.
+        (Original name: dtree.max_nodes.)
 
     tree_gain_ratio : float, optional (default=1.0)
         New tree is created when leaf-nodes gain < this value * estimated gain
         of creating new tree.
+        (Original name: dtree.new_tree_gain_ratio.)
 
     min_samples_leaf : int or float, optional (default=5)
         Minimum number of training data points in each leaf node.
         If int, then consider min_samples_leaf as the minimum number.
         If float, then min_samples_leaf is a percentage and
         ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
+        (Original name: dtree.min_sample.)
 
     l1 : float, optional (default=1.0)
         Used to control the degree of L1 regularization.
+        (Original name: dtree.lamL1.)
 
     l2 : float, optional (default=1000.0)
         Used to control the degree of L2 regularization.
+        (Original name: dtree.lamL2.)
 
     opt_algorithm : string ("rgf" or "epsilon-greedy"), optional (default="rgf")
         Optimization method for training forest.
+        (Original name: forest.opt.)
 
     learning_rate : float, optional (default=0.001)
         Step size of epsilon-greedy boosting.
         Meant for being used with opt_algorithm="epsilon-greedy".
+        (Original name: forest.stepsize.)
 
     max_bin : int or None, optional (default=None)
         Maximum number of discretized values (bins).
         If None, 65000 is used for dense data and 200 for sparse data.
+        (Original name: discretize.(sparse/dense).max_buckets.)
 
     min_child_weight : float, optional (default=5.0)
         Minimum sum of data weights for each discretized value (bin).
+        (Original name: discretize.(sparse/dense).min_bucket_weights.)
 
     data_l2 : float, optional (default=2.0)
         Used to control the degree of L2 regularization for discretization.
+        (Original name: discretize.(sparse/dense).lamL2.)
 
     sparse_max_features : int, optional (default=80000)
         Maximum number of selected features.
         Meant for being used with sparse data.
+        (Original name: discretize.sparse.max_features.)
 
     sparse_min_occurences : int, optional (default=5)
         Minimum number of occurrences for a feature to be selected.
         Meant for being used with sparse data.
+        (Original name: discretize.sparse.min_occrrences.)
 
     n_jobs : integer, optional (default=-1)
         The number of jobs to run in parallel for both fit and predict.
         If -1, all CPUs are used.
         If -2, all CPUs but one are used.
         If < -1, (n_cpus + 1 + n_jobs) are used.
+        (Original name: set.nthreads.)
 
     verbose : int, optional (default=0)
         Controls the verbosity of the tree building process.
+        (Original name: set.verbose.)
 
     Attributes:
     -----------
@@ -268,59 +284,74 @@ class FastRGFClassifier(utils.RGFClassifierBase):
     ----------
     n_estimators : int, optional (default=500)
         The number of trees in the forest.
+        (Original name: forest.ntrees.)
 
     max_depth : int, optional (default=6)
         Maximum tree depth.
+        (Original name: dtree.max_level.)
 
     max_leaf : int, optional (default=50)
         Maximum number of leaf nodes in best-first search.
+        (Original name: dtree.max_nodes.)
 
     tree_gain_ratio : float, optional (default=1.0)
         New tree is created when leaf-nodes gain < this value * estimated gain
         of creating new tree.
+        (Original name: dtree.new_tree_gain_ratio.)
 
     min_samples_leaf : int or float, optional (default=5)
         Minimum number of training data points in each leaf node.
         If int, then consider min_samples_leaf as the minimum number.
         If float, then min_samples_leaf is a percentage and
         ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
+        (Original name: dtree.min_sample.)
 
     loss : string ("LS" or "MODLS" or "LOGISTIC"), optional (default="LS")
         Loss function.
         LS: Least squares loss.
         MODLS: Modified least squares loss.
         LOGISTIC: Logistic loss.
+        (Original name: dtree.loss.)
 
     l1 : float, optional (default=1.0)
         Used to control the degree of L1 regularization.
+        (Original name: dtree.lamL1.)
 
     l2 : float, optional (default=1000.0)
         Used to control the degree of L2 regularization.
+        (Original name: dtree.lamL2.)
 
     opt_algorithm : string ("rgf" or "epsilon-greedy"), optional (default="rgf")
         Optimization method for training forest.
+        (Original name: forest.opt.)
 
     learning_rate : float, optional (default=0.001)
         Step size of epsilon-greedy boosting.
         Meant for being used with opt_algorithm="epsilon-greedy".
+        (Original name: forest.stepsize.)
 
     max_bin : int or None, optional (default=None)
         Maximum number of discretized values (bins).
         If None, 65000 is used for dense data and 200 for sparse data.
+        (Original name: discretize.(sparse/dense).max_buckets.)
 
     min_child_weight : float, optional (default=5.0)
         Minimum sum of data weights for each discretized value (bin).
+        (Original name: discretize.(sparse/dense).min_bucket_weights.)
 
     data_l2 : float, optional (default=2.0)
         Used to control the degree of L2 regularization for discretization.
+        (Original name: discretize.(sparse/dense).lamL2.)
 
     sparse_max_features : int, optional (default=80000)
         Maximum number of selected features.
         Meant for being used with sparse data.
+        (Original name: discretize.sparse.max_features.)
 
     sparse_min_occurences : int, optional (default=5)
         Minimum number of occurrences for a feature to be selected.
         Meant for being used with sparse data.
+        (Original name: discretize.sparse.min_occrrences.)
 
     calc_prob : string ("sigmoid" or "softmax"), optional (default="sigmoid")
         Method of probability calculation.
@@ -330,9 +361,11 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         If -1, all CPUs are used.
         If -2, all CPUs but one are used.
         If < -1, (n_cpus + 1 + n_jobs) are used.
+        (Original name: set.nthreads.)
 
     verbose : int, optional (default=0)
         Controls the verbosity of the tree building process.
+        (Original name: set.verbose.)
 
     Attributes:
     -----------
