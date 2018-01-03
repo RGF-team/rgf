@@ -56,9 +56,6 @@ install:
 
 script:
   - pytest tests/ -o "python_files=*.py" -v
-  - pip uninstall -y rgf_python
-  - python setup.py install
-  - pytest tests/ -o "python_files=*.py" -v
 
 before_deploy:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
@@ -90,4 +87,3 @@ deploy:
     condition: "$PYTHON_VERSION = 3.6"
 
     tags: true
-
