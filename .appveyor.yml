@@ -48,9 +48,6 @@ install:
 
 test_script:
   - pytest tests/ -o "python_files=*.py" -v
-  - pip uninstall -y rgf_python
-  - python setup.py install
-  - pytest tests/ -o "python_files=*.py" -v
 
 after_test:
   - IF "%PLATFORM%"=="x64" (
