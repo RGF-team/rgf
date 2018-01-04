@@ -3,14 +3,14 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
 from shutil import rmtree
-from sys import maxsize
+import sys
 import io
 import logging
 import os
 import subprocess
 
 
-IS_64BITS = maxsize > 2**32
+IS_64BITS = sys.maxsize > 2**32
 CURRENT_DIR = os.path.dirname(__file__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('rgf_python')
@@ -167,7 +167,9 @@ def compile_fastrgf():
     def is_valid_gpp():
         try:
             result = subprocess.check_output(('g++', '--version'))
-            version = result.split(b'\n')[0].split(b' ')[-2]
+            if sys.version > '3.0.0':
+                result = result.decode()
+            version = result.split('\n')[0].split(' ')[-2]
             return version >= '5.0.0'
         except:
             return False
@@ -181,7 +183,8 @@ def compile_fastrgf():
         logger.info("If you want to use FastRGF, please compile yourself after installed 'cmake'.")
         return
     if not is_valid_gpp():
-        logger.info("FastRGF depends on g++>=5.0.0")
+        logger.info("FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
+        return
     if os.path.exists('include/fast_rgf'):
         os.chdir('include/fast_rgf/build')
         status = silent_call(('cmake', '..'))
