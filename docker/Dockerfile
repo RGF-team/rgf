@@ -1,5 +1,6 @@
 FROM ubuntu:16.04
 
+# apt dependency
 RUN apt-get update && \
     apt-get install -y cmake build-essential gcc g++ git wget && \
 
