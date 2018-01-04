@@ -49,6 +49,10 @@ install:
 # Temp solution for testing FastRGF
   - g++ --version
   - cd include/fast_rgf/build
+  - ls
+  - ls ..
+  - ls ../src
+  - ls ../src/exe 
   - cp ../src/exe/forest_train ../src/exe/forest_predict ~/
   - cd ../../..
 
