@@ -49,12 +49,12 @@ install:
 # Temp solution for testing FastRGF
   - g++ --version
   - cd include/fast_rgf/build
+  - ls ~/
+  - cd ~/rgf_python
   - ls
-  - ls ..
-  - ls ../src
-  - ls ../src/exe 
-  - cp ../src/exe/forest_train ../src/exe/forest_predict ~/
-  - cd ../../..
+  - ls include/fast_rgf/build
+  - ls include/fast_rgf/build/src/exe
+  - cp include/fast_rgf/build/src/exe/forest_train include/fast_rgf/build/src/exe/forest_predict ~/
 
 script:
   - pytest tests/ -o "python_files=*.py" -v
