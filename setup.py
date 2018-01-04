@@ -169,9 +169,13 @@ def compile_fastrgf():
             result = subprocess.check_output(('g++', '--version'))
             if sys.version > '3.0.0':
                 result = result.decode()
+                print('result: ' + result)
             version = result.split('\n')[0].split(' ')[-2]
+            print('version: ' + version)
             return version >= '5.0.0'
-        except Exception:
+        except Exception as exp:
+            print('Exception raised.')
+            print(exp)
             return False
     start_path = os.path.abspath(os.path.curdir)
     if system() in ('Windows', 'Microsoft'):
