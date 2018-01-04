@@ -34,7 +34,7 @@ def clear_folder(path):
                 pass
 
 
-def find_lib():
+def find_rgf_lib():
     if system() in ('Windows',
                     'Microsoft') and os.path.isfile(os.path.join(CURRENT_DIR,
                                                                  'include',
@@ -48,6 +48,16 @@ def find_lib():
                                      'bin',
                                      'rgf')):
         return os.path.join(CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf')
+    else:
+        return None
+
+
+def find_fastrgf_lib():
+    if system() in ('Windows', 'Microsoft'):
+        return None
+    elif os.path.isdir(os.path.join(CURRENT_DIR,
+                                     'include/fast_rgf/build/src')):
+        return os.path.join(CURRENT_DIR, 'include/fast_rgf/build/src')
     else:
         return None
 
@@ -152,11 +162,10 @@ def compile_rgf():
             clear_folder('.')
             status = silent_call(('cmake', '../'))
             status &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
-        os.chdir(os.path.pardir)
     else:
         logger.info("Not tried to build rgf because 'cmake' not found.")
         status = False
-    os.chdir(os.path.join(os.path.pardir, os.path.pardir))
+    os.chdir(CURRENT_DIR)
     if not status:
         logger.error("Compilation of rgf executable file failed. "
                      "Please build from binaries by your own and "
@@ -169,15 +178,11 @@ def compile_fastrgf():
             result = subprocess.check_output(('g++', '--version'))
             if sys.version > '3.0.0':
                 result = result.decode()
-                print('result: ' + result)
             version = result.split('\n')[0].split(' ')[-2]
-            print('version: ' + version)
             return version >= '4.8.0'
-        except Exception as exp:
-            print('Exception raised.')
-            print(exp)
+        except Exception:
             return False
-    start_path = os.path.abspath(os.path.curdir)
+
     if system() in ('Windows', 'Microsoft'):
         logger.info("On the fly compile of FastRGF for Windows is not supported.")
         logger.info("If you want to use FastRGF, please compile yourself.")
@@ -189,19 +194,14 @@ def compile_fastrgf():
     if not is_valid_gpp():
         logger.info("FastRGF is not compiled because FastRGF depends on g++>=4.8.0")
         return
-    if os.path.exists('include/fast_rgf'):
-        os.chdir('include/fast_rgf/build')
-        status = silent_call(('cmake', '..'))
-        status &= silent_call(('make'))
-        status &= silent_call(('make', 'install'))
-    else:
-        print(os.path.abspath(os.path.curdir))
-        print(os.listdir())
-        print(os.listdir('include'))
-        print(os.listdir('include/fast_rgf'))
+    if not os.path.exists('include/fast_rgf'):
         logger.info("Git submodule FastRGF is not found.")
         return
-    os.chdir(start_path)
+    os.chdir('include/fast_rgf/build')
+    status = silent_call(('cmake', '..'))
+    status &= silent_call(('make'))
+    status &= silent_call(('make', 'install'))
+    os.chdir(CURRENT_DIR)
     if status:
         logger.error("Compilation of FastRGF executable file failed. "
                      "Please build from binaries by your own and "
@@ -212,12 +212,18 @@ class CustomInstallLib(install_lib):
     def install(self):
         outfiles = install_lib.install(self)
         if not self.nocompilation:
-            src = find_lib()
+            src = find_rgf_lib()
             if src:
                 dst, _ = self.copy_file(src, os.path.join(self.install_dir, 'rgf'))
                 outfiles.append(dst)
             else:
-                logger.error("Cannot find executable file. Installing without it.")
+                logger.error("Cannot find rgf executable file. Installing without it.")
+            src = find_fastrgf_lib()
+            if src:
+                dst, _ = self.copy_tree(src, os.path.join(self.install_dir, 'fast_rgf'))
+                outfiles.append(dst)
+            else:
+                logger.error("Cannot find FastRGF executable file. Installing without it.")
         return outfiles
 
 
@@ -227,7 +233,7 @@ class CustomInstall(install):
 
     def initialize_options(self):
         install.initialize_options(self)
-        self.nocompilation = 0
+        self.nocompilation = False
 
     def run(self):
         if not self.nocompilation:
