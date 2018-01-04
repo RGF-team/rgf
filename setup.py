@@ -187,13 +187,20 @@ def compile_fastrgf():
         logger.info("If you want to use FastRGF, please compile yourself after installed 'cmake'.")
         return
     if not is_valid_gpp():
-        logger.info("FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
+        logger.info("FastRGF is not compiled because FastRGF depends on g++>=4.8.0")
         return
     if os.path.exists('include/fast_rgf'):
         os.chdir('include/fast_rgf/build')
         status = silent_call(('cmake', '..'))
         status &= silent_call(('make'))
         status &= silent_call(('make', 'install'))
+    else:
+        print(os.path.abspath(os.path.curdir))
+        print(os.listdir())
+        print(os.listdir('include'))
+        print(os.listdir('include/fast_rgf'))
+        logger.info("Git submodule FastRGF is not found.")
+        return
     os.chdir(start_path)
     if status:
         logger.error("Compilation of FastRGF executable file failed. "
