@@ -302,7 +302,7 @@ class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
         # np.testing.assert_equal(y_pred_weighted, np.full(self.y_test.shape[0], self.y_test[0]))
 
     def test_parallel_gridsearch(self):
-        param_grid = dict(forest_ntrees=[100, 300])
+        param_grid = dict(n_estimators=[100, 300])
         grid = GridSearchCV(self.classifier_class(n_jobs=1),
                             param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
@@ -554,7 +554,7 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
         pass
 
     def test_parallel_gridsearch(self):
-        param_grid = dict(forest_ntrees=[100, 500])
+        param_grid = dict(n_estimators=[100, 500])
         grid = GridSearchCV(self.regressor_class(n_jobs=1),
                             param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
