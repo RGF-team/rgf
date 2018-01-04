@@ -56,7 +56,7 @@ def find_fastrgf_lib():
     if system() in ('Windows', 'Microsoft'):
         return None
     elif os.path.isdir(os.path.join(CURRENT_DIR,
-                                     'include/fast_rgf/build/src')):
+                                    'include/fast_rgf/build/src')):
         return os.path.join(CURRENT_DIR, 'include/fast_rgf/build/src')
     else:
         return None
@@ -150,7 +150,7 @@ def compile_rgf():
             status = silent_call(('cmake', '../', '-G', 'MinGW Makefiles'))
             status += silent_call(('cmake', '--build', '.', '--config', 'Release'))
         os.chdir(os.path.pardir)
-    elif has_cmake_installed():
+    else:
         os.chdir('build')
         target = os.path.abspath(os.path.join(os.path.pardir, 'bin', 'rgf'))
         logger.info("Trying to build executable file with g++ from existing makefile.")
@@ -162,9 +162,6 @@ def compile_rgf():
             clear_folder('.')
             status = silent_call(('cmake', '../'))
             status &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
-    else:
-        logger.info("Not tried to build rgf because 'cmake' not found.")
-        status = False
     os.chdir(CURRENT_DIR)
     if not status:
         logger.error("Compilation of rgf executable file failed. "
@@ -197,6 +194,8 @@ def compile_fastrgf():
     if not os.path.exists('include/fast_rgf'):
         logger.info("Git submodule FastRGF is not found.")
         return
+    if not os.path.isdir('include/fast_rgf/build'):
+        os.mkdir('include/fast_rgf/build')
     os.chdir('include/fast_rgf/build')
     status = silent_call(('cmake', '..'))
     status &= silent_call(('make'))
