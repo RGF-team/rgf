@@ -48,9 +48,7 @@ install:
 
 # Temp solution for testing FastRGF
   - g++ --version
-  - cd include/fast_rgf/build
-  - ls ~/
-  - cd ~/rgf_python
+  - pwd
   - ls
   - ls include/fast_rgf/build
   - ls include/fast_rgf/build/src/exe
