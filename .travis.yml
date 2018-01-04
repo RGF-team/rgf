@@ -51,7 +51,7 @@ install:
   - pwd
   - ls
   - ls include/fast_rgf/build
-  - ls include/fast_rgf/build/src/exe
+  - ls include/fast_rgf/bin
   - cp include/fast_rgf/build/src/exe/forest_train include/fast_rgf/build/src/exe/forest_predict ~/
 
 script:
