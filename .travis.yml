@@ -48,9 +48,6 @@ install:
 
 # Temp solution for testing FastRGF
   - cd include/fast_rgf/build
-  - cmake ..
-  - make
-  - make install
   - cp ../bin/forest_train ../bin/forest_predict ~/
   - cd ../../..
 

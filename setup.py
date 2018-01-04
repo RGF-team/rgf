@@ -81,7 +81,7 @@ def silent_call(cmd):
         return 1
 
 
-def compile_cpp():
+def compile_rgf():
     status = 0
     os.chdir(os.path.join('include', 'rgf'))
     clear_folder('bin')  # Delete precompiled file
@@ -152,7 +152,25 @@ def compile_cpp():
         os.chdir(os.path.pardir)
     os.chdir(os.path.join(os.path.pardir, os.path.pardir))
     if status:
-        logger.error("Compilation of executable file failed. "
+        logger.error("Compilation of rgf executable file failed. "
+                     "Please build from binaries by your own and "
+                     "specify path to the compiled file in the config file.")
+
+
+def compile_fastrgf():
+    start_path = os.path.abspath(os.path.curdir)
+    if system() in ('Windows', 'Microsoft'):
+        logger.info("On the fly compile of FastRGF compile is not supported.")
+        logger.info("If you want to use FastRGF, please compile yourself.")
+        return
+    if os.path.exists('include/fast_rgf'):
+        os.chdir('include/fast_rgf/build')
+        status = silent_call(('cmake', '..'))
+        status += silent_call(('make'))
+        status += silent_call(('make install'))
+    os.chdir(start_path)
+    if status:
+        logger.error("Compilation of FastRGF executable file failed. "
                      "Please build from binaries by your own and "
                      "specify path to the compiled file in the config file.")
 
@@ -181,7 +199,8 @@ class CustomInstall(install):
     def run(self):
         if not self.nocompilation:
             logger.info("Starting to compile executable file.")
-            compile_cpp()
+            compile_rgf()
+            compile_fastrgf()
         else:
             logger.info("Installing package without binaries.")
         install_lib = self.distribution.get_command_obj('install_lib')
