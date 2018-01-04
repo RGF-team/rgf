@@ -172,7 +172,7 @@ def compile_fastrgf():
                 print('result: ' + result)
             version = result.split('\n')[0].split(' ')[-2]
             print('version: ' + version)
-            return version >= '5.0.0'
+            return version >= '4.8.0'
         except Exception as exp:
             print('Exception raised.')
             print(exp)

@@ -47,6 +47,7 @@ install:
   - pip install dist/rgf_python-$RGF_VER.tar.gz -v
 
 # Temp solution for testing FastRGF
+  - g++ --version
   - cd include/fast_rgf/build
   - cp ../bin/forest_train ../bin/forest_predict ~/
   - cd ../../..
