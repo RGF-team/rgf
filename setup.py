@@ -80,6 +80,10 @@ def silent_call(cmd):
         return False
 
 
+def has_cmake_installed():
+    return silent_call('cmake')
+
+
 def compile_rgf():
     status = 0
     os.chdir(os.path.join('include', 'rgf'))
@@ -136,7 +140,7 @@ def compile_rgf():
             status = silent_call(('cmake', '../', '-G', 'MinGW Makefiles'))
             status += silent_call(('cmake', '--build', '.', '--config', 'Release'))
         os.chdir(os.path.pardir)
-    else:
+    elif has_cmake_installed():
         os.chdir('build')
         target = os.path.abspath(os.path.join(os.path.pardir, 'bin', 'rgf'))
         logger.info("Trying to build executable file with g++ from existing makefile.")
@@ -149,6 +153,9 @@ def compile_rgf():
             status = silent_call(('cmake', '../'))
             status &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
         os.chdir(os.path.pardir)
+    else:
+        logger.info("Not tried to build rgf because 'cmake' not found.")
+        status = False
     os.chdir(os.path.join(os.path.pardir, os.path.pardir))
     if not status:
         logger.error("Compilation of rgf executable file failed. "
@@ -168,6 +175,10 @@ def compile_fastrgf():
     if system() in ('Windows', 'Microsoft'):
         logger.info("On the fly compile of FastRGF for Windows is not supported.")
         logger.info("If you want to use FastRGF, please compile yourself.")
+        return
+    if not has_cmake_installed():
+        logger.info("FastRGF is not compiled because 'cmake' not found.")
+        logger.info("If you want to use FastRGF, please compile yourself after installed 'cmake'.")
         return
     if not is_valid_gpp():
         logger.info("FastRGF depends on g++>=5.0.0")
