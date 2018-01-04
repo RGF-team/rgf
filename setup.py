@@ -171,7 +171,7 @@ def compile_fastrgf():
                 result = result.decode()
             version = result.split('\n')[0].split(' ')[-2]
             return version >= '5.0.0'
-        except:
+        except Exception:
             return False
     start_path = os.path.abspath(os.path.curdir)
     if system() in ('Windows', 'Microsoft'):
