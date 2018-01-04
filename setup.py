@@ -163,7 +163,9 @@ def compile_rgf():
             status = silent_call(('cmake', '../'))
             status &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
     os.chdir(CURRENT_DIR)
-    if not status:
+    if status:
+        logger.info("Succeeded to build FastRGF.")
+    else:
         logger.error("Compilation of rgf executable file failed. "
                      "Please build from binaries by your own and "
                      "specify path to the compiled file in the config file.")
@@ -202,6 +204,8 @@ def compile_fastrgf():
     status &= silent_call(('make', 'install'))
     os.chdir(CURRENT_DIR)
     if status:
+        logger.info("Succeeded to build FastRGF.")
+    else:
         logger.error("Compilation of FastRGF executable file failed. "
                      "Please build from binaries by your own and "
                      "specify path to the compiled file in the config file.")
