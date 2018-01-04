@@ -217,12 +217,12 @@ class CustomInstallLib(install_lib):
                 outfiles.append(dst)
             else:
                 logger.error("Cannot find rgf executable file. Installing without it.")
-            src = find_fastrgf_lib()
-            if src:
-                dst, _ = self.copy_tree(src, os.path.join(self.install_dir, 'fast_rgf'))
-                outfiles.append(dst)
-            else:
-                logger.error("Cannot find FastRGF executable file. Installing without it.")
+            # src = find_fastrgf_lib()
+            # if src:
+            #     dst, _ = self.copy_tree(src, os.path.join(self.install_dir, 'fast_rgf'))
+            #     outfiles.append(dst)
+            # else:
+            #     logger.error("Cannot find FastRGF executable file. Installing without it.")
         return outfiles
 
 
