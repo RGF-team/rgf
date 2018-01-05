@@ -56,8 +56,8 @@ def find_fastrgf_lib():
     if system() in ('Windows', 'Microsoft'):
         return None
     elif os.path.isdir(os.path.join(CURRENT_DIR,
-                                    'include/fast_rgf/build/src')):
-        return os.path.join(CURRENT_DIR, 'include/fast_rgf/build/src')
+                                    'include/fast_rgf/build/src/exe')):
+        return os.path.join(CURRENT_DIR, 'include/fast_rgf/build/src/exe')
     else:
         return None
 
@@ -84,7 +84,8 @@ def is_executable_response(path):
 
 def silent_call(cmd):
     try:
-        subprocess.check_output(cmd)
+        a = subprocess.check_output(cmd)
+        print(a)
         return True
     except Exception:
         return False
@@ -95,11 +96,12 @@ def has_cmake_installed():
 
 
 def compile_rgf():
-    status = 0
+    status = False
     os.chdir(os.path.join('include', 'rgf'))
     clear_folder('bin')  # Delete precompiled file
     if system() in ('Windows', 'Microsoft'):
         os.chdir(os.path.join('Windows', 'rgf'))
+        print(os.getcwd())
         target = os.path.abspath(os.path.join(os.path.pardir,
                                               os.path.pardir,
                                               'bin',
@@ -152,6 +154,7 @@ def compile_rgf():
         os.chdir(os.path.pardir)
     else:
         os.chdir('build')
+        print(os.getcwd())
         target = os.path.abspath(os.path.join(os.path.pardir, 'bin', 'rgf'))
         logger.info("Trying to build executable file with g++ from existing makefile.")
         status = silent_call(('make'))
@@ -173,14 +176,13 @@ def compile_rgf():
 
 def compile_fastrgf():
     def is_valid_gpp():
-        try:
-            result = subprocess.check_output(('g++', '--version'))
-            if sys.version > '3.0.0':
-                result = result.decode()
-            version = result.split('\n')[0].split(' ')[-2]
-            return version >= '4.8.0'
-        except Exception:
-            return False
+        for i in range(5, 8):
+            try:
+                subprocess.check_output(('g++-' + str(i), '--version'))
+                return True
+            except Exception:
+                pass
+        return False
 
     if system() in ('Windows', 'Microsoft'):
         logger.info("On the fly compile of FastRGF for Windows is not supported.")
@@ -191,7 +193,7 @@ def compile_fastrgf():
         logger.info("If you want to use FastRGF, please compile yourself after installed 'cmake'.")
         return
     if not is_valid_gpp():
-        logger.info("FastRGF is not compiled because FastRGF depends on g++>=4.8.0")
+        logger.info("FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
         return
     if not os.path.exists('include/fast_rgf'):
         logger.info("Git submodule FastRGF is not found.")
@@ -221,12 +223,16 @@ class CustomInstallLib(install_lib):
                 outfiles.append(dst)
             else:
                 logger.error("Cannot find rgf executable file. Installing without it.")
-            # src = find_fastrgf_lib()
-            # if src:
-            #     dst, _ = self.copy_tree(src, os.path.join(self.install_dir, 'fast_rgf'))
-            #     outfiles.append(dst)
-            # else:
-            #     logger.error("Cannot find FastRGF executable file. Installing without it.")
+            src = find_fastrgf_lib()
+            if src:
+                forest_train = os.path.join(src, 'forest_train')
+                dst, _ = self.copy_file(forest_train, os.path.join(self.install_dir, 'forest_train'))
+                outfiles.append(dst)
+                forest_predict = os.path.join(src, 'forest_predict')
+                dst, _ = self.copy_file(forest_predict, os.path.join(self.install_dir, 'forest_predict'))
+                outfiles.append(dst)
+            else:
+                logger.error("Cannot find FastRGF executable file. Installing without it.")
         return outfiles
 
 
