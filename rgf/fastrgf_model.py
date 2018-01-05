@@ -80,7 +80,7 @@ def validate_fast_rgf_params(n_estimators,
     if not isinstance(learning_rate, utils.FLOATS):
         raise ValueError("learning_rate must be a float, got {0}.".format(type(learning_rate)))
     elif learning_rate <= 0:
-        raise ValueError("learning_rate must be greater than 0 but was %r." % learning_rate)
+        raise ValueError("learning_rate must be greater than 0.0 but was %r." % learning_rate)
 
     if not isinstance(max_bin, (type(None), utils.INTS)):
         raise ValueError("max_bin must be an integer or None, got {0}.".format(type(max_bin)))
