@@ -11,7 +11,7 @@ import subprocess
 
 
 IS_64BITS = sys.maxsize > 2**32
-CURRENT_DIR = os.path.dirname(__file__)
+CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('rgf_python')
 
@@ -84,8 +84,7 @@ def is_executable_response(path):
 
 def silent_call(cmd):
     try:
-        a = subprocess.check_output(cmd)
-        print(a)
+        subprocess.check_output(cmd)
         return True
     except Exception:
         return False
@@ -101,7 +100,6 @@ def compile_rgf():
     clear_folder('bin')  # Delete precompiled file
     if system() in ('Windows', 'Microsoft'):
         os.chdir(os.path.join('Windows', 'rgf'))
-        print(os.getcwd())
         target = os.path.abspath(os.path.join(os.path.pardir,
                                               os.path.pardir,
                                               'bin',
@@ -154,7 +152,6 @@ def compile_rgf():
         os.chdir(os.path.pardir)
     else:
         os.chdir('build')
-        print(os.getcwd())
         target = os.path.abspath(os.path.join(os.path.pardir, 'bin', 'rgf'))
         logger.info("Trying to build executable file with g++ from existing makefile.")
         status = silent_call(('make'))
