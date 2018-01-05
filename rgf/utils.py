@@ -157,8 +157,8 @@ else:
 FASTRGF_AVAILABLE = False
 if is_fastrgf_executable(FASTRGF_PATH):
     FASTRGF_AVAILABLE = True
-elif is_fastrgf_executable(os.path.join(os.path.dirname(__file__))):
-    FASTRGF_AVAILABLE = os.path.dirname(__file__)
+elif is_fastrgf_executable(os.path.dirname(__file__)):
+    FASTRGF_PATH = os.path.dirname(__file__)
     FASTRGF_AVAILABLE = True
 
 
