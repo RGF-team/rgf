@@ -223,10 +223,10 @@ class CustomInstallLib(install_lib):
             src = find_fastrgf_lib()
             if src:
                 forest_train = os.path.join(src, 'forest_train')
-                dst, _ = self.copy_file(forest_train, os.path.join(self.install_dir, 'forest_train'))
+                dst, _ = self.copy_file(forest_train, os.path.join(self.install_dir, 'rgf'))
                 outfiles.append(dst)
                 forest_predict = os.path.join(src, 'forest_predict')
-                dst, _ = self.copy_file(forest_predict, os.path.join(self.install_dir, 'forest_predict'))
+                dst, _ = self.copy_file(forest_predict, os.path.join(self.install_dir, 'rgf'))
                 outfiles.append(dst)
             else:
                 logger.error("Cannot find FastRGF executable file. Installing without it.")
