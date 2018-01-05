@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import atexit
 import codecs
 import glob
+import numbers
 import os
 import platform
 import stat
@@ -21,6 +22,7 @@ from sklearn.utils.validation import check_array, check_consistent_length, check
 
 
 FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
+INTS = (numbers.Integral, np.integer)
 NOT_FITTED_ERROR_DESC = "Estimator not fitted, call `fit` before exploiting the model."
 NOT_IMPLEMENTED_ERROR_DESC = "This method isn't implemented in base class."
 SYSTEM = platform.system()
