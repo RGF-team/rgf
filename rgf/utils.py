@@ -103,36 +103,66 @@ if not os.access(TEMP_PATH, os.W_OK):
 
 
 def is_rgf_executable(path):
-    temp_x_loc = os.path.join(TEMP_PATH, 'temp.train.data.x')
-    temp_y_loc = os.path.join(TEMP_PATH, 'temp.train.data.y')
+    temp_x_loc = os.path.join(TEMP_PATH, 'temp_rgf.train.data.x')
+    temp_y_loc = os.path.join(TEMP_PATH, 'temp_rgf.train.data.y')
+    temp_model_loc = os.path.join(TEMP_PATH, 'temp_rgf.model')
+    temp_pred_loc = os.path.join(TEMP_PATH, "temp_rgf.predictions.txt")
     np.savetxt(temp_x_loc, [[1, 0, 1, 0], [0, 1, 0, 1]], delimiter=' ', fmt="%s")
     np.savetxt(temp_y_loc, [1, -1], delimiter=' ', fmt="%s")
-    UUIDS.append('temp')
-    params = []
-    params.append("train_x_fn=%s" % temp_x_loc)
-    params.append("train_y_fn=%s" % temp_y_loc)
-    params.append("model_fn_prefix=%s" % os.path.join(TEMP_PATH, "temp.model"))
-    params.append("reg_L2=%s" % 1)
+    UUIDS.append('temp_rgf')
+    params_train = []
+    params_train.append("train_x_fn=%s" % temp_x_loc)
+    params_train.append("train_y_fn=%s" % temp_y_loc)
+    params_train.append("model_fn_prefix=%s" % temp_model_loc)
+    params_train.append("reg_L2=%s" % 1)
+    params_pred = []
+    params_pred.append("test_x_fn=%s" % temp_x_loc)
+    params_pred.append("prediction_fn=%s" % temp_pred_loc)
+    params_pred.append("model_fn=%s" % temp_model_loc + "-01")
     try:
         os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
     except Exception:
         pass
     try:
-        subprocess.check_output((path, "train", ",".join(params)))
+        subprocess.check_output((path, "train", ",".join(params_train)))
+        subprocess.check_output((path, "predict", ",".join(params_pred)))
         return True
     except Exception:
         return False
 
 
 def is_fastrgf_executable(path):
-    train_exec = os.path.join(path, "forest_train")
+    temp_x_loc = os.path.join(TEMP_PATH, 'temp_fastrgf.train.data.x')
+    temp_y_loc = os.path.join(TEMP_PATH, 'temp_fastrgf.train.data.y')
+    temp_model_loc = os.path.join(TEMP_PATH, "temp_fastrgf.model")
+    temp_pred_loc = os.path.join(TEMP_PATH, "temp_fastrgf.predictions.txt")
+    X = np.tile(np.array([[1, 0, 1, 0], [0, 1, 0, 1]]), (15, 1))
+    y = np.tile(np.array([1, -1]), (15, 1))
+    np.savetxt(temp_x_loc, X, delimiter=' ', fmt="%s")
+    np.savetxt(temp_y_loc, y, delimiter=' ', fmt="%s")
+    UUIDS.append('temp_fastrgf')
+    path_train = os.path.join(path, "forest_train")
+    params_train = []
+    params_train.append("trn.x-file=%s" % temp_x_loc)
+    params_train.append("trn.y-file=%s" % temp_y_loc)
+    params_train.append("model.save=%s" % temp_model_loc)
+    cmd_train = [path_train]
+    cmd_train.extend(params_train)
+    path_pred = os.path.join(path, "forest_predict")
+    params_pred = []
+    params_pred.append("model.load=%s" % temp_model_loc)
+    params_pred.append("tst.x-file=%s" % temp_x_loc)
+    params_pred.append("tst.output-prediction=%s" % temp_pred_loc)
+    cmd_pred = [path_pred]
+    cmd_pred.extend(params_pred)
     try:
-        subprocess.check_output([train_exec, "--help"])
+        os.chmod(path_train, os.stat(path_train).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        os.chmod(path_pred, os.stat(path_pred).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
     except Exception:
-        return False
-    pred_exec = os.path.join(path, "forest_predict")
+        pass
     try:
-        subprocess.check_output([pred_exec, "--help"])
+        subprocess.check_output(cmd_train)
+        subprocess.check_output(cmd_pred)
     except Exception:
         return False
     return True
