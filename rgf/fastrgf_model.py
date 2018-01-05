@@ -4,13 +4,126 @@ import os
 from uuid import uuid4
 
 import numpy as np
+from sklearn.externals import six
 from sklearn.externals.joblib import cpu_count
 
 from rgf import utils
 
 
-def validate_fast_rgf_params(**kwargs):
-    pass
+ALGORITHMS = ("rgf", "epsilon-greedy")
+LOSSES = ("LS", "MODLS", "LOGISTIC")
+
+
+def validate_fast_rgf_params(n_estimators,
+                             max_depth,
+                             max_leaf,
+                             tree_gain_ratio,
+                             min_samples_leaf,
+                             l1,
+                             l2,
+                             opt_algorithm,
+                             learning_rate,
+                             max_bin,
+                             min_child_weight,
+                             data_l2,
+                             sparse_max_features,
+                             sparse_min_occurences,
+                             n_jobs,
+                             verbose,
+                             loss="LS",
+                             calc_prob="sigmoid"):
+    if not isinstance(n_estimators, utils.INTS):
+        raise ValueError("n_estimators must be an integer, got {0}.".format(type(n_estimators)))
+    elif n_estimators <= 0:
+        raise ValueError("n_estimators must be greater than 0 but was %r." % n_estimators)
+
+    if not isinstance(max_depth, utils.INTS):
+        raise ValueError("max_depth must be an integer, got {0}.".format(type(max_depth)))
+    elif max_depth <= 0:
+        raise ValueError("max_depth must be greater than 0 but was %r." % max_depth)
+
+    if not isinstance(max_leaf, utils.INTS):
+        raise ValueError("max_leaf must be an integer, got {0}.".format(type(max_leaf)))
+    elif max_leaf <= 0:
+        raise ValueError("max_leaf must be greater than 0 but was %r." % max_leaf)
+
+    if not isinstance(tree_gain_ratio, utils.FLOATS):
+        raise ValueError("tree_gain_ratio must be a float, got {0}.".format(type(tree_gain_ratio)))
+    elif not 0.0 < tree_gain_ratio <= 1.0:
+        raise ValueError("tree_gain_ratio must be in (0, 1.0] but was %r." % tree_gain_ratio)
+
+    err_desc = "min_samples_leaf must be at least 1 or in (0, 0.5], got %r." % min_samples_leaf
+    if isinstance(min_samples_leaf, utils.INTS):
+        if min_samples_leaf < 1:
+            raise ValueError(err_desc)
+    elif isinstance(min_samples_leaf, utils.FLOATS):
+        if not 0.0 < min_samples_leaf <= 0.5:
+            raise ValueError(err_desc)
+    else:
+        raise ValueError("min_samples_leaf must be an integer or float, got {0}.".format(type(min_samples_leaf)))
+
+    if not isinstance(l1, utils.FLOATS):
+        raise ValueError("l1 must be a float, got {0}.".format(type(l1)))
+    elif l1 < 0:
+        raise ValueError("l1 must be no smaller than 0.0 but was %r." % l1)
+
+    if not isinstance(l2, utils.FLOATS):
+        raise ValueError("l2 must be a float, got {0}.".format(type(l2)))
+    elif l2 < 0:
+        raise ValueError("l2 must be no smaller than 0.0 but was %r." % l2)
+
+    if not isinstance(opt_algorithm, six.string_types):
+        raise ValueError("opt_algorithm must be a string, got {0}.".format(type(opt_algorithm)))
+    elif opt_algorithm not in ALGORITHMS:
+        raise ValueError("opt_algorithm must be 'rgf' or 'epsilon-greedy' but was %r." % opt_algorithm)
+
+    if not isinstance(learning_rate, utils.FLOATS):
+        raise ValueError("learning_rate must be a float, got {0}.".format(type(learning_rate)))
+    elif learning_rate <= 0:
+        raise ValueError("learning_rate must be greater than 0.0 but was %r." % learning_rate)
+
+    if not isinstance(max_bin, (type(None), utils.INTS)):
+        raise ValueError("max_bin must be an integer or None, got {0}.".format(type(max_bin)))
+    elif max_bin is not None and max_bin < 1:
+        raise ValueError("max_bin must be no smaller than 1 but was %r." % max_bin)
+
+    if not isinstance(min_child_weight, utils.FLOATS):
+        raise ValueError("min_child_weight must be a float, got {0}.".format(type(min_child_weight)))
+    elif min_child_weight < 0:
+        raise ValueError("min_child_weight must be no smaller than 0.0 but was %r." % min_child_weight)
+
+    if not isinstance(data_l2, utils.FLOATS):
+        raise ValueError("data_l2 must be a float, got {0}.".format(type(data_l2)))
+    elif data_l2 < 0:
+        raise ValueError("data_l2 must be no smaller than 0.0 but was %r." % data_l2)
+
+    if not isinstance(sparse_max_features, utils.INTS):
+        raise ValueError("sparse_max_features must be an integer, got {0}.".format(type(sparse_max_features)))
+    elif sparse_max_features <= 0:
+        raise ValueError("sparse_max_features must be greater than 0 but was %r." % sparse_max_features)
+
+    if not isinstance(sparse_min_occurences, utils.INTS):
+        raise ValueError("sparse_min_occurences must be an integer, got {0}.".format(type(sparse_min_occurences)))
+    elif sparse_min_occurences < 0:
+        raise ValueError("sparse_min_occurences be no smaller than 0 but was %r." % sparse_min_occurences)
+
+    if not isinstance(n_jobs, utils.INTS):
+        raise ValueError("n_jobs must be an integer, got {0}.".format(type(n_jobs)))
+
+    if not isinstance(verbose, utils.INTS):
+        raise ValueError("verbose must be an integer, got {0}.".format(type(verbose)))
+    elif verbose < 0:
+        raise ValueError("verbose must be no smaller than 0 but was %r." % verbose)
+
+    if not isinstance(loss, six.string_types):
+        raise ValueError("loss must be a string, got {0}.".format(type(loss)))
+    elif loss not in LOSSES:
+        raise ValueError("loss must be 'LS' or 'MODLS' or 'LOGISTIC' but was %r." % loss)
+
+    if not isinstance(calc_prob, six.string_types):
+        raise ValueError("calc_prob must be a string, got {0}.".format(type(calc_prob)))
+    elif calc_prob not in ("sigmoid", "softmax"):
+        raise ValueError("calc_prob must be 'sigmoid' or 'softmax' but was %r." % calc_prob)
 
 
 class FastRGFRegressor(utils.RGFRegressorBase):

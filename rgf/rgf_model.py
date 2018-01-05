@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-import numbers
 from glob import glob
 from math import ceil
 from uuid import uuid4
@@ -34,12 +33,12 @@ def validate_rgf_params(max_leaf,
                         memory_policy,
                         calc_prob="sigmoid",
                         n_jobs=-1):
-    if not isinstance(max_leaf, (numbers.Integral, np.integer)):
+    if not isinstance(max_leaf, utils.INTS):
         raise ValueError("max_leaf must be an integer, got {0}.".format(type(max_leaf)))
     elif max_leaf <= 0:
         raise ValueError("max_leaf must be greater than 0 but was %r." % max_leaf)
 
-    if not isinstance(test_interval, (numbers.Integral, np.integer)):
+    if not isinstance(test_interval, utils.INTS):
         raise ValueError("test_interval must be an integer, got {0}.".format(type(test_interval)))
     elif test_interval <= 0:
         raise ValueError("test_interval must be greater than 0 but was %r." % test_interval)
@@ -54,8 +53,8 @@ def validate_rgf_params(max_leaf,
     elif loss not in LOSSES:
         raise ValueError("loss must be 'LS' or 'Expo' or 'Log' but was %r." % loss)
 
-    if not isinstance(reg_depth, (numbers.Integral, np.integer, utils.FLOATS)):
-        raise ValueError("test_interval must be an integer or float, got {0}.".format(type(reg_depth)))
+    if not isinstance(reg_depth, (utils.INTS, utils.FLOATS)):
+        raise ValueError("reg_depth must be an integer or float, got {0}.".format(type(reg_depth)))
     elif reg_depth < 1:
         raise ValueError("reg_depth must be no smaller than 1.0 but was %r." % reg_depth)
 
@@ -73,7 +72,7 @@ def validate_rgf_params(max_leaf,
         raise ValueError("normalize must be a boolean, got {0}.".format(type(normalize)))
 
     err_desc = "min_samples_leaf must be at least 1 or in (0, 0.5], got %r." % min_samples_leaf
-    if isinstance(min_samples_leaf, (numbers.Integral, np.integer)):
+    if isinstance(min_samples_leaf, utils.INTS):
         if min_samples_leaf < 1:
             raise ValueError(err_desc)
     elif isinstance(min_samples_leaf, utils.FLOATS):
@@ -82,17 +81,17 @@ def validate_rgf_params(max_leaf,
     else:
         raise ValueError("min_samples_leaf must be an integer or float, got {0}.".format(type(min_samples_leaf)))
 
-    if not isinstance(n_iter, (type(None), numbers.Integral, np.integer)):
+    if not isinstance(n_iter, (type(None), utils.INTS)):
         raise ValueError("n_iter must be an integer or None, got {0}.".format(type(n_iter)))
     elif n_iter is not None and n_iter < 1:
         raise ValueError("n_iter must be no smaller than 1 but was %r." % n_iter)
 
-    if not isinstance(n_tree_search, (numbers.Integral, np.integer)):
+    if not isinstance(n_tree_search, utils.INTS):
         raise ValueError("n_tree_search must be an integer, got {0}.".format(type(n_tree_search)))
     elif n_tree_search < 1:
         raise ValueError("n_tree_search must be no smaller than 1 but was %r." % n_tree_search)
 
-    if not isinstance(opt_interval, (numbers.Integral, np.integer)):
+    if not isinstance(opt_interval, utils.INTS):
         raise ValueError("opt_interval must be an integer, got {0}.".format(type(opt_interval)))
     elif opt_interval < 1:
         raise ValueError("opt_interval must be no smaller than 1 but was %r." % opt_interval)
@@ -102,7 +101,7 @@ def validate_rgf_params(max_leaf,
     elif learning_rate <= 0:
         raise ValueError("learning_rate must be greater than 0 but was %r." % learning_rate)
 
-    if not isinstance(verbose, (numbers.Integral, np.integer)):
+    if not isinstance(verbose, utils.INTS):
         raise ValueError("verbose must be an integer, got {0}.".format(type(verbose)))
     elif verbose < 0:
         raise ValueError("verbose must be no smaller than 0 but was %r." % verbose)
@@ -117,7 +116,7 @@ def validate_rgf_params(max_leaf,
     elif calc_prob not in ("sigmoid", "softmax"):
         raise ValueError("calc_prob must be 'sigmoid' or 'softmax' but was %r." % calc_prob)
 
-    if not isinstance(n_jobs, (numbers.Integral, np.integer)):
+    if not isinstance(n_jobs, utils.INTS):
         raise ValueError("n_jobs must be an integer, got {0}.".format(type(n_jobs)))
 
 
