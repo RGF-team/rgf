@@ -5,9 +5,9 @@ from math import ceil
 from uuid import uuid4
 
 import numpy as np
+from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
 from sklearn.externals.joblib import Parallel, delayed, cpu_count
-from sklearn.exceptions import NotFittedError
 
 from rgf import utils
 

@@ -4,6 +4,7 @@ import os
 from uuid import uuid4
 
 import numpy as np
+from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
 from sklearn.externals.joblib import cpu_count
 
@@ -253,6 +254,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         self.max_leaf = max_leaf
         self.tree_gain_ratio = tree_gain_ratio
         self.min_samples_leaf = min_samples_leaf
+        self._min_samples_leaf = None
         self.l1 = l1
         self.l2 = l2
         self.opt_algorithm = opt_algorithm
@@ -530,6 +532,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         self.max_leaf = max_leaf
         self.tree_gain_ratio = tree_gain_ratio
         self.min_samples_leaf = min_samples_leaf
+        self._min_samples_leaf = None
         self.loss = loss
         self.l1 = l1
         self.l2 = l2
