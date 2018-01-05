@@ -561,9 +561,3 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
         y_pred = grid.best_estimator_.predict(self.X_test)
         mse = mean_squared_error(self.y_test, y_pred)
         self.assertLess(mse, self.mse, "Failed with MSE = {0:.5f}".format(mse))
-
-    # TODO FastRGF bug?
-    # MSE with sparse input is higher than with dense one
-    def test_regressor_sparse_input(self):
-        self.mse = 2.5522511545
-        super(TestFastRGFRegressor, self).test_regressor_sparse_input()
