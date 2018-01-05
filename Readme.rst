@@ -179,6 +179,17 @@ Create ``makefile`` with CMake and then compile.
     cmake ../
     cmake --build . --config Release
 
+Docker image
+~~~~~~~~~~~~
+
+We provide rgf_python installed docker image.
+
+::
+    # Run docker image
+    docker run -it fukatani/rgf_python /bin/bash
+    # Run example
+    python ./rgf_python/examples/comparison_RGF_and_RF_regressors_on_boston_dataset.py
+
 Tuning Hyper-parameters
 -----------------------
 
