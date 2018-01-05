@@ -284,7 +284,29 @@ class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
         pass
 
     def test_attributes(self):
-        pass
+        clf = self.classifier_class(**self.kwargs)
+        attributes = ('estimators_', 'classes_', 'n_classes_', 'n_features_', 'fitted_',
+                      'max_bin_', 'min_samples_leaf_')
+
+        for attr in attributes:
+            self.assertRaises(NotFittedError, getattr, clf, attr)
+        clf.fit(self.X_train, self.y_train)
+        self.assertEqual(len(clf.estimators_), len(np.unique(self.y_train)))
+        np.testing.assert_array_equal(clf.classes_, sorted(np.unique(self.y_train)))
+        self.assertEqual(clf.n_classes_, len(clf.estimators_))
+        self.assertEqual(clf.n_features_, self.X_train.shape[-1])
+        self.assertTrue(clf.fitted_)
+        if clf.max_bin is None:
+            if sparse.isspmatrix(self.X_train):
+                self.assertEqual(clf.max_bin_, 200)
+            else:
+                self.assertEqual(clf.max_bin_, 65000)
+        else:
+            self.assertEqual(clf.max_bin_, clf.max_bin)
+        if clf.min_samples_leaf < 1:
+            self.assertLessEqual(clf.min_samples_leaf_, 0.5 * self.X_train.shape[0])
+        else:
+            self.assertEqual(clf.min_samples_leaf_, clf.min_samples_leaf)
 
     def test_sample_weight(self):
         clf = self.classifier_class(**self.kwargs)
@@ -522,7 +544,25 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
         pass
 
     def test_attributes(self):
-        pass
+        reg = self.regressor_class(**self.kwargs)
+        attributes = ('n_features_', 'fitted_', 'max_bin_', 'min_samples_leaf_')
+
+        for attr in attributes:
+            self.assertRaises(NotFittedError, getattr, reg, attr)
+        reg.fit(self.X_train, self.y_train)
+        self.assertEqual(reg.n_features_, self.X_train.shape[-1])
+        self.assertTrue(reg.fitted_)
+        if reg.max_bin is None:
+            if sparse.isspmatrix(self.X_train):
+                self.assertEqual(reg.max_bin_, 200)
+            else:
+                self.assertEqual(reg.max_bin_, 65000)
+        else:
+            self.assertEqual(reg.max_bin_, reg.max_bin)
+        if reg.min_samples_leaf < 1:
+            self.assertLessEqual(reg.min_samples_leaf_, 0.5 * self.X_train.shape[0])
+        else:
+            self.assertEqual(reg.min_samples_leaf_, reg.min_samples_leaf)
 
     def test_sample_weight(self):
         reg = self.regressor_class(**self.kwargs)
