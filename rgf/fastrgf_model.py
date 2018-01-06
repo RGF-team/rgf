@@ -229,7 +229,6 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         Minimum number of training data points in each leaf node
         used in model building process.
     """
-    # TODO(fukatani): Test
     def __init__(self,
                  n_estimators=500,
                  max_depth=6,
@@ -507,7 +506,6 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         Minimum number of training data points in each leaf node
         used in model building process.
     """
-    # TODO(fukatani): Test
     def __init__(self,
                  n_estimators=500,
                  max_depth=6,

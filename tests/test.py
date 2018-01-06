@@ -281,7 +281,50 @@ class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
         super(TestFastRGFClassfier, self).setUp()
 
     def test_params(self):
-        pass
+        clf = self.classifier_class(**self.kwargs)
+        valid_params = dict(n_estimators=50,
+                            max_depth=3,
+                            max_leaf=20,
+                            tree_gain_ratio=0.3,
+                            min_samples_leaf=0.5,
+                            loss="LOGISTIC",
+                            l1=0.6,
+                            l2=100.0,
+                            opt_algorithm='rgf',
+                            learning_rate=0.05,
+                            max_bin=150,
+                            min_child_weight=9.0,
+                            data_l2=9.0,
+                            sparse_max_features=1000,
+                            sparse_min_occurences=2,
+                            calc_prob="sigmoid",
+                            n_jobs=-1,
+                            verbose=True)
+        clf.set_params(**valid_params)
+        clf.fit(self.X_train, self.y_train)
+
+        non_valid_params = dict(n_estimators=0,
+                                max_depth=-3.0,
+                                max_leaf=0,
+                                tree_gain_ratio=1.3,
+                                min_samples_leaf=0.55,
+                                loss="LOG",
+                                l1=6,
+                                l2=-10.0,
+                                opt_algorithm='RGF',
+                                learning_rate=0.0,
+                                max_bin=0.5,
+                                min_child_weight='auto',
+                                data_l2=None,
+                                sparse_max_features=0,
+                                sparse_min_occurences=-2.0,
+                                calc_prob=None,
+                                n_jobs=None,
+                                verbose=-3)
+        for key in non_valid_params:
+            clf.set_params(**valid_params)  # Reset to valid params
+            clf.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
+            self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
 
     def test_attributes(self):
         clf = self.classifier_class(**self.kwargs)
@@ -541,7 +584,47 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
         super(TestFastRGFRegressor, self).setUp()
 
     def test_params(self):
-        pass
+        reg = self.regressor_class(**self.kwargs)
+
+        valid_params = dict(n_estimators=50,
+                            max_depth=3,
+                            max_leaf=20,
+                            tree_gain_ratio=0.3,
+                            min_samples_leaf=0.5,
+                            l1=0.6,
+                            l2=100.0,
+                            opt_algorithm='rgf',
+                            learning_rate=0.05,
+                            max_bin=150,
+                            min_child_weight=9.0,
+                            data_l2=9.0,
+                            sparse_max_features=1000,
+                            sparse_min_occurences=2,
+                            n_jobs=-1,
+                            verbose=True)
+        reg.set_params(**valid_params)
+        reg.fit(self.X_train, self.y_train)
+
+        non_valid_params = dict(n_estimators=0,
+                                max_depth=-3.0,
+                                max_leaf=0,
+                                tree_gain_ratio=1.3,
+                                min_samples_leaf=0.55,
+                                l1=6,
+                                l2=-10.0,
+                                opt_algorithm='RGF',
+                                learning_rate=0.0,
+                                max_bin=0.5,
+                                min_child_weight='auto',
+                                data_l2=None,
+                                sparse_max_features=0,
+                                sparse_min_occurences=-2.0,
+                                n_jobs=None,
+                                verbose=-3)
+        for key in non_valid_params:
+            reg.set_params(**valid_params)  # Reset to valid params
+            reg.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
+            self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train)
 
     def test_attributes(self):
         reg = self.regressor_class(**self.kwargs)
