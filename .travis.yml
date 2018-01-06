@@ -42,7 +42,7 @@ before_install:
 
 install:
   - conda install -q numpy scipy nose pandas scikit-learn
-  - pip install pytest>=3.3
+  - pip install "pytest>=3.3"
   - python setup.py sdist --formats gztar
   - pip install dist/rgf_python-$RGF_VER.tar.gz -v
 

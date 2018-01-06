@@ -97,6 +97,8 @@ def has_cmake_installed():
 def compile_rgf():
     status = False
     os.chdir(os.path.join('include', 'rgf'))
+    if not os.path.exists('bin'):
+        os.makedirs('bin')
     clear_folder('bin')  # Delete precompiled file
     if system() in ('Windows', 'Microsoft'):
         os.chdir(os.path.join('Windows', 'rgf'))
