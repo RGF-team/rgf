@@ -281,10 +281,75 @@ class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
         super(TestFastRGFClassfier, self).setUp()
 
     def test_params(self):
-        pass
+        clf = self.classifier_class(**self.kwargs)
+        valid_params = dict(n_estimators=50,
+                            max_depth=3,
+                            max_leaf=20,
+                            tree_gain_ratio=0.3,
+                            min_samples_leaf=0.5,
+                            loss="LOGISTIC",
+                            l1=0.6,
+                            l2=100.0,
+                            opt_algorithm='rgf',
+                            learning_rate=0.05,
+                            max_bin=150,
+                            min_child_weight=9.0,
+                            data_l2=9.0,
+                            sparse_max_features=1000,
+                            sparse_min_occurences=2,
+                            calc_prob="sigmoid",
+                            n_jobs=-1,
+                            verbose=True)
+        clf.set_params(**valid_params)
+        clf.fit(self.X_train, self.y_train)
+
+        non_valid_params = dict(n_estimators=0,
+                                max_depth=-3.0,
+                                max_leaf=0,
+                                tree_gain_ratio=1.3,
+                                min_samples_leaf=0.55,
+                                loss="LOG",
+                                l1=6,
+                                l2=-10.0,
+                                opt_algorithm='RGF',
+                                learning_rate=0.0,
+                                max_bin=0.5,
+                                min_child_weight='auto',
+                                data_l2=None,
+                                sparse_max_features=0,
+                                sparse_min_occurences=-2.0,
+                                calc_prob=None,
+                                n_jobs=None,
+                                verbose=-3)
+        for key in non_valid_params:
+            clf.set_params(**valid_params)  # Reset to valid params
+            clf.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
+            self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
 
     def test_attributes(self):
-        pass
+        clf = self.classifier_class(**self.kwargs)
+        attributes = ('estimators_', 'classes_', 'n_classes_', 'n_features_', 'fitted_',
+                      'max_bin_', 'min_samples_leaf_')
+
+        for attr in attributes:
+            self.assertRaises(NotFittedError, getattr, clf, attr)
+        clf.fit(self.X_train, self.y_train)
+        self.assertEqual(len(clf.estimators_), len(np.unique(self.y_train)))
+        np.testing.assert_array_equal(clf.classes_, sorted(np.unique(self.y_train)))
+        self.assertEqual(clf.n_classes_, len(clf.estimators_))
+        self.assertEqual(clf.n_features_, self.X_train.shape[-1])
+        self.assertTrue(clf.fitted_)
+        if clf.max_bin is None:
+            if sparse.isspmatrix(self.X_train):
+                self.assertEqual(clf.max_bin_, 200)
+            else:
+                self.assertEqual(clf.max_bin_, 65000)
+        else:
+            self.assertEqual(clf.max_bin_, clf.max_bin)
+        if clf.min_samples_leaf < 1:
+            self.assertLessEqual(clf.min_samples_leaf_, 0.5 * self.X_train.shape[0])
+        else:
+            self.assertEqual(clf.min_samples_leaf_, clf.min_samples_leaf)
 
     def test_sample_weight(self):
         clf = self.classifier_class(**self.kwargs)
@@ -519,10 +584,68 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
         super(TestFastRGFRegressor, self).setUp()
 
     def test_params(self):
-        pass
+        reg = self.regressor_class(**self.kwargs)
+
+        valid_params = dict(n_estimators=50,
+                            max_depth=3,
+                            max_leaf=20,
+                            tree_gain_ratio=0.3,
+                            min_samples_leaf=0.5,
+                            l1=0.6,
+                            l2=100.0,
+                            opt_algorithm='rgf',
+                            learning_rate=0.05,
+                            max_bin=150,
+                            min_child_weight=9.0,
+                            data_l2=9.0,
+                            sparse_max_features=1000,
+                            sparse_min_occurences=2,
+                            n_jobs=-1,
+                            verbose=True)
+        reg.set_params(**valid_params)
+        reg.fit(self.X_train, self.y_train)
+
+        non_valid_params = dict(n_estimators=0,
+                                max_depth=-3.0,
+                                max_leaf=0,
+                                tree_gain_ratio=1.3,
+                                min_samples_leaf=0.55,
+                                l1=6,
+                                l2=-10.0,
+                                opt_algorithm='RGF',
+                                learning_rate=0.0,
+                                max_bin=0.5,
+                                min_child_weight='auto',
+                                data_l2=None,
+                                sparse_max_features=0,
+                                sparse_min_occurences=-2.0,
+                                n_jobs=None,
+                                verbose=-3)
+        for key in non_valid_params:
+            reg.set_params(**valid_params)  # Reset to valid params
+            reg.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
+            self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train)
 
     def test_attributes(self):
-        pass
+        reg = self.regressor_class(**self.kwargs)
+        attributes = ('n_features_', 'fitted_', 'max_bin_', 'min_samples_leaf_')
+
+        for attr in attributes:
+            self.assertRaises(NotFittedError, getattr, reg, attr)
+        reg.fit(self.X_train, self.y_train)
+        self.assertEqual(reg.n_features_, self.X_train.shape[-1])
+        self.assertTrue(reg.fitted_)
+        if reg.max_bin is None:
+            if sparse.isspmatrix(self.X_train):
+                self.assertEqual(reg.max_bin_, 200)
+            else:
+                self.assertEqual(reg.max_bin_, 65000)
+        else:
+            self.assertEqual(reg.max_bin_, reg.max_bin)
+        if reg.min_samples_leaf < 1:
+            self.assertLessEqual(reg.min_samples_leaf_, 0.5 * self.X_train.shape[0])
+        else:
+            self.assertEqual(reg.min_samples_leaf_, reg.min_samples_leaf)
 
     def test_sample_weight(self):
         reg = self.regressor_class(**self.kwargs)
@@ -561,9 +684,3 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
         y_pred = grid.best_estimator_.predict(self.X_test)
         mse = mean_squared_error(self.y_test, y_pred)
         self.assertLess(mse, self.mse, "Failed with MSE = {0:.5f}".format(mse))
-
-    # TODO FastRGF bug?
-    # MSE with sparse input is higher than with dense one
-    def test_regressor_sparse_input(self):
-        self.mse = 2.5522511545
-        super(TestFastRGFRegressor, self).test_regressor_sparse_input()
