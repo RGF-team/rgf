@@ -193,7 +193,6 @@ def compile_fastrgf():
             result = subprocess.check_output(('g++', '--version'))
             if sys.version >= '3.0.0':
                 result = result.decode()
-            print(result)
             version = result.split('\n')[0].split(' ')[-1]
             return version >= '5.0.0'
         except Exception:
@@ -222,7 +221,7 @@ def compile_fastrgf():
             logger.info(
                 "FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
             return
-        status = silent_call(('cmake', '..', '-G', '"MinGW Makefiles"'))
+        status = silent_call(('cmake', '..', '-G', 'MinGW Makefiles'))
         status &= silent_call(('mingw32-make'))
         status &= silent_call(('mingw32-make', 'install'))
     else:
