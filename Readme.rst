@@ -185,6 +185,7 @@ Docker image
 We provide rgf_python installed docker image.
 
 ::
+
     # Run docker image
     docker run -it fukatani/rgf_python /bin/bash
     # Run example
