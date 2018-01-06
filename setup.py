@@ -84,6 +84,8 @@ def silent_call(cmd):
 def compile_cpp():
     status = 0
     os.chdir(os.path.join('include', 'rgf'))
+    if not os.path.exists('bin'):
+        os.makedirs('bin')
     clear_folder('bin')  # Delete precompiled file
     if system() in ('Windows', 'Microsoft'):
         os.chdir(os.path.join('Windows', 'rgf'))
