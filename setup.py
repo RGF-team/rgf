@@ -95,7 +95,7 @@ def has_cmake_installed():
 
 
 def has_mingw_make_installed():
-    return silent_call('mingw32-make')
+    return silent_call('mingw32-make --version')
 
 
 def compile_rgf():
