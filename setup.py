@@ -94,6 +94,10 @@ def has_cmake_installed():
     return silent_call('cmake')
 
 
+def has_mingw_make_installed():
+    return silent_call('mingw32-make')
+
+
 def compile_rgf():
     status = False
     os.chdir(os.path.join('include', 'rgf'))
@@ -183,10 +187,6 @@ def compile_fastrgf():
                 pass
         return False
 
-    if system() in ('Windows', 'Microsoft'):
-        logger.info("On the fly compile of FastRGF for Windows is not supported.")
-        logger.info("If you want to use FastRGF, please compile yourself.")
-        return
     if not has_cmake_installed():
         logger.info("FastRGF is not compiled because 'cmake' not found.")
         logger.info("If you want to use FastRGF, please compile yourself after installed 'cmake'.")
@@ -200,9 +200,18 @@ def compile_fastrgf():
     if not os.path.isdir('include/fast_rgf/build'):
         os.mkdir('include/fast_rgf/build')
     os.chdir('include/fast_rgf/build')
-    status = silent_call(('cmake', '..'))
-    status &= silent_call(('make'))
-    status &= silent_call(('make', 'install'))
+    if system() in ('Windows', 'Microsoft'):
+        if not has_mingw_make_installed():
+            logger.info("FastRGF is not compiled because 'mingw32-make' not found.")
+            logger.info("If you want to use FastRGF, please compile yourself after installed 'mingw32-make'.")
+            return
+        status = silent_call(('cmake', '..', '-G', '"MinGW Makefiles"'))
+        status &= silent_call(('mingw32-make'))
+        status &= silent_call(('mingw32-make', 'install'))
+    else:
+        status = silent_call(('cmake', '..'))
+        status &= silent_call(('make'))
+        status &= silent_call(('make', 'install'))
     os.chdir(CURRENT_DIR)
     if status:
         logger.info("Succeeded to build FastRGF.")
