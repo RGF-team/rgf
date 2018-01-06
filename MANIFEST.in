@@ -6,5 +6,9 @@ recursive-include include/rgf/Windows/rgf *
 recursive-include include/rgf/src/com *
 recursive-include include/rgf/src/tet *
 
+recursive-include include/fast_rgf CMakeLists.txt
+recursive-include include/fast_rgf/src *
+recursive-include include/fast_rgf/include *
+
 global-exclude *.pyo
 global-exclude *.pyc

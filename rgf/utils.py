@@ -186,7 +186,12 @@ else:
     raise Exception("{0} does not exist or {1} is not in the "
                     "'PATH' variable.".format(EXE_PATH, DEFAULT_EXE_PATH))
 
-FASTRGF_AVAILABLE = is_fastrgf_executable(FASTRGF_PATH)
+FASTRGF_AVAILABLE = False
+if is_fastrgf_executable(FASTRGF_PATH):
+    FASTRGF_AVAILABLE = True
+elif is_fastrgf_executable(os.path.dirname(__file__)):
+    FASTRGF_PATH = os.path.dirname(__file__)
+    FASTRGF_AVAILABLE = True
 
 
 class AtomicCounter(object):
