@@ -178,6 +178,7 @@ def compile_rgf():
 
 
 def compile_fastrgf():
+
     def is_valid_gpp():
         for i in range(5, 8):
             try:
@@ -187,12 +188,22 @@ def compile_fastrgf():
                 pass
         return False
 
+    def is_valid_gpp_windows():
+        try:
+            result = subprocess.check_output(('g++', '--version'))
+            if sys.version >= '3.0.0':
+                result = result.decode()
+            print(result)
+            version = result.split('\n')[0].split(' ')[-1]
+            return version >= '5.0.0'
+        except Exception:
+            pass
+        return False
+
     if not has_cmake_installed():
         logger.info("FastRGF is not compiled because 'cmake' not found.")
-        logger.info("If you want to use FastRGF, please compile yourself after installed 'cmake'.")
-        return
-    if not is_valid_gpp():
-        logger.info("FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
+        logger.info("If you want to use FastRGF, please compile yourself "
+                    "after installed 'cmake'.")
         return
     if not os.path.exists('include/fast_rgf'):
         logger.info("Git submodule FastRGF is not found.")
@@ -202,13 +213,23 @@ def compile_fastrgf():
     os.chdir('include/fast_rgf/build')
     if system() in ('Windows', 'Microsoft'):
         if not has_mingw_make_installed():
-            logger.info("FastRGF is not compiled because 'mingw32-make' not found.")
-            logger.info("If you want to use FastRGF, please compile yourself after installed 'mingw32-make'.")
+            logger.info("FastRGF is not compiled because 'mingw32-make' not "
+                        "found.")
+            logger.info("If you want to use FastRGF, please compile yourself "
+                        "after installed 'mingw32-make'.")
+            return
+        if not is_valid_gpp_windows():
+            logger.info(
+                "FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
             return
         status = silent_call(('cmake', '..', '-G', '"MinGW Makefiles"'))
         status &= silent_call(('mingw32-make'))
         status &= silent_call(('mingw32-make', 'install'))
     else:
+        if not is_valid_gpp():
+            logger.info(
+                "FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
+            return
         status = silent_call(('cmake', '..'))
         status &= silent_call(('make'))
         status &= silent_call(('make', 'install'))
