@@ -188,8 +188,11 @@ We provide rgf_python installed docker image.
 
     # Run docker image
     docker run -it fukatani/rgf_python /bin/bash
-    # Run example
+    # Run RGF example
     python ./rgf_python/examples/comparison_RGF_and_RF_regressors_on_boston_dataset.py
+    # Run FastRGF Example
+    python ./rgf_python/examples/fast_rgf/FastRGF_classifier_on_iris_dataset.py
+
 
 Tuning Hyper-parameters
 -----------------------
