@@ -35,31 +35,31 @@ def clear_folder(path):
 
 
 def find_rgf_lib():
-    if system() in ('Windows',
-                    'Microsoft') and os.path.isfile(os.path.join(CURRENT_DIR,
-                                                                 'include',
-                                                                 'rgf',
-                                                                 'bin',
-                                                                 'rgf.exe')):
-        return os.path.join(CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf.exe')
-    elif os.path.isfile(os.path.join(CURRENT_DIR,
-                                     'include',
-                                     'rgf',
-                                     'bin',
-                                     'rgf')):
-        return os.path.join(CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf')
+    if system() in ('Windows', 'Microsoft'):
+        exe_file = os.path.join(CURRENT_DIR, 'include/rgf/bin/rgf.exe')
     else:
-        return None
+        exe_file = os.path.join(CURRENT_DIR, 'include/rgf/bin/rgf')
+    if os.path.isfile(os.path.join(CURRENT_DIR, 'include/rgf/bin', exe_file)):
+        return os.path.join(CURRENT_DIR, 'include/rgf/bin', exe_file)
+    return None
 
 
 def find_fastrgf_lib():
+    exe_files = []
     if system() in ('Windows', 'Microsoft'):
-        return None
-    elif os.path.isdir(os.path.join(CURRENT_DIR,
-                                    'include/fast_rgf/build/src/exe')):
-        return os.path.join(CURRENT_DIR, 'include/fast_rgf/build/src/exe')
+        exe_files.append(os.path.join(CURRENT_DIR, 'include/fast_rgf/build',
+                                      'src/exe', 'forest_train.exe'))
+        exe_files.append(os.path.join(CURRENT_DIR, 'include/fast_rgf/build',
+                                      'src/exe', 'forest_predict.exe'))
     else:
-        return None
+        exe_files.append(os.path.join(CURRENT_DIR, 'include/fast_rgf/build',
+                                      'src/exe', 'forest_train'))
+        exe_files.append(os.path.join(CURRENT_DIR, 'include/fast_rgf/build',
+                                      'src/exe', 'forest_predict'))
+    for exe_file in exe_files:
+        if not os.path.isfile(exe_file):
+            return None
+    return exe_files
 
 
 def is_executable_response(path):
@@ -251,14 +251,12 @@ class CustomInstallLib(install_lib):
                 outfiles.append(dst)
             else:
                 logger.error("Cannot find rgf executable file. Installing without it.")
-            src = find_fastrgf_lib()
-            if src:
-                forest_train = os.path.join(src, 'forest_train')
-                dst, _ = self.copy_file(forest_train, os.path.join(self.install_dir, 'rgf'))
-                outfiles.append(dst)
-                forest_predict = os.path.join(src, 'forest_predict')
-                dst, _ = self.copy_file(forest_predict, os.path.join(self.install_dir, 'rgf'))
-                outfiles.append(dst)
+            sources = find_fastrgf_lib()
+            if sources:
+                for src in sources:
+                    dst, _ = self.copy_file(src,
+                                            os.path.join(self.install_dir, 'rgf'))
+                    outfiles.append(dst)
             else:
                 logger.error("Cannot find FastRGF executable file. Installing without it.")
         return outfiles
