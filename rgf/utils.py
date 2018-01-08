@@ -113,6 +113,7 @@ def is_rgf_executable(path):
     np.savetxt(temp_y_loc, [1, -1], delimiter=' ', fmt="%s")
     UUIDS.append('temp_rgf')
     params_train = []
+    params_train.append("max_leaf_forest=10")
     params_train.append("train_x_fn=%s" % temp_x_loc)
     params_train.append("train_y_fn=%s" % temp_y_loc)
     params_train.append("model_fn_prefix=%s" % temp_model_loc)
@@ -126,8 +127,10 @@ def is_rgf_executable(path):
     except Exception:
         pass
     try:
-        subprocess.check_output((path, "train", ",".join(params_train)))
-        subprocess.check_output((path, "predict", ",".join(params_pred)))
+        subprocess.check_output((path, "train", ",".join(params_train)),
+                                stderr=subprocess.DEVNULL)
+        subprocess.check_output((path, "predict", ",".join(params_pred)),
+                                stderr=subprocess.DEVNULL)
         return True
     except Exception:
         return False
@@ -145,6 +148,7 @@ def is_fastrgf_executable(path):
     UUIDS.append('temp_fastrgf')
     path_train = os.path.join(path, "forest_train")
     params_train = []
+    params_train.append("forest.ntrees=10")
     params_train.append("trn.x-file=%s" % temp_x_loc)
     params_train.append("trn.y-file=%s" % temp_y_loc)
     params_train.append("model.save=%s" % temp_model_loc)
@@ -163,8 +167,8 @@ def is_fastrgf_executable(path):
     except Exception:
         pass
     try:
-        subprocess.check_output(cmd_train)
-        subprocess.check_output(cmd_pred)
+        subprocess.check_output(cmd_train, stderr=subprocess.DEVNULL)
+        subprocess.check_output(cmd_pred, stderr=subprocess.DEVNULL)
     except Exception:
         return False
     return True
