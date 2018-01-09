@@ -212,8 +212,7 @@ def sparse_savetxt(filename, input_array, including_header=True):
     zip_func = six.moves.zip
     if sp.isspmatrix_csr(input_array):
         input_array = input_array.tocoo()
-    elif not sp.isspmatrix_coo(input_array):
-        input_array = input_array.tocsr().tocoo()
+    input_array = input_array.tocsr().tocoo()
     n_row = input_array.shape[0]
     current_sample_row = 0
     line = []
