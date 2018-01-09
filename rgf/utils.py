@@ -128,9 +128,9 @@ def is_rgf_executable(path):
         pass
     try:
         subprocess.check_output((path, "train", ",".join(params_train)),
-                                stderr=subprocess.DEVNULL)
+                                stderr=subprocess.STDOUT)
         subprocess.check_output((path, "predict", ",".join(params_pred)),
-                                stderr=subprocess.DEVNULL)
+                                stderr=subprocess.STDOUT)
         return True
     except Exception:
         return False
@@ -167,8 +167,8 @@ def is_fastrgf_executable(path):
     except Exception:
         pass
     try:
-        subprocess.check_output(cmd_train, stderr=subprocess.DEVNULL)
-        subprocess.check_output(cmd_pred, stderr=subprocess.DEVNULL)
+        subprocess.check_output(cmd_train, stderr=subprocess.STDOUT)
+        subprocess.check_output(cmd_pred, stderr=subprocess.STDOUT)
     except Exception:
         return False
     return True
