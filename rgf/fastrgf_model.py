@@ -683,11 +683,11 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
                             'Training is abnormally finished.'.format(utils.TEMP_PATH))
         self.model_file = self.model_file_loc
 
-    def get_test_command(self):
+    def get_test_command(self, is_sparse_test_X):
         params = []
         params.append("model.load=%s" % self.model_file)
         params.append("tst.x-file=%s" % self.test_x_loc)
-        if self.is_sparse_test_X:
+        if is_sparse_test_X:
             params.append("tst.x-file_format=x.sparse")
         params.append("tst.target=BINARY")
         params.append("tst.output-prediction=%s" % self.pred_loc)

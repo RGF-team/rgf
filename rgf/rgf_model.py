@@ -697,7 +697,7 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
                             'Training is abnormally finished.'.format(utils.TEMP_PATH))
         self.model_file = sorted(model_files, reverse=True)[0]
 
-    def get_test_command(self):
+    def get_test_command(self, is_sparse_test_X):
         params = []
         params.append("test_x_fn=%s" % self.test_x_loc)
         params.append("prediction_fn=%s" % self.pred_loc)
