@@ -328,19 +328,19 @@ class RGFMixin(object):
     def _set_params_with_dependencies(self):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
-    def save_sparse_X(self, X):
+    def _save_sparse_X(self, path, X):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
-    def save_dense_files(self, X, y, sample_weight):
+    def _save_dense_files(self, X, y, sample_weight):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
-    def find_model_file(self):
+    def _find_model_file(self):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
-    def get_train_command(self):
+    def _get_train_command(self):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
-    def get_test_command(self):
+    def _get_test_command(self, is_sparse_test_X):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def __getstate__(self):
@@ -596,7 +596,7 @@ class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
         n_removed_files = 0
         if self._estimators is not None:
             for est in self._estimators:
-                n_removed_files += cleanup_partial(est.file_prefix,
+                n_removed_files += cleanup_partial(est._file_prefix,
                                                    remove_from_list=True)
 
         # No more able to predict without refitting.
@@ -618,9 +618,9 @@ class RGFBinaryClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        self.file_prefix = str(uuid4()) + str(COUNTER.increment())
-        UUIDS.append(self.file_prefix)
-        self.fitted = None
+        self._file_prefix = str(uuid4()) + str(COUNTER.increment())
+        UUIDS.append(self._file_prefix)
+        self._fitted = None
 
     def fit(self, X, y, sample_weight):
         self._set_paths()
@@ -630,11 +630,11 @@ class RGFBinaryClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
 
         self._save_train_data(X, y, sample_weight)
 
-        cmd = self.get_train_command()
+        cmd = self._get_train_command()
         self._execute_command(cmd)
 
-        self.find_model_file()
-        self.fitted = True
+        self._find_model_file()
+        self._fitted = True
 					        
         return self
 
@@ -643,7 +643,7 @@ class RGFBinaryClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
 
         is_sparse_test_X = self._save_test_X(X)
 
-        cmd = self.get_test_command(is_sparse_test_X)
+        cmd = self._get_test_command(is_sparse_test_X)
         self._execute_command(cmd)
 
-        return np.loadtxt(self.pred_loc)
+        return np.loadtxt(self._pred_loc)
