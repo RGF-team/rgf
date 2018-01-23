@@ -633,14 +633,14 @@ class FastRGFClassifier(utils.RGFClassifierBase):
 
 
 class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
-    def save_sparse_X(self, path, X):
+    def _save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=False)
 
-    def save_dense_files(self, X, y, sample_weight):
-        self.train_x_loc = self.train_x_loc[:-2]
-        np.savetxt(self.train_x_loc, np.c_[sample_weight, y, X], delimiter=' ', fmt="%s")
+    def _save_dense_files(self, X, y, sample_weight):
+        self._train_x_loc = self._train_x_loc[:-2]
+        np.savetxt(self._train_x_loc, np.c_[sample_weight, y, X], delimiter=' ', fmt="%s")
 
-    def get_train_command(self):
+    def _get_train_command(self):
         params = []
         params.append("forest.ntrees=%s" % self.n_estimators)
         params.append("forest.stepsize=%s" % self.learning_rate)
@@ -652,45 +652,45 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("dtree.loss=%s" % self.loss)
         params.append("dtree.lamL1=%s" % self.l1)
         params.append("dtree.lamL2=%s" % self.l2)
-        if self.is_sparse_train_X:
+        if self._is_sparse_train_X:
             params.append("discretize.sparse.max_features=%s" % self.sparse_max_features)
             params.append("discretize.sparse.max_buckets=%s" % self.max_bin)
             params.append("discretize.sparse.lamL2=%s" % self.data_l2)
             params.append("discretize.sparse.min_bucket_weights=%s" % self.min_child_weight)
             params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
             params.append("trn.x-file_format=x.sparse")
-            params.append("trn.y-file=%s" % self.train_y_loc)
-            params.append("trn.w-file=%s" % self.train_weight_loc)
+            params.append("trn.y-file=%s" % self._train_y_loc)
+            params.append("trn.w-file=%s" % self._train_weight_loc)
         else:
             params.append("discretize.dense.max_buckets=%s" % self.max_bin)
             params.append("discretize.dense.lamL2=%s" % self.data_l2)
             params.append("discretize.dense.min_bucket_weights=%s" % self.min_child_weight)
             params.append("trn.x-file_format=w.y.x")
-        params.append("trn.x-file=%s" % self.train_x_loc)
+        params.append("trn.x-file=%s" % self._train_x_loc)
         params.append("trn.target=BINARY")
         params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
-        params.append("model.save=%s" % self.model_file_loc)
+        params.append("model.save=%s" % self._model_file_loc)
 
         cmd = [os.path.join(utils.FASTRGF_PATH, "forest_train")]
         cmd.extend(params)
 
         return cmd
 
-    def find_model_file(self):
-        if not os.path.isfile(self.model_file_loc):
+    def _find_model_file(self):
+        if not os.path.isfile(self._model_file_loc):
             raise Exception('Model learning result is not found in {0}. '
                             'Training is abnormally finished.'.format(utils.TEMP_PATH))
-        self.model_file = self.model_file_loc
+        self._model_file = self._model_file_loc
 
-    def get_test_command(self):
+    def _get_test_command(self, is_sparse_test_X):
         params = []
-        params.append("model.load=%s" % self.model_file)
-        params.append("tst.x-file=%s" % self.test_x_loc)
-        if self.is_sparse_test_X:
+        params.append("model.load=%s" % self._model_file)
+        params.append("tst.x-file=%s" % self._test_x_loc)
+        if is_sparse_test_X:
             params.append("tst.x-file_format=x.sparse")
         params.append("tst.target=BINARY")
-        params.append("tst.output-prediction=%s" % self.pred_loc)
+        params.append("tst.output-prediction=%s" % self._pred_loc)
         params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
 

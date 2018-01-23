@@ -651,15 +651,15 @@ class RGFClassifier(utils.RGFClassifierBase):
 
 
 class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
-    def save_sparse_X(self, path, X):
+    def _save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=True)
 
-    def save_dense_files(self, X, y, sample_weight):
-        np.savetxt(self.train_x_loc, X, delimiter=' ', fmt="%s")
-        np.savetxt(self.train_y_loc, y, delimiter=' ', fmt="%s")
-        np.savetxt(self.train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
+    def _save_dense_files(self, X, y, sample_weight):
+        np.savetxt(self._train_x_loc, X, delimiter=' ', fmt="%s")
+        np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
+        np.savetxt(self._train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
 
-    def get_train_command(self):
+    def _get_train_command(self):
         params = []
         if self.verbose > 0:
             params.append("Verbose")
@@ -667,8 +667,8 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
             params.append("Verbose_opt")  # Add some info on weight optimization
         if self.normalize:
             params.append("NormalizeTarget")
-        params.append("train_x_fn=%s" % self.train_x_loc)
-        params.append("train_y_fn=%s" % self.train_y_loc)
+        params.append("train_x_fn=%s" % self._train_x_loc)
+        params.append("train_y_fn=%s" % self._train_y_loc)
         params.append("algorithm=%s" % self.algorithm)
         params.append("loss=%s" % self.loss)
         params.append("max_leaf_forest=%s" % self.max_leaf)
@@ -682,26 +682,26 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("opt_interval=%s" % self.opt_interval)
         params.append("opt_stepsize=%s" % self.learning_rate)
         params.append("memory_policy=%s" % self.memory_policy.title())
-        params.append("model_fn_prefix=%s" % self.model_file_loc)
-        params.append("train_w_fn=%s" % self.train_weight_loc)
+        params.append("model_fn_prefix=%s" % self._model_file_loc)
+        params.append("train_w_fn=%s" % self._train_weight_loc)
 
         cmd = (utils.EXE_PATH, "train", ",".join(params))
 
         return cmd
 
-    def find_model_file(self):
+    def _find_model_file(self):
         # Find latest model location
-        model_files = glob(self.model_file_loc + "*")
+        model_files = glob(self._model_file_loc + "*")
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
                             'Training is abnormally finished.'.format(utils.TEMP_PATH))
-        self.model_file = sorted(model_files, reverse=True)[0]
+        self._model_file = sorted(model_files, reverse=True)[0]
 
-    def get_test_command(self):
+    def _get_test_command(self, is_sparse_test_X):
         params = []
-        params.append("test_x_fn=%s" % self.test_x_loc)
-        params.append("prediction_fn=%s" % self.pred_loc)
-        params.append("model_fn=%s" % self.model_file)
+        params.append("test_x_fn=%s" % self._test_x_loc)
+        params.append("prediction_fn=%s" % self._pred_loc)
+        params.append("model_fn=%s" % self._model_file)
 
         cmd = (utils.EXE_PATH, "predict", ",".join(params))
 
