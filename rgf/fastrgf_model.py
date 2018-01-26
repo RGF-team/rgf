@@ -248,7 +248,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
                  n_jobs=-1,
                  verbose=0):
         if not utils.FASTRGF_AVAILABLE:
-            raise Exception('FastRGF is unavailable for usage.')
+            raise Exception('FastRGF estimators are unavailable for usage.')
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.max_leaf = max_leaf
@@ -527,7 +527,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                  n_jobs=-1,
                  verbose=0):
         if not utils.FASTRGF_AVAILABLE:
-            raise Exception('FastRGF is unavailable for usage.')
+            raise Exception('FastRGF estimators are unavailable for usage.')
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.max_leaf = max_leaf
