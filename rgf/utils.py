@@ -8,6 +8,7 @@ import os
 import platform
 import stat
 import subprocess
+import warnings
 from threading import Lock
 from uuid import uuid4
 
@@ -184,12 +185,14 @@ else:
     raise Exception("{0} does not exist or {1} is not in the "
                     "'PATH' variable.".format(EXE_PATH, DEFAULT_EXE_PATH))
 
-FASTRGF_AVAILABLE = False
+FASTRGF_AVAILABLE = True
 if is_fastrgf_executable(CURRENT_DIR):
     FASTRGF_PATH = CURRENT_DIR
-    FASTRGF_AVAILABLE = True
 elif is_fastrgf_executable(FASTRGF_PATH):
-    FASTRGF_AVAILABLE = True
+    pass
+else:
+    FASTRGF_AVAILABLE = False
+    warnings.warn("Cannot find FastRGF executable files. FastRGF estimators will be unavailable for usage.")
 
 
 class AtomicCounter(object):
