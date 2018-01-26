@@ -21,6 +21,7 @@ from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
 
+CURRENT_DIR = os.path.dirname(__file__)
 FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 INTS = (numbers.Integral, np.integer)
 NOT_FITTED_ERROR_DESC = "Estimator not fitted, call `fit` before exploiting the model."
@@ -173,8 +174,8 @@ def is_fastrgf_executable(path):
         return False
     return True
 
-if is_rgf_executable(os.path.join(os.path.dirname(__file__), DEFAULT_EXE_PATH)):
-    EXE_PATH = os.path.join(os.path.dirname(__file__), DEFAULT_EXE_PATH)
+if is_rgf_executable(os.path.join(CURRENT_DIR, DEFAULT_EXE_PATH)):
+    EXE_PATH = os.path.join(CURRENT_DIR, DEFAULT_EXE_PATH)
 elif is_rgf_executable(DEFAULT_EXE_PATH):
     EXE_PATH = DEFAULT_EXE_PATH
 elif not os.path.isfile(EXE_PATH):
@@ -190,8 +191,8 @@ else:
                     "'PATH' variable.".format(EXE_PATH, DEFAULT_EXE_PATH))
 
 FASTRGF_AVAILABLE = False
-if is_fastrgf_executable(os.path.dirname(__file__)):
-    FASTRGF_PATH = os.path.dirname(__file__)
+if is_fastrgf_executable(CURRENT_DIR):
+    FASTRGF_PATH = CURRENT_DIR
     FASTRGF_AVAILABLE = True
 elif is_fastrgf_executable(FASTRGF_PATH):
     FASTRGF_AVAILABLE = True
