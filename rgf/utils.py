@@ -173,11 +173,10 @@ def is_fastrgf_executable(path):
         return False
     return True
 
-
-if is_rgf_executable(DEFAULT_EXE_PATH):
-    EXE_PATH = DEFAULT_EXE_PATH
-elif is_rgf_executable(os.path.join(os.path.dirname(__file__), DEFAULT_EXE_PATH)):
+if is_rgf_executable(os.path.join(os.path.dirname(__file__), DEFAULT_EXE_PATH)):
     EXE_PATH = os.path.join(os.path.dirname(__file__), DEFAULT_EXE_PATH)
+elif is_rgf_executable(DEFAULT_EXE_PATH):
+    EXE_PATH = DEFAULT_EXE_PATH
 elif not os.path.isfile(EXE_PATH):
     raise Exception("{0} is not executable file. Please set "
                     "config flag 'exe_location' to RGF execution file.".format(EXE_PATH))
