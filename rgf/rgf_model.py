@@ -347,7 +347,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         params.append("model_fn_prefix=%s" % self._model_file_loc)
         params.append("train_w_fn=%s" % self._train_weight_loc)
 
-        cmd = (utils.EXE_PATH, "train", ",".join(params))
+        cmd = (utils.RGF_PATH, "train", ",".join(params))
 
         return cmd
 
@@ -357,7 +357,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         params.append("prediction_fn=%s" % self._pred_loc)
         params.append("model_fn=%s" % self._model_file)
 
-        cmd = (utils.EXE_PATH, "predict", ",".join(params))
+        cmd = (utils.RGF_PATH, "predict", ",".join(params))
 
         return cmd
 
@@ -689,7 +689,7 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("model_fn_prefix=%s" % self._model_file_loc)
         params.append("train_w_fn=%s" % self._train_weight_loc)
 
-        cmd = (utils.EXE_PATH, "train", ",".join(params))
+        cmd = (utils.RGF_PATH, "train", ",".join(params))
 
         return cmd
 
@@ -707,6 +707,6 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("prediction_fn=%s" % self._pred_loc)
         params.append("model_fn=%s" % self._model_file)
 
-        cmd = (utils.EXE_PATH, "predict", ",".join(params))
+        cmd = (utils.RGF_PATH, "predict", ",".join(params))
 
         return cmd

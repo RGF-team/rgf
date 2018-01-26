@@ -96,7 +96,7 @@ def get_paths():
     return def_exe, rgf_exe, fast_rgf_path, temp
 
 
-DEFAULT_EXE_PATH, EXE_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
+DEFAULT_EXE_PATH, RGF_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
 
 
 if not os.path.isdir(TEMP_PATH):
@@ -178,10 +178,10 @@ def is_fastrgf_executable(path):
 
 RGF_AVAILABLE = True
 if is_rgf_executable(os.path.join(CURRENT_DIR, DEFAULT_EXE_PATH)):
-    EXE_PATH = os.path.join(CURRENT_DIR, DEFAULT_EXE_PATH)
+    RGF_PATH = os.path.join(CURRENT_DIR, DEFAULT_EXE_PATH)
 elif is_rgf_executable(DEFAULT_EXE_PATH):
-    EXE_PATH = DEFAULT_EXE_PATH
-elif is_rgf_executable(EXE_PATH):
+    RGF_PATH = DEFAULT_EXE_PATH
+elif is_rgf_executable(RGF_PATH):
     pass
 else:
     RGF_AVAILABLE = False
