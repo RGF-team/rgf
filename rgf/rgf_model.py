@@ -241,6 +241,8 @@ class RGFRegressor(utils.RGFRegressorBase):
                  learning_rate=0.5,
                  memory_policy="generous",
                  verbose=0):
+        if not utils.RGF_AVAILABLE:
+            raise Exception('RGF estimators are unavailable for usage.')
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -523,6 +525,8 @@ class RGFClassifier(utils.RGFClassifierBase):
                  n_jobs=-1,
                  memory_policy="generous",
                  verbose=0):
+        if not utils.RGF_AVAILABLE:
+            raise Exception('RGF estimators are unavailable for usage.')
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm

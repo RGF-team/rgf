@@ -175,6 +175,8 @@ def is_fastrgf_executable(path):
         return False
     return True
 
+
+RGF_AVAILABLE = True
 if is_rgf_executable(os.path.join(CURRENT_DIR, DEFAULT_EXE_PATH)):
     EXE_PATH = os.path.join(CURRENT_DIR, DEFAULT_EXE_PATH)
 elif is_rgf_executable(DEFAULT_EXE_PATH):
@@ -182,8 +184,8 @@ elif is_rgf_executable(DEFAULT_EXE_PATH):
 elif is_rgf_executable(EXE_PATH):
     pass
 else:
-    raise Exception("{0} does not exist or {1} is not in the "
-                    "'PATH' variable.".format(EXE_PATH, DEFAULT_EXE_PATH))
+    RGF_AVAILABLE = False
+    warnings.warn("Cannot find RGF executable file. RGF estimators will be unavailable for usage.")
 
 FASTRGF_AVAILABLE = True
 if is_fastrgf_executable(CURRENT_DIR):
