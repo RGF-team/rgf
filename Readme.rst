@@ -185,7 +185,7 @@ Create ``makefile`` with CMake and then compile.
 Docker image
 ~~~~~~~~~~~~
 
-We provide docker image with installed rgf\_python.
+We provide `docker image <https://github.com/fukatani/rgf_python/blob/master/docker/Dockerfile>`__ with installed rgf\_python.
 
 ::
 
