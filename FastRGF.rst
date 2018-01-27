@@ -65,11 +65,12 @@ ex.
 
 Known Issues
 ------------
+
 * FastRGF clashes if training dataset is too small (#data < 28).
 
 * FastRGF clashes if sample weights is too small. The value of the weight is dependent on the size of the dataset.
 
-ex. sample\_weight = [0.001, 0.001, ..., 0.001] leads to a clash for #data < 200.
+  ex. sample\_weight = [0.001, 0.001, ..., 0.001] leads to a clash for #data < 200.
 
 Reference
 ---------

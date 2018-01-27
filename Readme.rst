@@ -226,16 +226,25 @@ Now, Kaggle Kernel supports rgf\_python. Please see `this page <https://www.kagg
 Troubleshooting
 ---------------
 
-- rgf_python raised error while fitting or predicting.
+If you meet any error, please try to run `test.py <https://github.com/fukatani/rgf_python/blob/master/tests/test.py>`__ and confirm successful installation.
 
-First, please try to run `test.py <https://github.com/fukatani/rgf_python/blob/master/tests/test.py>`__ and confirm install successfully.
+Then feel free to `open new issue <https://github.com/fukatani/rgf_python/issues/new>`__.
 
-If you succeeded test, these pages may help you:
+Known Issues
+''''''''''''
 
-1. https://github.com/fukatani/rgf_python/issues/13 (Datasets including string)
-2. https://github.com/fukatani/rgf_python/issues/75 (Temp file capacity is over in kaggle kernel)
+* FastRGF clashes if training dataset is too small (#data < 28).
 
-If you can't solve your problem, feel free to `open new issue <https://github.com/fukatani/rgf_python/issues/new>`__.
+* FastRGF clashes if sample weights is too small. The value of the weight is dependent on the size of the dataset.
+
+  ex. sample\_weight = [0.001, 0.001, ..., 0.001] leads to a clash for #data < 200.
+
+FAQ
+'''
+
+* Q: Temporary files use too much space on my hard drive (Kaggle kernel disc space is exhausted while fitting rgf\_python model).
+   
+  A: Please see `rgf\_python#75 <https://github.com/fukatani/rgf_python/issues/75>`__.
 
 License
 -------
