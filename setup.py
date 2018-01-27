@@ -262,21 +262,20 @@ class CustomInstallLib(install_lib):
                 dst, _ = self.copy_file(src, os.path.join(self.install_dir, 'rgf'))
                 outfiles.append(dst)
             else:
-                logger.error("Cannot find rgf executable file. Installing without it.")
+                logger.error("Cannot find RGF executable file. Installing without it.")
             sources = find_fastrgf_lib()
             if sources:
                 for src in sources:
-                    dst, _ = self.copy_file(src,
-                                            os.path.join(self.install_dir, 'rgf'))
+                    dst, _ = self.copy_file(src, os.path.join(self.install_dir, 'rgf'))
                     outfiles.append(dst)
             else:
-                logger.error("Cannot find FastRGF executable file. Installing without it.")
+                logger.error("Cannot find FastRGF executable files. Installing without them.")
         return outfiles
 
 
 class CustomInstall(install):
     user_options = install.user_options \
-                   + [('nocompilation', 'n', 'Installing package without binaries.')]
+                   + [('nocompilation', 'n', 'Install package without binaries.')]
 
     def initialize_options(self):
         install.initialize_options(self)
@@ -284,13 +283,13 @@ class CustomInstall(install):
 
     def run(self):
         if not self.nocompilation:
-            logger.info("Starting to compile executable file.")
+            logger.info("Starting to compile executable files.")
             compile_rgf()
             compile_fastrgf()
         else:
             logger.info("Installing package without binaries.")
         install_lib = self.distribution.get_command_obj('install_lib')
-        install_lib.user_options += [('nocompilation', 'n', 'Installing package without binaries.')]
+        install_lib.user_options += [('nocompilation', 'n', 'Install package without binaries.')]
         install_lib.nocompilation = self.nocompilation
         install.run(self)
 
