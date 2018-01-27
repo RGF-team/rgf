@@ -154,7 +154,7 @@ def compile_rgf():
             logger.info("Trying to build executable file with CMake and MinGW.")
             clear_folder('.')
             status = silent_call(('cmake', '../', '-G', 'MinGW Makefiles'))
-            status += silent_call(('cmake', '--build', '.', '--config', 'Release'))
+            status &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
         os.chdir(os.path.pardir)
     else:
         os.chdir('build')
