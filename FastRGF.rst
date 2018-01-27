@@ -15,7 +15,7 @@ The part of the function may be not tested, not documented and not unstabled. AP
 Example
 -------
 
-Examples could be found `here <https://github.com/fukatani/rgf_python/tree/master/examples>`__.
+Examples could be found `here <https://github.com/fukatani/rgf_python/tree/master/examples/FastRGF>`__.
 
 Note that since the dataset size is small, FastRGF is not faster than RGF in this example.
 
