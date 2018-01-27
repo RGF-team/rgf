@@ -28,7 +28,7 @@ Software Requirements
 Installation
 ------------
 
-Install rgf_python according to `this guide <https://github.com/fukatani/rgf_python#installation>`__.
+Install rgf\_python according to `this guide <https://github.com/fukatani/rgf_python#installation>`__.
 
 Then compile FastRGF.
 
@@ -65,10 +65,11 @@ ex.
 
 Known Issues
 ------------
-* FastRGF clashes if training dataset is too small. (<100)
-* FastRGF clashes if sample weight is too big for one sample.
+* FastRGF clashes if training dataset is too small (#data < 28).
 
-ex. sample weight = [1, 0.001, 0.001, ..., 0.001]
+* FastRGF clashes if sample weights is too small. The value of the weight is dependent on the size of the dataset.
+
+ex. sample\_weight = [0.001, 0.001, ..., 0.001] leads to a clash for #data < 200.
 
 Reference
 ---------
