@@ -84,9 +84,9 @@ def is_rgf_response(path):
         pass
     try:
         with open(temp_x_loc, 'w') as f:
-            f.write('1 0 1 00 1 0 1\n')
+            f.write('1 0 1 0\n0 1 0 1\n')
         with open(temp_y_loc, 'w') as f:
-            f.write('1-1\n')
+            f.write('1\n-1\n')
         silent_call((path, "train", ",".join(params_train)))
         silent_call((path, "predict", ",".join(params_pred)))
         return True
