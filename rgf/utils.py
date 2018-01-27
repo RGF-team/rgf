@@ -108,16 +108,16 @@ def is_rgf_executable(path):
     temp_x_loc = os.path.join(TEMP_PATH, 'temp_rgf.train.data.x')
     temp_y_loc = os.path.join(TEMP_PATH, 'temp_rgf.train.data.y')
     temp_model_loc = os.path.join(TEMP_PATH, 'temp_rgf.model')
-    temp_pred_loc = os.path.join(TEMP_PATH, "temp_rgf.predictions.txt")
+    temp_pred_loc = os.path.join(TEMP_PATH, 'temp_rgf.predictions.txt')
     np.savetxt(temp_x_loc, [[1, 0, 1, 0], [0, 1, 0, 1]], delimiter=' ', fmt="%s")
     np.savetxt(temp_y_loc, [1, -1], delimiter=' ', fmt="%s")
     UUIDS.append('temp_rgf')
     params_train = []
-    params_train.append("max_leaf_forest=10")
     params_train.append("train_x_fn=%s" % temp_x_loc)
     params_train.append("train_y_fn=%s" % temp_y_loc)
     params_train.append("model_fn_prefix=%s" % temp_model_loc)
     params_train.append("reg_L2=%s" % 1)
+    params_train.append("max_leaf_forest=%s" % 10)
     params_pred = []
     params_pred.append("test_x_fn=%s" % temp_x_loc)
     params_pred.append("prediction_fn=%s" % temp_pred_loc)

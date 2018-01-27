@@ -62,21 +62,33 @@ def find_fastrgf_lib():
     return exe_files
 
 
-def is_executable_response(path):
+def is_rgf_response(path):
     temp_x_loc = os.path.abspath('temp.train.data.x')
     temp_y_loc = os.path.abspath('temp.train.data.y')
-    params = []
-    params.append("train_x_fn=%s" % temp_x_loc)
-    params.append("train_y_fn=%s" % temp_y_loc)
-    params.append("model_fn_prefix=%s" % os.path.abspath("temp.model"))
-    params.append("reg_L2=%s" % 1)
+    temp_model_loc = os.path.abspath('temp.model')
+    temp_pred_loc = os.path.abspath('temp.predictions.txt')
+    params_train = []
+    params_train.append("train_x_fn=%s" % temp_x_loc)
+    params_train.append("train_y_fn=%s" % temp_y_loc)
+    params_train.append("model_fn_prefix=%s" % temp_model_loc)
+    params_train.append("reg_L2=%s" % 1)
+    params_train.append("max_leaf_forest=%s" % 10)
+    params_pred = []
+    params_pred.append("test_x_fn=%s" % temp_x_loc)
+    params_pred.append("prediction_fn=%s" % temp_pred_loc)
+    params_pred.append("model_fn=%s" % temp_model_loc + "-01")
 
+    try:
+        os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    except Exception:
+        pass
     try:
         with open(temp_x_loc, 'w') as f:
             f.write('1 0 1 00 1 0 1\n')
         with open(temp_y_loc, 'w') as f:
             f.write('1-1\n')
-        subprocess.check_output((path, "train", ",".join(params)))
+        silent_call((path, "train", ",".join(params_train)))
+        silent_call((path, "predict", ",".join(params_pred)))
         return True
     except Exception:
         return False
@@ -125,16 +137,16 @@ def compile_rgf():
                                   '/p:Platform={0}'.format(arch),
                                   '/p:PlatformToolset={0}'.format(platform_toolset)))
             clear_folder('Release')
-            if status and os.path.isfile(target) and is_executable_response(target):
+            if status and os.path.isfile(target) and is_rgf_response(target):
                 break
         os.chdir(os.path.join(os.path.pardir, os.path.pardir, 'build'))
-        if not status or not os.path.isfile(target) or not is_executable_response(target):
+        if not status or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with MSBuild "
                            "from existing Visual Studio solution failed.")
             logger.info("Trying to build executable file with MinGW g++ "
                         "from existing makefile.")
             status = silent_call(('mingw32-make'))
-        if not status or not os.path.isfile(target) or not is_executable_response(target):
+        if not status or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with MinGW g++ "
                            "from existing makefile failed.")
             logger.info("Trying to build executable file with CMake and MSBuild.")
@@ -147,9 +159,9 @@ def compile_rgf():
                 clear_folder('.')
                 status = silent_call(('cmake', '../', '-G', generator))
                 status &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
-                if not status and os.path.isfile(target) and is_executable_response(target):
+                if not status and os.path.isfile(target) and is_rgf_response(target):
                     break
-        if not status or not os.path.isfile(target) or not is_executable_response(target):
+        if not status or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with CMake and MSBuild failed.")
             logger.info("Trying to build executable file with CMake and MinGW.")
             clear_folder('.')
@@ -161,7 +173,7 @@ def compile_rgf():
         target = os.path.abspath(os.path.join(os.path.pardir, 'bin', 'rgf'))
         logger.info("Trying to build executable file with g++ from existing makefile.")
         status = silent_call(('make'))
-        if not status or not os.path.isfile(target) or not is_executable_response(target):
+        if not status or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with g++ "
                            "from existing makefile failed.")
             logger.info("Trying to build executable file with CMake.")
