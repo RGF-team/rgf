@@ -115,7 +115,7 @@ def is_rgf_executable(path):
     params_train = []
     params_train.append("train_x_fn=%s" % temp_x_loc)
     params_train.append("train_y_fn=%s" % temp_y_loc)
-    params_train.append("model_fn_prefix=%s" % temp_model_loc)
+    params_train.append("model_fn_prefix=%s" % temp_model_loc)    
     params_train.append("reg_L2=%s" % 1)
     params_train.append("max_leaf_forest=%s" % 10)
     params_pred = []
@@ -141,14 +141,15 @@ def is_fastrgf_executable(path):
     temp_y_loc = os.path.join(TEMP_PATH, 'temp_fastrgf.train.data.y')
     temp_model_loc = os.path.join(TEMP_PATH, "temp_fastrgf.model")
     temp_pred_loc = os.path.join(TEMP_PATH, "temp_fastrgf.predictions.txt")
-    X = np.tile(np.array([[1, 0, 1, 0], [0, 1, 0, 1]]), (15, 1))
-    y = np.tile(np.array([1, -1]), (15, 1))
+    X = np.tile(np.array([[1, 0, 1, 0], [0, 1, 0, 1]]), (14, 1))
+    y = np.tile(np.array([1, -1]), 14)
     np.savetxt(temp_x_loc, X, delimiter=' ', fmt="%s")
     np.savetxt(temp_y_loc, y, delimiter=' ', fmt="%s")
     UUIDS.append('temp_fastrgf')
     path_train = os.path.join(path, "forest_train")
     params_train = []
-    params_train.append("forest.ntrees=10")
+    params_train.append("forest.ntrees=%s" % 10)
+    params_train.append("tst.target=%s" % "BINARY")
     params_train.append("trn.x-file=%s" % temp_x_loc)
     params_train.append("trn.y-file=%s" % temp_y_loc)
     params_train.append("model.save=%s" % temp_model_loc)
