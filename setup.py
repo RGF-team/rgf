@@ -3,11 +3,11 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
 from shutil import rmtree
-import sys
 import io
 import logging
 import os
 import subprocess
+import sys
 
 
 IS_64BITS = sys.maxsize > 2**32
