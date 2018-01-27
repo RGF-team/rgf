@@ -84,7 +84,7 @@ def is_executable_response(path):
 
 def silent_call(cmd):
     try:
-        subprocess.check_output(cmd)
+        subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         return True
     except Exception:
         return False
