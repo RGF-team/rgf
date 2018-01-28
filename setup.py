@@ -111,7 +111,7 @@ def has_mingw_make_installed():
 
 
 def compile_rgf():
-    status = False
+    success = False
     os.chdir(os.path.join('include', 'rgf'))
     if not os.path.exists('bin'):
         os.makedirs('bin')
@@ -131,22 +131,22 @@ def compile_rgf():
                 arch = 'x64'
             else:
                 arch = 'Win32'
-            status = silent_call(('MSBuild',
+            success = silent_call(('MSBuild',
                                   'rgf.sln',
                                   '/p:Configuration=Release',
                                   '/p:Platform={0}'.format(arch),
                                   '/p:PlatformToolset={0}'.format(platform_toolset)))
             clear_folder('Release')
-            if status and os.path.isfile(target) and is_rgf_response(target):
+            if success and os.path.isfile(target) and is_rgf_response(target):
                 break
         os.chdir(os.path.join(os.path.pardir, os.path.pardir, 'build'))
-        if not status or not os.path.isfile(target) or not is_rgf_response(target):
+        if not success or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with MSBuild "
                            "from existing Visual Studio solution failed.")
             logger.info("Trying to build executable file with MinGW g++ "
                         "from existing makefile.")
-            status = silent_call(('mingw32-make'))
-        if not status or not os.path.isfile(target) or not is_rgf_response(target):
+            success = silent_call(('mingw32-make'))
+        if not success or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with MinGW g++ "
                            "from existing makefile failed.")
             logger.info("Trying to build executable file with CMake and MSBuild.")
@@ -157,31 +157,31 @@ def compile_rgf():
                 if IS_64BITS:
                     generator += ' Win64'
                 clear_folder('.')
-                status = silent_call(('cmake', '../', '-G', generator))
-                status &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
-                if not status and os.path.isfile(target) and is_rgf_response(target):
+                success = silent_call(('cmake', '../', '-G', generator))
+                success &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
+                if not success and os.path.isfile(target) and is_rgf_response(target):
                     break
-        if not status or not os.path.isfile(target) or not is_rgf_response(target):
+        if not success or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with CMake and MSBuild failed.")
             logger.info("Trying to build executable file with CMake and MinGW.")
             clear_folder('.')
-            status = silent_call(('cmake', '../', '-G', 'MinGW Makefiles'))
-            status &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
+            success = silent_call(('cmake', '../', '-G', 'MinGW Makefiles'))
+            success &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
         os.chdir(os.path.pardir)
     else:
         os.chdir('build')
         target = os.path.abspath(os.path.join(os.path.pardir, 'bin', 'rgf'))
         logger.info("Trying to build executable file with g++ from existing makefile.")
-        status = silent_call(('make'))
-        if not status or not os.path.isfile(target) or not is_rgf_response(target):
+        success = silent_call(('make'))
+        if not success or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with g++ "
                            "from existing makefile failed.")
             logger.info("Trying to build executable file with CMake.")
             clear_folder('.')
-            status = silent_call(('cmake', '../'))
-            status &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
+            success = silent_call(('cmake', '../'))
+            success &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
     os.chdir(CURRENT_DIR)
-    if status:
+    if success:
         logger.info("Succeeded to build RGF.")
     else:
         logger.error("Compilation of rgf executable file failed. "
@@ -233,19 +233,19 @@ def compile_fastrgf():
             logger.info(
                 "FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
             return
-        status = silent_call(('cmake', '..', '-G', 'MinGW Makefiles'))
-        status &= silent_call(('mingw32-make'))
-        status &= silent_call(('mingw32-make', 'install'))
+        success = silent_call(('cmake', '..', '-G', 'MinGW Makefiles'))
+        success &= silent_call(('mingw32-make'))
+        success &= silent_call(('mingw32-make', 'install'))
     else:
         if not is_valid_gpp():
             logger.info(
                 "FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
             return
-        status = silent_call(('cmake', '..'))
-        status &= silent_call(('make'))
-        status &= silent_call(('make', 'install'))
+        success = silent_call(('cmake', '..'))
+        success &= silent_call(('make'))
+        success &= silent_call(('make', 'install'))
     os.chdir(CURRENT_DIR)
-    if status:
+    if success:
         logger.info("Succeeded to build FastRGF.")
     else:
         logger.error("Compilation of FastRGF executable file failed. "
