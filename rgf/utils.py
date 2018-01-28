@@ -77,7 +77,7 @@ def get_paths():
             temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
         except Exception:
             temp = os.path.join(os.path.expanduser('~'), 'temp', 'rgf')
-        def_exe = 'rgf.exe'
+        def_rgf = 'rgf.exe'
     else:  # Linux, Darwin (macOS), etc.
         try:
             rgf_exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
@@ -91,9 +91,9 @@ def get_paths():
             temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
         except Exception:
             temp = os.path.join('/tmp', 'rgf')
-        def_exe = 'rgf'
+        def_rgf = 'rgf'
 
-    return def_exe, rgf_exe, fast_rgf_path, temp
+    return def_rgf, rgf_exe, fast_rgf_path, temp
 
 
 DEFAULT_RGF_PATH, RGF_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
