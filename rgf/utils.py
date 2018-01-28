@@ -78,7 +78,7 @@ def get_paths():
         except Exception:
             temp = os.path.join(os.path.expanduser('~'), 'temp', 'rgf')
         def_exe = 'rgf.exe'
-    else:  # Linux, Darwin (OS X), etc.
+    else:  # Linux, Darwin (macOS), etc.
         try:
             rgf_exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
         except Exception:
