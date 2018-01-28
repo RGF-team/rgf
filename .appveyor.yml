@@ -36,7 +36,6 @@ install:
   - ps: $env:RGF_VER = (Get-Content rgf\VERSION).trim()
   - python setup.py sdist --formats gztar
   - pip install dist\rgf_python-%RGF_VER%.tar.gz -v
-  - g++ --version
 
 test_script:
   - pytest tests/ -o "python_files=*.py" -v
