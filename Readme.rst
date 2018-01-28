@@ -301,6 +301,8 @@ Known Issues
 
   For instance, ``sample_weight = [0.001, 0.001, ..., 0.001]`` leads to a crash for #data < 200.
 
+* **rgf\_python** does not provide any built-in method to calculate feature importances.
+
 FAQ
 '''
 
