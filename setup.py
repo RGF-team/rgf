@@ -159,7 +159,7 @@ def compile_rgf():
                 clear_folder('.')
                 success = silent_call(('cmake', '../', '-G', generator))
                 success &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
-                if not success and os.path.isfile(target) and is_rgf_response(target):
+                if success and os.path.isfile(target) and is_rgf_response(target):
                     break
         if not success or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with CMake and MSBuild failed.")
