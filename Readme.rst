@@ -84,7 +84,7 @@ If you have any problems while installing by methods listed above, you should *b
     fastrgf_location=C:/Program Files/FastRGF/bin
     temp_location=C:/Program Files/RGF/temp
 
-Note that while ``exe_location`` should point to a concrete RGF executable **file**, ``fastrgf_location`` should point to a **folder** in which ``forest_train`` and ``forest_predict`` FastRGF executable files are located.
+Note that while ``exe_location`` should point to a concrete RGF executable **file**, ``fastrgf_location`` should point to a **folder** in which ``forest_train.exe`` and ``forest_predict.exe`` FastRGF executable files are located.
 
 Also, you may directly specify installation without automatic compilation:
 
