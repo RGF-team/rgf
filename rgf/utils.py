@@ -92,7 +92,7 @@ def get_paths():
 
     def_fastrgf = ''
 
-    return def_rgf, rgf_exe, def_fastrgf fastrgf_path, temp
+    return def_rgf, rgf_exe, def_fastrgf, fastrgf_path, temp
 
 
 DEFAULT_RGF_PATH, RGF_PATH, DEFAULT_FASTRGF_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
