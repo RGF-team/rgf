@@ -270,7 +270,7 @@ FastRGF
 -  *max\_leaf*: Controls the tree size.
 -  *tree\_gain\_ratio*: Controls when to start a new tree.
 -  *min\_samples\_leaf*: Controls the tree growth process.
--  *l1*: Typical range is [0,1000], and a large value induces sparsity.
+-  *l1*: Typical range is [0, 1000], and a large value induces sparsity.
 -  *l2*: Use a relatively large value such as 1000 or 10000. The larger value is, the larger *n\_estimators* you need to use: the resulting accuracy is often better with a longer training time.
 -  *opt\_algorithm*: You can select "rgf" or "epsilon-greedy".
 -  *learning\_rate*: Step size of epsilon-greedy boosting. Meant for being used with *opt\_algorithm* = "epsilon-greedy".
