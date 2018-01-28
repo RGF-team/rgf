@@ -200,6 +200,9 @@ We provide `docker image <https://github.com/fukatani/rgf_python/blob/master/doc
 Tuning Hyper-parameters
 -----------------------
 
+RGF
+'''
+
 You can tune hyper-parameters as follows.
 
 -  *max\_leaf*: Appropriate values are data-dependent and usually varied from 1000 to 10000.
@@ -217,6 +220,24 @@ You can tune hyper-parameters as follows.
 -  *learning\_rate*: Step size of Newton updates used in coordinate descent to optimize weights.
 
 Detailed instruction of tuning hyper-parameters is `here <https://github.com/fukatani/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf>`__.
+
+FastRGF
+'''''''
+
+-  *n\_estimators*: Typical range is [100, 10000], and a typical value is 1000.
+-  *max\_depth*: Controls the tree depth.
+-  *max\_leaf*: Controls the tree size.
+-  *tree\_gain\_ratio*: Controls when to start a new tree.
+-  *min\_samples\_leaf*: Controls the tree growth process.
+-  *l1*: Typical range is [0,1000], and a large value induces sparsity.
+-  *l2*: Use a relatively large value such as 1000 or 10000. The larger value is, the larger *n\_estimators* you need to use: the resulting accuracy is often better with a longer training time.
+-  *opt\_algorithm*: You can select "rgf" or "epsilon-greedy".
+-  *learning\_rate*: Step size of epsilon-greedy boosting. Meant for being used with *opt\_algorithm* = "epsilon-greedy".
+-  *max\_bin*: Typical range for dense data is [10, 65000] and for sparse data is [10, 250].
+-  *min\_child\_weight*: Controls the process of discretization (creating bins).
+-  *data\_l2*: Controls the degree of L2 regularization for discretization (creating bins).
+-  *sparse\_max\_features*: Typical range is [1000, 10000000]. Meant for being used with sparse data.
+-  *sparse\_min\_occurences*: Controls which feature will be selected. Meant for being used with sparse data.
 
 Using at Kaggle Kernel
 ----------------------
