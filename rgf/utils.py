@@ -90,10 +90,12 @@ def get_paths():
     except Exception:
         fast_rgf_path = os.path.expanduser('~')
 
-    return def_rgf, rgf_exe, fast_rgf_path, temp
+    def_fastrgf = ''
+
+    return def_rgf, rgf_exe, def_fastrgf fast_rgf_path, temp
 
 
-DEFAULT_RGF_PATH, RGF_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
+DEFAULT_RGF_PATH, RGF_PATH, DEFAULT_FASTRGF_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
 
 
 if not os.path.isdir(TEMP_PATH):
@@ -188,6 +190,8 @@ else:
 FASTRGF_AVAILABLE = True
 if is_fastrgf_executable(CURRENT_DIR):
     FASTRGF_PATH = CURRENT_DIR
+elif is_fastrgf_executable(DEFAULT_FASTRGF_PATH):
+    FASTRGF_PATH = DEFAULT_FASTRGF_PATH
 elif is_fastrgf_executable(FASTRGF_PATH):
     pass
 else:
