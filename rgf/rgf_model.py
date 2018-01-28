@@ -241,6 +241,8 @@ class RGFRegressor(utils.RGFRegressorBase):
                  learning_rate=0.5,
                  memory_policy="generous",
                  verbose=0):
+        if not utils.RGF_AVAILABLE:
+            raise Exception('RGF estimators are unavailable for usage.')
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -345,7 +347,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         params.append("model_fn_prefix=%s" % self._model_file_loc)
         params.append("train_w_fn=%s" % self._train_weight_loc)
 
-        cmd = (utils.EXE_PATH, "train", ",".join(params))
+        cmd = (utils.RGF_PATH, "train", ",".join(params))
 
         return cmd
 
@@ -355,7 +357,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         params.append("prediction_fn=%s" % self._pred_loc)
         params.append("model_fn=%s" % self._model_file)
 
-        cmd = (utils.EXE_PATH, "predict", ",".join(params))
+        cmd = (utils.RGF_PATH, "predict", ",".join(params))
 
         return cmd
 
@@ -523,6 +525,8 @@ class RGFClassifier(utils.RGFClassifierBase):
                  n_jobs=-1,
                  memory_policy="generous",
                  verbose=0):
+        if not utils.RGF_AVAILABLE:
+            raise Exception('RGF estimators are unavailable for usage.')
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -685,7 +689,7 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("model_fn_prefix=%s" % self._model_file_loc)
         params.append("train_w_fn=%s" % self._train_weight_loc)
 
-        cmd = (utils.EXE_PATH, "train", ",".join(params))
+        cmd = (utils.RGF_PATH, "train", ",".join(params))
 
         return cmd
 
@@ -703,6 +707,6 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("prediction_fn=%s" % self._pred_loc)
         params.append("model_fn=%s" % self._model_file)
 
-        cmd = (utils.EXE_PATH, "predict", ",".join(params))
+        cmd = (utils.RGF_PATH, "predict", ",".join(params))
 
         return cmd

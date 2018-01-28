@@ -8,6 +8,7 @@ import os
 import platform
 import stat
 import subprocess
+import warnings
 from threading import Lock
 from uuid import uuid4
 
@@ -21,6 +22,7 @@ from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
 
+CURRENT_DIR = os.path.dirname(__file__)
 FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 INTS = (numbers.Integral, np.integer)
 NOT_FITTED_ERROR_DESC = "Estimator not fitted, call `fit` before exploiting the model."
@@ -94,7 +96,7 @@ def get_paths():
     return def_exe, rgf_exe, fast_rgf_path, temp
 
 
-DEFAULT_EXE_PATH, EXE_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
+DEFAULT_RGF_PATH, RGF_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
 
 
 if not os.path.isdir(TEMP_PATH):
@@ -174,28 +176,25 @@ def is_fastrgf_executable(path):
     return True
 
 
-if is_rgf_executable(DEFAULT_EXE_PATH):
-    EXE_PATH = DEFAULT_EXE_PATH
-elif is_rgf_executable(os.path.join(os.path.dirname(__file__), DEFAULT_EXE_PATH)):
-    EXE_PATH = os.path.join(os.path.dirname(__file__), DEFAULT_EXE_PATH)
-elif not os.path.isfile(EXE_PATH):
-    raise Exception("{0} is not executable file. Please set "
-                    "config flag 'exe_location' to RGF execution file.".format(EXE_PATH))
-elif not os.access(EXE_PATH, os.X_OK):
-    raise Exception("{0} cannot be accessed. Please set "
-                    "config flag 'exe_location' to RGF execution file.".format(EXE_PATH))
-elif is_rgf_executable(EXE_PATH):
+RGF_AVAILABLE = True
+if is_rgf_executable(os.path.join(CURRENT_DIR, DEFAULT_RGF_PATH)):
+    RGF_PATH = os.path.join(CURRENT_DIR, DEFAULT_RGF_PATH)
+elif is_rgf_executable(DEFAULT_RGF_PATH):
+    RGF_PATH = DEFAULT_RGF_PATH
+elif is_rgf_executable(RGF_PATH):
     pass
 else:
-    raise Exception("{0} does not exist or {1} is not in the "
-                    "'PATH' variable.".format(EXE_PATH, DEFAULT_EXE_PATH))
+    RGF_AVAILABLE = False
+    warnings.warn("Cannot find RGF executable file. RGF estimators will be unavailable for usage.")
 
-FASTRGF_AVAILABLE = False
-if is_fastrgf_executable(FASTRGF_PATH):
-    FASTRGF_AVAILABLE = True
-elif is_fastrgf_executable(os.path.dirname(__file__)):
-    FASTRGF_PATH = os.path.dirname(__file__)
-    FASTRGF_AVAILABLE = True
+FASTRGF_AVAILABLE = True
+if is_fastrgf_executable(CURRENT_DIR):
+    FASTRGF_PATH = CURRENT_DIR
+elif is_fastrgf_executable(FASTRGF_PATH):
+    pass
+else:
+    FASTRGF_AVAILABLE = False
+    warnings.warn("Cannot find FastRGF executable files. FastRGF estimators will be unavailable for usage.")
 
 
 class AtomicCounter(object):
