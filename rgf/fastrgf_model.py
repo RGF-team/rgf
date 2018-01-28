@@ -130,12 +130,7 @@ def validate_fast_rgf_params(n_estimators,
 
 class FastRGFRegressor(utils.RGFRegressorBase):
     """
-    A Fast Regularized Greedy Forest regressor by Tong Zhang.
-    See https://github.com/baidu/fast_rgf.
-
-    This function is alpha version.
-    The part of the function may be not tested, not documented and not
-    unstabled. API can be changed in the future.
+    A Fast Regularized Greedy Forest [1] regressor.
 
     Parameters
     ----------
@@ -229,6 +224,11 @@ class FastRGFRegressor(utils.RGFRegressorBase):
     min_samples_leaf_ : int
         Minimum number of training data points in each leaf node
         used in model building process.
+
+    Reference
+    ---------
+    [1] Tong Zhang,
+        FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/baidu/fast_rgf).
     """
     def __init__(self,
                  n_estimators=500,
@@ -388,12 +388,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 
 class FastRGFClassifier(utils.RGFClassifierBase):
     """
-    A Fast Regularized Greedy Forest classifier by Tong Zhang.
-    See https://github.com/baidu/fast_rgf.
-
-    This function is alpha version.
-    The part of the function may be not tested, not documented and not
-    unstabled. API can be changed in the future.
+    A Fast Regularized Greedy Forest [1] classifier.
 
     Parameters
     ----------
@@ -506,6 +501,11 @@ class FastRGFClassifier(utils.RGFClassifierBase):
     min_samples_leaf_ : int
         Minimum number of training data points in each leaf node
         used in model building process.
+
+    Reference
+    ---------
+    [1] Tong Zhang,
+        FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/baidu/fast_rgf).
     """
     def __init__(self,
                  n_estimators=500,
