@@ -228,7 +228,8 @@ class FastRGFRegressor(utils.RGFRegressorBase):
     Reference
     ---------
     [1] Tong Zhang,
-        FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/baidu/fast_rgf).
+        FastRGF: Multi-core Implementation of Regularized Greedy Forest
+        (https://github.com/baidu/fast_rgf).
     """
     def __init__(self,
                  n_estimators=500,
@@ -505,7 +506,8 @@ class FastRGFClassifier(utils.RGFClassifierBase):
     Reference
     ---------
     [1] Tong Zhang,
-        FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/baidu/fast_rgf).
+        FastRGF: Multi-core Implementation of Regularized Greedy Forest
+        (https://github.com/baidu/fast_rgf).
     """
     def __init__(self,
                  n_estimators=500,
