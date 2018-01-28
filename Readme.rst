@@ -12,11 +12,11 @@ Features
 
 **Scikit-learn interface and possibility of usage for multiclass classification problem.**
 
-rgf\_python contains both vanilla RGF from the paper `[1] <#references>`__  and FastRGF `[2] <#references>`__ implementations.
+**rgf\_python** contains both vanilla RGF from the paper `[1] <#references>`__  and FastRGF `[2] <#references>`__ implementations.
 
 Note that FastRGF is developed to be used with large (and sparse) datasets, so on small datasets it often shows poorer performance compared to vanilla RGF.
 
-Original RGF implementations are available only for regression and binary classification, but rgf\_python is also available for **multiclass classification** by "One-vs-Rest" method.
+Original RGF implementations are available only for regression and binary classification, but **rgf\_python** is also available for **multiclass classification** by "One-vs-Rest" method.
 
 Examples
 --------
@@ -226,7 +226,7 @@ CMake
 Docker image
 ^^^^^^^^^^^^
 
-We provide `docker image <https://github.com/fukatani/rgf_python/blob/master/docker/Dockerfile>`__ with installed rgf\_python.
+We provide `docker image <https://github.com/fukatani/rgf_python/blob/master/docker/Dockerfile>`__ with installed **rgf\_python**.
 
 ::
 
@@ -283,7 +283,7 @@ FastRGF
 Using at Kaggle Kernels
 -----------------------
 
-Kaggle Kernels support rgf\_python. Please see `this page <https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest>`__.
+Kaggle Kernels support **rgf\_python**. Please see `this page <https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest>`__.
 
 Troubleshooting
 ---------------
@@ -304,18 +304,18 @@ Known Issues
 FAQ
 '''
 
-* Q: Temporary files use too much space on my hard drive (Kaggle Kernels disc space is exhausted while fitting rgf\_python model).
+* Q: Temporary files use too much space on my hard drive (Kaggle Kernels disc space is exhausted while fitting **rgf\_python** model).
    
   A: Please see `rgf\_python#75 <https://github.com/fukatani/rgf_python/issues/75>`__.
 
 License
 -------
 
-rgf\_python is distributed under the GNU General Public License v3 (GPLv3). Please read file `LICENSE <https://github.com/fukatani/rgf_python/blob/master/LICENSE>`__ for more information.
+**rgf\_python** is distributed under the GNU General Public License v3 (GPLv3). Please read file `LICENSE <https://github.com/fukatani/rgf_python/blob/master/LICENSE>`__ for more information.
 
-rgf\_python includes RGF version 1.2 which is distributed under the GPLv3. Original CLI implementation of RGF you can download at http://tongzhang-ml.org/software/rgf.
+**rgf\_python** includes RGF version 1.2 which is distributed under the GPLv3. Original CLI implementation of RGF you can download at http://tongzhang-ml.org/software/rgf.
 
-rgf\_python includes FastRGF version 0.5 which is distributed under the MIT license. Original CLI implementation of FastRGF you can download at https://github.com/baidu/fast_rgf.
+**rgf\_python** includes FastRGF version 0.5 which is distributed under the MIT license. Original CLI implementation of FastRGF you can download at https://github.com/baidu/fast_rgf.
 
 Many thanks to Rie Johnson and Tong Zhang (the authors of RGF).
 
