@@ -78,13 +78,13 @@ or from `GitHub <https://github.com/fukatani/rgf_python>`__:
 
 If you have any problems while installing by methods listed above, you should *build RGF and FastRGF executable files from binaries by your own and place compiled executable files* into directory which is included in environmental variable **'PATH'** or into directory with installed package. Alternatively, you may specify actual locations of executable files and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are platform dependent: for Windows ``exe_location=$HOME/rgf.exe``, ``fastrgf_location=$HOME``, ``temp_location=$HOME/temp/rgf`` and for others ``exe_location=$HOME/rgf``, ``fastrgf_location=$HOME``, ``temp_location=/tmp/rgf``. Here is the example of ``.rgfrc`` file:
 
-Note that while ``exe_location`` should point to a concrete RGF executable **file**, ``fastrgf_location`` should point to a **folder** in which ``forest_train`` and ``forest_predict`` FastRGF executable files are located.
-
 ::
 
     exe_location=C:/Program Files/RGF/bin/rgf.exe
     fastrgf_location=C:/Program Files/FastRGF/bin
     temp_location=C:/Program Files/RGF/temp
+
+Note that while ``exe_location`` should point to a concrete RGF executable **file**, ``fastrgf_location`` should point to a **folder** in which ``forest_train`` and ``forest_predict`` FastRGF executable files are located.
 
 Also, you may directly specify installation without automatic compilation:
 
