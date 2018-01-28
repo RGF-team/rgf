@@ -70,10 +70,6 @@ def get_paths():
         except Exception:
             rgf_exe = os.path.join(os.path.expanduser('~'), 'rgf.exe')
         try:
-            fast_rgf_path = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
-        except Exception:
-            fast_rgf_path = os.path.expanduser('~')
-        try:
             temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
         except Exception:
             temp = os.path.join(os.path.expanduser('~'), 'temp', 'rgf')
@@ -84,14 +80,15 @@ def get_paths():
         except Exception:
             rgf_exe = os.path.join(os.path.expanduser('~'), 'rgf')
         try:
-            fast_rgf_path = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
-        except Exception:
-            fast_rgf_path = os.path.expanduser('~')
-        try:
             temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
         except Exception:
             temp = os.path.join('/tmp', 'rgf')
         def_rgf = 'rgf'
+
+    try:
+        fast_rgf_path = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
+    except Exception:
+        fast_rgf_path = os.path.expanduser('~')
 
     return def_rgf, rgf_exe, fast_rgf_path, temp
 
