@@ -86,13 +86,13 @@ def get_paths():
         def_rgf = 'rgf'
 
     try:
-        fast_rgf_path = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
+        fastrgf_path = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
     except Exception:
-        fast_rgf_path = os.path.expanduser('~')
+        fastrgf_path = os.path.expanduser('~')
 
     def_fastrgf = ''
 
-    return def_rgf, rgf_exe, def_fastrgf fast_rgf_path, temp
+    return def_rgf, rgf_exe, def_fastrgf fastrgf_path, temp
 
 
 DEFAULT_RGF_PATH, RGF_PATH, DEFAULT_FASTRGF_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
