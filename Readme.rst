@@ -16,7 +16,8 @@ Original RGF implementation is available only for regression and binary classifi
 
 FastRGF (**alpha version**) is supported. Please see `this guide <https://github.com/fukatani/rgf_python/blob/master/FastRGF.rst>`__.
 
-Example:
+Examples
+--------
 
 .. code:: python
 
@@ -46,7 +47,9 @@ Example:
     rgf_score = sum(rgf_scores)/n_folds
     print('RGF Classfier score: {0:.5f}'.format(rgf_score))
 
-More examples could be found `here <https://github.com/fukatani/rgf_python/tree/master/examples>`__.
+More examples of using RGF estimators could be found `here <https://github.com/fukatani/rgf_python/tree/master/examples/RGF>`__.
+
+Examples of using FastRGF estimators could be found `here <https://github.com/fukatani/rgf_python/tree/master/examples/FastRGF>`__.
 
 Software Requirements
 ---------------------
@@ -182,16 +185,16 @@ Create ``makefile`` with CMake and then compile.
 Docker image
 ~~~~~~~~~~~~
 
-We provide rgf_python installed docker image.
+We provide `docker image <https://github.com/fukatani/rgf_python/blob/master/docker/Dockerfile>`__ with installed rgf\_python.
 
 ::
 
     # Run docker image
     docker run -it fukatani/rgf_python /bin/bash
     # Run RGF example
-    python ./rgf_python/examples/comparison_RGF_and_RF_regressors_on_boston_dataset.py
+    python ./rgf_python/examples/RGF/comparison_RGF_and_RF_regressors_on_boston_dataset.py
     # Run FastRGF Example
-    python ./rgf_python/examples/fast_rgf/FastRGF_classifier_on_iris_dataset.py
+    python ./rgf_python/examples/FastRGF/FastRGF_classifier_on_iris_dataset.py
 
 
 Tuning Hyper-parameters
@@ -223,16 +226,25 @@ Now, Kaggle Kernel supports rgf\_python. Please see `this page <https://www.kagg
 Troubleshooting
 ---------------
 
-- rgf_python raised error while fitting or predicting.
+If you meet any error, please try to run `test.py <https://github.com/fukatani/rgf_python/blob/master/tests/test.py>`__ and confirm successful installation.
 
-First, please try to run `test.py <https://github.com/fukatani/rgf_python/blob/master/tests/test.py>`__ and confirm install successfully.
+Then feel free to `open new issue <https://github.com/fukatani/rgf_python/issues/new>`__.
 
-If you succeeded test, these pages may help you:
+Known Issues
+''''''''''''
 
-1. https://github.com/fukatani/rgf_python/issues/13 (Datasets including string)
-2. https://github.com/fukatani/rgf_python/issues/75 (Temp file capacity is over in kaggle kernel)
+* FastRGF clashes if training dataset is too small (#data < 28).
 
-If you can't solve your problem, feel free to `open new issue <https://github.com/fukatani/rgf_python/issues/new>`__.
+* FastRGF clashes if sample weights is too small. The value of the weight is dependent on the size of the dataset.
+
+  ex. sample\_weight = [0.001, 0.001, ..., 0.001] leads to a clash for #data < 200.
+
+FAQ
+'''
+
+* Q: Temporary files use too much space on my hard drive (Kaggle kernel disc space is exhausted while fitting rgf\_python model).
+   
+  A: Please see `rgf\_python#75 <https://github.com/fukatani/rgf_python/issues/75>`__.
 
 License
 -------
