@@ -113,16 +113,13 @@ def has_mingw_make_installed():
 
 def compile_rgf():
     status = False
-    os.chdir(os.path.join('include', 'rgf'))
-    if not os.path.exists('bin'):
-        os.makedirs('bin')
-    clear_folder('bin')  # Delete precompiled file
+    rgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'rgf')
+    if not os.path.exists(os.path.join(rgf_base_dir, 'bin')):
+        os.makedirs(os.path.join(rgf_base_dir, 'bin'))
+    clear_folder(os.path.join(rgf_base_dir, 'bin'))  # Delete precompiled file
     if system() in ('Windows', 'Microsoft'):
-        os.chdir(os.path.join('Windows', 'rgf'))
-        target = os.path.abspath(os.path.join(os.path.pardir,
-                                              os.path.pardir,
-                                              'bin',
-                                              'rgf.exe'))
+        os.chdir(os.path.join(rgf_base_dir, 'Windows', 'rgf'))
+        target = os.path.join(rgf_base_dir, 'bin', 'rgf.exe')
         logger.info("Trying to build executable file with MSBuild "
                     "from existing Visual Studio solution.")
         platform_toolsets = ('Windows7.1SDK', 'v100', 'v110',
@@ -137,10 +134,10 @@ def compile_rgf():
                                   '/p:Configuration=Release',
                                   '/p:Platform={0}'.format(arch),
                                   '/p:PlatformToolset={0}'.format(platform_toolset)))
-            clear_folder('Release')
+            clear_folder(os.path.join(rgf_base_dir, 'Windows', 'rgf', 'Release')
             if status and os.path.isfile(target) and is_rgf_response(target):
                 break
-        os.chdir(os.path.join(os.path.pardir, os.path.pardir, 'build'))
+        os.chdir(os.path.join(rgf_base_dir, 'build'))
         if not status or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with MSBuild "
                            "from existing Visual Studio solution failed.")
@@ -157,7 +154,7 @@ def compile_rgf():
             for generator in generators:
                 if IS_64BITS:
                     generator += ' Win64'
-                clear_folder('.')
+                clear_folder(os.path.join(rgf_base_dir, 'build'))
                 status = silent_call(('cmake', '../', '-G', generator))
                 status &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
                 if not status and os.path.isfile(target) and is_rgf_response(target):
@@ -165,20 +162,19 @@ def compile_rgf():
         if not status or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with CMake and MSBuild failed.")
             logger.info("Trying to build executable file with CMake and MinGW.")
-            clear_folder('.')
+            clear_folder(os.path.join(rgf_base_dir, 'build'))
             status = silent_call(('cmake', '../', '-G', 'MinGW Makefiles'))
             status &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
-        os.chdir(os.path.pardir)
     else:
-        os.chdir('build')
-        target = os.path.abspath(os.path.join(os.path.pardir, 'bin', 'rgf'))
+        os.chdir(os.path.join(rgf_base_dir, 'build'))
+        target = os.path.join(rgf_base_dir, 'bin', 'rgf')
         logger.info("Trying to build executable file with g++ from existing makefile.")
         status = silent_call(('make'))
         if not status or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with g++ "
                            "from existing makefile failed.")
             logger.info("Trying to build executable file with CMake.")
-            clear_folder('.')
+            clear_folder(os.path.join(rgf_base_dir, 'build'))
             status = silent_call(('cmake', '../'))
             status &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
     os.chdir(CURRENT_DIR)
