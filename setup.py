@@ -184,7 +184,7 @@ def compile_rgf():
     if status:
         logger.info("Succeeded to build RGF.")
     else:
-        logger.error("Compilation of rgf executable file failed. "
+        logger.error("Compilation of RGF executable file failed. "
                      "Please build from binaries on your own and "
                      "specify path to the compiled file in the config file.")
 
