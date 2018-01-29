@@ -123,7 +123,7 @@ def compile_rgf():
         logger.info("Trying to build executable file with MSBuild "
                     "from existing Visual Studio solution.")
         platform_toolsets = ('Windows7.1SDK', 'v100', 'v110',
-                             'v120', 'v140', 'v141', 'v150')
+                             'v120', 'v140', 'v141')
         for platform_toolset in platform_toolsets:
             if IS_64BITS:
                 arch = 'x64'
