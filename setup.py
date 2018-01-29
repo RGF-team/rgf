@@ -48,15 +48,15 @@ def find_rgf_lib():
 def find_fastrgf_lib():
     exe_files = []
     if system() in ('Windows', 'Microsoft'):
-        exe_files.append(os.path.join(CURRENT_DIR, 'include/fast_rgf/build',
-                                      'src/exe', 'forest_train.exe'))
-        exe_files.append(os.path.join(CURRENT_DIR, 'include/fast_rgf/build',
-                                      'src/exe', 'forest_predict.exe'))
+        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'fast_rgf',
+                                      'bin', 'forest_train.exe'))
+        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'fast_rgf',
+                                      'bin', 'forest_predict.exe'))
     else:
-        exe_files.append(os.path.join(CURRENT_DIR, 'include/fast_rgf/build',
-                                      'src/exe', 'forest_train'))
-        exe_files.append(os.path.join(CURRENT_DIR, 'include/fast_rgf/build',
-                                      'src/exe', 'forest_predict'))
+        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'fast_rgf',
+                                      'bin', 'forest_train'))
+        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'fast_rgf',
+                                      'bin', 'forest_predict'))
     for exe_file in exe_files:
         if not os.path.isfile(exe_file):
             return None
