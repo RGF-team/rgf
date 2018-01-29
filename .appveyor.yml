@@ -49,7 +49,6 @@ after_test:
   - ps: >-
       if(
          -not $env:APPVEYOR_REPO_TAG -or
-         $env:APPVEYOR_REPO_BRANCH -ne "master" -or
          $env:PYTHON_VERSION -ne "2.7") {
           Exit-AppVeyorBuild
       }
@@ -74,3 +73,5 @@ deploy:
     appveyor_repo_tag: true
 #    branch: master
     PYTHON_VERSION: 2.7
+
+#          $env:APPVEYOR_REPO_BRANCH -ne "master" -or
