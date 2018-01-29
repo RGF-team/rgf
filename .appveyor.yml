@@ -8,19 +8,23 @@ platform:
 environment:
   matrix:
     - PYTHON_VERSION: 2.7
-      MINICONDA: C:\Miniconda
     - PYTHON_VERSION: 3.4
-      MINICONDA: C:\Miniconda34
     - PYTHON_VERSION: 3.5
-      MINICONDA: C:\Miniconda35
     - PYTHON_VERSION: 3.6
-      MINICONDA: C:\Miniconda36
 
 clone_depth: 50
 
 install:
   - git submodule update --init --recursive  # retrieve fast_rgf
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%  # Delete sh.exe from PATH (mingw32-make fix)
+  - ps: >-
+      switch ($env:PYTHON_VERSION) {
+          "2.7" {$env:MINICONDA = """C:\Miniconda"""}
+          "3.4" {$env:MINICONDA = """C:\Miniconda34"""}
+          "3.5" {$env:MINICONDA = """C:\Miniconda35"""}
+          "3.6" {$env:MINICONDA = """C:\Miniconda36"""}
+          default {$env:MINICONDA = """C:\Miniconda36"""}
+      }
   - ps: if($env:PLATFORM -eq "x64") {
             $env:MINICONDA += "-x64";
             $env:PATH += ";C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin"
