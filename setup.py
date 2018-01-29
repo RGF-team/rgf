@@ -134,7 +134,7 @@ def compile_rgf():
                                   '/p:Configuration=Release',
                                   '/p:Platform={0}'.format(arch),
                                   '/p:PlatformToolset={0}'.format(platform_toolset)))
-            clear_folder(os.path.join(rgf_base_dir, 'Windows', 'rgf', 'Release')
+            clear_folder(os.path.join(rgf_base_dir, 'Windows', 'rgf', 'Release'))
             if status and os.path.isfile(target) and is_rgf_response(target):
                 break
         os.chdir(os.path.join(rgf_base_dir, 'build'))
