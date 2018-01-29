@@ -185,7 +185,7 @@ def compile_rgf():
         logger.info("Succeeded to build RGF.")
     else:
         logger.error("Compilation of rgf executable file failed. "
-                     "Please build from binaries by your own and "
+                     "Please build from binaries on your own and "
                      "specify path to the compiled file in the config file.")
 
 
@@ -249,7 +249,7 @@ def compile_fastrgf():
         logger.info("Succeeded to build FastRGF.")
     else:
         logger.error("Compilation of FastRGF executable file failed. "
-                     "Please build from binaries by your own and "
+                     "Please build from binaries on your own and "
                      "specify path to the compiled file in the config file.")
 
 
