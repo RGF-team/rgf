@@ -67,7 +67,7 @@ deploy:
   auth_token:
     secure: RuZmlRFD5gcBCSniGrRqKZNzaUkcTuRkdWYrOSXm5NyEL/WCZoa/mYKC+p49k2E2
   artifact: pip
-#  force_update: true
+  force_update: true
   draft: true
   on:
     appveyor_repo_tag: true
