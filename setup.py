@@ -112,6 +112,7 @@ def has_mingw_make_installed():
 
 
 def compile_rgf():
+    logger.info("Starting to compile RGF executable file.")
     status = False
     rgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'rgf')
     if not os.path.exists(os.path.join(rgf_base_dir, 'bin')):
@@ -208,6 +209,7 @@ def compile_fastrgf():
             pass
         return False
 
+    logger.info("Starting to compile FastRGF executable files.")
     if not has_cmake_installed():
         logger.info("FastRGF is not compiled because 'cmake' not found.")
         logger.info("If you want to use FastRGF, please compile yourself "
