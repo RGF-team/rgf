@@ -18,18 +18,19 @@ install:
   - git submodule update --init --recursive  # retrieve fast_rgf
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%  # Delete sh.exe from PATH (mingw32-make fix)
   - ps: >-
-      switch ($env:PYTHON_VERSION) {
+      switch($env:PYTHON_VERSION) {
           "2.7" {$env:MINICONDA = """C:\Miniconda"""}
           "3.4" {$env:MINICONDA = """C:\Miniconda34"""}
           "3.5" {$env:MINICONDA = """C:\Miniconda35"""}
           "3.6" {$env:MINICONDA = """C:\Miniconda36"""}
           default {$env:MINICONDA = """C:\Miniconda36"""}
       }
-  - ps: if($env:PLATFORM -eq "x64") {
-            $env:MINICONDA += "-x64";
-            $env:PATH += ";C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin"
-        }
-        else {$env:PATH += ";C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin"}
+  - ps: >-
+      if($env:PLATFORM -eq "x64") {
+          $env:MINICONDA += "-x64";
+          $env:PATH += ";C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin"
+      }
+      else {$env:PATH += ";C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin"}
   - set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
@@ -44,7 +45,13 @@ install:
 test_script:
   - pytest tests/ -o "python_files=*.py" -v
 
-before_deploy:
+after_test:
+  - ps: >-
+      if(!($env:APPVEYOR_REPO_TAG)
+         -Or !($env:APPVEYOR_REPO_BRANCH -eq "master")
+         -Or !($env:PYTHON_VERSION -eq "2.7")) {
+          Exit-AppVeyorBuild
+      }
   - IF "%PLATFORM%"=="x64" (
     python setup.py bdist_wheel --plat-name=win-amd64 --universal)
     ELSE (
@@ -54,15 +61,15 @@ artifacts:
   - path: dist/*
     name: pip
 
-
 deploy:
   release: $(APPVEYOR_REPO_TAG_NAME)
   provider: GitHub
   auth_token:
-    secure: 
+    secure: RuZmlRFD5gcBCSniGrRqKZNzaUkcTuRkdWYrOSXm5NyEL/WCZoa/mYKC+p49k2E2
   artifact: pip
-  force_update: true
+#  force_update: true
   draft: true
   on:
-#    branch: master
     appveyor_repo_tag: true
+#    branch: master
+    PYTHON_VERSION: 2.7
