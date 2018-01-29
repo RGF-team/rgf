@@ -40,7 +40,7 @@ install:
 test_script:
   - pytest tests/ -o "python_files=*.py" -v
 
-after_test:
+before_deploy:
   - IF "%PLATFORM%"=="x64" (
     python setup.py bdist_wheel --plat-name=win-amd64 --universal)
     ELSE (
