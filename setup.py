@@ -64,10 +64,10 @@ def find_fastrgf_lib():
 
 
 def is_rgf_response(path):
-    temp_x_loc = os.path.abspath('temp.train.data.x')
-    temp_y_loc = os.path.abspath('temp.train.data.y')
-    temp_model_loc = os.path.abspath('temp.model')
-    temp_pred_loc = os.path.abspath('temp.predictions.txt')
+    temp_x_loc = os.path.join(CURRENT_DIR, 'temp.train.data.x')
+    temp_y_loc = os.path.join(CURRENT_DIR, 'temp.train.data.y')
+    temp_model_loc = os.path.join(CURRENT_DIR, 'temp.model')
+    temp_pred_loc = os.path.join(CURRENT_DIR, 'temp.predictions.txt')
     params_train = []
     params_train.append("train_x_fn=%s" % temp_x_loc)
     params_train.append("train_y_fn=%s" % temp_y_loc)
