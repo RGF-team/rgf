@@ -49,3 +49,16 @@ before_deploy:
 artifacts:
   - path: dist/*
     name: pip
+
+
+deploy:
+  release: $(APPVEYOR_REPO_TAG_NAME)
+  provider: GitHub
+  auth_token:
+    secure: 
+  artifact: pip
+  force_update: true
+  draft: true
+  on:
+#    branch: master
+    appveyor_repo_tag: true
