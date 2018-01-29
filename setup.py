@@ -36,12 +36,13 @@ def clear_folder(path):
 
 def find_rgf_lib():
     if system() in ('Windows', 'Microsoft'):
-        exe_file = os.path.join(CURRENT_DIR, 'include/rgf/bin/rgf.exe')
+        exe_file = os.path.join(CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf.exe')
     else:
-        exe_file = os.path.join(CURRENT_DIR, 'include/rgf/bin/rgf')
-    if os.path.isfile(os.path.join(CURRENT_DIR, 'include/rgf/bin', exe_file)):
-        return os.path.join(CURRENT_DIR, 'include/rgf/bin', exe_file)
-    return None
+        exe_file = os.path.join(CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf')
+    if os.path.isfile(exe_file):
+        return exe_file
+    else:
+        return None
 
 
 def find_fastrgf_lib():
