@@ -36,20 +36,21 @@ install:
   - conda update -q conda
   - conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose pandas scikit-learn
   - activate test-environment
-#  - conda install mkl=2017.0.3  # Temp fix. Delete the line in the future when compatibility will be fixed.
-#  - pip install "pytest>=3.3"
+  - conda install mkl=2017.0.3  # Temp fix. Delete the line in the future when compatibility will be fixed.
+  - pip install "pytest>=3.3"
   - ps: $env:RGF_VER = (Get-Content rgf\VERSION).trim()
-#  - python setup.py sdist --formats gztar
-#  - pip install dist\rgf_python-%RGF_VER%.tar.gz -v
+  - python setup.py sdist --formats gztar
+  - pip install dist\rgf_python-%RGF_VER%.tar.gz -v
 
 test_script:
-#  - pytest tests/ -o "python_files=*.py" -v
+  - pytest tests/ -o "python_files=*.py" -v
 
 after_test:
   - ps: >-
       if(
          $env:APPVEYOR_REPO_TAG -eq "false" -or
-         $env:PYTHON_VERSION -ne "2.7") {
+         $env:APPVEYOR_REPO_BRANCH -ne "master" -or
+         $env:PYTHON_VERSION -ne "3.6") {
           Exit-AppVeyorBuild
       }
   - IF "%PLATFORM%"=="x64" (
@@ -65,13 +66,11 @@ deploy:
   release: $(APPVEYOR_REPO_TAG_NAME)
   provider: GitHub
   auth_token:
-    secure: RuZmlRFD5gcBCSniGrRqKZNzaUkcTuRkdWYrOSXm5NyEL/WCZoa/mYKC+p49k2E2
+    secure: your encrypted GitHub Personal Access Token here
   artifact: pip
   force_update: true
   draft: true
   on:
     appveyor_repo_tag: true
-#    branch: master
+    branch: master
     PYTHON_VERSION: 2.7
-
-#          $env:APPVEYOR_REPO_BRANCH -ne "master" -or
