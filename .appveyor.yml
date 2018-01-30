@@ -48,7 +48,7 @@ test_script:
 after_test:
   - ps: >-
       if(
-         -not $env:APPVEYOR_REPO_TAG -or
+         $env:APPVEYOR_REPO_TAG -eq "false" -or
          $env:PYTHON_VERSION -ne "2.7") {
           Exit-AppVeyorBuild
       }
