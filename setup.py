@@ -224,10 +224,10 @@ def compile_fastrgf():
             gpp_version = subprocess.check_output(('g++', '-dumpversion'),
                                                   universal_newlines=True,
                                                   stderr=subprocess.STDOUT)
-            return int(gpp_version[0]) >= 5
+            tmp_result = int(gpp_version[0]) >= 5
         except Exception:
             if system() in ('Windows', 'Microsoft'):
-                return False
+                return tmp_result
 
         for version in range(5, 8):
             try:
@@ -235,7 +235,7 @@ def compile_fastrgf():
                 return True
             except Exception:
                 pass
-        return False
+        return tmp_result
 
     def is_valid_mingw():
         if not silent_call(('mingw32-make', '--version')):
