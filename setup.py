@@ -36,26 +36,27 @@ def clear_folder(path):
 
 def find_rgf_lib():
     if system() in ('Windows', 'Microsoft'):
-        exe_file = os.path.join(CURRENT_DIR, 'include/rgf/bin/rgf.exe')
+        exe_file = os.path.join(CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf.exe')
     else:
-        exe_file = os.path.join(CURRENT_DIR, 'include/rgf/bin/rgf')
-    if os.path.isfile(os.path.join(CURRENT_DIR, 'include/rgf/bin', exe_file)):
-        return os.path.join(CURRENT_DIR, 'include/rgf/bin', exe_file)
-    return None
+        exe_file = os.path.join(CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf')
+    if os.path.isfile(exe_file):
+        return exe_file
+    else:
+        return None
 
 
 def find_fastrgf_lib():
     exe_files = []
     if system() in ('Windows', 'Microsoft'):
-        exe_files.append(os.path.join(CURRENT_DIR, 'include/fast_rgf/build',
-                                      'src/exe', 'forest_train.exe'))
-        exe_files.append(os.path.join(CURRENT_DIR, 'include/fast_rgf/build',
-                                      'src/exe', 'forest_predict.exe'))
+        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'fast_rgf',
+                                      'bin', 'forest_train.exe'))
+        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'fast_rgf',
+                                      'bin', 'forest_predict.exe'))
     else:
-        exe_files.append(os.path.join(CURRENT_DIR, 'include/fast_rgf/build',
-                                      'src/exe', 'forest_train'))
-        exe_files.append(os.path.join(CURRENT_DIR, 'include/fast_rgf/build',
-                                      'src/exe', 'forest_predict'))
+        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'fast_rgf',
+                                      'bin', 'forest_train'))
+        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'fast_rgf',
+                                      'bin', 'forest_predict'))
     for exe_file in exe_files:
         if not os.path.isfile(exe_file):
             return None
@@ -63,10 +64,10 @@ def find_fastrgf_lib():
 
 
 def is_rgf_response(path):
-    temp_x_loc = os.path.abspath('temp.train.data.x')
-    temp_y_loc = os.path.abspath('temp.train.data.y')
-    temp_model_loc = os.path.abspath('temp.model')
-    temp_pred_loc = os.path.abspath('temp.predictions.txt')
+    temp_x_loc = os.path.join(CURRENT_DIR, 'temp_rgf.train.data.x')
+    temp_y_loc = os.path.join(CURRENT_DIR, 'temp_rgf.train.data.y')
+    temp_model_loc = os.path.join(CURRENT_DIR, 'temp_rgf.model')
+    temp_pred_loc = os.path.join(CURRENT_DIR, 'temp_rgf.predictions.txt')
     params_train = []
     params_train.append("train_x_fn=%s" % temp_x_loc)
     params_train.append("train_y_fn=%s" % temp_y_loc)
@@ -111,21 +112,19 @@ def has_mingw_make_installed():
 
 
 def compile_rgf():
+    logger.info("Starting to compile RGF executable file.")
     success = False
-    os.chdir(os.path.join('include', 'rgf'))
-    if not os.path.exists('bin'):
-        os.makedirs('bin')
-    clear_folder('bin')  # Delete precompiled file
+    rgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'rgf')
+    if not os.path.exists(os.path.join(rgf_base_dir, 'bin')):
+        os.makedirs(os.path.join(rgf_base_dir, 'bin'))
+    clear_folder(os.path.join(rgf_base_dir, 'bin'))  # Delete precompiled file
     if system() in ('Windows', 'Microsoft'):
-        os.chdir(os.path.join('Windows', 'rgf'))
-        target = os.path.abspath(os.path.join(os.path.pardir,
-                                              os.path.pardir,
-                                              'bin',
-                                              'rgf.exe'))
+        os.chdir(os.path.join(rgf_base_dir, 'Windows', 'rgf'))
+        target = os.path.join(rgf_base_dir, 'bin', 'rgf.exe')
         logger.info("Trying to build executable file with MSBuild "
                     "from existing Visual Studio solution.")
         platform_toolsets = ('Windows7.1SDK', 'v100', 'v110',
-                             'v120', 'v140', 'v141', 'v150')
+                             'v120', 'v140', 'v141')
         for platform_toolset in platform_toolsets:
             if IS_64BITS:
                 arch = 'x64'
@@ -136,10 +135,10 @@ def compile_rgf():
                                   '/p:Configuration=Release',
                                   '/p:Platform={0}'.format(arch),
                                   '/p:PlatformToolset={0}'.format(platform_toolset)))
-            clear_folder('Release')
+            clear_folder(os.path.join(rgf_base_dir, 'Windows', 'rgf', 'Release'))
             if success and os.path.isfile(target) and is_rgf_response(target):
                 break
-        os.chdir(os.path.join(os.path.pardir, os.path.pardir, 'build'))
+        os.chdir(os.path.join(rgf_base_dir, 'build'))
         if not success or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with MSBuild "
                            "from existing Visual Studio solution failed.")
@@ -156,7 +155,7 @@ def compile_rgf():
             for generator in generators:
                 if IS_64BITS:
                     generator += ' Win64'
-                clear_folder('.')
+                clear_folder(os.path.join(rgf_base_dir, 'build'))
                 success = silent_call(('cmake', '../', '-G', generator))
                 success &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
                 if success and os.path.isfile(target) and is_rgf_response(target):
@@ -164,28 +163,27 @@ def compile_rgf():
         if not success or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with CMake and MSBuild failed.")
             logger.info("Trying to build executable file with CMake and MinGW.")
-            clear_folder('.')
+            clear_folder(os.path.join(rgf_base_dir, 'build'))
             success = silent_call(('cmake', '../', '-G', 'MinGW Makefiles'))
             success &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
-        os.chdir(os.path.pardir)
     else:
-        os.chdir('build')
-        target = os.path.abspath(os.path.join(os.path.pardir, 'bin', 'rgf'))
+        os.chdir(os.path.join(rgf_base_dir, 'build'))
+        target = os.path.join(rgf_base_dir, 'bin', 'rgf')
         logger.info("Trying to build executable file with g++ from existing makefile.")
         success = silent_call(('make'))
         if not success or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with g++ "
                            "from existing makefile failed.")
             logger.info("Trying to build executable file with CMake.")
-            clear_folder('.')
+            clear_folder(os.path.join(rgf_base_dir, 'build'))
             success = silent_call(('cmake', '../'))
             success &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
     os.chdir(CURRENT_DIR)
     if success:
         logger.info("Succeeded to build RGF.")
     else:
-        logger.error("Compilation of rgf executable file failed. "
-                     "Please build from binaries by your own and "
+        logger.error("Compilation of RGF executable file failed. "
+                     "Please build from binaries on your own and "
                      "specify path to the compiled file in the config file.")
 
 
@@ -211,6 +209,7 @@ def compile_fastrgf():
             pass
         return False
 
+    logger.info("Starting to compile FastRGF executable files.")
     if not has_cmake_installed():
         logger.info("FastRGF is not compiled because 'cmake' not found.")
         logger.info("If you want to use FastRGF, please compile yourself "
@@ -249,7 +248,7 @@ def compile_fastrgf():
         logger.info("Succeeded to build FastRGF.")
     else:
         logger.error("Compilation of FastRGF executable file failed. "
-                     "Please build from binaries by your own and "
+                     "Please build from binaries on your own and "
                      "specify path to the compiled file in the config file.")
 
 
