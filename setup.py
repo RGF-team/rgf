@@ -83,15 +83,57 @@ def is_rgf_response(path):
         os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
     except Exception:
         pass
-    try:
-        with open(temp_x_loc, 'w') as f:
-            f.write('1 0 1 0\n0 1 0 1\n')
-        with open(temp_y_loc, 'w') as f:
-            f.write('1\n-1\n')
-        silent_call((path, "train", ",".join(params_train)))
-        silent_call((path, "predict", ",".join(params_pred)))
+    with open(temp_x_loc, 'w') as f:
+        f.write('1 0 1 0\n0 1 0 1\n')
+    with open(temp_y_loc, 'w') as f:
+        f.write('1\n-1\n')
+    success = silent_call((path, "train", ",".join(params_train)))
+    success &= silent_call((path, "predict", ",".join(params_pred)))
+    if success:
         return True
+    else:
+        return False
+
+
+def is_fastrgf_response(path):
+    temp_x_loc = os.path.join(CURRENT_DIR, 'temp_fastrgf.train.data.x')
+    temp_y_loc = os.path.join(CURRENT_DIR, 'temp_fastrgf.train.data.y')
+    temp_model_loc = os.path.join(CURRENT_DIR, "temp_fastrgf.model")
+    temp_pred_loc = os.path.join(CURRENT_DIR, "temp_fastrgf.predictions.txt")
+    X = np.tile(np.array([[1, 0, 1, 0], [0, 1, 0, 1]]), (14, 1))
+    y = np.tile(np.array([1, -1]), 14)
+    np.savetxt(temp_x_loc, X, delimiter=' ', fmt="%s")
+    np.savetxt(temp_y_loc, y, delimiter=' ', fmt="%s")
+    path_train = os.path.join(path, "forest_train")
+    params_train = []
+    params_train.append("forest.ntrees=%s" % 10)
+    params_train.append("tst.target=%s" % "BINARY")
+    params_train.append("trn.x-file=%s" % temp_x_loc)
+    params_train.append("trn.y-file=%s" % temp_y_loc)
+    params_train.append("model.save=%s" % temp_model_loc)
+    cmd_train = [path_train]
+    cmd_train.extend(params_train)
+    path_pred = os.path.join(path, "forest_predict")
+    params_pred = []
+    params_pred.append("model.load=%s" % temp_model_loc)
+    params_pred.append("tst.x-file=%s" % temp_x_loc)
+    params_pred.append("tst.output-prediction=%s" % temp_pred_loc)
+    cmd_pred = [path_pred]
+    cmd_pred.extend(params_pred)
+    try:
+        os.chmod(path_train, os.stat(path_train).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        os.chmod(path_pred, os.stat(path_pred).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
     except Exception:
+        pass
+    with open(temp_x_loc, 'w') as X, open(temp_y_loc, 'w') as y:
+        for i in range(14):
+            X.write('1 0 1 0\n0 1 0 1\n')
+            y.write('1\n-1\n')
+    success = silent_call(cmd_train)
+    success &= silent_call(cmd_pred)
+    if success:
+        return True
+    else:
         return False
 
 
