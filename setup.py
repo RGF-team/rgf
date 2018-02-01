@@ -220,33 +220,37 @@ def compile_rgf():
 def compile_fastrgf():
 
     def is_valid_gpp():
-        for i in range(5, 8):
+        try:
+            gpp_version = subprocess.check_output(('g++', '-dumpversion'),
+                                                  universal_newlines=True,
+                                                  stderr=subprocess.STDOUT)
+            return int(gpp_version[0]) >= 5
+        except Exception:
+            if system() in ('Windows', 'Microsoft'):
+                return False
+
+        for version in range(5, 8):
             try:
-                subprocess.check_output(('g++-' + str(i), '--version'))
+                subprocess.check_output(('g++-' + str(version), '--version'))
                 return True
             except Exception:
                 pass
         return False
 
-    def is_valid_gpp_windows():
+    def is_valid_mingw():
+        if not silent_call(('mingw32-make', '--version')):
+            return False
         try:
-            result = subprocess.check_output(('g++', '--version'))
-            if sys.version >= '3.0.0':
-                result = result.decode()
-            version = result.split('\n')[0].split(' ')[-1]
-            return version >= '5.0.0'
+            gpp_info = subprocess.check_output(('g++', '-v'),
+                                               universal_newlines=True,
+                                               stderr=subprocess.STDOUT)
+            return gpp_info.find('posix') >= 0
         except Exception:
-            pass
-        return False
+            return False
 
     logger.info("Starting to compile FastRGF executable files.")
     success = False
     fastrgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'fast_rgf')
-    if not silent_call(('cmake', '--version')):
-        logger.error("Cannot compile FastRGF. "
-                     "Make sure that you have installed CMake "
-                     "and added path to it in environmental variable 'PATH'.")
-        return
     if not os.path.exists(fastrgf_base_dir):
         logger.error("Cannot find folder with FastRGF sources. "
                      "Make sure that you haven't forgot to add 'recursive' option "
@@ -256,16 +260,21 @@ def compile_fastrgf():
         os.makedirs(os.path.join(fastrgf_base_dir, 'bin'))
     if not os.path.exists(os.path.join(fastrgf_base_dir, 'build')):
         os.makedirs(os.path.join(fastrgf_base_dir, 'build'))
+    if not silent_call(('cmake', '--version')):
+        logger.error("Cannot compile FastRGF. "
+                     "Make sure that you have installed CMake "
+                     "and added path to it in environmental variable 'PATH'.")
+        return
+    if not is_valid_gpp():
+        logger.info("Cannot compile FastRGF. "
+                    "Compilation only with g++-5 and newer versions is possible.")
+        return
     os.chdir(os.path.join(fastrgf_base_dir, 'build'))
     if system() in ('Windows', 'Microsoft'):
-        if not silent_call(('mingw32-make', '--version')):
+        if not is_valid_mingw():
             logger.error("Cannot compile FastRGF. "
                          "Make sure that you have installed MinGW-w64 "
                          "and added path to it in environmental variable 'PATH'.")
-            os.chdir(CURRENT_DIR)
-            return
-        if not is_valid_gpp_windows():
-            logger.info("FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
             os.chdir(CURRENT_DIR)
             return
         logger.info("Trying to build executable files with CMake and MinGW-w64.")
@@ -274,10 +283,6 @@ def compile_fastrgf():
         success &= silent_call(('mingw32-make'))
         success &= silent_call(('mingw32-make', 'install'))
     else:
-        if not is_valid_gpp():
-            logger.info("FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
-            os.chdir(CURRENT_DIR)
-            return
         logger.info("Trying to build executable files with CMake.")
         target = os.path.join(fastrgf_base_dir, 'bin', 'forest_train')
         success = silent_call(('cmake', '..'))
