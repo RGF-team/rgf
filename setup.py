@@ -145,14 +145,6 @@ def silent_call(cmd):
         return False
 
 
-def has_cmake_installed():
-    return silent_call('cmake')
-
-
-def has_mingw_make_installed():
-    return silent_call('mingw32-make --version')
-
-
 def compile_rgf():
     logger.info("Starting to compile RGF executable file.")
     success = False
@@ -252,46 +244,56 @@ def compile_fastrgf():
         return False
 
     logger.info("Starting to compile FastRGF executable files.")
-    if not has_cmake_installed():
-        logger.info("FastRGF is not compiled because 'cmake' not found.")
-        logger.info("If you want to use FastRGF, please compile yourself "
-                    "after installed 'cmake'.")
+    success = False
+    fastrgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'fast_rgf')
+    if not silent_call(('cmake', '--version')):
+        logger.error("Cannot compile FastRGF. 
+                     "Make sure that you have installed CMake "
+                     "and added path to it in environmental variable 'PATH'.")
         return
-    if not os.path.exists('include/fast_rgf'):
-        logger.info("Git submodule FastRGF is not found.")
+    if not os.path.exists(fastrgf_base_dir):
+        logger.error("Cannot find folder with FastRGF sources. "
+                     "Make sure that you haven't forgot to add 'recursive' option "
+                     "to the Git cloning command.")
         return
-    if not os.path.isdir('include/fast_rgf/build'):
-        os.mkdir('include/fast_rgf/build')
-    os.chdir('include/fast_rgf/build')
+    if not os.path.exists(os.path.join(fastrgf_base_dir, 'bin')):
+        os.makedirs(os.path.join(fastrgf_base_dir, 'bin'))
+    if not os.path.exists(os.path.join(fastrgf_base_dir, 'build')):
+        os.makedirs(os.path.join(fastrgf_base_dir, 'build'))
+    os.chdir(os.path.join(fastrgf_base_dir, 'build'))
     if system() in ('Windows', 'Microsoft'):
-        if not has_mingw_make_installed():
-            logger.info("FastRGF is not compiled because 'mingw32-make' not "
-                        "found.")
-            logger.info("If you want to use FastRGF, please compile yourself "
-                        "after installed 'mingw32-make'.")
+        if not silent_call(('mingw32-make', '--version')):
+            logger.error("Cannot compile FastRGF. 
+                         "Make sure that you have installed MinGW-w64 "
+                         "and added path to it in environmental variable 'PATH'.")
+            os.chdir(CURRENT_DIR)
             return
         if not is_valid_gpp_windows():
-            logger.info(
-                "FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
+            logger.info("FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
+            os.chdir(CURRENT_DIR)
             return
+        logger.info("Trying to build executable files with CMake and MinGW-w64.")
+        target = os.path.join(fastrgf_base_dir, 'bin', 'forest_train.exe')
         success = silent_call(('cmake', '..', '-G', 'MinGW Makefiles'))
         success &= silent_call(('mingw32-make'))
         success &= silent_call(('mingw32-make', 'install'))
     else:
         if not is_valid_gpp():
-            logger.info(
-                "FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
+            logger.info("FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
+            os.chdir(CURRENT_DIR)
             return
+        logger.info("Trying to build executable files with CMake.")
+        target = os.path.join(fastrgf_base_dir, 'bin', 'forest_train')
         success = silent_call(('cmake', '..'))
         success &= silent_call(('make'))
         success &= silent_call(('make', 'install'))
     os.chdir(CURRENT_DIR)
-    if success:
+    if success and os.path.isfile(target) and is_fastrgf_response(os.path.dirname(target)):
         logger.info("Succeeded to build FastRGF.")
     else:
-        logger.error("Compilation of FastRGF executable file failed. "
+        logger.error("Compilation of FastRGF executable files failed. "
                      "Please build from binaries on your own and "
-                     "specify path to the compiled file in the config file.")
+                     "specify path to the compiled files in the config file.")
 
 
 class CustomInstallLib(install_lib):
