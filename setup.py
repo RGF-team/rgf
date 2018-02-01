@@ -122,7 +122,7 @@ def is_fastrgf_response(path):
     except Exception:
         pass
     with open(temp_x_loc, 'w') as X, open(temp_y_loc, 'w') as y:
-        for i in range(14):
+        for _ in range(14):
             X.write('1 0 1 0\n0 1 0 1\n')
             y.write('1\n-1\n')
     success = silent_call(cmd_train)
