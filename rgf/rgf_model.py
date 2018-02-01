@@ -223,7 +223,8 @@ class RGFRegressor(utils.RGFRegressorBase):
     Reference
     ---------
     [1] Rie Johnson and Tong Zhang,
-        Learning Nonlinear Functions Using Regularized Greedy Forest.
+        Learning Nonlinear Functions Using Regularized Greedy Forest
+        (https://arxiv.org/abs/1109.0887).
     """
     def __init__(self,
                  max_leaf=500,
@@ -505,7 +506,8 @@ class RGFClassifier(utils.RGFClassifierBase):
     Reference
     ---------
     [1] Rie Johnson and Tong Zhang,
-        Learning Nonlinear Functions Using Regularized Greedy Forest.
+        Learning Nonlinear Functions Using Regularized Greedy Forest
+        (https://arxiv.org/abs/1109.0887).
     """
     def __init__(self,
                  max_leaf=1000,

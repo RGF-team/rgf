@@ -5,16 +5,18 @@
 rgf\_python
 ===========
 
-The wrapper of machine learning algorithm **Regularized Greedy Forest (RGF)** `[1] <#reference>`__ for Python.
+The wrapper of machine learning algorithm **Regularized Greedy Forest (RGF)** `[1] <#references>`__ for Python.
 
 Features
 --------
 
 **Scikit-learn interface and possibility of usage for multiclass classification problem.**
 
-Original RGF implementation is available only for regression and binary classification, but rgf\_python is also available for **multiclass classification** by "One-vs-Rest" method.
+**rgf\_python** contains both vanilla RGF from the paper `[1] <#references>`__  and FastRGF `[2] <#references>`__ implementations.
 
-FastRGF (**alpha version**) is supported. Please see `this guide <https://github.com/fukatani/rgf_python/blob/master/FastRGF.rst>`__.
+Note that FastRGF is developed to be used with large (and sparse) datasets, so on small datasets it often shows poorer performance compared to vanilla RGF.
+
+Original RGF implementations are available only for regression and binary classification, but **rgf\_python** is also available for **multiclass classification** by "One-vs-Rest" method.
 
 Examples
 --------
@@ -70,16 +72,19 @@ or from `GitHub <https://github.com/fukatani/rgf_python>`__:
 
 ::
 
-    git clone https://github.com/fukatani/rgf_python.git
+    git clone --recursive https://github.com/fukatani/rgf_python.git
     cd rgf_python
     python setup.py install
 
-If you have any problems while installing by methods listed above, you should *build RGF executable file from binaries by your own and place compiled executable file* into directory which is included in environmental variable **'PATH'** or into directory with installed package. Alternatively, you may specify actual location of RGF executable file and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are platform dependent: for Windows ``exe_location=$HOME/rgf.exe``, ``temp_location=$HOME/temp/rgf`` and for others ``exe_location=$HOME/rgf``, ``temp_location=/tmp/rgf``. Here is the example of ``.rgfrc`` file:
+If you have any problems while installing by methods listed above, you should *build RGF and FastRGF executable files from binaries on your own and place compiled executable files* into directory which is included in environmental variable **'PATH'** or into directory with installed package. Alternatively, you may specify actual locations of executable files and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are platform dependent: for Windows ``exe_location=$HOME/rgf.exe``, ``fastrgf_location=$HOME``, ``temp_location=$HOME/temp/rgf`` and for others ``exe_location=$HOME/rgf``, ``fastrgf_location=$HOME``, ``temp_location=/tmp/rgf``. Here is the example of ``.rgfrc`` file:
 
 ::
 
     exe_location=C:/Program Files/RGF/bin/rgf.exe
+    fastrgf_location=C:/Program Files/FastRGF/bin
     temp_location=C:/Program Files/RGF/temp
+
+Note that while ``exe_location`` should point to a concrete RGF executable **file**, ``fastrgf_location`` should point to a **folder** in which ``forest_train.exe`` and ``forest_predict.exe`` FastRGF executable files are located.
 
 Also, you may directly specify installation without automatic compilation:
 
@@ -91,33 +96,36 @@ or
 
 ::
 
-    git clone https://github.com/fukatani/rgf_python.git
+    git clone --recursive https://github.com/fukatani/rgf_python.git
     cd rgf_python
     python setup.py install --nocompilation
 
 ``sudo`` (or administrator privileges in Windows) may be needed to perform commands.
 
-Here is the guide how you can build RGF executable file from binaries. The file will be in ``rgf_python/include/rgf/bin`` folder.
+Here is the guide how you can build executable files from binaries. The file for RGF will be in ``rgf_python/include/rgf/bin`` folder and files for FastRGF will appear in ``rgf_python/include/fast_rgf/bin`` folder.
+
+RGF Compilation
+'''''''''''''''
 
 Windows
-'''''''
+~~~~~~~
 
 Precompiled file
-~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^
 
 The easiest way. Just take precompiled file from ``rgf_python/include/rgf/bin``.
 For Windows 32-bit rename ``rgf32.exe`` to ``rgf.exe`` and take it.
 
 Visual Studio (existing solution)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. Open directory ``rgf_python/include/rgf/Windows/rgf``.
-2. Open ``rgf.sln`` file with Visual Studio and choose ``BUILD->Build Solution (Ctrl+Shift+B)``.
+2. Open ``rgf.sln`` file with Visual Studio and choose ``BUILD -> Build Solution (Ctrl+Shift+B)``.
    If you are asked to upgrade solution file after opening it click ``OK``.
-   If you have errors about **Platform Toolset** go to ``PROJECT-> Properties-> Configuration Properties-> General`` and select the toolset installed on your machine.
+   If you have errors about **Platform Toolset** go to ``PROJECT -> Properties -> Configuration Properties -> General`` and select the toolset installed on your machine.
 
 MinGW (existing makefile)
-~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Build executable file with MinGW g++ from existing ``makefile`` (you may want to customize this file for your environment).
 
@@ -127,7 +135,7 @@ Build executable file with MinGW g++ from existing ``makefile`` (you may want to
     mingw32-make
 
 CMake and Visual Studio
-~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Create solution file with CMake and then compile with Visual Studio.
 
@@ -148,7 +156,7 @@ If you are compiling on 64-bit machine then add ``Win64`` to the end of generato
 Other versions may work but are untested.
 
 CMake and MinGW
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
 
 Create ``makefile`` with CMake and then compile with MinGW.
 
@@ -159,10 +167,10 @@ Create ``makefile`` with CMake and then compile with MinGW.
     cmake --build . --config Release
 
 \*nix
-'''''
+~~~~~
 
 g++ (existing makefile)
-~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Build executable file with g++ from existing ``makefile`` (you may want to customize this file for your environment).
 
@@ -172,7 +180,7 @@ Build executable file with g++ from existing ``makefile`` (you may want to custo
     make
 
 CMake
-~~~~~
+^^^^^
 
 Create ``makefile`` with CMake and then compile.
 
@@ -182,10 +190,43 @@ Create ``makefile`` with CMake and then compile.
     cmake ../
     cmake --build . --config Release
 
-Docker image
-~~~~~~~~~~~~
+FastRGF Compilation
+'''''''''''''''''''
 
-We provide `docker image <https://github.com/fukatani/rgf_python/blob/master/docker/Dockerfile>`__ with installed rgf\_python.
+Note that compilation only with g++-5 and newer versions is possible. Other compilers are unsupported and older versions are produces corrupted files.
+
+Windows
+~~~~~~~
+
+CMake and MinGW-w64
+^^^^^^^^^^^^^^^^^^^
+
+On Windows compilation only with `MinGW-w64 <https://mingw-w64.org/doku.php>`__ is supported because only this version provides POSIX threads.
+
+::
+
+    cd rgf_python/include/fast_rgf/build
+    cmake .. -G "MinGW Makefiles"
+    mingw32-make 
+    mingw32-make install
+
+\*nix
+~~~~~
+
+CMake
+^^^^^
+
+::
+
+    cd rgf_python/include/fast_rgf/build
+    cmake ..
+    make 
+    make install
+
+Docker image
+^^^^^^^^^^^^
+
+We provide `docker image <https://github.com/fukatani/rgf_python/blob/master/docker/Dockerfile>`__ with installed **rgf\_python**.
 
 ::
 
@@ -193,7 +234,7 @@ We provide `docker image <https://github.com/fukatani/rgf_python/blob/master/doc
     docker run -it fukatani/rgf_python /bin/bash
     # Run RGF example
     python ./rgf_python/examples/RGF/comparison_RGF_and_RF_regressors_on_boston_dataset.py
-    # Run FastRGF Example
+    # Run FastRGF example
     python ./rgf_python/examples/FastRGF/FastRGF_classifier_on_iris_dataset.py
 
 
@@ -229,7 +270,8 @@ FastRGF
 -  *max\_leaf*: Controls the tree size.
 -  *tree\_gain\_ratio*: Controls when to start a new tree.
 -  *min\_samples\_leaf*: Controls the tree growth process.
--  *l1*: Typical range is [0,1000], and a large value induces sparsity.
+-  *loss*: You can select "LS", "MODLS" or "LOGISTIC".
+-  *l1*: Typical range is [0, 1000], and a large value induces sparsity.
 -  *l2*: Use a relatively large value such as 1000 or 10000. The larger value is, the larger *n\_estimators* you need to use: the resulting accuracy is often better with a longer training time.
 -  *opt\_algorithm*: You can select "rgf" or "epsilon-greedy".
 -  *learning\_rate*: Step size of epsilon-greedy boosting. Meant for being used with *opt\_algorithm* = "epsilon-greedy".
@@ -239,54 +281,58 @@ FastRGF
 -  *sparse\_max\_features*: Typical range is [1000, 10000000]. Meant for being used with sparse data.
 -  *sparse\_min\_occurences*: Controls which feature will be selected. Meant for being used with sparse data.
 
-Using at Kaggle Kernel
-----------------------
+Using at Kaggle Kernels
+-----------------------
 
-Now, Kaggle Kernel supports rgf\_python. Please see `this page <https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest>`__.
+Kaggle Kernels support **rgf\_python**. Please see `this page <https://www.kaggle.com/fukatani/d/uciml/iris/classification-by-regularized-greedy-forest>`__.
 
 Troubleshooting
 ---------------
 
-If you meet any error, please try to run `test.py <https://github.com/fukatani/rgf_python/blob/master/tests/test.py>`__ and confirm successful installation.
+If you meet any error, please try to run `test.py <https://github.com/fukatani/rgf_python/blob/master/tests/test.py>`__ to confirm successful package installation.
 
 Then feel free to `open new issue <https://github.com/fukatani/rgf_python/issues/new>`__.
 
 Known Issues
 ''''''''''''
 
-* FastRGF clashes if training dataset is too small (#data < 28).
+* FastRGF crashes if training dataset is too small (#data < 28). (`rgf\_python#92 <https://github.com/fukatani/rgf_python/issues/92>`__)
 
-* FastRGF clashes if sample weights is too small. The value of the weight is dependent on the size of the dataset.
+* FastRGF crashes if sample weights is too small. The value of the weight is dependent on the size of the dataset. (`rgf\_python#137 <https://github.com/fukatani/rgf_python/issues/137>`__)
 
-  ex. sample\_weight = [0.001, 0.001, ..., 0.001] leads to a clash for #data < 200.
+  For instance, ``sample_weight = [0.001, 0.001, ..., 0.001]`` leads to a crash for #data < 200.
+
+* **rgf\_python** does not provide any built-in method to calculate feature importances. (`rgf\_python#109 <https://github.com/fukatani/rgf_python/issues/109>`__)
 
 FAQ
 '''
 
-* Q: Temporary files use too much space on my hard drive (Kaggle kernel disc space is exhausted while fitting rgf\_python model).
+* Q: Temporary files use too much space on my hard drive (Kaggle Kernels disc space is exhausted while fitting **rgf\_python** model).
    
   A: Please see `rgf\_python#75 <https://github.com/fukatani/rgf_python/issues/75>`__.
 
 License
 -------
 
-rgf_python is distributed under the GNU General Public License v3 (GPLv3). Please read file `LICENSE <https://github.com/fukatani/rgf_python/blob/master/LICENSE>`__ for more information.
+**rgf\_python** is distributed under the GNU General Public License v3 (GPLv3). Please read file `LICENSE <https://github.com/fukatani/rgf_python/blob/master/LICENSE>`__ for more information.
 
-rgf_python includes RGF version 1.2 which is distributed under the GPLv3. Original CLI implementation of RGF you can download at http://tongzhang-ml.org/software/rgf.
+**rgf\_python** includes RGF version 1.2 which is distributed under the GPLv3. Original CLI implementation of RGF you can download at http://tongzhang-ml.org/software/rgf.
 
-rgf_python includes FastRGF version 0.5 which is distributed under the MIT license. Original CLI implementation of FastRGF you can download at https://github.com/baidu/fast_rgf.
+**rgf\_python** includes FastRGF version 0.5 which is distributed under the MIT license. Original CLI implementation of FastRGF you can download at https://github.com/baidu/fast_rgf.
 
 Many thanks to Rie Johnson and Tong Zhang (the authors of RGF).
 
 Other
 -----
 
-Shamelessly, much part of the implementation is based on the following `code <https://github.com/MLWave/RGF-sklearn>`__. Thanks!
+Shamelessly, some part of the implementation is based on the following `code <https://github.com/MLWave/RGF-sklearn>`__. Thanks!
 
-Reference
----------
+References
+----------
 
-[1] `Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest <https://arxiv.org/abs/1109.0887>`__ 
+[1] `Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest <https://arxiv.org/abs/1109.0887>`__
+
+[2] `Tong Zhang, FastRGF: Multi-core Implementation of Regularized Greedy Forest <https://github.com/baidu/fast_rgf>`__
 
 .. |Build Status Travis| image:: https://travis-ci.org/fukatani/rgf_python.svg?branch=master
    :target: https://travis-ci.org/fukatani/rgf_python

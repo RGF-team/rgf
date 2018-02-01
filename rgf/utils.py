@@ -70,33 +70,32 @@ def get_paths():
         except Exception:
             rgf_exe = os.path.join(os.path.expanduser('~'), 'rgf.exe')
         try:
-            fast_rgf_path = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
-        except Exception:
-            fast_rgf_path = os.path.expanduser('~')
-        try:
             temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
         except Exception:
             temp = os.path.join(os.path.expanduser('~'), 'temp', 'rgf')
-        def_exe = 'rgf.exe'
-    else:  # Linux, Darwin (OS X), etc.
+        def_rgf = 'rgf.exe'
+    else:  # Linux, Darwin (macOS), etc.
         try:
             rgf_exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
         except Exception:
             rgf_exe = os.path.join(os.path.expanduser('~'), 'rgf')
         try:
-            fast_rgf_path = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
-        except Exception:
-            fast_rgf_path = os.path.expanduser('~')
-        try:
             temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
         except Exception:
             temp = os.path.join('/tmp', 'rgf')
-        def_exe = 'rgf'
+        def_rgf = 'rgf'
 
-    return def_exe, rgf_exe, fast_rgf_path, temp
+    try:
+        fastrgf_path = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
+    except Exception:
+        fastrgf_path = os.path.expanduser('~')
+
+    def_fastrgf = ''
+
+    return def_rgf, rgf_exe, def_fastrgf, fastrgf_path, temp
 
 
-DEFAULT_RGF_PATH, RGF_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
+DEFAULT_RGF_PATH, RGF_PATH, DEFAULT_FASTRGF_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
 
 
 if not os.path.isdir(TEMP_PATH):
@@ -191,6 +190,8 @@ else:
 FASTRGF_AVAILABLE = True
 if is_fastrgf_executable(CURRENT_DIR):
     FASTRGF_PATH = CURRENT_DIR
+elif is_fastrgf_executable(DEFAULT_FASTRGF_PATH):
+    FASTRGF_PATH = DEFAULT_FASTRGF_PATH
 elif is_fastrgf_executable(FASTRGF_PATH):
     pass
 else:
