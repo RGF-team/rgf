@@ -100,10 +100,6 @@ def is_fastrgf_response(path):
     temp_y_loc = os.path.join(CURRENT_DIR, 'temp_fastrgf.train.data.y')
     temp_model_loc = os.path.join(CURRENT_DIR, "temp_fastrgf.model")
     temp_pred_loc = os.path.join(CURRENT_DIR, "temp_fastrgf.predictions.txt")
-    X = np.tile(np.array([[1, 0, 1, 0], [0, 1, 0, 1]]), (14, 1))
-    y = np.tile(np.array([1, -1]), 14)
-    np.savetxt(temp_x_loc, X, delimiter=' ', fmt="%s")
-    np.savetxt(temp_y_loc, y, delimiter=' ', fmt="%s")
     path_train = os.path.join(path, "forest_train")
     params_train = []
     params_train.append("forest.ntrees=%s" % 10)
