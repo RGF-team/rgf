@@ -221,7 +221,7 @@ def compile_rgf():
             success = silent_call(('cmake', '../'))
             success &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
     os.chdir(CURRENT_DIR)
-    if success:
+    if success and os.path.isfile(target) and is_rgf_response(target):
         logger.info("Succeeded to build RGF.")
     else:
         logger.error("Compilation of RGF executable file failed. "
