@@ -247,7 +247,7 @@ def compile_fastrgf():
     success = False
     fastrgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'fast_rgf')
     if not silent_call(('cmake', '--version')):
-        logger.error("Cannot compile FastRGF. 
+        logger.error("Cannot compile FastRGF. "
                      "Make sure that you have installed CMake "
                      "and added path to it in environmental variable 'PATH'.")
         return
@@ -263,7 +263,7 @@ def compile_fastrgf():
     os.chdir(os.path.join(fastrgf_base_dir, 'build'))
     if system() in ('Windows', 'Microsoft'):
         if not silent_call(('mingw32-make', '--version')):
-            logger.error("Cannot compile FastRGF. 
+            logger.error("Cannot compile FastRGF. "
                          "Make sure that you have installed MinGW-w64 "
                          "and added path to it in environmental variable 'PATH'.")
             os.chdir(CURRENT_DIR)
