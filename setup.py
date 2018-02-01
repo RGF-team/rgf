@@ -173,10 +173,10 @@ def compile_rgf():
             else:
                 arch = 'Win32'
             success = silent_call(('MSBuild',
-                                  'rgf.sln',
-                                  '/p:Configuration=Release',
-                                  '/p:Platform={0}'.format(arch),
-                                  '/p:PlatformToolset={0}'.format(platform_toolset)))
+                                   'rgf.sln',
+                                   '/p:Configuration=Release',
+                                   '/p:Platform={0}'.format(arch),
+                                   '/p:PlatformToolset={0}'.format(platform_toolset)))
             clear_folder(os.path.join(rgf_base_dir, 'Windows', 'rgf', 'Release'))
             if success and os.path.isfile(target) and is_rgf_response(target):
                 break
