@@ -267,7 +267,7 @@ def compile_fastrgf():
                      "and added path to it in environmental variable 'PATH'.")
         return
     if not is_valid_gpp():
-        logger.info("Cannot compile FastRGF. "
+        logger.error("Cannot compile FastRGF. "
                     "Compilation only with g++-5 and newer versions is possible.")
         return
     os.chdir(os.path.join(fastrgf_base_dir, 'build'))
