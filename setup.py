@@ -220,6 +220,7 @@ def compile_rgf():
 def compile_fastrgf():
 
     def is_valid_gpp():
+        tmp_result = False
         try:
             gpp_version = subprocess.check_output(('g++', '-dumpversion'),
                                                   universal_newlines=True,
