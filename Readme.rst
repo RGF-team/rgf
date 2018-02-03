@@ -289,7 +289,7 @@ Kaggle Kernels support **rgf\_python**. Please see `this page <https://www.kaggl
 Troubleshooting
 ---------------
 
-If you meet any error, please try to run `test.py <https://github.com/fukatani/rgf_python/blob/master/tests/test.py>`__ to confirm successful package installation.
+If you meet any error, please try to run `test_rgf_python.py <https://github.com/fukatani/rgf_python/blob/master/tests/test_rgf_python.py>`__ to confirm successful package installation.
 
 Then feel free to `open new issue <https://github.com/fukatani/rgf_python/issues/new>`__.
 
