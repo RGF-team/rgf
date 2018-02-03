@@ -315,7 +315,6 @@ FAQ
 
   A: This is a known general problem of multiprocessing in Python. You should set ``n_jobs=1`` parameter of either estimator or scikit-learn tool.
 
-
 License
 -------
 
