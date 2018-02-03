@@ -227,8 +227,10 @@ def compile_fastrgf():
                                                   stderr=subprocess.STDOUT)
             tmp_result = int(gpp_version[0]) >= 5
         except Exception:
-            if system() in ('Windows', 'Microsoft'):
-                return tmp_result
+            pass
+
+        if tmp_result or system() in ('Windows', 'Microsoft'):
+            return tmp_result
 
         for version in range(5, 8):
             try:
