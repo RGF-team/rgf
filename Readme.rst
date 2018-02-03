@@ -311,6 +311,10 @@ FAQ
    
   A: Please see `rgf\_python#75 <https://github.com/fukatani/rgf_python/issues/75>`__.
 
+* Q: GridSearchCV/RandomizedSearchCV/RFECV or other scikit-learn tool with ``n_jobs`` parameter hangs/freezes/crashes when runs with **rgf\_python** estimator.
+
+  A: This is a known general problem of multiprocessing in Python. You should set ``n_jobs=1`` parameter of either estimator or scikit-learn tool.
+
 License
 -------
 
