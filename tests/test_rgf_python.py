@@ -183,7 +183,7 @@ class RGFClassfierBaseTest(object):
         clf2.predict(self.X_test)
 
     def test_parallel_gridsearch(self):
-        param_grid = dict(learning_rate=[0.001, 0.5])
+        param_grid = dict(min_samples_leaf=[5, 10])
         grid = GridSearchCV(self.classifier_class(n_jobs=1),
                             param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
@@ -480,7 +480,7 @@ class RGFRegressorBaseTest(object):
         reg2.predict(self.X_test)
 
     def test_parallel_gridsearch(self):
-        param_grid = dict(learning_rate=[0.001, 0.5])
+        param_grid = dict(min_samples_leaf=[5, 10])
         grid = GridSearchCV(self.regressor_class(),
                             param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
