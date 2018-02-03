@@ -8,24 +8,29 @@ platform:
 environment:
   matrix:
     - PYTHON_VERSION: 2.7
-      MINICONDA: C:\Miniconda
     - PYTHON_VERSION: 3.4
-      MINICONDA: C:\Miniconda34
     - PYTHON_VERSION: 3.5
-      MINICONDA: C:\Miniconda35
     - PYTHON_VERSION: 3.6
-      MINICONDA: C:\Miniconda36
 
 clone_depth: 50
 
 install:
   - git submodule update --init --recursive  # retrieve fast_rgf
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%  # Delete sh.exe from PATH (mingw32-make fix)
-  - ps: if($env:PLATFORM -eq "x64") {
-            $env:MINICONDA += "-x64";
-            $env:PATH += ";C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin"
-        }
-        else {$env:PATH += ";C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin"}
+  - ps: >-
+      switch($env:PYTHON_VERSION) {
+          "2.7" {$env:MINICONDA = """C:\Miniconda"""}
+          "3.4" {$env:MINICONDA = """C:\Miniconda34"""}
+          "3.5" {$env:MINICONDA = """C:\Miniconda35"""}
+          "3.6" {$env:MINICONDA = """C:\Miniconda36"""}
+          default {$env:MINICONDA = """C:\Miniconda36"""}
+      }
+  - ps: >-
+      if($env:PLATFORM -eq "x64") {
+          $env:MINICONDA += "-x64";
+          $env:PATH += ";C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin"
+      }
+      else {$env:PATH += ";C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin"}
   - set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
@@ -41,6 +46,13 @@ test_script:
   - pytest tests/ -o "python_files=*.py" -v
 
 after_test:
+  - ps: >-
+      if(
+         $env:APPVEYOR_REPO_TAG -eq "false" -or
+         $env:APPVEYOR_REPO_BRANCH -ne "master" -or
+         $env:PYTHON_VERSION -ne "3.6") {
+          Exit-AppVeyorBuild
+      }
   - IF "%PLATFORM%"=="x64" (
     python setup.py bdist_wheel --plat-name=win-amd64 --universal)
     ELSE (
@@ -49,3 +61,16 @@ after_test:
 artifacts:
   - path: dist/*
     name: pip
+
+deploy:
+  release: $(APPVEYOR_REPO_TAG_NAME)
+  provider: GitHub
+  auth_token:
+    secure: iGMgQcGFl96QWnliaddwr6xESvFviRt5J9pmLlJvyLP1OZYgeFr5Jutgq7UE0THX
+  artifact: pip
+  force_update: true
+  draft: true
+  on:
+    appveyor_repo_tag: true
+    branch: master
+    PYTHON_VERSION: 3.6
