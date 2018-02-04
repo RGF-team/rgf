@@ -83,15 +83,53 @@ def is_rgf_response(path):
         os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
     except Exception:
         pass
-    try:
-        with open(temp_x_loc, 'w') as f:
-            f.write('1 0 1 0\n0 1 0 1\n')
-        with open(temp_y_loc, 'w') as f:
-            f.write('1\n-1\n')
-        silent_call((path, "train", ",".join(params_train)))
-        silent_call((path, "predict", ",".join(params_pred)))
+    with open(temp_x_loc, 'w') as f:
+        f.write('1 0 1 0\n0 1 0 1\n')
+    with open(temp_y_loc, 'w') as f:
+        f.write('1\n-1\n')
+    success = silent_call((path, "train", ",".join(params_train)))
+    success &= silent_call((path, "predict", ",".join(params_pred)))
+    if success:
         return True
+    else:
+        return False
+
+
+def is_fastrgf_response(path):
+    temp_x_loc = os.path.join(CURRENT_DIR, 'temp_fastrgf.train.data.x')
+    temp_y_loc = os.path.join(CURRENT_DIR, 'temp_fastrgf.train.data.y')
+    temp_model_loc = os.path.join(CURRENT_DIR, "temp_fastrgf.model")
+    temp_pred_loc = os.path.join(CURRENT_DIR, "temp_fastrgf.predictions.txt")
+    path_train = os.path.join(path, "forest_train")
+    params_train = []
+    params_train.append("forest.ntrees=%s" % 10)
+    params_train.append("tst.target=%s" % "BINARY")
+    params_train.append("trn.x-file=%s" % temp_x_loc)
+    params_train.append("trn.y-file=%s" % temp_y_loc)
+    params_train.append("model.save=%s" % temp_model_loc)
+    cmd_train = [path_train]
+    cmd_train.extend(params_train)
+    path_pred = os.path.join(path, "forest_predict")
+    params_pred = []
+    params_pred.append("model.load=%s" % temp_model_loc)
+    params_pred.append("tst.x-file=%s" % temp_x_loc)
+    params_pred.append("tst.output-prediction=%s" % temp_pred_loc)
+    cmd_pred = [path_pred]
+    cmd_pred.extend(params_pred)
+    try:
+        os.chmod(path_train, os.stat(path_train).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        os.chmod(path_pred, os.stat(path_pred).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
     except Exception:
+        pass
+    with open(temp_x_loc, 'w') as X, open(temp_y_loc, 'w') as y:
+        for _ in range(14):
+            X.write('1 0 1 0\n0 1 0 1\n')
+            y.write('1\n-1\n')
+    success = silent_call(cmd_train)
+    success &= silent_call(cmd_pred)
+    if success:
+        return True
+    else:
         return False
 
 
@@ -101,14 +139,6 @@ def silent_call(cmd):
         return True
     except Exception:
         return False
-
-
-def has_cmake_installed():
-    return silent_call('cmake')
-
-
-def has_mingw_make_installed():
-    return silent_call('mingw32-make --version')
 
 
 def compile_rgf():
@@ -131,10 +161,10 @@ def compile_rgf():
             else:
                 arch = 'Win32'
             success = silent_call(('MSBuild',
-                                  'rgf.sln',
-                                  '/p:Configuration=Release',
-                                  '/p:Platform={0}'.format(arch),
-                                  '/p:PlatformToolset={0}'.format(platform_toolset)))
+                                   'rgf.sln',
+                                   '/p:Configuration=Release',
+                                   '/p:Platform={0}'.format(arch),
+                                   '/p:PlatformToolset={0}'.format(platform_toolset)))
             clear_folder(os.path.join(rgf_base_dir, 'Windows', 'rgf', 'Release'))
             if success and os.path.isfile(target) and is_rgf_response(target):
                 break
@@ -179,7 +209,7 @@ def compile_rgf():
             success = silent_call(('cmake', '../'))
             success &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
     os.chdir(CURRENT_DIR)
-    if success:
+    if success and os.path.isfile(target) and is_rgf_response(target):
         logger.info("Succeeded to build RGF.")
     else:
         logger.error("Compilation of RGF executable file failed. "
@@ -190,66 +220,84 @@ def compile_rgf():
 def compile_fastrgf():
 
     def is_valid_gpp():
-        for i in range(5, 8):
+        tmp_result = False
+        try:
+            gpp_version = subprocess.check_output(('g++', '-dumpversion'),
+                                                  universal_newlines=True,
+                                                  stderr=subprocess.STDOUT)
+            tmp_result = int(gpp_version[0]) >= 5
+        except Exception:
+            pass
+
+        if tmp_result or system() in ('Windows', 'Microsoft'):
+            return tmp_result
+
+        for version in range(5, 8):
             try:
-                subprocess.check_output(('g++-' + str(i), '--version'))
+                subprocess.check_output(('g++-' + str(version), '--version'))
                 return True
             except Exception:
                 pass
-        return False
+        return tmp_result
 
-    def is_valid_gpp_windows():
+    def is_valid_mingw():
+        if not silent_call(('mingw32-make', '--version')):
+            return False
         try:
-            result = subprocess.check_output(('g++', '--version'))
-            if sys.version >= '3.0.0':
-                result = result.decode()
-            version = result.split('\n')[0].split(' ')[-1]
-            return version >= '5.0.0'
+            gpp_info = subprocess.check_output(('g++', '-v'),
+                                               universal_newlines=True,
+                                               stderr=subprocess.STDOUT)
+            return gpp_info.find('posix') >= 0
         except Exception:
-            pass
-        return False
+            return False
 
     logger.info("Starting to compile FastRGF executable files.")
-    if not has_cmake_installed():
-        logger.info("FastRGF is not compiled because 'cmake' not found.")
-        logger.info("If you want to use FastRGF, please compile yourself "
-                    "after installed 'cmake'.")
+    success = False
+    fastrgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'fast_rgf')
+    if not os.path.exists(fastrgf_base_dir):
+        logger.error("Cannot find folder with FastRGF sources. "
+                     "Make sure that you haven't forgot to add 'recursive' option "
+                     "to the Git cloning command.")
         return
-    if not os.path.exists('include/fast_rgf'):
-        logger.info("Git submodule FastRGF is not found.")
+    if not os.path.exists(os.path.join(fastrgf_base_dir, 'bin')):
+        os.makedirs(os.path.join(fastrgf_base_dir, 'bin'))
+    if not os.path.exists(os.path.join(fastrgf_base_dir, 'build')):
+        os.makedirs(os.path.join(fastrgf_base_dir, 'build'))
+    if not silent_call(('cmake', '--version')):
+        logger.error("Cannot compile FastRGF. "
+                     "Make sure that you have installed CMake "
+                     "and added path to it in environmental variable 'PATH'.")
         return
-    if not os.path.isdir('include/fast_rgf/build'):
-        os.mkdir('include/fast_rgf/build')
-    os.chdir('include/fast_rgf/build')
+    if not is_valid_gpp():
+        logger.error("Cannot compile FastRGF. "
+                    "Compilation only with g++-5 and newer versions is possible.")
+        return
+    os.chdir(os.path.join(fastrgf_base_dir, 'build'))
     if system() in ('Windows', 'Microsoft'):
-        if not has_mingw_make_installed():
-            logger.info("FastRGF is not compiled because 'mingw32-make' not "
-                        "found.")
-            logger.info("If you want to use FastRGF, please compile yourself "
-                        "after installed 'mingw32-make'.")
+        if not is_valid_mingw():
+            logger.error("Cannot compile FastRGF. "
+                         "Make sure that you have installed MinGW-w64 "
+                         "and added path to it in environmental variable 'PATH'.")
+            os.chdir(CURRENT_DIR)
             return
-        if not is_valid_gpp_windows():
-            logger.info(
-                "FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
-            return
+        logger.info("Trying to build executable files with CMake and MinGW-w64.")
+        target = os.path.join(fastrgf_base_dir, 'bin', 'forest_train.exe')
         success = silent_call(('cmake', '..', '-G', 'MinGW Makefiles'))
         success &= silent_call(('mingw32-make'))
         success &= silent_call(('mingw32-make', 'install'))
     else:
-        if not is_valid_gpp():
-            logger.info(
-                "FastRGF is not compiled because FastRGF depends on g++>=5.0.0")
-            return
+        logger.info("Trying to build executable files with CMake.")
+        target = os.path.join(fastrgf_base_dir, 'bin', 'forest_train')
         success = silent_call(('cmake', '..'))
         success &= silent_call(('make'))
         success &= silent_call(('make', 'install'))
     os.chdir(CURRENT_DIR)
-    if success:
+    if success and os.path.isfile(target) and is_fastrgf_response(os.path.dirname(target)):
         logger.info("Succeeded to build FastRGF.")
     else:
-        logger.error("Compilation of FastRGF executable file failed. "
+        logger.error("Compilation of FastRGF executable files failed. "
                      "Please build from binaries on your own and "
-                     "specify path to the compiled file in the config file.")
+                     "specify path to the compiled files in the config file.")
 
 
 class CustomInstallLib(install_lib):
