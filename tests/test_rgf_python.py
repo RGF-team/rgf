@@ -182,6 +182,16 @@ class RGFClassfierBaseTest(object):
         self.assertRaises(NotFittedError, clf1.predict, self.X_test)
         clf2.predict(self.X_test)
 
+    def test_parallel_gridsearch(self):
+        self.kwargs['n_jobs'] = 1
+        param_grid = dict(min_samples_leaf=[5, 10])
+        grid = GridSearchCV(self.classifier_class(**self.kwargs),
+                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
+        grid.fit(self.X_train, self.y_train)
+        y_pred = grid.best_estimator_.predict(self.X_test)
+        score = accuracy_score(self.y_test, y_pred)
+        self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
+
 
 class TestRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
     def setUp(self):
@@ -262,15 +272,6 @@ class TestRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
                 self.assertEqual(clf.n_iter_, 5)
         else:
             self.assertEqual(clf.n_iter_, clf.n_iter)
-
-    def test_parallel_gridsearch(self):
-        param_grid = dict(max_leaf=[100, 300])
-        grid = GridSearchCV(self.classifier_class(n_jobs=1),
-                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
-        grid.fit(self.X_train, self.y_train)
-        y_pred = grid.best_estimator_.predict(self.X_test)
-        score = accuracy_score(self.y_test, y_pred)
-        self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
 
 class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
@@ -365,15 +366,6 @@ class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
         # weights[0] = 100
         # y_pred_weighted = clf.fit(self.X_train, self.y_train, weights).predict(self.X_test)
         # np.testing.assert_equal(y_pred_weighted, np.full(self.y_test.shape[0], self.y_test[0]))
-
-    def test_parallel_gridsearch(self):
-        param_grid = dict(n_estimators=[100, 300])
-        grid = GridSearchCV(self.classifier_class(n_jobs=1),
-                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
-        grid.fit(self.X_train, self.y_train)
-        y_pred = grid.best_estimator_.predict(self.X_test)
-        score = accuracy_score(self.y_test, y_pred)
-        self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
     def test_sklearn_integration(self):
         # TODO(fukatani): FastRGF bug?
@@ -488,6 +480,15 @@ class RGFRegressorBaseTest(object):
         self.assertRaises(NotFittedError, reg1.predict, self.X_test)
         reg2.predict(self.X_test)
 
+    def test_parallel_gridsearch(self):
+        param_grid = dict(min_samples_leaf=[5, 10])
+        grid = GridSearchCV(self.regressor_class(**self.kwargs),
+                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
+        grid.fit(self.X_train, self.y_train)
+        y_pred = grid.best_estimator_.predict(self.X_test)
+        mse = mean_squared_error(self.y_test, y_pred)
+        self.assertLess(mse, self.mse, "Failed with MSE = {0:.5f}".format(mse))
+
 
 class TestRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
     def setUp(self):
@@ -564,15 +565,6 @@ class TestRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
         else:
             self.assertEqual(reg.n_iter_, reg.n_iter)
 
-    def test_parallel_gridsearch(self):
-        param_grid = dict(max_leaf=[100, 300])
-        grid = GridSearchCV(self.regressor_class(),
-                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
-        grid.fit(self.X_train, self.y_train)
-        y_pred = grid.best_estimator_.predict(self.X_test)
-        mse = mean_squared_error(self.y_test, y_pred)
-        self.assertLess(mse, self.mse, "Failed with MSE = {0:.5f}".format(mse))
-
 
 class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
     def setUp(self):
@@ -647,6 +639,10 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
         else:
             self.assertEqual(reg.min_samples_leaf_, reg.min_samples_leaf)
 
+    def test_parallel_gridsearch(self):
+        self.kwargs['n_jobs'] = 1
+        super(TestFastRGFRegressor, self).test_parallel_gridsearch()
+
     def test_sample_weight(self):
         reg = self.regressor_class(**self.kwargs)
 
@@ -675,12 +671,3 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
         # small.
         # check_estimator(self.regressor_class)
         pass
-
-    def test_parallel_gridsearch(self):
-        param_grid = dict(n_estimators=[100, 500])
-        grid = GridSearchCV(self.regressor_class(n_jobs=1),
-                            param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
-        grid.fit(self.X_train, self.y_train)
-        y_pred = grid.best_estimator_.predict(self.X_test)
-        mse = mean_squared_error(self.y_test, y_pred)
-        self.assertLess(mse, self.mse, "Failed with MSE = {0:.5f}".format(mse))

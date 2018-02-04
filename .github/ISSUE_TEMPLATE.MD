@@ -8,7 +8,7 @@ Python version:
 
 rgf_python version:
 
-Whether [``test.py``](https://github.com/fukatani/rgf_python/blob/master/tests/test.py) is passed or not:
+Whether [``test_rgf_python.py``](https://github.com/fukatani/rgf_python/blob/master/tests/test_rgf_python.py) is passed or not:
 
 ## Error Message
 

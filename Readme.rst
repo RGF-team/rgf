@@ -289,7 +289,7 @@ Kaggle Kernels support **rgf\_python**. Please see `this page <https://www.kaggl
 Troubleshooting
 ---------------
 
-If you meet any error, please try to run `test.py <https://github.com/fukatani/rgf_python/blob/master/tests/test.py>`__ to confirm successful package installation.
+If you meet any error, please try to run `test_rgf_python.py <https://github.com/fukatani/rgf_python/blob/master/tests/test_rgf_python.py>`__ to confirm successful package installation.
 
 Then feel free to `open new issue <https://github.com/fukatani/rgf_python/issues/new>`__.
 
@@ -310,6 +310,10 @@ FAQ
 * Q: Temporary files use too much space on my hard drive (Kaggle Kernels disc space is exhausted while fitting **rgf\_python** model).
    
   A: Please see `rgf\_python#75 <https://github.com/fukatani/rgf_python/issues/75>`__.
+
+* Q: GridSearchCV/RandomizedSearchCV/RFECV or other scikit-learn tool with ``n_jobs`` parameter hangs/freezes/crashes when runs with **rgf\_python** estimator.
+
+  A: This is a known general problem of multiprocessing in Python. You should set ``n_jobs=1`` parameter of either estimator or scikit-learn tool.
 
 License
 -------
