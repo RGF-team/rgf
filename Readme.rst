@@ -298,10 +298,6 @@ Known Issues
 
 * FastRGF crashes if training dataset is too small (#data < 28). (`rgf\_python#92 <https://github.com/fukatani/rgf_python/issues/92>`__)
 
-* FastRGF crashes if sample weights is too small. The value of the weight is dependent on the size of the dataset. (`rgf\_python#137 <https://github.com/fukatani/rgf_python/issues/137>`__)
-
-  For instance, ``sample_weight = [0.001, 0.001, ..., 0.001]`` leads to a crash for #data < 200.
-
 * **rgf\_python** does not provide any built-in method to calculate feature importances. (`rgf\_python#109 <https://github.com/fukatani/rgf_python/issues/109>`__)
 
 FAQ
