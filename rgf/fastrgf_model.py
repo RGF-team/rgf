@@ -181,7 +181,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         (Original name: discretize.(sparse/dense).max_buckets.)
 
     min_child_weight : float, optional (default=5.0)
-        Minimum sum of data weights for each discretized value (bin).
+        Minimum number of effective samples for each discretized value (bin).
         (Original name: discretize.(sparse/dense).min_bucket_weights.)
 
     data_l2 : float, optional (default=2.0)
@@ -456,7 +456,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         (Original name: discretize.(sparse/dense).max_buckets.)
 
     min_child_weight : float, optional (default=5.0)
-        Minimum sum of data weights for each discretized value (bin).
+        Minimum number of effective samples for each discretized value (bin).
         (Original name: discretize.(sparse/dense).min_bucket_weights.)
 
     data_l2 : float, optional (default=2.0)
