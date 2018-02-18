@@ -502,9 +502,7 @@ void AzOptOnTree::updateTreeWeights(AzRgfTreeEnsemble *ens) const
   double const_val = constant(); 
   ens->set_constant(const_val); 
 
-  int num = tree_feat->featNum(); 
-  int fx; 
-  for (fx = 0; fx < num; ++fx) {
+  for (int fx = 0; fx < tree_feat->featNum(); ++fx) {
     if (weight[fx] != 0) {
       const AzTrTreeFeatInfo *fp = tree_feat->featInfo(fx); 
       ens->tree_u(fp->tx)->setWeight(fp->nx, weight[fx]); 
@@ -522,8 +520,7 @@ void AzOptOnTree::_refreshPred()
 
   const double *w = v_w.point(); 
   int f_num = v_w.rowNum(); 
-  int fx; 
-  for (fx = 0; fx < f_num; ++fx) {
+  for (int fx = 0; fx < f_num; ++fx) {
     if (tree_feat->featInfo(fx)->isRemoved) continue; 
     int dxs_num; 
     const int *dxs = data_points(fx, &dxs_num); 

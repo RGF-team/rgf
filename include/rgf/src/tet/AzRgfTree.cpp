@@ -94,8 +94,7 @@ void AzRgfTree::adjustParam()
 void AzRgfTree::resetWeights()
 {
   AzTrTree::_checkNodes("AzRgfTree::resetWeights"); 
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     nodes[nx].weight = 0; 
   }
 }

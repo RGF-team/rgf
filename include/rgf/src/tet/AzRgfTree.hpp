@@ -124,6 +124,7 @@ public:
   virtual void removeSplitAssessment(); 
 
   /*---  weight updating ...  ---*/
+  // Set all nodes weight to zero.
   virtual void resetWeights(); 
   virtual void setWeight(int nx, double weight) {
     AzTrTree::_checkNode(nx, "setWeight"); 
