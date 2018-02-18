@@ -340,12 +340,17 @@ class FastRGFRegressor(utils.RGFRegressorBase):
             params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
             params.append("trn.x-file_format=x.sparse")
             params.append("trn.y-file=%s" % self._train_y_loc)
-            params.append("trn.w-file=%s" % self._train_weight_loc)
+            if self.save_weights:
+                params.append("trn.w-file=%s" % self._train_weight_loc)
         else:
             params.append("discretize.dense.max_buckets=%s" % self._max_bin)
             params.append("discretize.dense.lamL2=%s" % self.data_l2)
             params.append("discretize.dense.min_bucket_weights=%s" % self.min_child_weight)
-            params.append("trn.x-file_format=w.y.x")
+            if self.save_weights:
+                fmt = "w.y.x"
+            else:
+                fmt = "y.x"
+            params.append("trn.x-file_format=%s" % fmt)
         params.append("trn.x-file=%s" % self._train_x_loc)
         params.append("trn.target=REAL")
         params.append("set.nthreads=%s" % self._n_jobs)
@@ -378,7 +383,9 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 
     def _save_dense_files(self, X, y, sample_weight):
         self._train_x_loc = self._train_x_loc[:-2]
-        np.savetxt(self._train_x_loc, np.c_[sample_weight, y, X], delimiter=' ', fmt="%s")
+        np.savetxt(self._train_x_loc,
+                   np.c_[arr for arr in (sample_weight, y, X) if arr is not None],
+                   delimiter=' ', fmt="%s")
 
     def _find_model_file(self):
         if not os.path.isfile(self._model_file_loc):
@@ -642,7 +649,9 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
 
     def _save_dense_files(self, X, y, sample_weight):
         self._train_x_loc = self._train_x_loc[:-2]
-        np.savetxt(self._train_x_loc, np.c_[sample_weight, y, X], delimiter=' ', fmt="%s")
+        np.savetxt(self._train_x_loc,
+                   np.c_[arr for arr in (sample_weight, y, X) if arr is not None],
+                   delimiter=' ', fmt="%s")
 
     def _get_train_command(self):
         params = []
@@ -664,12 +673,17 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
             params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
             params.append("trn.x-file_format=x.sparse")
             params.append("trn.y-file=%s" % self._train_y_loc)
-            params.append("trn.w-file=%s" % self._train_weight_loc)
+            if self.save_weights:
+                params.append("trn.w-file=%s" % self._train_weight_loc)
         else:
             params.append("discretize.dense.max_buckets=%s" % self.max_bin)
             params.append("discretize.dense.lamL2=%s" % self.data_l2)
             params.append("discretize.dense.min_bucket_weights=%s" % self.min_child_weight)
-            params.append("trn.x-file_format=w.y.x")
+            if self.save_weights:
+                fmt = "w.y.x"
+            else:
+                fmt = "y.x"
+            params.append("trn.x-file_format=%s" % fmt)
         params.append("trn.x-file=%s" % self._train_x_loc)
         params.append("trn.target=BINARY")
         params.append("set.nthreads=%s" % self.n_jobs)
