@@ -387,9 +387,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
             arrs = (sample_weight, y, X)
         else:
             arrs = (y, X)
-        np.savetxt(self._train_x_loc,
-                   np.c_[arrs],
-                   delimiter=' ', fmt="%s")
+        np.savetxt(self._train_x_loc, np.c_[arrs], delimiter=' ', fmt="%s")
 
     def _find_model_file(self):
         if not os.path.isfile(self._model_file_loc):
@@ -657,9 +655,7 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
             arrs = (sample_weight, y, X)
         else:
             arrs = (y, X)
-        np.savetxt(self._train_x_loc,
-                   np.c_[arrs],
-                   delimiter=' ', fmt="%s")
+        np.savetxt(self._train_x_loc, np.c_[arrs], delimiter=' ', fmt="%s")
 
     def _get_train_command(self):
         params = []
