@@ -263,10 +263,8 @@ class RGFMixin(object):
             return self._fitted
 
     def _get_sample_weight(self, sample_weight):
-        self._save_weights = False
         if sample_weight is not None:
             sample_weight = column_or_1d(sample_weight, warn=True)
-            self._save_weights = True
             if (sample_weight <= 0).any():
                 raise ValueError("Sample weights must be positive.")
         return sample_weight
@@ -280,6 +278,11 @@ class RGFMixin(object):
         self._pred_loc = os.path.join(TEMP_PATH, self._file_prefix + ".predictions.txt")
 
     def _save_train_data(self, X, y, sample_weight):
+        if sample_weight is None:
+            self._save_weights = False
+        else:
+            self._save_weights = True
+
         if sp.isspmatrix(X):
             self._save_sparse_X(self._train_x_loc, X)
             np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
