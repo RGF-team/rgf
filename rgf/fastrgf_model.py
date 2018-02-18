@@ -340,13 +340,13 @@ class FastRGFRegressor(utils.RGFRegressorBase):
             params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
             params.append("trn.x-file_format=x.sparse")
             params.append("trn.y-file=%s" % self._train_y_loc)
-            if self.save_weights:
+            if self._save_weights:
                 params.append("trn.w-file=%s" % self._train_weight_loc)
         else:
             params.append("discretize.dense.max_buckets=%s" % self._max_bin)
             params.append("discretize.dense.lamL2=%s" % self.data_l2)
             params.append("discretize.dense.min_bucket_weights=%s" % self.min_child_weight)
-            if self.save_weights:
+            if self._save_weights:
                 fmt = "w.y.x"
             else:
                 fmt = "y.x"
@@ -681,13 +681,13 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
             params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
             params.append("trn.x-file_format=x.sparse")
             params.append("trn.y-file=%s" % self._train_y_loc)
-            if self.save_weights:
+            if self._save_weights:
                 params.append("trn.w-file=%s" % self._train_weight_loc)
         else:
             params.append("discretize.dense.max_buckets=%s" % self.max_bin)
             params.append("discretize.dense.lamL2=%s" % self.data_l2)
             params.append("discretize.dense.min_bucket_weights=%s" % self.min_child_weight)
-            if self.save_weights:
+            if self._save_weights:
                 fmt = "w.y.x"
             else:
                 fmt = "y.x"

@@ -346,7 +346,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         params.append("opt_stepsize=%s" % self.learning_rate)
         params.append("memory_policy=%s" % self.memory_policy.title())
         params.append("model_fn_prefix=%s" % self._model_file_loc)
-        if self.save_weights:
+        if self._save_weights:
             params.append("train_w_fn=%s" % self._train_weight_loc)
 
         cmd = (utils.RGF_PATH, "train", ",".join(params))
@@ -369,7 +369,7 @@ class RGFRegressor(utils.RGFRegressorBase):
     def _save_dense_files(self, X, y, sample_weight):
         np.savetxt(self._train_x_loc, X, delimiter=' ', fmt="%s")
         np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
-        if self.save_weights:
+        if self._save_weights:
             np.savetxt(self._train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
 
     def _find_model_file(self):
@@ -665,7 +665,7 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
     def _save_dense_files(self, X, y, sample_weight):
         np.savetxt(self._train_x_loc, X, delimiter=' ', fmt="%s")
         np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
-        if self.save_weights:
+        if self._save_weights:
             np.savetxt(self._train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
 
     def _get_train_command(self):
@@ -692,7 +692,7 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         params.append("opt_stepsize=%s" % self.learning_rate)
         params.append("memory_policy=%s" % self.memory_policy.title())
         params.append("model_fn_prefix=%s" % self._model_file_loc)
-        if self.save_weights:
+        if self._save_weights:
             params.append("train_w_fn=%s" % self._train_weight_loc)
 
         cmd = (utils.RGF_PATH, "train", ",".join(params))
