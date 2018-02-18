@@ -383,8 +383,12 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 
     def _save_dense_files(self, X, y, sample_weight):
         self._train_x_loc = self._train_x_loc[:-2]
+        if sample_weight is not None:
+            arrs = (sample_weight, y, X)
+        else:
+            arrs = (y, X)
         np.savetxt(self._train_x_loc,
-                   np.c_[arr for arr in (sample_weight, y, X) if arr is not None],
+                   np.c_[arrs],
                    delimiter=' ', fmt="%s")
 
     def _find_model_file(self):
@@ -649,8 +653,12 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
 
     def _save_dense_files(self, X, y, sample_weight):
         self._train_x_loc = self._train_x_loc[:-2]
+        if sample_weight is not None:
+            arrs = (sample_weight, y, X)
+        else:
+            arrs = (y, X)
         np.savetxt(self._train_x_loc,
-                   np.c_[arr for arr in (sample_weight, y, X) if arr is not None],
+                   np.c_[arrs],
                    delimiter=' ', fmt="%s")
 
     def _get_train_command(self):
