@@ -36,6 +36,7 @@ protected:
 
   AzBytArr s_config, s_sign; 
   int org_dim; /* dimension of original features */
+  static const int kReservedLength = 256;
 
 public:
   AzTreeEnsemble() : t(NULL), t_num(0), const_val(0), org_dim(-1) {}
