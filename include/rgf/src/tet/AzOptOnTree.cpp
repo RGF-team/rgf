@@ -619,8 +619,8 @@ void AzOptOnTree::printHelp(AzHelp &h) const
   h.item_experimental(kw_sigma, help_sigma, sigma_dflt); 
   h.item(kw_doUseAvg, help_doUseAvg); 
   AzBytArr s_dflt; 
-  s_dflt.cn(max_ite_num_dflt_oth);  s_dflt.c(help_oth_loss); s_dflt.c("; "); 
-  s_dflt.cn(max_ite_num_dflt_expo); s_dflt.c(help_expo_loss); 
+  s_dflt.cn(kMaxIterationDefaultForOther);  s_dflt.c(help_oth_loss); s_dflt.c("; ");
+  s_dflt.cn(kMaxIterationDefaultForExpo); s_dflt.c(help_expo_loss);
   h.item(kw_max_ite_num, help_max_ite_num, s_dflt.c_str()); 
   h.item_experimental(kw_doIntercept, help_doIntercept); 
   h.item(kw_eta, help_eta, eta_dflt); 
@@ -642,9 +642,9 @@ void AzOptOnTree::resetParam(AzParam &p)
   p.swOn(&doIntercept, kw_doIntercept); 
 
   if (max_ite_num <= 0) {
-    max_ite_num = max_ite_num_dflt_oth; 
+    max_ite_num = kMaxIterationDefaultForOther;
     if (AzLoss::isExpoFamily(loss_type)) {
-      max_ite_num = max_ite_num_dflt_expo; 
+      max_ite_num = kMaxIterationDefaultForExpo;
     }
   }
 }

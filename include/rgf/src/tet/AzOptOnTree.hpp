@@ -72,8 +72,8 @@ protected:
   AzIntArr ia_empty; 
 
   /*---  default values  ---*/
-  static const int max_ite_num_dflt_oth = 10; 
-  static const int max_ite_num_dflt_expo = 5; 
+  static const int kMaxIterationDefaultForOther = 10;  // max iteration number for "non" exponential family.
+  static const int kMaxIterationDefaultForExpo = 5;  // max iteration number for exponential family.
   static const AzLossType loss_type_dflt = AzLoss_Square; 
   #define eta_dflt 0.5
   #define exit_delta_dflt -1
