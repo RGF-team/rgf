@@ -24,22 +24,22 @@
 
 enum AzLossType {
   /*---  for classification  ---*/
-  AzLoss_ModHuber = 0, 
+  AzLoss_ModHuber = 0,
   AzLoss_Logistic1 = 1,  /* log loss for classification: y in {1,-1} */
   AzLoss_Expo = 2,
   AzLoss_ModSquare = 3,
 
   /*---  for regression  ---*/
-  AzLoss_Square = 4, 
+  AzLoss_Square = 4,
   AzLoss_Huber = 5,
 
-  AzLoss_LS = 6, 
-  AzLoss_Logistic2 = 7, 
+  AzLoss_LS = 6,
+  AzLoss_Logistic2 = 7,
   AzLoss_LogRe = 8, /* log loss for regression: y in [0,1] */
-  AzLoss_LogRe2 = 9, 
-  AzLoss_L1L2 = 10, 
-  AzLoss_Xtemp = 11, 
-  AzLoss_None = 12, 
+  AzLoss_LogRe2 = 9,
+  AzLoss_L1L2 = 10,
+  AzLoss_Xtemp = 11,
+  AzLoss_None = 12,
 };
 #define AzLossType_Num 13
 static const char *loss_str[AzLossType_Num] = {
