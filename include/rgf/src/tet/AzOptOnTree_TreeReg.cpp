@@ -34,13 +34,12 @@ AzOptOnTree_TreeReg::optimize(AzRgfTreeEnsemble *inp_rgf_ens,
   synchronize(); 
   updateTreeWeights(rgf_ens); 
 
-  int tree_num = ens->size(); 
+  const int tree_num = ens->size();
   if (reg_arr->size() < tree_num) {
     throw new AzException("AzOptOnTree_TreeReg::optimize", 
                           "max #tree has changed??"); 
   }
-  int tx; 
-  for (tx = 0; tx < tree_num; ++tx) {
+  for (int tx = 0; tx < tree_num; ++tx) {
     AzReg_TreeReg *reg = reg_arr->reg(tx);  
     reg->reset(ens->tree(tx), reg_depth); 
   }
@@ -58,23 +57,19 @@ void AzOptOnTree_TreeReg::update_with_features(
                       double py_avg, 
                       AzRgf_forDelta *for_delta) /* updated */
 {
-  int tree_num = ens->size();
-  int tx; 
-  for (tx = 0; tx < tree_num; ++tx) {
+  const int tree_num = ens->size();
+  for (int tx = 0; tx < tree_num; ++tx) {
     ens->tree_u(tx)->restoreDataIndexes(); 
     AzReg_TreeReg *reg = reg_arr->reg(tx); 
     reg->clearFocusNode(); 
 
     AzIIarr iia_nx_fx; 
     tree_feat->featIds(tx, &iia_nx_fx); 
-    int num = iia_nx_fx.size(); 
-    AzIIFarr iifa_nx_fx_delta; 
-    int ix; 
-    for (ix = 0; ix < num; ++ix) {
+    for (int ix = 0; ix < iia_nx_fx.size(); ++ix) {
       int nx, fx; 
       iia_nx_fx.get(ix, &nx, &fx); 
 
-      double delta = bestDelta(nx, fx, reg, nlam, nsig, py_avg, for_delta); 
+      const double delta = bestDelta(nx, fx, reg, nlam, nsig, py_avg, for_delta);
       update_weight(nx, fx, delta, reg);
     }
     ens->tree_u(tx)->releaseDataIndexes(); 
@@ -86,7 +81,7 @@ void AzOptOnTree_TreeReg::update_weight(int nx,
                                    double delta,
                                    AzReg_TreeReg *reg)
 {
-  double new_w = v_w.get(fx) + delta; 
+  const double new_w = v_w.get(fx) + delta;
   v_w.set(fx, new_w); 
 
   int dxs_num; 
@@ -112,7 +107,6 @@ const
 {
   const char *eyec = "AzOptOnTree_TI::bestDelta"; 
 
-  double w = v_w.get(fx); 
   int dxs_num; 
   const int *dxs = data_points(fx, &dxs_num); 
   if (dxs_num <= 0) {

@@ -59,8 +59,7 @@ void AzFindSplit::_findBestSplit(int nx,
   if (ia_fx != NULL) {
     fxs = ia_fx->point(&feat_num); 
   }
-  int ix; 
-  for (ix = 0; ix < feat_num; ++ix) {
+  for (int ix = 0; ix < feat_num; ++ix) {
     int fx = ix; 
     if (fxs != NULL) fx = fxs[ix]; 
 
@@ -158,7 +157,7 @@ void AzFindSplit::loop(AzTrTsplit *best_split,
     src->wy_sum = total->wy_sum - dest->wy_sum; 
     src->w_sum  = total->w_sum  - dest->w_sum; 
 
-    double gain = evalSplit(i, bestP); 
+    const double gain = evalSplit(i, bestP);
 #if 0 
     best_split->keep_if_good(fx, value, gain, 
                         bestP[le_idx], bestP[gt_idx]); 

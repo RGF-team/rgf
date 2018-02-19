@@ -83,9 +83,7 @@ AzOptOnTree::_warmup(const AzTrTreeEnsemble_ReadOnly *inp_ens,
   v_w.reform(inp_tree_feat->featNum()); 
   var_const = inp_ens->constant() - fixed_const; 
 
-  int fx; 
-  int f_num = inp_tree_feat->featNum(); 
-  for (fx = 0; fx < f_num; ++fx) {
+  for (int fx = 0; fx < inp_tree_feat->featNum(); ++fx) {
     const AzTrTreeFeatInfo *fp = inp_tree_feat->featInfo(fx); 
     if (fp->isRemoved) continue; 
     double w = inp_ens->tree(fp->tx)->node(fp->nx)->weight; 
@@ -137,15 +135,14 @@ void AzOptOnTree::synchronize()
   int old_f_num = v_w.rowNum(); 
   v_w.resize(f_num); 
 
-  bool isThereChange = false; 
-  int fx; 
-  for (fx = 0; fx < old_f_num; ++fx) {
+  bool hasChanged = false;
+  for (int fx = 0; fx < old_f_num; ++fx) {
     if (tree_feat->featInfo(fx)->isRemoved && v_w.get(fx) != 0) {
-      isThereChange = true; 
+      hasChanged = true;
       v_w.set(fx, 0); 
     }
   }
-  if (isThereChange || doRefreshP) {
+  if (hasChanged || doRefreshP) {
     refreshPred(); 
   }
 }
@@ -196,13 +193,16 @@ void AzOptOnTree::iterate(int inp_ite_num,
     }
     if (!out.isNull() && (ite+1 == ite_chk || doExit)) {
       monitorLoss(ite, delta, out); 
-      if (ite_chk < 10)       ite_chk += 5; 
-      else                    ite_chk += 10;  
-      ite_chk = MIN(ite_chk, ite_num); 
+      if (ite_chk < 10) {
+        ite_chk += 5;
+      } else {
+        ite_chk += 10;
+      }
+      ite_chk = MIN(ite_chk, ite_num);
     }
     if (doExit) {
-      AzTimeLog::print("Reached exiting criteria", out); 
-      break; 
+      AzTimeLog::print("Reached exiting criteria", out);
+      break;
     }
   }
   dumpWeights(my_dmp_out); 
@@ -286,8 +286,7 @@ double AzOptOnTree::update(double inp_nlam,
     o.printEnd(); 
   }
 
-  double abs_delta_avg = for_delta.avg_delta(); 
-  return abs_delta_avg; 
+  return for_delta.avg_delta();
 }
 
 /*--------------------------------------------------------*/
@@ -297,17 +296,15 @@ void AzOptOnTree::_update_with_features(
                       double py_avg, 
                       AzRgf_forDelta *for_del) /* updated */
 {
-  int fx; 
-  int f_num = tree_feat->featNum(); 
-  for (fx = 0; fx < f_num; ++fx) {
+  for (int fx = 0; fx < tree_feat->featNum(); ++fx) {
     if (tree_feat->featInfo(fx)->isRemoved) continue; 
 
-    double w = v_w.get(fx); 
+    const double w = v_w.get(fx);
     int dxs_num; 
     const int *dxs = data_points(fx, &dxs_num); 
-    double my_nlam = reg_depth->apply(nlam, node(fx)->depth); 
-    double my_nsig = reg_depth->apply(nsig, node(fx)->depth); 
-    double delta = getDelta(dxs, dxs_num, w, my_nlam, my_nsig, py_avg, for_del); 
+    const double my_nlam = reg_depth->apply(nlam, node(fx)->depth);
+    const double my_nsig = reg_depth->apply(nsig, node(fx)->depth);
+    const double delta = getDelta(dxs, dxs_num, w, my_nlam, my_nsig, py_avg, for_del);
     v_w.set(fx, w+delta); 
     updatePred(dxs, dxs_num, delta, &v_p); 
   }
@@ -320,25 +317,21 @@ void AzOptOnTree::_update_with_features_TempFile(
                       double py_avg, 
                       AzRgf_forDelta *for_del) /* updated */
 {
-  int tree_num = ens->size();
-  int tx; 
-  for (tx = 0; tx < tree_num; ++tx) {
+  for (int tx = 0; tx < ens->size(); ++tx) {
     ens->tree_u(tx)->restoreDataIndexes(); 
     AzIIarr iia_nx_fx; 
     tree_feat->featIds(tx, &iia_nx_fx); 
-    int num = iia_nx_fx.size(); 
-    int ix; 
-    for (ix = 0; ix < num; ++ix) {
+    for (int ix = 0; ix < iia_nx_fx.size(); ++ix) {
       int nx, fx; 
       iia_nx_fx.get(ix, &nx, &fx); 
       if (tree_feat->featInfo(fx)->isRemoved) continue; /* shouldn't happen though */
 
-      double w = v_w.get(fx); 
+      const double w = v_w.get(fx);
       int dxs_num; 
       const int *dxs = data_points(fx, &dxs_num); 
-      double my_nlam = reg_depth->apply(nlam, node(fx)->depth); 
-      double my_nsig = reg_depth->apply(nsig, node(fx)->depth); 
-      double delta = getDelta(dxs, dxs_num, w, my_nlam, my_nsig, py_avg, for_del); 
+      const double my_nlam = reg_depth->apply(nlam, node(fx)->depth);
+      const double my_nsig = reg_depth->apply(nsig, node(fx)->depth);
+      const double delta = getDelta(dxs, dxs_num, w, my_nlam, my_nsig, py_avg, for_del);
       v_w.set(fx, w+delta); 
       updatePred(dxs, dxs_num, delta, &v_p); 
     }
@@ -422,10 +415,16 @@ const
   double delta = (nega_dL-nlam*w)*eta/ddL_nlam; 
   if (nsig > 0) {
     double del1; 
-    if (w+delta>0) del1 = delta - nsig*eta/ddL_nlam; 
-    else           del1 = delta + nsig*eta/ddL_nlam; 
-    if ((w+delta)*(w+del1) <= 0) delta = -w; 
-    else                         delta = del1; 
+    if (w+delta>0) {
+      del1 = delta - nsig*eta/ddL_nlam;
+    } else {
+      del1 = delta + nsig*eta/ddL_nlam;
+    }
+    if ((w+delta)*(w+del1) <= 0) {
+      delta = -w;
+    } else {
+      delta = del1;
+    }
   }
 
   for_del->check_delta(&delta, max_delta); 
@@ -455,11 +454,10 @@ void AzOptOnTree::dumpWeights(const AzOut &out,
                         bool changeLine) const 
 {
   if (out.isNull()) return; 
-  int nz = v_w.nonZeroRowNum(); 
 
   AzPrint o(out); 
   o.printBegin("", ",", "="); 
-  o.print("#non_zero_weight", nz); 
+  o.print("#non_zero_weight", v_w.nonZeroRowNum());
   o.print("var_const", var_const, 5); 
   o.print("fixed_const", fixed_const, 5); 
   o.printEnd(); 
@@ -492,9 +490,7 @@ AzOptOnTree::optimize(AzRgfTreeEnsemble *rgf_ens,
 /*------------------------------------------------------------------*/
 void AzOptOnTree::updateTreeWeights(AzRgfTreeEnsemble *ens) const
 {
-  int dtree_num = ens->size(); 
-  int tx; 
-  for (tx = 0; tx < dtree_num; ++tx) {
+  for (int tx = 0; tx < ens->size(); ++tx) {
     ens->tree_u(tx)->resetWeights(); 
   }
 
@@ -502,9 +498,7 @@ void AzOptOnTree::updateTreeWeights(AzRgfTreeEnsemble *ens) const
   double const_val = constant(); 
   ens->set_constant(const_val); 
 
-  int num = tree_feat->featNum(); 
-  int fx; 
-  for (fx = 0; fx < num; ++fx) {
+  for (int fx = 0; fx < tree_feat->featNum(); ++fx) {
     if (weight[fx] != 0) {
       const AzTrTreeFeatInfo *fp = tree_feat->featInfo(fx); 
       ens->tree_u(fp->tx)->setWeight(fp->nx, weight[fx]); 
@@ -521,9 +515,7 @@ void AzOptOnTree::_refreshPred()
   v_p.set(var_const+fixed_const);  
 
   const double *w = v_w.point(); 
-  int f_num = v_w.rowNum(); 
-  int fx; 
-  for (fx = 0; fx < f_num; ++fx) {
+  for (int fx = 0; fx < v_w.rowNum(); ++fx) {
     if (tree_feat->featInfo(fx)->isRemoved) continue; 
     int dxs_num; 
     const int *dxs = data_points(fx, &dxs_num); 

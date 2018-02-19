@@ -19,7 +19,6 @@
 #include "AzTreeEnsemble.hpp"
 #include "AzPrint.hpp"
 
-static int reserved_length = 256; 
 
 /*--------------------------------------------------------*/
 void AzTreeEnsemble::info(AzTE_ModelInfo *out_info) const
@@ -45,8 +44,7 @@ void AzTreeEnsemble::transfer_from(AzTree *inp_tree[],
   t_num = inp_tree_num; 
   const_val = inp_const_val; 
   org_dim = inp_org_dim; 
-  int tx; 
-  for (tx = 0; tx < t_num; ++tx) {
+  for (int tx = 0; tx < t_num; ++tx) {
     if (inp_tree[tx] != NULL) {
       t[tx] = inp_tree[tx]; 
       inp_tree[tx] = NULL; 
@@ -62,15 +60,13 @@ void AzTreeEnsemble::transfer_from(AzTree *inp_tree[],
 void AzTreeEnsemble::write(AzFile *file)
 {
   file->writeBinMarker(); 
-  int ix; 
-  for (ix = 0; ix < reserved_length; ++ix) file->writeByte(0); 
+  for (int ix = 0; ix < kReservedLength; ++ix) file->writeByte(0);
   file->writeInt(t_num); 
   file->writeDouble(const_val); 
   file->writeInt(org_dim); 
   s_config.write(file); 
   s_sign.write(file); 
-  int tx; 
-  for (tx = 0; tx < t_num; ++tx) {
+  for (int tx = 0; tx < t_num; ++tx) {
     AzObjIOTools::write(t[tx], file); 
   }
 }
@@ -79,8 +75,7 @@ void AzTreeEnsemble::write(AzFile *file)
 void AzTreeEnsemble::_read(AzFile *file)
 {
   file->checkBinMarker(); 
-  int ix; 
-  for (ix = 0; ix < reserved_length; ++ix) {
+  for (int ix = 0; ix < kReservedLength; ++ix) {
     AzByte byte = file->readByte();  
     if (byte != 0) {
       throw new AzException(AzInputNotValid, "AzTreeEnsemble::_read", 
@@ -94,8 +89,7 @@ void AzTreeEnsemble::_read(AzFile *file)
   s_config.read(file); 
   s_sign.read(file); 
   a_tree.alloc(&t, t_num, "AzTreeEnsemble::read");                           
-  int tx; 
-  for (tx = 0; tx < t_num; ++tx) {
+  for (int tx = 0; tx < t_num; ++tx) {
     t[tx] = AzObjIOTools::read<AzTree>(file); 
   }
 }
@@ -104,11 +98,10 @@ void AzTreeEnsemble::_read(AzFile *file)
 void AzTreeEnsemble::apply(const AzSmat *m_data, 
                            AzDvect *v_pred) const
 {
-  int data_num = m_data->colNum(); 
+  const int data_num = m_data->colNum();
   v_pred->reform(data_num); 
   double *pred = v_pred->point_u(); 
-  int dx;  
-  for (dx = 0; dx < data_num; ++dx) {
+  for (int dx = 0; dx < data_num; ++dx) {
     pred[dx] = apply(m_data->col(dx)); 
   }
 }
@@ -119,8 +112,7 @@ double AzTreeEnsemble::apply(const AzSvect *v_data) const
   AzDvect v(v_data);  /* for efficiency of access */
 
   double val = const_val; 
-  int tx; 
-  for (tx = 0; tx < t_num; ++tx) {
+  for (int tx = 0; tx < t_num; ++tx) {
     if (t[tx] != NULL) {
       val += t[tx]->apply(&v); 
     }
@@ -132,8 +124,7 @@ double AzTreeEnsemble::apply(const AzSvect *v_data) const
 int AzTreeEnsemble::leafNum(int tx0, int tx1) const
 {
   int l_num = 0; 
-  int tx; 
-  for (tx = MAX(0, tx0); tx < MIN(t_num, tx1); ++tx) {
+  for (int tx = MAX(0, tx0); tx < MIN(t_num, tx1); ++tx) {
     if (t[tx] != NULL) {
       l_num += t[tx]->leafNum(); 
     }
@@ -162,8 +153,7 @@ void AzTreeEnsemble::write(const char *fn)
 /*--------------------------------------------------------*/
 void AzTreeEnsemble::clean_up()
 {
-  int tx; 
-  for (tx = 0; tx < t_num; ++tx) {
+  for (int tx = 0; tx < t_num; ++tx) {
     if (t[tx] == NULL) continue; 
     t[tx]->clean_up(); 
   }
@@ -181,8 +171,7 @@ void AzTreeEnsemble::show(const AzSvFeatInfo *feat, //!< may be NULL
   o.print("#tree", t_num); 
   o.printEnd(); 
 
-  int tx; 
-  for (tx = 0; tx < t_num; ++tx) {
+  for (int tx = 0; tx < t_num; ++tx) {
     AzBytArr s("tree"); s.inBrackets(tx); 
     AzPrint::writeln(out, s); 
     if (t[tx] != NULL) {
@@ -202,8 +191,7 @@ void AzTreeEnsemble::finfo(int tx0, int tx1,
   }
   ifa_fx_count->reset(); 
   ifa_fx_sum->reset(); 
-  int tx; 
-  for (tx = tx0; tx < tx1; ++tx) {
+  for (int tx = tx0; tx < tx1; ++tx) {
     if (t[tx] != NULL) {
       t[tx]->finfo(ifa_fx_count, ifa_fx_sum); 
     }
@@ -219,12 +207,10 @@ const
   const char *eyec = "AzTreeEnsemble::finfo"; 
   ia_fx2tx->reset(org_dim, -1); 
   int *fx2tx = ia_fx2tx->point_u(); 
-  int tx; 
-  for (tx = 0; tx < t_num; ++tx) {
+  for (int tx = 0; tx < t_num; ++tx) {
     AzIntArr ia_fxs;     
     t[tx]->finfo(&ia_fxs); 
-    int ix; 
-    for (ix = 0; ix < ia_fxs.size(); ++ix) {
+    for (int ix = 0; ix < ia_fxs.size(); ++ix) {
       int fx = ia_fxs.get(ix); 
       if (fx < 0 || fx >= org_dim) {
         throw new AzException(eyec, "fx is out of range"); 
@@ -241,8 +227,7 @@ void AzTreeEnsemble::cooccurrences(AzIIFarr *iifa_fx1_fx2_count)
 const 
 {
   iifa_fx1_fx2_count->reset(); 
-  int tx; 
-  for (tx = 0; tx < t_num; ++tx) {
+  for (int tx = 0; tx < t_num; ++tx) {
     AzIIFarr ifa; 
     t[tx]->cooccurrences(&ifa); 
     iifa_fx1_fx2_count->concat(&ifa); 
@@ -254,15 +239,12 @@ const
 void AzTreeEnsemble::show_weights(const AzOut &out, AzSvFeatInfo *fi) const
 {
   AzIIFarr iifa_tx_nx_posiw, iifa_tx_nx_negaw; 
-  int tx; 
-  for (tx = 0; tx < t_num; ++tx) {
-    int nx; 
-    for (nx = 0; nx < t[tx]->nodeNum(); ++nx) {
+  for (int tx = 0; tx < t_num; ++tx) {
+    for (int nx = 0; nx < t[tx]->nodeNum(); ++nx) {
       const AzTreeNode *np = t[tx]->node(nx); 
       if (np->weight > 0) {
         iifa_tx_nx_posiw.put(tx, nx, np->weight); 
-      }
-      else if (np->weight < 0) {
+      } else if (np->weight < 0) {
         iifa_tx_nx_negaw.put(tx, nx, np->weight); 
       }
     }
@@ -271,10 +253,9 @@ void AzTreeEnsemble::show_weights(const AzOut &out, AzSvFeatInfo *fi) const
   iifa_tx_nx_negaw.sort_Float(true); /* ascending order */
 
   AzPrint::writeln(out, "Positive weights -------------------"); 
-  int ix; 
-  for (ix = 0; ix < iifa_tx_nx_posiw.size(); ++ix) {
+    for (int ix = 0; ix < iifa_tx_nx_posiw.size(); ++ix) {
     int tx, nx; 
-    double w = iifa_tx_nx_posiw.get(ix, &tx, &nx); 
+    const double w = iifa_tx_nx_posiw.get(ix, &tx, &nx);
     AzBytArr s_desc; 
     t[tx]->genDesc(fi, nx, &s_desc); 
     AzBytArr s; s.cn(w, 6, false); s.c(' '); s.c(&s_desc); 
@@ -282,9 +263,9 @@ void AzTreeEnsemble::show_weights(const AzOut &out, AzSvFeatInfo *fi) const
   }
 
   AzPrint::writeln(out, "Negative weights -------------------"); 
-  for (ix = 0; ix < iifa_tx_nx_negaw.size(); ++ix) {
+  for (int ix = 0; ix < iifa_tx_nx_negaw.size(); ++ix) {
     int tx, nx; 
-    double w = iifa_tx_nx_negaw.get(ix, &tx, &nx); 
+    const double w = iifa_tx_nx_negaw.get(ix, &tx, &nx);
     AzBytArr s_desc; 
     t[tx]->genDesc(fi, nx, &s_desc); 
     AzBytArr s; s.cn(w, 6, false); s.c(' '); s.c(&s_desc); 

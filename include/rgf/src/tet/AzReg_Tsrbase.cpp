@@ -48,13 +48,13 @@ void AzReg_Tsrbase::update()
     double dv = get_newleaf_dv(); 
     int newleaf_depth = get_newleaf_depth(); 
     newleaf_dep_factor = reg_depth->apply(1, newleaf_depth); 
-    dr += newleaf_v*dv*newleaf_dep_factor; 
-    ddr += dv*dv*newleaf_dep_factor; 
+    dr += newleaf_v*dv*newleaf_dep_factor;
+    ddr += dv*dv*newleaf_dep_factor;
 
     /*---  new leaf's sibling (v is the same)  ---*/
     dv = get_newleaf_sib_dv(); 
-    dr += newleaf_v*dv*newleaf_dep_factor; 
-    ddr += dv*dv*newleaf_dep_factor; 
+    dr += newleaf_v*dv*newleaf_dep_factor;
+    ddr += dv*dv*newleaf_dep_factor;
 
     focus_dbar = av_dbar.point(focus_nx)->get(focus_nx); 
   }
