@@ -156,15 +156,13 @@ void AzLoss::sum_deriv(AzLossType loss_type,
     /* o.loss2 = 1; */
     /* o._loss1 = r; */
     ddL = (double)dx_num; 
-    int ix; 
-    for (ix = 0; ix < dx_num; ++ix) {
+    for (int ix = 0; ix < dx_num; ++ix) {
       int dx = dxs[ix]; 
       nega_dL += (y[dx]-p[dx]); 
     }
   }
   else if (loss_type == AzLoss_Expo) {
-    int ix; 
-    for (ix = 0; ix < dx_num; ++ix) {
+    for (int ix = 0; ix < dx_num; ++ix) {
       int dx = dxs[ix];       
       double py = p[dx]*y[dx]; 
       py -= py_avg; /* for numerical stability */
@@ -174,8 +172,7 @@ void AzLoss::sum_deriv(AzLossType loss_type,
     }
   }
   else {
-    int ix; 
-    for (ix = 0; ix < dx_num; ++ix) {
+    for (int ix = 0; ix < dx_num; ++ix) {
       int dx = dxs[ix]; 
       AzLosses o = getLosses(loss_type, p[dx], y[dx], py_avg); 
       ddL += o.loss2; 
@@ -209,16 +206,14 @@ void AzLoss::sum_deriv_weighted(AzLossType loss_type,
     /* double r = y-p; */
     /* o.loss2 = 1; */
     /* o._loss1 = r; */
-    int ix; 
-    for (ix = 0; ix < dx_num; ++ix) {
+    for (int ix = 0; ix < dx_num; ++ix) {
       int dx = dxs[ix]; 
       nega_dL += dw[dx]*(y[dx]-p[dx]); 
       ddL += dw[dx]; 
     }
   }
   else if (loss_type == AzLoss_Expo) {
-    int ix; 
-    for (ix = 0; ix < dx_num; ++ix) {
+    for (int ix = 0; ix < dx_num; ++ix) {
       int dx = dxs[ix];       
       double py = p[dx]*y[dx]; 
       py -= py_avg; /* for numerical stability */
@@ -228,8 +223,7 @@ void AzLoss::sum_deriv_weighted(AzLossType loss_type,
     }
   }
   else {
-    int ix; 
-    for (ix = 0; ix < dx_num; ++ix) {
+    for (int ix = 0; ix < dx_num; ++ix) {
       int dx = dxs[ix]; 
       AzLosses o = getLosses(loss_type, p[dx], y[dx], py_avg); 
       ddL += (dw[dx]*o.loss2); 
@@ -250,8 +244,7 @@ void AzLoss::help_lines(int level, AzDataPool<AzBytArr> *pool_desc) {
 
   const char *dlm = "|"; 
   AzBytArr *s = pool_desc->new_slot(); 
-  int ix; 
-  for (ix = 0; ix < num; ++ix) {
+  for (int ix = 0; ix < num; ++ix) {
     if (ix > 0) {
       s->concat(dlm); 
     }
@@ -259,7 +252,7 @@ void AzLoss::help_lines(int level, AzDataPool<AzBytArr> *pool_desc) {
     s->c(lossName(loss_type)); 
   }
 
-  for (ix = 0; ix < num; ++ix) {
+  for (int ix = 0; ix < num; ++ix) {
     AzLossType loss_type = (AzLossType)l_types[ix]; 
     AzBytArr *s = pool_desc->new_slot(); 
     s->c(lossName(loss_type)); s->c(": "); 
@@ -271,8 +264,7 @@ void AzLoss::help_lines(int level, AzDataPool<AzBytArr> *pool_desc) {
 AzLossType AzLoss::lossType(const char *param)
 {
   AzBytArr str_param(param); 
-  int ix; 
-  for (ix = 0; ix < AzLossType_Num; ++ix) {
+  for (int ix = 0; ix < AzLossType_Num; ++ix) {
     AzLossType loss_type = (AzLossType)ix; 
     if (str_param.compare(lossName(loss_type)) == 0) {
       return loss_type; 
@@ -348,8 +340,7 @@ double AzLoss::negativeDeriv12(AzLossType loss_type,
   if (ia_dx != NULL) {
     dxs = ia_dx->point(&dx_num); 
   }
-  int ix; 
-  for (ix = 0; ix < dx_num; ++ix) {
+  for (int ix = 0; ix < dx_num; ++ix) {
     int dx = ix; 
     if (dxs != NULL) dx = dxs[ix]; 
 
