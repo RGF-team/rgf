@@ -70,9 +70,8 @@ double AzTrTree::getRule(int inp_nx,
 void AzTrTree::concat_stat(AzBytArr *o) const 
 {
   if (o == NULL) return; 
-  int leaf_num = leafNum(); 
   o->c("#node=", nodes_used, 3);
-  o->c(",#leaf=", leaf_num, 3);
+  o->c(",#leaf=", countLeafNum(), 3);
   o->c(",depth=", curr_max_depth, 2);
   o->c(",min(pop)=", curr_min_pop, 2);
 }
@@ -307,12 +306,11 @@ bool AzTrTree::isEmptyTree() const
 }
 
 /*--------------------------------------------------------*/
-int AzTrTree::leafNum() const
+int AzTrTree::countLeafNum() const
 {
   _checkNodes("AzTrTree::leafNum"); 
   int leaf_num = 0; 
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     if (nodes[nx].isLeaf()) {
       ++leaf_num; 
     }
@@ -690,7 +688,7 @@ void AzTrTree::quick_warmup(const AzTreeNodes *inp,
 /*------------------------------------------------------------------*/
 void AzTrTree::orderLeaves(AzIntArr *ia_leaf_in_order)
 {
-  int leaf_num = leafNum(); 
+  int leaf_num = countLeafNum();
   ia_leaf_in_order->reset(); 
   ia_leaf_in_order->prepare(leaf_num); 
   _orderLeaves(ia_leaf_in_order, root_nx); 

@@ -34,7 +34,7 @@ void AzRgfTree::findSplit(AzRgf_FindSplit *fs,
 
   AzTrTree::_checkNodes(eyec); 
   if (max_leaf_num > 0) {
-    if (leafNum() >= max_leaf_num) {
+    if (countLeafNum() >= max_leaf_num) {
       return;   
     }
   }

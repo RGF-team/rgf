@@ -90,7 +90,7 @@ public:
     return &nodes[nx];  
   }
   bool isEmptyTree() const; 
-  int leafNum() const; 
+  int countLeafNum() const; 
   void show(const AzSvFeatInfo *feat, const AzOut &out) const; 
   void concat_stat(AzBytArr *o) const; 
   double getRule(int inp_nx, AzTreeRule *rule) const; 

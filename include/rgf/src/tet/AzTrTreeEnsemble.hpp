@@ -32,7 +32,7 @@ protected:
   AzBytArr s_temp_prefix; 
   AzDataPool<AzFile> pool_file; 
   int unit_size; 
-  static const int max_size = 2000000000; 
+  static const int kMaxDataIndexes = 2000000000;
 
 public:
   AzTemp_forTrTreeEns() : unit_size(-1) {}
@@ -58,7 +58,7 @@ public:
     if (unit_size <= 0) {
       return; 
     }
-    if (unit_size > max_size) {
+    if (unit_size > kMaxDataIndexes) {
       throw new AzException(AzInputError, "AzTemp_forTrTreeEns::reset", 
                             "Data size is too large."); 
     }
@@ -71,7 +71,7 @@ public:
       throw new AzException("AzTemp_forTrTreeEns", "The temporary file is not ready"); 
     }
     AzFile *file = pool_file.point_u(fx); 
-    int remain = max_size - file->size_under2G("AzTrTreeEnsemble::point_file"); 
+    int remain = kMaxDataIndexes - file->size_under2G("AzTrTreeEnsemble::point_file");
     if (remain < unit_size) {
       file = open_new_file(); 
     }
@@ -99,7 +99,7 @@ protected:
   T **t; 
   int t_num;  
   double const_val; 
-  int org_dim; 
+  int org_dim;
 
   AzBytArr s_param; 
   const char *dt_param; 
@@ -201,9 +201,8 @@ public:
       throw new AzException("AzTrTreeEnsemble::leafNum", "out of range"); 
     }
     int l_num = 0; 
-    int tx; 
-    for (tx = tx0; tx < tx1; ++tx) {
-      l_num += t[tx]->leafNum(); 
+    for (int tx = tx0; tx < tx1; ++tx) {
+      l_num += t[tx]->countLeafNum();
     }
     return l_num; 
   }
@@ -235,8 +234,7 @@ public:
     AzTree **my_tree = NULL; 
     AzObjPtrArray<AzTree> my_a; 
     my_a.alloc(&my_tree, t_num, "AzTrTreeEnsemble::copy_to"); 
-    int tx; 
-    for (tx = 0; tx < t_num; ++tx) {
+    for (int tx = 0; tx < t_num; ++tx) {
       if (t[tx] != NULL) {
         my_tree[tx] = new AzTree(t[tx]); 
       }
@@ -255,8 +253,7 @@ public:
     dt_param = s_param.c_str(); 
     AzParam p(dt_param, false); 
     a_tree.alloc(&t, t_num, "AzTrTreeEnsemble::copy_nodes_from"); 
-    int tx; 
-    for (tx = 0; tx < t_num; ++tx) {
+    for (int tx = 0; tx < t_num; ++tx) {
       t[tx] = new T(p);
       t[tx]->copy_nodes_from(inp->tree(tx)); 
     }
@@ -308,8 +305,7 @@ public:
     dt_param = s_param.c_str(); 
     AzParam p(dt_param, false); 
  
-    int tx; 
-    for (tx = 0; tx < t_num; ++tx) {
+    for (int tx = 0; tx < t_num; ++tx) {
       t[tx] = new T(p); 
       t[tx]->forStoringDataIndexes(temp_files.point_file()); 
       if (search_t_num > 0 && tx < t_num-search_t_num) {
@@ -331,8 +327,7 @@ public:
     o.print("#tree", t_num); 
     o.printEnd(); 
 
-    int tx; 
-    for (tx = 0; tx < t_num; ++tx) {
+    for (int tx = 0; tx < t_num; ++tx) {
       AzBytArr s("tree"); s.inBrackets(tx); 
       AzPrint::writeln(out, s); 
       if (t[tx] != NULL) {
