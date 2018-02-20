@@ -340,13 +340,13 @@ class FastRGFRegressor(utils.RGFRegressorBase):
             params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
             params.append("trn.x-file_format=x.sparse")
             params.append("trn.y-file=%s" % self._train_y_loc)
-            if self._save_weights:
+            if self._use_sample_weight:
                 params.append("trn.w-file=%s" % self._train_weight_loc)
         else:
             params.append("discretize.dense.max_buckets=%s" % self._max_bin)
             params.append("discretize.dense.lamL2=%s" % self.data_l2)
             params.append("discretize.dense.min_bucket_weights=%s" % self.min_child_weight)
-            if self._save_weights:
+            if self._use_sample_weight:
                 fmt = "w.y.x"
             else:
                 fmt = "y.x"
@@ -383,7 +383,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
 
     def _save_dense_files(self, X, y, sample_weight):
         self._train_x_loc = self._train_x_loc[:-2]
-        if self._save_weights:
+        if self._use_sample_weight:
             arrs = (sample_weight, y, X)
         else:
             arrs = (y, X)
@@ -651,7 +651,7 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
 
     def _save_dense_files(self, X, y, sample_weight):
         self._train_x_loc = self._train_x_loc[:-2]
-        if self._save_weights:
+        if self._use_sample_weight:
             arrs = (sample_weight, y, X)
         else:
             arrs = (y, X)
@@ -677,13 +677,13 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
             params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
             params.append("trn.x-file_format=x.sparse")
             params.append("trn.y-file=%s" % self._train_y_loc)
-            if self._save_weights:
+            if self._use_sample_weight:
                 params.append("trn.w-file=%s" % self._train_weight_loc)
         else:
             params.append("discretize.dense.max_buckets=%s" % self.max_bin)
             params.append("discretize.dense.lamL2=%s" % self.data_l2)
             params.append("discretize.dense.min_bucket_weights=%s" % self.min_child_weight)
-            if self._save_weights:
+            if self._use_sample_weight:
                 fmt = "w.y.x"
             else:
                 fmt = "y.x"

@@ -279,14 +279,14 @@ class RGFMixin(object):
 
     def _save_train_data(self, X, y, sample_weight):
         if sample_weight is None:
-            self._save_weights = False
+            self._use_sample_weight = False
         else:
-            self._save_weights = True
+            self._use_sample_weight = True
 
         if sp.isspmatrix(X):
             self._save_sparse_X(self._train_x_loc, X)
             np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
-            if self._save_weights:
+            if self._use_sample_weight:
                 np.savetxt(self._train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
             self._is_sparse_train_X = True
         else:
