@@ -136,12 +136,12 @@ void AzParam::read(const char *fn,
 {
   AzFile file(fn); 
   file.open("rb"); 
-  int len = file.size_under2G("AzParam::read, parameter file"); 
+  const int file_size = file.size_under2G("AzParam::read, parameter file");
   AzBytArr ba_buff; 
-  AzByte *buff = ba_buff.reset(len, 0); 
-  file.seekReadBytes(0, len, buff); 
+  AzByte *buff = ba_buff.reset(file_size, 0);
+  file.seekReadBytes(0, file_size, buff);
   file.close(); 
-  concat(buff, len, s_out, dlm, cmt); 
+  concat(buff, file_size, s_out, dlm, cmt);
 }                   
 
 /*-------------------------------------------------------------*/
@@ -153,14 +153,15 @@ void AzParam::concat_args(int argc,
                           char cmt)
 {
   s_out->reset(); 
-  int ax; 
-  for (ax = 0; ax < argc; ++ax) {
+  for (int ax = 0; ax < argc; ++ax) {
     if (*argv[ax] == file_mark) {
       const char *fn = argv[ax]+1; 
       AzParam::read(fn, s_out, dlm, cmt); 
     }
     else {
-      if (s_out->length() > 0) s_out->c(dlm); 
+      if (s_out->length() > 0) {
+        s_out->c(dlm);
+      }
       s_out->c(argv[ax]); 
     }
   }
