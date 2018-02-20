@@ -38,13 +38,14 @@ enum AzLossType {
   AzLoss_LogRe = 8, /* log loss for regression: y in [0,1] */
   AzLoss_LogRe2 = 9,
   AzLoss_L1L2 = 10,
-  AzLoss_Xtemp = 11,
-  AzLoss_None = 12,
+  AzLoss_Abs = 11,
+  AzLoss_Xtemp = 12,
+  AzLoss_None = 13,
 };
-#define AzLossType_Num 13
+#define AzLossType_Num 14
 static const char *loss_str[AzLossType_Num] = {
-  "ModHuber", "Log", "Expo", "ModLS", "LS", "Huber", "DummyLS", 
-  "Logit", "LogRe", "LogRe2", "L1L2", "Xtemp", "None", 
+  "ModHuber", "Log", "Expo", "ModLS", "LS", "Huber", "DummyLS",
+  "Logit", "LogRe", "LogRe2", "L1L2", "Abs", "Xtemp", "None",
 }; 
 static const char *loss_desc[AzLossType_Num] = {
   /* ModHuber */  "Modified Huber loss -2py if py<=-1;(p-y)^2/2 if -1<py<1;otherwise 0", 
@@ -58,6 +59,7 @@ static const char *loss_desc[AzLossType_Num] = {
   /* LogRe */     "Log loss for regression for y in [0,1]", 
   /* LogRe2 */    "Like |r| with large r (residual); for regression for real y", 
   /* L1L2 */      "L1-L2 hybrid", 
+  /* Abs*/        "|y-p|",
   /* Xtemp */     "Xtemp", 
   /* None" */     "Unknown", 
 }; 

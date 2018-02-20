@@ -13,7 +13,7 @@ from rgf import utils
 
 
 ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
-LOSSES = ("LS", "Expo", "Log")
+LOSSES = ("LS", "Expo", "Log", "Abs")
 
 
 def validate_rgf_params(max_leaf,
@@ -142,11 +142,12 @@ class RGFRegressor(utils.RGFRegressorBase):
         RGF Opt: RGF with min-penalty regularization.
         RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
 
-    loss : string ("LS" or "Expo" or "Log"), optional (default="LS")
+    loss : string ("LS" or "Expo" or "Log" or "Abs"), optional (default="LS")
         Loss function.
         LS: Square loss.
         Expo: Exponential loss.
         Log: Logistic loss.
+        Abs: Absolute error loss.
 
     reg_depth : float, optional (default=1.0)
         Must be no smaller than 1.0.
@@ -403,11 +404,12 @@ class RGFClassifier(utils.RGFClassifierBase):
         RGF Opt: RGF with min-penalty regularization.
         RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
 
-    loss : string ("LS" or "Expo" or "Log"), optional (default="Log")
+    loss : string ("LS" or "Expo" or "Log" or "Abs"), optional (default="Log")
         Loss function.
         LS: Square loss.
         Expo: Exponential loss.
         Log: Logistic loss.
+        Abs: Absolute error loss.
 
     reg_depth : float, optional (default=1.0)
         Must be no smaller than 1.0.

@@ -8,7 +8,9 @@ from scipy import sparse
 from sklearn import datasets
 from sklearn.exceptions import NotFittedError
 from sklearn.externals import joblib
-from sklearn.metrics import accuracy_score, mean_squared_error
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_random_state
@@ -549,6 +551,13 @@ class TestRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
                 self.assertEqual(reg.n_iter_, 5)
         else:
             self.assertEqual(reg.n_iter_, reg.n_iter)
+
+    def test_abs_regressor(self):
+        reg = self.regressor_class(loss="Abs")
+        reg.fit(self.X_train, self.y_train)
+        y_pred = reg.predict(self.X_test)
+        mae = mean_absolute_error(self.y_test, y_pred)
+        self.assertLess(mae, 1.9916427774, "Failed with MAE = {0:.5f}".format(mae))
 
 
 class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
