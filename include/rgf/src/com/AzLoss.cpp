@@ -74,6 +74,9 @@ double AzLoss::getLoss(AzLossType loss_type,
       loss = r*r/2; 
     }
   }
+  else if (loss_type == AzLoss_Abs) {
+    loss = fabs(p-y);
+  }
   else {
     throw new AzException(eyec, "unsupported loss type"); 
   }
@@ -125,6 +128,10 @@ AzLosses AzLoss::getLosses(AzLossType loss_type,
     double ee = my_exp(-2*py); 
     o.loss2 = 4*y*y*ee/(1+ee)/(1+ee); 
     o._loss1 = 2*y*ee/(1+ee); 
+  }
+  else if (loss_type == AzLoss_Abs) {
+    o.loss2 = 0;
+    o._loss1 = y > p ? 1 : -1;
   }
   else {
     throw new AzException(eyec, "unsupported loss type"); 
