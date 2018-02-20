@@ -37,12 +37,10 @@ void AzRgf_FindSplit_TreeReg::findSplit(int nx,
 /*--------------------------------------------------------*/
 double AzRgf_FindSplit_TreeReg::evalSplit(
                              const Az_forFindSplit i[2],
-                             double bestP[2])
- const
+                             double bestP[2]) const
 {
   double d[2]; /* delta */
-  int ix; 
-  for (ix = 0; ix < 2; ++ix) {
+  for (int ix = 0; ix < 2; ++ix) {
     double wrsum = i[ix].wy_sum; 
     d[ix] = (wrsum-nlam*dR)/(i[ix].w_sum+nlam*ddR); 
     bestP[ix] = p_node->weight + d[ix]; 
