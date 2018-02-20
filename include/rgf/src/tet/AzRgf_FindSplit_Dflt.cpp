@@ -59,7 +59,7 @@ double AzRgf_FindSplit_Dflt::getBestGain(double wsum,  /* some of data weights *
   }
   else { /* L1 and L2; not tested after code change */
     double _wysum = wrsum + wsum*p;
-    if      (_wysum >  c_nsig) {
+    if (_wysum >  c_nsig) {
       q = (_wysum-c_nsig)/(wsum+c_nlam);
     } else if (_wysum < -c_nsig) {
       q = (_wysum+c_nsig)/(wsum+c_nlam);

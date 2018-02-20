@@ -35,7 +35,7 @@ class AzTrTree_ReadOnly : /* implements */ public virtual AzTreeNodes
 public:
   /*---  information seeking ... ---*/
   virtual int nodeNum() const = 0; 
-  virtual int leafNum() const = 0; 
+  virtual int countLeafNum() const = 0; 
   virtual int maxDepth() const = 0; 
   virtual void show(const AzSvFeatInfo *feat, const AzOut &out) const = 0; 
   virtual void concat_stat(AzBytArr *o) const = 0; 

@@ -394,7 +394,7 @@ void AzRgforest::show_tree_info() const
     int max_depth = tree->maxDepth(); 
     max_max_depth = MAX(max_max_depth, max_depth); 
     avg_max_depth += max_depth; 
-    int tree_size = tree->leafNum(); 
+    int tree_size = tree->countLeafNum();
     max_size = MAX(max_size, tree_size); 
     avg_size += tree_size; 
   }
