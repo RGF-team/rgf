@@ -31,8 +31,7 @@ void AzSortedFeat_Dense::reset(const AzDvect *v_data_transpose,
   const int *dxs = ia_dx->point(); 
   AzIFarr ifa_dx_val; 
   ifa_dx_val.prepare(ia_dx->size()); 
-  int ix; 
-  for (ix = 0; ix < ia_dx->size(); ++ix) {
+  for (int ix = 0; ix < ia_dx->size(); ++ix) {
     int dx = dxs[ix]; 
     ifa_dx_val.put(dx, dx2value[dx]); 
   }
@@ -40,7 +39,7 @@ void AzSortedFeat_Dense::reset(const AzDvect *v_data_transpose,
 
   ia_index.reset(); 
   ia_index.prepare(ifa_dx_val.size()); 
-  for (ix = 0; ix < ifa_dx_val.size(); ++ix) {
+  for (int ix = 0; ix < ifa_dx_val.size(); ++ix) {
     int dx; 
     ifa_dx_val.get(ix, &dx); 
     ia_index.put(dx); 
@@ -65,8 +64,7 @@ void AzSortedFeat_Dense::filter(const AzSortedFeat_Dense *inp,
   int inp_index_num; 
   const int *inp_index = inp->ia_index.point(&inp_index_num); 
 
-  int ix; 
-  for (ix = 0; ix < inp_index_num; ++ix) {
+  for (int ix = 0; ix < inp_index_num; ++ix) {
     int dx = inp_index[ix]; 
     if (dx <= max_dx && isYes[dx]) {
       ia_index.put(dx); 
@@ -95,8 +93,7 @@ void AzSortedFeat_Dense::separate_indexes(int *index,
   AzIntArr ia_no;  
   ia_no.prepare(index_num-yes_num); 
   int yes_ix = 0; 
-  int ix; 
-  for (ix = 0; ix < index_num; ++ix) {
+  for (int ix = 0; ix < index_num; ++ix) {
     int dx = index[ix]; 
     if (dx <= max_dx && isYes[dx]) {
       if (yes_ix != ix) {
@@ -202,8 +199,7 @@ void AzSortedFeatArr::filter_base(const AzSortedFeatArr *inp,
 
   if (inp->doingSparse()) {
     a_sparse.alloc(&arrs, f_num, eyec, "arrs"); 
-    int fx; 
-    for (fx = 0; fx < f_num; ++fx) {
+    for (int fx = 0; fx < f_num; ++fx) {
       if (inp->arrs == NULL || inp->arrs[fx] == NULL) {
         throw new AzException(eyec, "No sorted sparse features?!");
       }
@@ -212,8 +208,7 @@ void AzSortedFeatArr::filter_base(const AzSortedFeatArr *inp,
   }
   else {
     a_dense.alloc(&arrd, f_num, eyec, "arrd"); 
-    int fx; 
-    for (fx = 0; fx < f_num; ++fx) {
+    for (int fx = 0; fx < f_num; ++fx) {
       if (inp->arrd == NULL || inp->arrd[fx] == NULL) {
         throw new AzException(eyec, "No sorted dense features?!");
       }
@@ -278,7 +273,7 @@ const
   }
 
   const double *dx2value = v_dx2v->point(); 
-  int ix; 
+  int ix;
   for (ix = 0; ix < index_num; ++ix) {
     int dx = index[ix]; 
     if (dx2value[dx] > border_val) break; 
@@ -361,8 +356,7 @@ void AzSortedFeat_Sparse::filter(const AzSortedFeat_Sparse *inp,
   const int *isYes = ia_isYes->point(); 
   int inp_zero_num; 
   const int *inp_zero = inp->ia_zero.point(&inp_zero_num); 
-  int ix; 
-  for (ix = 0; ix < inp_zero_num; ++ix) {
+  for (int ix = 0; ix < inp_zero_num; ++ix) {
     int dx = inp_zero[ix]; 
     if (dx <= max_dx && isYes[dx]) {
       ia_zero.put(dx); 
@@ -373,7 +367,7 @@ void AzSortedFeat_Sparse::filter(const AzSortedFeat_Sparse *inp,
   const int *inp_index = inp->ia_index.point(&inp_index_num); 
   const double *inp_value = inp->v_value.point(); 
   int where_is_zero = -1; 
-  for (ix = 0; ix < inp_index_num; ++ix) {
+  for (int ix = 0; ix < inp_index_num; ++ix) {
     int dx = inp_index[ix]; 
     if (dx == AzNone) {  /* place holder for zero */
       ia_index.put(AzNone); 
@@ -403,8 +397,7 @@ void AzSortedFeat_Sparse::separate(const AzSortedFeat_Sparse *inp,
   const int *isYes = ia_isYes->point(); 
   int inp_zero_num; 
   const int *inp_zero = inp->ia_zero.point(&inp_zero_num); 
-  int ix; 
-  for (ix = 0; ix < inp_zero_num; ++ix) {
+  for (int ix = 0; ix < inp_zero_num; ++ix) {
     int dx = inp_zero[ix]; 
     if (dx <= max_dx && isYes[dx]) {
       yes->ia_zero.put(dx); 
@@ -418,7 +411,7 @@ void AzSortedFeat_Sparse::separate(const AzSortedFeat_Sparse *inp,
   const int *inp_index = inp->ia_index.point(&inp_index_num); 
   const double *inp_value = inp->v_value.point(); 
   int yes_where_is_zero = -1, no_where_is_zero = -1; 
-  for (ix = 0; ix < inp_index_num; ++ix) {
+  for (int ix = 0; ix < inp_index_num; ++ix) {
     int dx = inp_index[ix]; 
     if (dx == AzNone) {  /* place holder for zero */
       yes->ia_index.put(AzNone); 
@@ -512,8 +505,7 @@ void AzSortedFeat_Sparse::copy(const AzSortedFeat_Sparse *inp)
 
 /*--------------------------------------------------------*/
 const int *AzSortedFeat_Sparse::forward(AzCursor &cur, 
-                              double *out_val, int *out_num) /* output */
-const 
+                                        double *out_val, int *out_num) const
 {
   const char *eyec = "AzSortedFeat_Sparse::forward"; 
   if (_shouldDoBackward) {
@@ -546,7 +538,7 @@ const
   }
 
   int begin = cursor; 
-  cursor = cur.inc(); 
+  cursor = cur.inc();
   double avg_val = curr_val + 0.00000001; 
   for ( ; cursor < num; cursor=cur.inc()) {
     double next_val = value[cursor]; 
@@ -626,8 +618,7 @@ void AzSortedFeat_Sparse::getIndexes(const int *inp_dxs,
                               double border_val, 
                               /*---  output  ---*/
                               AzIntArr *ia_le_dx, 
-                              AzIntArr *ia_gt_dx)
-const
+                              AzIntArr *ia_gt_dx) const
 {
   ia_le_dx->reset(); 
   ia_gt_dx->reset(); 
@@ -641,8 +632,7 @@ const
   const int *index = ia_index.point(&num); 
   const double *value = v_value.point(); 
 
-  int ix; 
-  for (ix = 0; ix < num; ++ix) {
+  for (int ix = 0; ix < num; ++ix) {
     int dx = index[ix]; 
     if (value[ix] == 0) {
       if (ia_zero_index->size() > 0) {
@@ -685,8 +675,7 @@ const
   out_ia_zero->prepare(inp_dxs_num - ia_index.size() + 1); 
   int nz_dx_max = ia_isNonZero.size()-1; 
   const int *isNonZero = ia_isNonZero.point(); 
-  int jx; 
-  for (jx = 0; jx < inp_dxs_num; ++jx) {
+  for (int jx = 0; jx < inp_dxs_num; ++jx) {
     int dx = inp_dxs[jx]; 
     if (dx > nz_dx_max || !isNonZero[dx]) {
       out_ia_zero->put(dx); 
@@ -740,8 +729,7 @@ void AzSortedFeatArr::reset_dense(const AzDmat *m_tran_dense,   /* set */
   int nz_num = 0; 
   AzIntArr ia_all_dx; 
   ia_all_dx.range(0, data_num); 
-  int fx; 
-  for (fx = 0; fx < f_num; ++fx) {
+  for (int fx = 0; fx < f_num; ++fx) {
     arrd[fx] = new AzSortedFeat_Dense(m_tran_dense->col(fx), &ia_all_dx); 
   }
 }
@@ -863,8 +851,7 @@ void AzSortedFeatArr::separate(AzSortedFeatArr *base, /* used only by Dense */
   }
 
   if (inp->doingSparse()) {
-    int fx; 
-    for (fx = 0; fx < inp->featNum(); ++fx) {
+    for (int fx = 0; fx < inp->featNum(); ++fx) {
       if (inp->arrs == NULL || inp->arrs[fx] == NULL) {
         throw new AzException(eyec, "No sparse sorted featuers given as input"); 
       }
@@ -882,8 +869,7 @@ void AzSortedFeatArr::separate(AzSortedFeatArr *base, /* used only by Dense */
     if (base == NULL) {
       throw new AzException(eyec, "base is null.  something is wrong"); 
     }
-    int fx; 
-    for (fx = 0; fx < inp->featNum(); ++fx) {
+    for (int fx = 0; fx < inp->featNum(); ++fx) {
       if (base->arrd == NULL || base->arrd[fx] == NULL) {
         throw new AzException(eyec, "No dense sorted featuers given as base"); 
       }

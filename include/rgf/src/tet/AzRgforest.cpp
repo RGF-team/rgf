@@ -22,11 +22,11 @@
 
 /*-------------------------------------------------------------------*/
 void AzRgforest::cold_start(const char *param, 
-                        const AzSmat *m_x, 
-                        const AzDvect *v_y, 
-                        const AzSvFeatInfo *featInfo, 
-                        const AzDvect *v_fixed_dw, 
-                        const AzOut &out_req)
+                            const AzSmat *m_x,
+                            const AzDvect *v_y,
+                            const AzSvFeatInfo *featInfo,
+                            const AzDvect *v_fixed_dw,
+                            const AzOut &out_req)
 {
   out = out_req; 
   s_config.reset(param); 
@@ -54,12 +54,12 @@ void AzRgforest::cold_start(const char *param,
 
 /*-------------------------------------------------------------------*/
 void AzRgforest::warm_start(const char *param, 
-                        const AzSmat *m_x, 
-                        const AzDvect *v_y, 
-                        const AzSvFeatInfo *featInfo, 
-                        const AzDvect *v_fixed_dw, 
-                        const AzTreeEnsemble *inp_ens, 
-                        const AzOut &out_req)
+                            const AzSmat *m_x,
+                            const AzDvect *v_y,
+                            const AzSvFeatInfo *featInfo,
+                            const AzDvect *v_fixed_dw,
+                            const AzTreeEnsemble *inp_ens,
+                            const AzOut &out_req)
 {
   const char *eyec = "AzRgforest::warm_start"; 
   out = out_req; 
@@ -190,8 +190,8 @@ void AzRgforest::initEnsemble(AzParam &az_param, int max_tree_num)
 
 /*-------------------------------------------------------------------*/
 AzRgfTree *AzRgforest::tree_to_grow(int &best_tx,  /* inout */
-                                   int &best_nx,  /* inout */
-                                   bool *isNewTree) /* output */
+                                    int &best_nx,  /* inout */
+                                    bool *isNewTree) /* output */
 {
   if (best_tx != rootonly_tx) {
     *isNewTree = false; 
@@ -222,8 +222,7 @@ AzTETrainer_Ret AzRgforest::proceed_until()
     }
 
     /*---  time to test?  ---*/
-    bool doTestNow = test_timer.ringing(false, l_num); 
-    if (doTestNow) {  
+    if (test_timer.ringing(false, l_num)) {
       ret = AzTETrainer_Ret_TestNow; 
       break; /* time to test */
     }
@@ -270,7 +269,7 @@ bool AzRgforest::growForest()
 
   /*---  split the node  ---*/
   double w_inc; 
-  int leaf_nx[2] = {-1,-1}; 
+  int leaf_nx[2] = {-1, -1};
   const AzRgfTree *tree = splitNode(&best_split, &w_inc, leaf_nx); 
 
   if (lmax_timer.reachedMax(l_num, "AzRgforest: #leaf", out)) { 
@@ -278,9 +277,9 @@ bool AzRgforest::growForest()
   }
 
   /*---  update target  ---*/
-  updateTarget(tree, leaf_nx, w_inc); 
+  updateTarget(tree, leaf_nx, w_inc);
 
-  time_end(b_time, &search_time); 
+  time_end(b_time, &search_time);
   return false; /* don't exit */
 }
 
@@ -288,10 +287,10 @@ bool AzRgforest::growForest()
 /*------------------------------------------------------------------*/
 const AzRgfTree *AzRgforest::splitNode(AzTrTsplit *best_split, /* (tx,nx) may be updated */
                              /*---  output  ---*/
-                             double *w_inc, 
+                             double *w_inc,
                              int leaf_nx[2])
 {                             
-  bool isNewTree = false; 
+  bool isNewTree = false;
   AzRgfTree *tree = tree_to_grow(best_split->tx, best_split->nx, &isNewTree); 
   double old_w = tree->node(best_split->nx)->weight; 
   tree->splitNode(data, best_split); 
@@ -368,8 +367,7 @@ void AzRgforest::searchBestSplit(AzTrTsplit *best_split) /* must be initialize b
   }
 
   AzRgf_FindSplit_input input(-1, data, tar, lam_scale, nn); 
-  int tx; 
-  for (tx = my_first; tx <= last_tx; ++tx) {
+  for (int tx = my_first; tx <= last_tx; ++tx) {
     input.tx = tx; 
     ens->tree_u(tx)->findSplit(fs, input, doRefreshAll, best_split);
   }
@@ -430,8 +428,7 @@ void AzRgforest::optimize_resetTarget()
   opt->update(data, ens, &v_p); 
   resetTarget(); 
 
-  int tx; 
-  for (tx = 0; tx < t_num; ++tx) {
+  for (int tx = 0; tx < t_num; ++tx) {
     ens->tree_u(tx)->removeSplitAssessment(); /* since weights changed */  
   }
 
@@ -452,14 +449,11 @@ void AzRgforest::_updateTarget_OtherLoss(const AzRgfTree *tree,
   double *tar_dw = target.tarDw_forUpdate()->point_u(); 
   double *dw = target.dw_forUpdate()->point_u(); 
 
-  int kx; 
-  for (kx = 0; kx < 2; ++kx) {
+  for (int kx = 0; kx < 2; ++kx) {
     const AzTrTreeNode *np = tree->node(leaf_nx[kx]); 
-    int num = np->dxs_num; 
     const int *dxs = np->data_indexes(); 
     double new_w = np->weight; 
-    int ix; 
-    for (ix = 0; ix < num; ++ix) {
+    for (int ix = 0; ix < np->dxs_num; ++ix) {
       int dx = dxs[ix]; 
 
       p[dx] += (new_w + w_inc); 
@@ -484,14 +478,11 @@ void AzRgforest::_updateTarget_LS(const AzRgfTree *tree,
   double *r = target->tarDw_forUpdate()->point_u(); 
   double *p = v_p->point_u(); 
 
-  int kx; 
-  for (kx = 0; kx < 2; ++kx) {
+  for (int kx = 0; kx < 2; ++kx) {
     const AzTrTreeNode *np = tree->node(leaf_nx[kx]); 
-    int num = np->dxs_num; 
     const int *dxs = np->data_indexes(); 
     double new_w = np->weight; 
-    int ix; 
-    for (ix = 0; ix < num; ++ix) {
+    for (int ix = 0; ix < np->dxs_num; ++ix) {
       int dx = dxs[ix]; 
       p[dx] += new_w; 
       r[dx] -= new_w; 

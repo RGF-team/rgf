@@ -58,15 +58,18 @@ double AzRgf_FindSplit_Dflt::getBestGain(double wsum,  /* some of data weights *
     q += p; 
   }
   else { /* L1 and L2; not tested after code change */
-    double _wysum = wrsum + wsum*p; 
-    if      (_wysum >  c_nsig) q = (_wysum-c_nsig)/(wsum+c_nlam); 
-    else if (_wysum < -c_nsig) q = (_wysum+c_nsig)/(wsum+c_nlam); 
-    else                       q = 0; 
-    double org_losshat = -2*p*_wysum+p*p*(wsum+p_nlam)+2*p_nsig*fabs(p); 
-    double new_losshat = -q*q*(wsum+c_nlam); 
-    gain = org_losshat - new_losshat; 
+    double _wysum = wrsum + wsum*p;
+    if      (_wysum >  c_nsig) {
+      q = (_wysum-c_nsig)/(wsum+c_nlam);
+    } else if (_wysum < -c_nsig) {
+      q = (_wysum+c_nsig)/(wsum+c_nlam);
+    } else {
+      q = 0;
+    }
+    double org_losshat = -2*p*_wysum+p*p*(wsum+p_nlam)+2*p_nsig*fabs(p);
+    double new_losshat = -q*q*(wsum+c_nlam);
+    gain = org_losshat - new_losshat;
   }
-
   *best_q = q;
   return gain; 
 }

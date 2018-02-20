@@ -33,17 +33,15 @@ void AzRgfTree::findSplit(AzRgf_FindSplit *fs,
   }
 
   AzTrTree::_checkNodes(eyec); 
-  int leaf_num = leafNum(); 
   if (max_leaf_num > 0) {
-    if (leaf_num >= max_leaf_num) {
+    if (leafNum() >= max_leaf_num) {
       return;   
     }
   }
 
   _findSplit_begin(fs, inp); 
 
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     if (!nodes[nx].isLeaf()) continue; 
 
     /*---  ---*/
@@ -68,9 +66,9 @@ void AzRgfTree::findSplit(AzRgf_FindSplit *fs,
 void AzRgfTree::removeSplitAssessment() 
 {
   if (split != NULL) {
-    int nx; 
-    for (nx = 0; nx < nodes_used; ++nx) {
-      delete split[nx]; split[nx] = NULL; 
+    for (int nx = 0; nx < nodes_used; ++nx) {
+      delete split[nx];
+      split[nx] = NULL;
     }
   }
 }
@@ -112,8 +110,7 @@ void AzRgfTree::storeDataIndexes()
   }
 
   AzIntArr ia_dxs_num; 
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     ia_dxs_num.put(nodes[nx].dxs_num); 
   }
 
@@ -121,7 +118,7 @@ void AzRgfTree::storeDataIndexes()
   wk.file->open("ab"); 
 #endif 
 
-  int fsize = wk.file->size_under2G("AzRgfTree::storeDataIndexes tempfile"); 
+  const int fsize = wk.file->size_under2G("AzRgfTree::storeDataIndexes tempfile");
   wk.set(fsize, nodes_used); 
   wk.file->seek(fsize); 
   ia_root_dx.write(wk.file); 
@@ -146,8 +143,7 @@ void AzRgfTree::releaseDataIndexes()
   if (!wk.isStored()) return; 
 
   ia_root_dx.reset(); 
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     nodes[nx].reset_data_indexes(NULL); 
   }
 }
@@ -175,8 +171,7 @@ void AzRgfTree::restoreDataIndexes()
     throw new AzException(eyec, "conflict in #node"); 
   }
   const int *dxs_num = ia_dxs_num.point(); 
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     if (nodes[nx].dxs_num != dxs_num[nx]) {
       throw new AzException(eyec, "conflict in #data"); 
     }
