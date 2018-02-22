@@ -58,9 +58,9 @@ before_deploy:
       cd dist;
       zip -d rgf_python-${RGF_VER}-py2.py3-none-manylinux1_i686.whl rgf/rgf rgf/forest_train rgf/forest_predict;
       mkdir rgf;
-      wget https://github.com/fukatani/rgf_python/releases/download/2.1.1/rgf -O rgf/rgf;
-      wget https://github.com/fukatani/rgf_python/releases/download/2.3.0/forest_train -O rgf/forest_train;
-      wget https://github.com/fukatani/rgf_python/releases/download/2.3.0/forest_predict -O rgf/forest_predict;
+      wget https://github.com/fukatani/rgf_python/releases/download/3.0.0/rgf -O rgf/rgf;
+      wget https://github.com/fukatani/rgf_python/releases/download/3.0.0/forest_train -O rgf/forest_train;
+      wget https://github.com/fukatani/rgf_python/releases/download/3.0.0/forest_predict -O rgf/forest_predict;
       zip rgf_python-${RGF_VER}-py2.py3-none-manylinux1_i686.whl rgf/rgf rgf/forest_train rgf/forest_predict;
       cd ..;
     fi
