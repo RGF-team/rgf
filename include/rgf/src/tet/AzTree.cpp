@@ -24,8 +24,7 @@ void AzTree::write(AzFile *file)
 {
   file->writeInt(root_nx); 
   file->writeInt(nodes_used); 
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     nodes[nx].write(file); 
   }
 }
@@ -44,8 +43,7 @@ void AzTree::copy_from(const AzTreeNodes *tree_nodes)
   root_nx = tree_nodes->root(); 
   nodes_used = tree_nodes->nodeNum(); 
   a_nodes.alloc(&nodes, nodes_used, "AzTree::copy_from", "nodes"); 
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     nodes[nx] = *tree_nodes->node(nx); 
   }               
 }
@@ -58,8 +56,7 @@ void AzTree::_read(AzFile *file)
   root_nx = file->readInt(); 
   nodes_used = file->readInt(); 
   a_nodes.alloc(&nodes, nodes_used, eyec, "nodes"); 
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     nodes[nx].read(file); 
   }
 }
@@ -180,8 +177,7 @@ int AzTree::leafNum() const
 {
   checkNodes("leafNum"); 
   int leaf_num = 0; 
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     if (nodes[nx].isLeaf()) {
       ++leaf_num; 
     }
@@ -194,8 +190,7 @@ void AzTree::clean_up()
 {
   checkNodes("clean_up"); 
 
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     if (!nodes[nx].isLeaf()) continue; 
 
     /*---  add non-leaf weights to the leaf weight ---*/
@@ -207,7 +202,7 @@ void AzTree::clean_up()
     }
   }
 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     if (nodes[nx].isLeaf()) continue; 
     nodes[nx].weight = 0; /* zero-out non-leaf weights */
   }
@@ -218,8 +213,7 @@ void AzTree::finfo(AzIFarr *ifa_fx_count,
                    AzIFarr *ifa_fx_w) /* appended */
 const 
 {
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     if (!nodes[nx].isLeaf()) continue;
     double w = nodes[nx].weight;  
     int nx1 = nodes[nx].parent_nx; 
@@ -234,8 +228,7 @@ const
 /*--------------------------------------------------------*/
 void AzTree::finfo(AzIntArr *ia_fxs) const /* appended */
 {
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     if (nodes[nx].fx >= 0) {
       ia_fxs->put(nodes[nx].fx); 
     }
@@ -246,8 +239,7 @@ void AzTree::finfo(AzIntArr *ia_fxs) const /* appended */
 /*--------------------------------------------------------*/
 void AzTree::cooccurrences(AzIIFarr *iifa_fx1_fx2_count) const
 {
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     if (!nodes[nx].isLeaf()) continue; 
 
     AzIntArr ia_fxs; 
@@ -258,9 +250,8 @@ void AzTree::cooccurrences(AzIIFarr *iifa_fx1_fx2_count) const
     }
     ia_fxs.sort(true); 
     const int *fxs = ia_fxs.point(); 
-    int ix1, ix2; 
-    for (ix1 = 0; ix1 < ia_fxs.size(); ++ix1) {
-      for (ix2 = ix1+1; ix2 < ia_fxs.size(); ++ix2) {
+    for (int ix1 = 0; ix1 < ia_fxs.size(); ++ix1) {
+      for (int ix2 = ix1+1; ix2 < ia_fxs.size(); ++ix2) {
         iifa_fx1_fx2_count->put(fxs[ix1], fxs[ix2], 1); 
       }
     }
