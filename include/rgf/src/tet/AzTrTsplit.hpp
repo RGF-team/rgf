@@ -25,15 +25,17 @@
 //! Node split information.  
 class AzTrTsplit {
 public:
-  int fx; 
-  double border_val; 
-  double gain; 
-  double bestP[2];      /* le gt */
-  AzBytArr str_desc; 
+  int fx;
+  double border_val;
+  double gain;
+  double le_gain;
+  double gt_gain;
+  double bestP[2];  /* le gt */
+  AzBytArr str_desc;
 
   int tx, nx; /* set only by Rgf; not used by Std */
 
-  AzTrTsplit() : fx(-1), border_val(0), gain(0), tx(-1), nx(-1) {
+  AzTrTsplit() : fx(-1), border_val(0), gain(0), le_gain(0), gt_gain(0), tx(-1), nx(-1) {
     bestP[0] = bestP[1] = 0; 
   }
 
@@ -50,7 +52,9 @@ header, fx, border_val, gain, bestP[0], bestP[1], tx, nx);
     border_val = 0; 
     bestP[0] = bestP[1] = 0; 
     gain = 0; 
-    str_desc.reset(); 
+    le_gain = 0;
+    gt_gain = 0;
+    str_desc.reset();
     tx = nx = -1; 
   }
   AzTrTsplit(int fx, double border_val, 
@@ -89,15 +93,6 @@ header, fx, border_val, gain, bestP[0], bestP[1], tx, nx);
     bestP[1] = inp->bestP[1]; 
     tx = inp->tx; 
     nx = inp->nx; 
-  }
-
-  virtual 
-  void keep_if_good(int inp_fx, double inp_border_val, 
-             double inp_gain, 
-             double bestP_L, double bestP_G) {
-    if (inp_gain > gain) {
-      reset_values(inp_fx, inp_border_val, inp_gain, bestP_L, bestP_G); 
-    }
   }
 
   virtual 
