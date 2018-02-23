@@ -58,8 +58,11 @@ public:
                     const char *y_fn=NULL,
                     const char *fdic_fn=NULL,
                     int max_data_num=-1) {
-    if (y_fn == NULL || strlen(y_fn) == 0) read_features_only(feat_fn, fdic_fn, max_data_num);
-    else                                  _read(feat_fn, y_fn, fdic_fn, max_data_num);
+    if (y_fn == NULL || strlen(y_fn) == 0) {
+      read_features_only(feat_fn, fdic_fn, max_data_num);
+    } else {
+      _read(feat_fn, y_fn, fdic_fn, max_data_num);
+    }
   }
   virtual void read_features_only(const char *feat_fn,
                                   const char *fdic_fn=NULL,
@@ -70,8 +73,7 @@ public:
   void append_const(double const_to_add) {
     int r_num = m_feat.rowNum()+1, c_num = m_feat.colNum();
     m_feat.resize(r_num, c_num);
-    int col;
-    for (col = 0; col < c_num; ++col) {
+    for (int col = 0; col < c_num; ++col) {
       AzIFarr ifa;
       m_feat.col(col)->nonZero(&ifa);
       ifa.put(r_num-1, const_to_add);
@@ -148,11 +150,10 @@ public:
   static void find_max(const AzSmat *m_x, AzDvect *v_max) {
     v_max->reform(m_x->rowNum());
     double *max = v_max->point_u();
-    int col, row;
-    for (col = 0; col < m_x->colNum(); ++col) {
+    for (int col = 0; col < m_x->colNum(); ++col) {
       AzDvect v_x(m_x->col(col));
       const double *xval = v_x.point();
-      for (row = 0; row < m_x->rowNum(); ++row) {
+      for (int row = 0; row < m_x->rowNum(); ++row) {
         max[row] = MAX(max[row], fabs(xval[row]));
       }
     }
@@ -165,8 +166,7 @@ public:
     int kk = MAX(topk, (int)((double)m_x->colNum()*ratio));
     v_max->reform(m_x->rowNum());
     double *max = v_max->point_u();
-    int row;
-    for (row = 0; row < m_x->rowNum(); ++row) {
+    for (int row = 0; row < m_x->rowNum(); ++row) {
       AzDvect v(m_tran.col(row));
       v.abs();
       AzIFarr ifa;
@@ -179,8 +179,7 @@ public:
 
   /*------------------------------------------*/
   static void divide_by(const AzDvect *v_max, AzSmat *m_x) {
-    int col;
-    for (col = 0; col < m_x->colNum(); ++col) {
+    for (int col = 0; col < m_x->colNum(); ++col) {
       AzDvect v_x(m_x->col(col));
       bool doInverse = true;
       v_x.scale(v_max, doInverse);
@@ -190,17 +189,21 @@ public:
 
   /*------------------------------------------*/
   static void apply_log(AzSmat *m_x) {
-    int col;
-    for (col = 0; col < m_x->colNum(); ++col) {
+    for (int col = 0; col < m_x->colNum(); ++col) {
       AzIFarr ifa;
       const AzSvect *v_x = m_x->col(col);
       AzCursor cur;
       for ( ; ; ) {
         double val;
         int row = v_x->next(cur, val);
-        if (row < 0) break;
-        if (val > 0) val = log(val+1);
-        else         val = -log(-val+1);
+        if (row < 0) {
+          break;
+        }
+        if (val > 0) {
+          val = log(val+1);
+        } else {
+          val = -log(-val+1);
+        }
         ifa.put(row, val);
       }
       m_x->col_u(col)->load(&ifa);
@@ -210,17 +213,21 @@ public:
   /*------------------------------------------*/
   static void cap(double capval, AzSmat *m_x) {
     if (capval < 0) throw new AzException("AzSvDataS::cap", "cap must be non-negative");
-    int col;
-    for (col = 0; col < m_x->colNum(); ++col) {
+    for (int col = 0; col < m_x->colNum(); ++col) {
       AzIFarr ifa;
       const AzSvect *v_x = m_x->col(col);
       AzCursor cur;
       for ( ; ; ) {
         double val;
         int row = v_x->next(cur, val);
-        if (row < 0) break;
-        if (val > 0) val = MIN(val, capval);
-        else         val = MAX(val, -capval);
+        if (row < 0) {
+          break;
+        }
+        if (val > 0) {
+          val = MIN(val, capval);
+        } else {
+          val = MAX(val, -capval);
+        }
         ifa.put(row, val);
       }
       m_x->col_u(col)->load(&ifa);
@@ -228,8 +235,7 @@ public:
   }
   static void sdev(const AzSmat *m, AzDvect *v_sdev) {
     AzDvect v_avg(m->rowNum()), v_avg2(m->rowNum());
-    int cx;
-    for (cx = 0; cx < m->colNum(); ++cx) {
+    for (int cx = 0; cx < m->colNum(); ++cx) {
       v_avg.add(m->col(cx));
       AzDvect v(m->col(cx)); v.square();
       v_avg2.add(&v);
@@ -241,8 +247,7 @@ public:
   }
   static void get_abs_sdev(const AzSmat *m, AzDvect *v_sdev) {
     AzDvect v_avg(m->rowNum()), v_avg2(m->rowNum());
-    int cx;
-    for (cx = 0; cx < m->colNum(); ++cx) {
+    for (int cx = 0; cx < m->colNum(); ++cx) {
       AzDvect v(m->col(cx)); v.abs();
       v_avg.add(&v);
       v.square();
@@ -279,12 +284,6 @@ protected:
                          int max_data_num=-1) {
     readData_Large(data_fn, expected_f_num, m_data, max_data_num);   /* 12/16/2012 */
   }
-#if 0
-  static void readData_Small(const char *data_fn,
-                         int expected_f_num,
-                         /*---  output  ---*/
-                         AzSmat *m_data);
-#endif
   static void readData_Large(const char *data_fn,
                          int expected_f_num,
                          /*---  output  ---*/
