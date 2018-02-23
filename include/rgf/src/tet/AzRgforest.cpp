@@ -268,7 +268,7 @@ bool AzRgforest::growForest()
   }
 
   /*---  split the node  ---*/
-  double w_inc; 
+  double w_inc; // weight will be incremented.
   int leaf_nx[2] = {-1, -1};
   const AzRgfTree *tree = splitNode(&best_split, &w_inc, leaf_nx); 
 

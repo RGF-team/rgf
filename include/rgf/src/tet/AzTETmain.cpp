@@ -25,9 +25,9 @@
 #include "AzHelp.hpp"
 #include "AzTETproc.hpp"
 
-static int exe_argx = 0; 
-static int action_argx = 1; 
-static int config_argx = 2; 
+static const int exe_argx = 0;
+static const int action_argx = 1;
+static const int config_argx = 2;
 
 static const char *pred_fn_suffix = ".pred"; 
 static const char *info_fn_suffix = ".info"; 
