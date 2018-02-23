@@ -190,18 +190,16 @@ void AzRgforest::initEnsemble(AzParam &az_param, int max_tree_num)
 
 /*-------------------------------------------------------------------*/
 AzRgfTree *AzRgforest::tree_to_grow(int &best_tx,  /* inout */
-                                    int &best_nx,  /* inout */
-                                    bool *isNewTree) /* output */
+                                    int &best_nx)  /* inout */
 {
   if (best_tx != rootonly_tx) {
-    *isNewTree = false; 
     return ens->tree_u(best_tx); 
   }
   else {
+    // Make new tree
     AzRgfTree *tree = ens->new_tree(&best_tx); /* best_tx is updated */
     tree->reset(out); 
     best_nx = tree->makeRoot(data); 
-    *isNewTree = true; 
     return tree; 
   }
 }
@@ -290,8 +288,7 @@ const AzRgfTree *AzRgforest::splitNode(AzTrTsplit *best_split, /* (tx,nx) may be
                              double *w_inc,
                              int leaf_nx[2])
 {                             
-  bool isNewTree = false;
-  AzRgfTree *tree = tree_to_grow(best_split->tx, best_split->nx, &isNewTree); 
+  AzRgfTree *tree = tree_to_grow(best_split->tx, best_split->nx);
   double old_w = tree->node(best_split->nx)->weight; 
   tree->splitNode(data, best_split); 
   double new_w = tree->node(best_split->nx)->weight; 
