@@ -354,11 +354,11 @@ class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
         else:
             self.assertEqual(clf.min_samples_leaf_, clf.min_samples_leaf)
 
-    def test_sklearn_integration(self):
-        # TODO(fukatani): FastRGF bug?
-        # FastRGF doesn't work if the number of sample is too small.
-        # check_estimator(self.classifier_class)
-        pass
+    # def test_sklearn_integration(self):
+    #     # TODO(fukatani): FastRGF bug?
+    #     # FastRGF doesn't work if the number of sample is too small.
+    #     # check_estimator(self.classifier_class)
+    #     pass
 
 
 class RGFRegressorBaseTest(object):

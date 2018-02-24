@@ -567,8 +567,7 @@ void AzOptOnTree::refreshPred()
 
 /*--------------------------------------------------------*/
 void AzOptOnTree::resetPred(const AzBmat *b_tran, 
-                                AzDvect *out_v_p) /* output */
-const
+                                AzDvect *out_v_p) /* output */ const
 {
   int data_num = b_tran->rowNum(); 
   out_v_p->reform(data_num); 
@@ -578,7 +577,7 @@ const
     double val; 
     int fx = v_w.next(cursor, val); 
     if (fx < 0) break; 
-    const AzIntArr *ia_dx = b_tran->on_rows(fx); 
+    const AzIntArr *ia_dx = b_tran->on_rows(fx);  // pred indexes to be added val
     updatePred(ia_dx->point(), ia_dx->size(), val, out_v_p); 
   }  
 }
