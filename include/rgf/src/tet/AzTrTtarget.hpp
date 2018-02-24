@@ -26,7 +26,8 @@
 /*--------------------------------------------------------*/
 class AzTrTtarget {
 protected:
-  AzDvect v_tar_dw, v_dw;
+  AzDvect v_tar_dw;  // v_y - v_p(red)
+  AzDvect v_dw;
   AzDvect v_y; 
   AzDvect v_fixed_dw; /* data point weights assigned by users */
   double fixed_dw_sum; 
@@ -82,11 +83,6 @@ public:
     }
   }
 
-  void resetTargetDw(const AzDvect *v_tar, const AzDvect *inp_v_dw) {
-    v_tar_dw.set(v_tar); 
-    v_dw.set(inp_v_dw); 
-    v_tar_dw.scale(&v_dw); /* component-wise multiplication */
-  }
   void resetTarDw_residual(const AzDvect *v_p) { /* only for LS */
     v_tar_dw.set(&v_y); 
     v_tar_dw.add(v_p, -1); 
