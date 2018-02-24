@@ -175,8 +175,7 @@ protected:
 
   virtual bool growForest(); 
   AzRgfTree *tree_to_grow(int &best_tx,  /* inout */
-                             int &best_nx,  /* inout */
-                             bool *isNewTree); /* output */
+                          int &best_nx);  /* inout */
 
   virtual const AzRgfTree *splitNode(AzTrTsplit *best_split, 
                                      double *w_inc, /* output */

@@ -25,9 +25,9 @@
 #include "AzHelp.hpp"
 #include "AzTETproc.hpp"
 
-static int exe_argx = 0; 
-static int action_argx = 1; 
-static int config_argx = 2; 
+static const int exe_argx = 0;
+static const int action_argx = 1;
+static const int config_argx = 2;
 
 static const char *pred_fn_suffix = ".pred"; 
 static const char *info_fn_suffix = ".info"; 
@@ -85,8 +85,7 @@ void AzTETmain::readData(const char *x_fn,
                          /*---  output  ---*/
                          AzSmat *m_x, 
                          AzDvect *v_y, 
-                         AzSvFeatInfoClone *featInfo) /* may be NULL */
-const 
+                         AzSvFeatInfoClone *featInfo) /* may be NULL */ const
 {
   AzSvDataS dataset; 
   dataset.read(x_fn, y_fn, fdic_fn); 
@@ -100,8 +99,7 @@ const
 /*------------------------------------------------------------------*/
 void AzTETmain::readDataWeights(AzBytArr &s_fn, 
                             int data_num, 
-                            AzDvect *v_fixed_dw)
-const
+                            AzDvect *v_fixed_dw) const
 {
   if (s_fn.length() <= 0) return; 
   AzSvDataS::readVector(s_fn.c_str(), v_fixed_dw); 
@@ -172,10 +170,9 @@ void AzTETmain::writePrediction_single(const AzDvect *v_p,
                                        AzFile *file)
 {
   /* one prediction value per line */
-  int width = 8; 
-  AzBytArr s; 
-  int dx; 
-  for (dx = 0; dx < v_p->rowNum(); ++dx) {
+  const int width = 8;
+  AzBytArr s;
+  for (int dx = 0; dx < v_p->rowNum(); ++dx) {
     double val = v_p->get(dx); 
     s.concatFloat(val, width); 
     s.nl(); /* new line */
@@ -254,9 +251,7 @@ void AzTETmain::batch_predict(const char *argv[], int argc)
   AzStrPool sp_model_fn; 
   AzTools::readList(s_model_names_fn.c_str(), 
                     &sp_model_fn); 
-  int num = sp_model_fn.size(); 
-  int ix; 
-  for (ix = 0; ix < num; ++ix) {
+  for (int ix = 0; ix < sp_model_fn.size(); ++ix) {
     const char *model_fn = sp_model_fn.c_str(ix); 
     AzBytArr s_pred_fn(model_fn); 
     s_pred_fn.concat(&s_pred_fn_suffix); 
@@ -585,7 +580,8 @@ void AzTETmain::checkParam_train(bool for_train_test) const
 /*------------------------------------------------*/
 bool AzTETmain::resetParam_train_predict(const char *argv[], int argc)
 {
-  bool for_train_test = false, for_train_predict = true; 
+  bool for_train_test = false;
+  bool for_train_predict = true;
 
   if (argc-config_argx != 1) {
     printHelp_train(log_out, argv, argc, for_train_test, for_train_predict); 
@@ -674,10 +670,15 @@ const
   h.nl(); 
   AzBytArr s_kw(action); 
   AzBytArr s_desc; 
-  if      (s_action.compare(kw_train) == 0)         s_desc.c(help_train); 
-  else if (s_action.compare(kw_train_test) == 0)    s_desc.c(help_train_test); 
-  else if (s_action.compare(kw_predict) == 0)       s_desc.c(help_predict); 
-  else if (s_action.compare(kw_batch_predict) == 0) s_desc.c(help_batch_predict); 
+  if (s_action.compare(kw_train) == 0) {
+    s_desc.c(help_train);
+  } else if (s_action.compare(kw_train_test) == 0) {
+    s_desc.c(help_train_test);
+  } else if (s_action.compare(kw_predict) == 0) {
+    s_desc.c(help_predict);
+  } else if (s_action.compare(kw_batch_predict) == 0) {
+    s_desc.c(help_batch_predict);
+  }
   if (s_desc.length() > 0) {
     h.item(s_kw.c_str(), s_desc.c_str()); 
   }

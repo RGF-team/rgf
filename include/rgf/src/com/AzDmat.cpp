@@ -39,8 +39,7 @@ void AzDmat::_reform(int new_row_num, int new_col_num,
   a.alloc(&column, col_num, eyec, "column"); 
   dummy_zero.reform(row_num);   
   
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     column[cx] = new AzDvect(this->row_num); 
   }
 }
@@ -60,8 +59,7 @@ void AzDmat::_set(const AzDmat *m_inp)
     a.alloc(&column, col_num, eyec, "column"); 
     dummy_zero.reform(row_num);   
   }
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     delete column[cx]; 
     column[cx] = new AzDvect(m_inp->col(cx)); 
   }
@@ -80,8 +78,7 @@ void AzDmat::initialize(const AzReadOnlyMatrix *inp)
   row_num = inp->rowNum(); 
 
   a.alloc(&column, col_num, eyec, "column"); 
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     column[cx] = new AzDvect(inp->col(cx)); 
   }
   dummy_zero.reform(row_num); 
@@ -94,8 +91,7 @@ void AzDmat::resize(int new_row_num, int new_col_num)
     resize(new_col_num); 
   }
   if (new_row_num != row_num) {
-    int col; 
-    for (col = 0; col < col_num; ++col) {
+    for (int col = 0; col < col_num; ++col) {
       column[col]->resize(new_row_num); 
     }
     row_num = new_row_num; 
@@ -117,8 +113,7 @@ void AzDmat::resize(int new_col_num)
 
   int old_col_num = col_num; 
   a.realloc(&column, new_col_num, eyec, "column"); 
-  int cx; 
-  for (cx = old_col_num; cx < new_col_num; ++cx) {
+  for (int cx = old_col_num; cx < new_col_num; ++cx) {
     column[cx] = new AzDvect(row_num); 
   }
   col_num = new_col_num; 
@@ -152,14 +147,12 @@ void AzDmat::_transpose(AzDmat *m_out,
 {
   m_out->reform(col_end - col_begin, row_num); 
 
-  int cx; 
-  for (cx = col_begin; cx < col_end; ++cx) {
+  for (int cx = col_begin; cx < col_end; ++cx) {
     if (column[cx] == NULL) {
       continue; 
     }
 
-    int rx; 
-    for (rx = 0; rx < row_num; ++rx) {
+    for (int rx = 0; rx < row_num; ++rx) {
       double val = column[cx]->get(rx); 
       if (val != 0) {
         m_out->set(cx - col_begin, rx, val); 
@@ -172,8 +165,7 @@ void AzDmat::_transpose(AzDmat *m_out,
 void AzDmat::transpose_from(const AzSmat *m_inp)
 {
   reform(m_inp->colNum(), m_inp->rowNum()); 
-  int cx; 
-  for (cx = 0; cx < m_inp->colNum(); ++cx) {
+  for (int cx = 0; cx < m_inp->colNum(); ++cx) {
     const AzSvect *v_inp = m_inp->col(cx); 
     AzCursor cursor; 
     for ( ; ; ) {
@@ -194,8 +186,7 @@ void AzDmat::_read(AzFile *file)
   row_num = file->readInt(); 
   if (col_num > 0) {
     a.alloc(&column, col_num, eyec, "column"); 
-    int cx; 
-    for (cx = 0; cx < col_num; ++cx) {
+    for (int cx = 0; cx < col_num; ++cx) {
       column[cx] = AzObjIOTools::read<AzDvect>(file); 
     }
   }
@@ -206,8 +197,7 @@ void AzDmat::write(AzFile *file)
 {
   file->writeInt(col_num); 
   file->writeInt(row_num); 
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     AzObjIOTools::write(column[cx], file); 
   }
 }
@@ -252,8 +242,7 @@ void AzDmat::add(const AzDmat *inp, double coeff)
     throw new AzException(eyec, "Shape doesn't match"); 
   }
 
-  int cx; 
-  for (cx = 0; cx < this->col_num; ++cx) {
+  for (int cx = 0; cx < this->col_num; ++cx) {
     if (inp->column[cx] == NULL) {
       continue; 
     }
@@ -275,8 +264,7 @@ void AzDmat::add(const AzSmat *inp, double coeff)
     throw new AzException(eyec, "Shape doesn't match"); 
   }
 
-  int cx; 
-  for (cx = 0; cx < this->col_num; ++cx) {
+  for (int cx = 0; cx < this->col_num; ++cx) {
     if (inp->isZero(cx)) {
       continue; 
     }
@@ -306,8 +294,7 @@ void AzDmat::multiply(int row, int col, double val)
 /*-------------------------------------------------------------*/
 void AzDmat::multiply(double val) 
 {
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     if (column[cx] != NULL) {
       column[cx]->multiply(val); 
     }
@@ -317,8 +304,7 @@ void AzDmat::multiply(double val)
 /*-------------------------------------------------------------*/
 void AzDmat::add(double val) 
 {
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     if (column[cx] != NULL) {
       column[cx]->add(val); 
     }
@@ -409,8 +395,7 @@ void AzDmat::dump(const AzOut &out, const char *header,
   }
   o.printEnd(); 
 
-  int cx; 
-  for (cx = 0; cx < c_num; ++cx) {
+  for (int cx = 0; cx < c_num; ++cx) {
     if (column[cx] == NULL) {
       continue; 
     }
@@ -432,8 +417,7 @@ void AzDmat::dump(const AzOut &out, const char *header,
 /*-------------------------------------------------------------*/
 void AzDmat::normalize() 
 {
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     if (column[cx] != NULL) {  
       column[cx]->normalize(); 
     }
@@ -443,8 +427,7 @@ void AzDmat::normalize()
 /*-------------------------------------------------------------*/
 void AzDmat::normalize1() 
 {
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     if (column[cx] != NULL) {
       column[cx]->normalize1(); 
     }
@@ -454,8 +437,7 @@ void AzDmat::normalize1()
 /*-------------------------------------------------------------*/
 void AzDmat::binarize()
 {
-  int col; 
-  for (col = 0; col < col_num; ++col) {
+  for (int col = 0; col < col_num; ++col) {
     if (column[col] != NULL) {
       column[col]->binarize(); 
     }
@@ -465,8 +447,7 @@ void AzDmat::binarize()
 /*-------------------------------------------------------------*/
 void AzDmat::binarize1()
 {
-  int col; 
-  for (col = 0; col < col_num; ++col) {
+  for (int col = 0; col < col_num; ++col) {
     if (column[col] != NULL) {
       column[col]->binarize1(); 
     }
@@ -476,8 +457,7 @@ void AzDmat::binarize1()
 /*-------------------------------------------------------------*/
 void AzDmat::cut(double min_val)
 {
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     if (column[cx] != NULL) {
       column[cx]->cut(min_val); 
     }
@@ -487,8 +467,7 @@ void AzDmat::cut(double min_val)
 /*-------------------------------------------------------------*/
 void AzDmat::zeroOut()
 {
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     if (column[cx] != NULL) {
       column[cx]->zeroOut(); 
     }
@@ -501,8 +480,7 @@ double AzDmat::max(int *out_row, int *out_col) const
   int max_row = -1, max_col = -1; 
 
   double max_val = 0; 
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     double local_max; 
     int local_rx; 
     if (column[cx] == NULL) {
@@ -534,19 +512,20 @@ void AzDmat::scale(const AzDmat *m, bool isInverse)
   if (m->rowNum() != row_num || m->colNum() != col_num) {
     throw new AzException("AzDmat::scale(dmat)", "shape mismatch"); 
   }
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     if (column[cx] == NULL) continue; 
-    if (m->column[cx] != NULL) column[cx]->scale(m->column[cx], isInverse); 
-    else                       column[cx]->zeroOut(); 
+    if (m->column[cx] != NULL) {
+      column[cx]->scale(m->column[cx], isInverse);
+    } else {
+      column[cx]->zeroOut();
+    }
   }
 }
 
 /*-------------------------------------------------------------*/
 void AzDmat::scale(const AzSvect *vect1, bool isInverse) 
 {
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     if (column[cx] != NULL) {
       column[cx]->scale(vect1, isInverse); 
     }
@@ -556,8 +535,7 @@ void AzDmat::scale(const AzSvect *vect1, bool isInverse)
 /*-------------------------------------------------------------*/
 void AzDmat::scale(const AzDvect *vect1, bool isInverse) 
 {
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     if (column[cx] != NULL) {
       column[cx]->scale(vect1, isInverse); 
     }
@@ -568,8 +546,7 @@ void AzDmat::scale(const AzDvect *vect1, bool isInverse)
 bool AzDmat::isZero() const
 {
   if (column == NULL) return true; 
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     if (column[cx] != NULL && 
         !column[cx]->isZero()) { 
       return false; 
@@ -596,8 +573,7 @@ bool AzDmat::isZero(int col) const
 void AzDmat::convert(AzSmat *m_out)
 {
   m_out->reform(row_num, col_num); 
-  int col; 
-  for (col = 0; col < col_num; ++col) {
+  for (int col = 0; col < col_num; ++col) {
     if (column[col] != NULL) {
       AzIFarr ifq; 
       column[col]->nonZero(&ifq); 
@@ -638,8 +614,7 @@ void AzDvect::set(const AzSvect *v_inp)
   }
   reform(v_inp->row_num); 
   if (num > 0) {
-    int ix; 
-    for (ix = 0; ix < v_inp->elm_num; ++ix) {
+    for (int ix = 0; ix < v_inp->elm_num; ++ix) {
       elm[v_inp->elm[ix].no] = v_inp->elm[ix].val; 
     } 
   }
@@ -658,8 +633,7 @@ void AzDvect::resize(int new_num)
   if (new_num != old_num) {
     a.realloc(&elm, new_num, eyec, "elm"); 
   }
-  int ex; 
-  for (ex = old_num; ex < new_num; ++ex) {
+  for (int ex = old_num; ex < new_num; ++ex) {
     elm[ex] = 0; 
   }
 }
@@ -681,8 +655,7 @@ void AzDvect::_read(AzFile *file)
 void AzDvect::_swap()
 {
   if (!isSwapNeeded) return; 
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     AzFile::swap_double(&elm[ex]); 
   }
 }
@@ -701,8 +674,7 @@ void AzDvect::write(AzFile *file)
 /*-------------------------------------------------------------*/
 void AzDvect::binarize()
 {
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     if (elm[ex] > 0) {
       elm[ex] = 1; 
     }
@@ -715,8 +687,7 @@ void AzDvect::binarize()
 /*-------------------------------------------------------------*/
 void AzDvect::binarize1()
 {
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     if (elm[ex] != 0) {
       elm[ex] = 1; 
     }
@@ -726,8 +697,7 @@ void AzDvect::binarize1()
 /*-------------------------------------------------------------*/
 bool AzDvect::isZero() const
 {
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     if (elm[ex] != 0) {
       return false; 
     }
@@ -740,22 +710,20 @@ void AzDvect::values(const int exs[],
                      int ex_num, 
                      AzIFarr *ifa_ex_value) /* output */
 {
-  ifa_ex_value->prepare(ex_num); 
-  int ix; 
-  for (ix = 0; ix < ex_num; ++ix) {
-    int ex = exs[ix]; 
+  ifa_ex_value->prepare(ex_num);
+  for (int ix = 0; ix < ex_num; ++ix) {
+    int ex = exs[ix];
     if (ex < 0 || ex >= num) {
-      throw new AzException("AzDvect:;getValues", "Out of range"); 
+      throw new AzException("AzDvect:;getValues", "Out of range");
     }
-    ifa_ex_value->put(ex, elm[ex]); 
+    ifa_ex_value->put(ex, elm[ex]);
   }
 }
 
 /*-------------------------------------------------------------*/
 void AzDvect::nonZeroRowNo(AzIntArr *iq) const
 {
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     if (elm[ex] != 0) {
       iq->put(ex); 
     }
@@ -765,8 +733,7 @@ void AzDvect::nonZeroRowNo(AzIntArr *iq) const
 /*-------------------------------------------------------------*/
 void AzDvect::nonZero(AzIFarr *ifq) const
 {
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     if (elm[ex] != 0) {
       ifq->put(ex, elm[ex]); 
     }
@@ -777,8 +744,7 @@ void AzDvect::nonZero(AzIFarr *ifq) const
 int AzDvect::nonZeroRowNum() const
 {
   int count = 0; 
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     if (elm[ex] != 0) {
       ++count;  
     }
@@ -797,8 +763,7 @@ double AzDvect::max(const AzIntArr *ia_dx, int *out_no) const
 
   double max_val = -1; 
   int max_row = -1; 
-  int ix; 
-  for (ix = 0; ix < dx_num; ++ix) {
+  for (int ix = 0; ix < dx_num; ++ix) {
     int ex = ix; 
     if (dxs != NULL) {
       ex = dxs[ix]; 
@@ -819,8 +784,7 @@ double AzDvect::max(int *out_no) const
 {
   double max_val = -1; 
   int max_row = -1; 
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     if (max_row < 0 || elm[ex] > max_val) {
       max_val = elm[ex]; 
       max_row = ex; 
@@ -838,8 +802,7 @@ double AzDvect::maxAbs(int *out_row,
 {
   double real_val = -1, max_val = -1; 
   int max_row = -1; 
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     double abs_val = fabs(elm[ex]); 
     if (max_row < 0 || abs_val > max_val) {
       max_val = abs_val; 
@@ -865,54 +828,52 @@ double AzDvect::maxAbs(int *out_row,
 /*-------------------------------------------------------------*/
 double AzDvect::min(const AzIntArr *ia_dx, int *out_no) const
 {
-  const int *dxs = NULL; 
-  int dx_num = num; 
+  const int *dxs = NULL;
+  int dx_num = num;
   if (ia_dx != NULL) {
-    dxs = ia_dx->point(&dx_num); 
+    dxs = ia_dx->point(&dx_num);
   }
-  double min_val = -1; 
-  int min_row = -1; 
-  int ix; 
-  for (ix = 0; ix < dx_num; ++ix) {
+  double min_val = -1;
+  int min_row = -1;
+  for (int ix = 0; ix < dx_num; ++ix) {
     int ex = ix; 
     if (dxs != NULL) {
-      ex = dxs[ix]; 
+      ex = dxs[ix];
     }
     if (min_row < 0 || elm[ex] < min_val) {
-      min_val = elm[ex]; 
-      min_row = ex; 
+      min_val = elm[ex];
+      min_row = ex;
     }
   }
   if (out_no != NULL) {
-    *out_no = min_row; 
+    *out_no = min_row;
   }
-  return min_val; 
+  return min_val;
 }
 
 /*-------------------------------------------------------------*/
 double AzDvect::min(int *out_no) const
 {
-  double min_val = -1; 
-  int min_row = -1; 
-  int ex; 
+  double min_val = -1;
+  int min_row = -1;
+  int ex;
   for (ex = 0; ex < num; ++ex) {
     if (min_row < 0 || elm[ex] < min_val) {
-      min_val = elm[ex]; 
-      min_row = ex; 
+      min_val = elm[ex];
+      min_row = ex;
     }
   }
   if (out_no != NULL) {
-    *out_no = min_row; 
+    *out_no = min_row;
   }
-  return min_val; 
+  return min_val;
 }
 
 /*-------------------------------------------------------------*/
-void AzDvect::set(double val) 
+void AzDvect::set(double val)
 {
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
-    this->elm[ex] = val; 
+  for (int ex = 0; ex < num; ++ex) {
+    this->elm[ex] = val;
   }
 }
 
@@ -920,19 +881,17 @@ void AzDvect::set(double val)
 double AzDvect::sum() const
 {
   double sum = 0; 
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
-    sum += elm[ex]; 
+  for (int ex = 0; ex < num; ++ex) {
+    sum += elm[ex];
   }
-  return sum; 
+  return sum;
 }
 
 /*-------------------------------------------------------------*/
 double AzDvect::sum(const int *row, int r_num) const
 {
   double sum = 0; 
-  int ix; 
-  for (ix = 0; ix < r_num; ++ix) {
+  for (int ix = 0; ix < r_num; ++ix) {
     int ex = row[ix]; 
     if (ex < 0 || ex >= num) {
       throw new AzException("AzDvect::sum", "out of range"); 
@@ -946,8 +905,7 @@ double AzDvect::sum(const int *row, int r_num) const
 double AzDvect::absSum(const int *row, int r_num) const
 {
   double sum = 0; 
-  int ix; 
-  for (ix = 0; ix < r_num; ++ix) {
+  for (int ix = 0; ix < r_num; ++ix) {
     int ex = row[ix]; 
     if (ex < 0 || ex >= num) {
       throw new AzException("AzDvect::sum", "out of range"); 
@@ -961,8 +919,7 @@ double AzDvect::absSum(const int *row, int r_num) const
 double AzDvect::absSum() const
 {
   double sum = 0; 
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     sum += fabs(elm[ex]); 
   }
   return sum; 
@@ -973,8 +930,7 @@ void AzDvect::add(double val,
                   const int *row, int r_num) 
 {
   if (row == NULL) return; 
-  int ix; 
-  for (ix = 0; ix < r_num; ++ix) {
+  for (int ix = 0; ix < r_num; ++ix) {
     int ex = row[ix]; 
     if (ex < 0 || ex >= num) {
       throw new AzException("AzDvet::add(val,ia)", "index is out of range"); 
@@ -986,8 +942,7 @@ void AzDvect::add(double val,
 /*--------------------------------------------------------*/
 void AzDvect::add(double val) 
 {
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     elm[ex] += val; 
   }
 }
@@ -996,8 +951,7 @@ void AzDvect::add(double val)
 void AzDvect::add_nochk(double val, 
                   const int *row, int r_num) 
 {
-  int ix; 
-  for (ix = 0; ix < r_num; ++ix) {
+  for (int ix = 0; ix < r_num; ++ix) {
     int ex = row[ix]; 
     elm[ex] += val; 
   }
@@ -1010,8 +964,7 @@ void AzDvect::max_abs(const AzDvect *v)
   if (num != v->rowNum()) {
     throw new AzException(eyec, "shape mismatch"); 
   }
-  int ex;
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     double val = v->elm[ex]; 
     val = (val > 0) ? val : -val; 
     elm[ex] = MAX(elm[ex], val);     
@@ -1044,8 +997,7 @@ void AzDvect::add_abs(const AzDvect *v)
   if (num != v->rowNum()) {
     throw new AzException(eyec, "shape mismatch"); 
   }
-  int ex;
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     if (v->elm[ex] > 0) {
       elm[ex] += v->elm[ex]; 
     }
@@ -1120,8 +1072,7 @@ void AzDvect::add(const AzSvect *vect1, double coefficient)
   }
   if (vect1->elm == NULL) return; 
 
-  int ix; 
-  for (ix = 0; ix < vect1->elm_num; ++ix) {
+  for (int ix = 0; ix < vect1->elm_num; ++ix) {
     double val = vect1->elm[ix].val; 
     if (val != 0) {
       elm[vect1->elm[ix].no] += coefficient * vect1->elm[ix].val; 
@@ -1159,8 +1110,7 @@ void AzDvect::multiply(double val)
     return; 
   }
 
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     this->elm[ex] *= val; 
   }
 }
@@ -1173,8 +1123,7 @@ void AzDvect::scale(const AzDvect *dbles1, bool isInverse)
   if (num != dbles1->num) {
     throw new AzException(eyec, "shape mismatch"); 
   }
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     if (elm[ex] != 0) {
       if (dbles1->elm[ex] == 0) elm[ex] = 0; 
       else if (dbles1->elm[ex] != 1) {
@@ -1197,8 +1146,7 @@ void AzDvect::scale(const AzSvect *vect1, bool isInverse)
   }
 
   int last_ex = -1; 
-  int ix; 
-  for (ix = 0; ix < vect1->elm_num; ++ix) {
+  for (int ix = 0; ix < vect1->elm_num; ++ix) {
     double val = vect1->elm[ix].val; 
     int ex = vect1->elm[ix].no; 
 
@@ -1230,8 +1178,7 @@ void AzDvect::scale(const AzSvect *vect1, bool isInverse)
 double AzDvect::selfInnerProduct() const
 {
   double n2 = 0; 
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     if (elm[ex] != 0) {
       n2 += (elm[ex] * elm[ex]); 
     }
@@ -1281,8 +1228,7 @@ double AzDvect::innerProduct(const AzSvect *vect1) const
   }
 
   double iprod = 0; 
-  int ix; 
-  for (ix = 0; ix < vect1->elm_num; ++ix) {
+  for (int ix = 0; ix < vect1->elm_num; ++ix) {
     double val = vect1->elm[ix].val; 
     if (val != 0) {
       iprod += val * elm[vect1->elm[ix].no]; 
@@ -1306,8 +1252,7 @@ double AzDvect::innerProduct(const AzDvect *dbles1) const
   }
 
   double iprod = 0; 
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     iprod += (elm[ex] * dbles1->elm[ex]); 
   }
 
@@ -1317,15 +1262,14 @@ double AzDvect::innerProduct(const AzDvect *dbles1) const
 /*-------------------------------------------------------------*/
 double AzDvect::normalize()
 {
-  int ex; 
   double norm2 = 0; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     norm2 += (elm[ex] * elm[ex]); 
   }
 
   if (norm2 != 0) {
     norm2 = sqrt(norm2); 
-    for (ex = 0; ex < num; ++ex) {
+    for (int ex = 0; ex < num; ++ex) {
       elm[ex] /= norm2; 
     }
   }
@@ -1335,14 +1279,13 @@ double AzDvect::normalize()
 /*-------------------------------------------------------------*/
 double AzDvect::normalize1()
 {
-  int ex; 
   double sum = 0; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     sum += elm[ex]; 
   }
 
   if (sum != 0) {
-    for (ex = 0; ex < num; ++ex) {
+    for (int ex = 0; ex < num; ++ex) {
       elm[ex] /= sum; 
     }
   }
@@ -1431,8 +1374,7 @@ void AzDvect::_dump(const AzOut &out,
   ifa_nz.sort_Float(false); 
   ifa_nz.cut(cut_num); 
   int num = ifa_nz.size(); 
-  int ix; 
-  for (ix = 0; ix < num; ++ix) {
+  for (int ix = 0; ix < num; ++ix) {
     int row; 
     double val = ifa_nz.get(ix, &row); 
 
@@ -1452,8 +1394,7 @@ void AzDvect::_dump(const AzOut &out,
 /*-------------------------------------------------------------*/
 void AzDvect::cut(double min_val)
 {
-  int ex; 
-  for (ex = 0; ex < num; ++ex) {
+  for (int ex = 0; ex < num; ++ex) {
     if (fabs(elm[ex]) < min_val) {
       elm[ex] = 0; 
     }
@@ -1463,14 +1404,11 @@ void AzDvect::cut(double min_val)
 /*-------------------------------------------------------------*/
 void AzDvect::load(const AzIFarr *ifa_row_val)
 {
-  int ix; 
-  for (ix = 0; ix < num; ++ix) {
+  for (int ix = 0; ix < num; ++ix) {
     elm[ix] = 0; 
   }
 
-  int data_num = ifa_row_val->size(); 
-
-  for (ix = 0; ix < data_num; ++ix) {
+  for (int ix = 0; ix < ifa_row_val->size(); ++ix) {
     int row; 
     double val = ifa_row_val->get(ix, &row);     
     if (row < 0 || row >= num) { /* out of range */
@@ -1484,8 +1422,7 @@ void AzDvect::load(const AzIFarr *ifa_row_val)
 /*-------------------------------------------------------------*/
 void AzDvect::square()
 {
-  int ix; 
-  for (ix = 0; ix < num; ++ix) {
+  for (int ix = 0; ix < num; ++ix) {
     elm[ix] = elm[ix] * elm[ix]; 
   }
 }
@@ -1493,8 +1430,7 @@ void AzDvect::square()
 /*-------------------------------------------------------------*/
 void AzDmat::square()
 {
-  int col; 
-  for (col = 0; col < col_num; ++col) {
+  for (int col = 0; col < col_num; ++col) {
     if (column[col] != NULL) {
       column[col]->square(); 
     }
@@ -1509,8 +1445,7 @@ void AzDmat::average_sdev(AzDvect *v_avg,
   if (v_sdev != NULL) v_sdev->reform(row_num); 
   if (col_num <= 0) return; 
   AzDvect v_avg2(row_num); 
-  int cx;
-  for (cx = 0; cx < col_num; ++cx) {
+  for (int cx = 0; cx < col_num; ++cx) {
     v_avg->add(col(cx)); 
     if (v_sdev != NULL) {
       AzDvect v(col(cx)); v.square(); 
@@ -1529,8 +1464,7 @@ void AzDvect::rbind(const AzDvect *v) {
   int old_num = rowNum(); 
   int new_num = old_num + v->rowNum(); 
   resize(new_num);
-  int ex;
-  for (ex = 0; ex < v->rowNum(); ++ex) {
+  for (int ex = 0; ex < v->rowNum(); ++ex) {
     elm[old_num+ex] = v->elm[ex]; 
   }
 }
@@ -1541,8 +1475,7 @@ void AzDmat::rbind(const AzDmat *m)
   if (m->colNum() != col_num) {
     throw new AzException("AzDmat::rbind", "#column must be the same"); 
   }
-  int col; 
-  for (col = 0; col < col_num; ++col) {
+  for (int col = 0; col < col_num; ++col) {
     column[col]->rbind(m->col(col)); 
   }
   row_num += m->rowNum(); 
@@ -1558,8 +1491,7 @@ void AzDmat::undo_rbind(int added_len)
     throw new AzException("AzDmat::rbind_rev", "#row is too small"); 
   }
   if (added_len <= 0) return; 
-  int col; 
-  for (col = 0; col < col_num; ++col) {
+  for (int col = 0; col < col_num; ++col) {
     AzDvect v(column[col]); 
     column[col]->set(column[col]->point(), row_num-added_len); 
   }
@@ -1573,11 +1505,10 @@ void AzDmat::undo_rbind(int added_len)
 void AzDvect::polarize() {
   int org_num = num; 
   resize(org_num*2); 
-  int ex;
-  for (ex = 0; ex < org_num; ++ex) {
+  for (int ex = 0; ex < org_num; ++ex) {
     if (elm[ex] < 0) {
-      elm[org_num+ex] = -elm[ex]; 
-      elm[ex] = 0; 
+      elm[org_num+ex] = -elm[ex];
+      elm[ex] = 0;
     }
   }
 }
@@ -1585,32 +1516,29 @@ void AzDvect::polarize() {
 /*-------------------------------------------------------------*/
 bool AzDvect::isSame(const AzReadOnlyVector *v) const {
   if (num != v->rowNum()) return false; 
-  int ex;
-  for (ex = 0; ex < num; ++ex) {
-    if (elm[ex] != v->get(ex)) return false; 
+  for (int ex = 0; ex < num; ++ex) {
+    if (elm[ex] != v->get(ex)) return false;
   }
-  return true; 
+  return true;
 }
 
 /*-------------------------------------------------------------*/
 bool AzDvect::isSame(const double *inp, int inp_num) const {
   if (num != inp_num) return false; 
-  int ex;
-  for (ex = 0; ex < num; ++ex) {
-    if (elm[ex] != inp[ex]) return false; 
+  for (int ex = 0; ex < num; ++ex) {
+    if (elm[ex] != inp[ex]) return false;
   }
-  return true; 
+  return true;
 }
 
 /*-------------------------------------------------------------*/
 bool AzDmat::isSame(const AzReadOnlyMatrix *m) const {
   if (m == NULL) throw new AzException("AzDmat::isSame", "null input"); 
   if (col_num != m->colNum() || row_num != m->rowNum()) return false;
-  int cx;
-  for (cx = 0; cx < col_num; ++cx) {
-    if (!column[cx]->isSame(m->col(cx))) return false; 
+  for (int cx = 0; cx < col_num; ++cx) {
+    if (!column[cx]->isSame(m->col(cx))) return false;
   }
-  return true; 
+  return true;
 }
 
 /*-------------------------------------------------------------*/
@@ -1621,18 +1549,17 @@ int AzDmat::set(const AzDmat *inp, const int *cols, int cnum,  /* new2old */
     reform(inp->row_num, cnum); 
   }
   int negaindex = 0; 
-  int my_col; 
-  for (my_col = 0; my_col < cnum; ++my_col) {
+  for (int my_col = 0; my_col < cnum; ++my_col) {
     int col = cols[my_col]; 
     if (col < 0 && do_zero_negaindex) {
-      column[my_col]->zeroOut();     
-      ++negaindex; 
-      continue; 
-    }   
-    if (col < 0 || col >= inp->col_num) {
-      throw new AzException("AzDmat::set(inp,cols,cnum)", "invalid col#"); 
+      column[my_col]->zeroOut();
+      ++negaindex;
+      continue;
     }
-    column[my_col]->set(inp->column[col]); 
+    if (col < 0 || col >= inp->col_num) {
+      throw new AzException("AzDmat::set(inp,cols,cnum)", "invalid col#");
+    }
+    column[my_col]->set(inp->column[col]);
   }
   return negaindex; 
 }
@@ -1652,8 +1579,7 @@ void AzDmat::set(int col0, int col1, const AzDmat *inp, int i_col0)
     throw new AzException(eyec, "#rows mismatch"); 
   }
   int i_col = i_col0; 
-  int col; 
-  for (col = col0; col < col1; ++col, ++i_col) {
+  for (int col = col0; col < col1; ++col, ++i_col) {
     column[col]->set(inp->column[i_col]);       
   }
 }  
@@ -1661,18 +1587,17 @@ void AzDmat::set(int col0, int col1, const AzDmat *inp, int i_col0)
 /*-------------------------------------------------------------*/
 void AzDmat::reduce(const int *cols, int cnum)  /* new2old */
 {
-  int new_col; 
-  for (new_col = 0; new_col < cnum; ++new_col) {
-    int old_col = cols[new_col];  
+  for (int new_col = 0; new_col < cnum; ++new_col) {
+    int old_col = cols[new_col];
     if (old_col < 0 || old_col >= col_num) {
-      throw new AzException("AzDmat::set(inp,cols,cnum)", "invalid col#"); 
+      throw new AzException("AzDmat::set(inp,cols,cnum)", "invalid col#");
     }
     if (new_col > 0 && old_col <= cols[new_col-1]) {
-      throw new AzException("AzDmat::set(inp,cols,cnum)", "col#'s must be sorted"); 
+      throw new AzException("AzDmat::set(inp,cols,cnum)", "col#'s must be sorted");
     }
     if (new_col != old_col) {
-      column[new_col]->set(column[old_col]); 
+      column[new_col]->set(column[old_col]);
     }
   }
-  resize(cnum); 
+  resize(cnum);
 }

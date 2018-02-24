@@ -73,7 +73,7 @@ void AzSvDataS::_read(const char *feat_fn,
   read_feat(feat_fn, fdic_fn, &m_feat, &sp_f_dic, max_data_num);
   read_target(y_fn, &v_y, max_data_num);
 
-  /*---  check the dimensionalty  ---*/
+  /*---  check the dimensionality  ---*/
   int f_data_num = m_feat.colNum();
   int y_data_num = v_y.rowNum();
   if (f_data_num != y_data_num) {
@@ -120,8 +120,7 @@ void AzSvDataS::read_feat(const char *feat_fn,
     AzTools::readList(fdic_fn, sp_f_dic);
     if (sp_f_dic->size() > 0) {
       f_num = sp_f_dic->size();
-      int fx;
-      for (fx = 0; fx < sp_f_dic->size(); ++fx) {
+      for (int fx = 0; fx < sp_f_dic->size(); ++fx) {
         if (sp_f_dic->getLen(fx) <= 0) {
           AzBytArr s("No blank line is allowed in feature name files: "); s.c(fdic_fn);
           throw new AzException(AzInputNotValid, "AzSvDataS::read_feat", s.c_str());
@@ -147,8 +146,7 @@ void AzSvDataS::read_target(const char *y_fn, AzDvect *v_y, int max_data_num)
   readData(y_fn, 1, &m_y, max_data_num);
   int y_data_num = m_y.colNum();
   v_y->reform(y_data_num);
-  int dx;
-  for (dx = 0; dx < y_data_num; ++dx) {
+  for (int dx = 0; dx < y_data_num; ++dx) {
     double val = m_y.get(0, dx);
     v_y->set(dx, val);
   }
@@ -243,85 +241,6 @@ int AzSvDataS::countFeatures(const AzByte *line,
   return count;
 }
 
-#if 0
-/*------------------------------------------------------------------*/
-void AzSvDataS::readData_Small(const char *data_fn,
-                         int expected_f_num,
-                         /*---  output  ---*/
-                         AzSmat *m_feat)
-{
-  const char *eyec = "AzSvDataS::readData_Small";
-
-  AzFile file(data_fn);
-  file.open("rb");
-  int file_size = file.size();
-  AzBytArr bq_data;
-  AzByte *data = bq_data.reset(file_size+1, 0);
-  file.seekReadBytes(0, file_size, data);
-  file.close();
-
-  const char *data_end = (char *)data + file_size;
-  const char *wp = (char *)data;
-  AzIIarr iia_begin_end;
-  for ( ; ; ) {
-    if (wp >= data_end) break;
-    const char *next_wp = strchr(wp, '\n');
-    if (next_wp == NULL) next_wp = data_end;
-    iia_begin_end.put(Az64::ptr_diff(wp-(char *)data),
-                      Az64::ptr_diff(next_wp-(char *)data));
-    wp = next_wp+1;
-  }
-
-  int data_num = iia_begin_end.size();
-  if (data_num <= 0) {
-    throw new AzException(AzInputNotValid, eyec, "Empty data");
-  }
-
-  bool isSparse = false;
-  int offs0, offs1;
-  iia_begin_end.get(0, &offs0, &offs1);
-  AzBytArr s_first_line(data+offs0, offs1-offs0);
-  int f_num = if_sparse(s_first_line, expected_f_num);
-  if (f_num > 0) {
-    isSparse = true;
-    --data_num; /* b/c 1st line is information */
-    if (data_num <= 0) {
-      throw new AzException(AzInputNotValid, eyec, "Empty sparse data file");
-    }
-  }
-  else {
-    f_num = expected_f_num;
-    if (f_num <= 0) {
-      f_num = countFeatures(data+offs0, data+offs1);
-    }
-    if (f_num <= 0) {
-      throw new AzException(AzInputNotValid, eyec, "No feature in the first line");
-    }
-  }
-
-  m_feat->reform(f_num, data_num);
-
-  /*---  read features  ---*/
-  int dx;
-  for (dx = 0; dx < data_num; ++dx) {
-    int line_no = dx + 1;
-    if (isSparse) {
-      int offs0, offs1;
-      iia_begin_end.get(dx+1, &offs0, &offs1); /* +1 for 1st line */
-      parseDataLine_Sparse(data+offs0, offs1-offs0, f_num, data_fn,
-                    line_no+1, /* "+1" for the header */
-                    m_feat, dx);
-    }
-    else {
-      int offs0, offs1;
-      iia_begin_end.get(dx, &offs0, &offs1);
-      parseDataLine(data+offs0, offs1-offs0, f_num, data_fn, line_no,
-                    m_feat, dx);
-    }
-  }
-}
-#endif
-
 /*------------------------------------------------------------------*/
 void AzSvDataS::readData_Large(const char *data_fn,
                          int expected_f_num,
@@ -380,8 +299,7 @@ void AzSvDataS::readData_Large(const char *data_fn,
   }
   m_feat->reform(f_num, data_num);
 
-  int dx;
-  for (dx = 0; dx < data_num; ++dx, ++line_no) {
+  for (int dx = 0; dx < data_num; ++dx, ++line_no) {
     int len = ia_line_len.get(line_no);
     file.readBytes(buff, len);
     buff[len] = '\0';  /* to make it a C string */
@@ -555,8 +473,7 @@ void AzSvDataS::mergeData(const AzSmat *m_x,
   }
   AzFile n_file(out_n_fn);
   n_file.open("wb");
-  int fx;
-  for (fx = 0; fx < feat->featNum(); ++fx) {
+  for (int fx = 0; fx < feat->featNum(); ++fx) {
     AzBytArr s; feat->desc(fx, &s); s.nl();
     s.writeText(&n_file);
   }
@@ -564,8 +481,7 @@ void AzSvDataS::mergeData(const AzSmat *m_x,
   AzSmat m;
   m_x->transpose(&m);
   m.resize(data_num, f_num+num);
-  AzStrPool sp_names;
-  for (fx = 0; fx < num; ++fx) {
+  for (int fx = 0; fx < num; ++fx) {
     AzBytArr s_fn(fn_template);
     s_fn.replace("*", names[fx]);
 

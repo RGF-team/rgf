@@ -86,13 +86,12 @@ void AzFindSplit::_findBestSplit(int nx,
 
 /*--------------------------------------------------------*/
 double AzFindSplit::evalSplit(const Az_forFindSplit i[2],
-                              double bestP[2])
- const
+                              double bestP[2]) const
 {
-  double gain = 0; 
-  gain += getBestGain(i[0].w_sum, i[0].wy_sum, &bestP[0]); 
-  gain += getBestGain(i[1].w_sum, i[1].wy_sum, &bestP[1]); 
-  return gain; 
+  double gain = 0;
+  gain += getBestGain(i[0].w_sum, i[0].wy_sum, &bestP[0]);
+  gain += getBestGain(i[1].w_sum, i[1].wy_sum, &bestP[1]);
+  return gain;
 }
 
 /*--------------------------------------------------------*/
@@ -158,15 +157,10 @@ void AzFindSplit::loop(AzTrTsplit *best_split,
     src->w_sum  = total->w_sum  - dest->w_sum; 
 
     const double gain = evalSplit(i, bestP);
-#if 0 
-    best_split->keep_if_good(fx, value, gain, 
-                        bestP[le_idx], bestP[gt_idx]); 
-#else
     if (gain > best_split->gain) {
       best_split->reset_values(fx, value, gain, 
                         bestP[le_idx], bestP[gt_idx]); 
     }
-#endif 
   }
 }
 

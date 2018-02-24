@@ -190,18 +190,16 @@ void AzRgforest::initEnsemble(AzParam &az_param, int max_tree_num)
 
 /*-------------------------------------------------------------------*/
 AzRgfTree *AzRgforest::tree_to_grow(int &best_tx,  /* inout */
-                                    int &best_nx,  /* inout */
-                                    bool *isNewTree) /* output */
+                                    int &best_nx)  /* inout */
 {
   if (best_tx != rootonly_tx) {
-    *isNewTree = false; 
     return ens->tree_u(best_tx); 
   }
   else {
+    // Make new tree
     AzRgfTree *tree = ens->new_tree(&best_tx); /* best_tx is updated */
     tree->reset(out); 
     best_nx = tree->makeRoot(data); 
-    *isNewTree = true; 
     return tree; 
   }
 }
@@ -268,7 +266,7 @@ bool AzRgforest::growForest()
   }
 
   /*---  split the node  ---*/
-  double w_inc; 
+  double w_inc; // weight will be incremented.
   int leaf_nx[2] = {-1, -1};
   const AzRgfTree *tree = splitNode(&best_split, &w_inc, leaf_nx); 
 
@@ -290,8 +288,7 @@ const AzRgfTree *AzRgforest::splitNode(AzTrTsplit *best_split, /* (tx,nx) may be
                              double *w_inc,
                              int leaf_nx[2])
 {                             
-  bool isNewTree = false;
-  AzRgfTree *tree = tree_to_grow(best_split->tx, best_split->nx, &isNewTree); 
+  AzRgfTree *tree = tree_to_grow(best_split->tx, best_split->nx);
   double old_w = tree->node(best_split->nx)->weight; 
   tree->splitNode(data, best_split); 
   double new_w = tree->node(best_split->nx)->weight; 
@@ -338,7 +335,7 @@ void AzRgforest::searchBestSplit(AzTrTsplit *best_split) /* must be initialize b
     doRefreshAll = true; 
   }
 
-  int last_tx = ens->lastIndex(); 
+  const int last_tx = ens->lastIndex();
 
   /*---  decide which trees should be searched  ---*/
   int my_first = MAX(0, last_tx + 1 - s_tree_num); 
@@ -388,8 +385,7 @@ void AzRgforest::show_tree_info() const
   int t_num = ens->size(); 
   double max_max_depth = 0, avg_max_depth = 0; 
   double max_size = 0, avg_size = 0; 
-  int tx; 
-  for (tx = 0; tx < t_num; ++tx) {
+  for (int tx = 0; tx < t_num; ++tx) {
     const AzTrTree_ReadOnly *tree = ens->tree(tx); 
     int max_depth = tree->maxDepth(); 
     max_max_depth = MAX(max_max_depth, max_depth); 
@@ -541,8 +537,7 @@ void
 AzRgforest::apply(AzTETrainer_TestData *td, 
                   AzDvect *v_test_p, 
                   AzTE_ModelInfo *info, /* may be NULL */
-                  AzTreeEnsemble *out_ens) /* may be NULL */
- const 
+                  AzTreeEnsemble *out_ens) /* may be NULL */ const 
 {
   const AzDataForTrTree *test_data = AzTETrainer::_data(td); 
   int f_num = -1, nz_f_num = -1; 
@@ -672,13 +667,16 @@ int AzRgforest::resetParam(AzParam &p)
 
   /*---  memory handling  ---*/
   p.vStr(kw_mem_policy, &s_mem_policy); 
-  if (s_mem_policy.length() <= 0)                     beTight = false; 
-  else if (s_mem_policy.compare(mp_beTight) == 0)     beTight = true; 
-  else if (s_mem_policy.compare(mp_not_beTight) == 0) beTight = false; 
-  else {
+  if (s_mem_policy.length() <= 0) {
+    beTight = false;
+  } else if (s_mem_policy.compare(mp_beTight) == 0) {
+    beTight = true;
+  } else if (s_mem_policy.compare(mp_not_beTight) == 0) {
+    beTight = false;
+  } else {
     AzBytArr s(kw_mem_policy); s.c(" should be either ");
-    s.c(mp_beTight); s.c(" or "); s.c(mp_not_beTight); 
-    throw new AzException(AzInputNotValid, eyec, s.c_str()); 
+    s.c(mp_beTight); s.c(" or "); s.c(mp_not_beTight);
+    throw new AzException(AzInputNotValid, eyec, s.c_str());
   }
 
   p.vFloat(kw_f_ratio, &f_ratio); 
@@ -739,8 +737,7 @@ void AzRgforest::printHelp(AzHelp &h) const
   h.item(kw_loss, help_loss, AzLoss::lossName(loss_type_dflt)); 
   AzDataPool<AzBytArr> pool_desc; 
   AzLoss::help_lines(h.getLevel(), &pool_desc); 
-  int ix; 
-  for (ix = 0; ix < pool_desc.size(); ++ix) {
+  for (int ix = 0; ix < pool_desc.size(); ++ix) {
     h.writeln_desc(pool_desc.point(ix)->c_str()); 
   }
   h.item(kw_max_lnum, help_max_lnum, max_lnum_dflt); 
