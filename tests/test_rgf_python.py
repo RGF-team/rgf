@@ -354,12 +354,6 @@ class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
         else:
             self.assertEqual(clf.min_samples_leaf_, clf.min_samples_leaf)
 
-    def test_sklearn_integration(self):
-        # TODO(fukatani): FastRGF bug?
-        # FastRGF doesn't work if the number of sample is too small.
-        # check_estimator(self.classifier_class)
-        pass
-
 
 class RGFRegressorBaseTest(object):
     def setUp(self):
@@ -636,10 +630,3 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
     def test_parallel_gridsearch(self):
         self.kwargs['n_jobs'] = 1
         super(TestFastRGFRegressor, self).test_parallel_gridsearch()
-
-    def test_sklearn_integration(self):
-        # TODO(fukatani): FastRGF bug?
-        # FastRGF discretization doesn't work if the number of sample is too
-        # small.
-        # check_estimator(self.regressor_class)
-        pass
