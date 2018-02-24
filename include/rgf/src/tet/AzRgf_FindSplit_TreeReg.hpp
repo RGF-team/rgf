@@ -59,6 +59,6 @@ public:
 
   //! override AzFindSplit::evalSplit
   virtual double evalSplit(const Az_forFindSplit i[2], 
-                           double bestP[2]) const; 
+                           double bestP[2], double impurity[2]) const;
 }; 
 #endif 

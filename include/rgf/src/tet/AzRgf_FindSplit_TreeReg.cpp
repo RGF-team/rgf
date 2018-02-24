@@ -37,7 +37,7 @@ void AzRgf_FindSplit_TreeReg::findSplit(int nx,
 /*--------------------------------------------------------*/
 double AzRgf_FindSplit_TreeReg::evalSplit(
                              const Az_forFindSplit i[2],
-                             double bestP[2]) const
+                             double bestP[2], double impurity[2]) const
 {
   double d[2]; /* delta */
   for (int ix = 0; ix < 2; ++ix) {
@@ -48,11 +48,10 @@ double AzRgf_FindSplit_TreeReg::evalSplit(
 
   double penalty_diff = reg->penalty_diff(d); /* new - old */
 
-  double gain = 2*d[0]*i[0].wy_sum - d[0]*d[0]*i[0].w_sum
-              + 2*d[1]*i[1].wy_sum - d[1]*d[1]*i[1].w_sum; 
+  impurity[0] = 2*d[0]*i[0].wy_sum - d[0]*d[0]*i[0].w_sum - nlam * penalty_diff;
+  impurity[1] = 2*d[1]*i[1].wy_sum - d[1]*d[1]*i[1].w_sum - nlam * penalty_diff;
 
-  gain -= 2 * nlam * penalty_diff; 
   /* "2*" b/c penalty is sum v^2/2 */
 
-  return gain; 
+  return impurity[0] + impurity[1];
 }

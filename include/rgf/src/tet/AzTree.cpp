@@ -64,23 +64,25 @@ void AzTree::_read(AzFile *file)
 /*--------------------------------------------------------*/
 void AzTreeNode::write(AzFile *file) 
 {
-  file->writeDouble(border_val); 
-  file->writeDouble(weight); 
-  file->writeInt(fx); 
-  file->writeInt(le_nx); 
-  file->writeInt(gt_nx); 
-  file->writeInt(parent_nx); 
+  file->writeDouble(border_val);
+  file->writeDouble(weight);
+  file->writeInt(fx);
+  file->writeInt(le_nx);
+  file->writeInt(gt_nx);
+  file->writeInt(parent_nx);
+  file->writeDouble(impurity);
 }
 
 /*--------------------------------------------------------*/
 void AzTreeNode::read(AzFile *file) 
 {
-  border_val = file->readDouble(); 
-  weight = file->readDouble(); 
-  fx = file->readInt(); 
-  le_nx = file->readInt(); 
-  gt_nx = file->readInt(); 
-  parent_nx = file->readInt(); 
+  border_val = file->readDouble();
+  weight = file->readDouble();
+  fx = file->readInt();
+  le_nx = file->readInt();
+  gt_nx = file->readInt();
+  parent_nx = file->readInt();
+  impurity = file->readDouble();
 }
 
 /*--------------------------------------------------------*/
