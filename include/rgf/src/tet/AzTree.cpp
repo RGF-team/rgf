@@ -210,8 +210,7 @@ void AzTree::clean_up()
 
 /*--------------------------------------------------------*/
 void AzTree::finfo(AzIFarr *ifa_fx_count, 
-                   AzIFarr *ifa_fx_w) /* appended */
-const 
+                   AzIFarr *ifa_fx_w) /* appended */ const
 {
   for (int nx = 0; nx < nodes_used; ++nx) {
     if (!nodes[nx].isLeaf()) continue;

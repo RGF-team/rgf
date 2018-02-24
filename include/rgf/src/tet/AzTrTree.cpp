@@ -104,8 +104,8 @@ int AzTrTree::_newNode(int max_size)
 {
   const char *eyec = "AzTrTree::_newNode"; 
 
-  int node_no = nodes_used; 
-  int node_max = a_node.size(); 
+  const int node_no = nodes_used;
+  int node_max = a_node.size();
 
   if (nodes_used >= node_max) {
     int inc = MAX(node_max, 128); 
@@ -251,7 +251,8 @@ void AzTrTree::_splitNode(const AzDataForTrTree *data,
   dump_split(inp, nx, org_weight, out); 
 
   /*---  release split info for the node we just split  ---*/
-  delete split[nx]; split[nx] = NULL; 
+  delete split[nx];
+  split[nx] = NULL;
 }
 
 /*--------------------------------------------------------*/

@@ -201,8 +201,7 @@ void AzTreeEnsemble::finfo(int tx0, int tx1,
 }
 
 /*--------------------------------------------------------*/
-void AzTreeEnsemble::finfo(AzIntArr *ia_fx2tx) /* first appearance */
-const 
+void AzTreeEnsemble::finfo(AzIntArr *ia_fx2tx) /* first appearance */ const
 {
   const char *eyec = "AzTreeEnsemble::finfo"; 
   ia_fx2tx->reset(org_dim, -1); 
@@ -223,8 +222,7 @@ const
 }
 
 /*--------------------------------------------------------*/
-void AzTreeEnsemble::cooccurrences(AzIIFarr *iifa_fx1_fx2_count) 
-const 
+void AzTreeEnsemble::cooccurrences(AzIIFarr *iifa_fx1_fx2_count) const
 {
   iifa_fx1_fx2_count->reset(); 
   for (int tx = 0; tx < t_num; ++tx) {
