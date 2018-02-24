@@ -106,7 +106,8 @@ void AzFindSplit::loop(AzTrTsplit *best_split,
 
   int dest_size = 0; 
   Az_forFindSplit i[2];
-  Az_forFindSplit *src = &i[1], *dest = &i[0]; 
+  Az_forFindSplit *src = &i[1];
+  Az_forFindSplit *dest = &i[0];
   double bestP[2] = {0,0}; 
   int le_idx, gt_idx; 
   if (sorted->isForward()) {
@@ -135,8 +136,7 @@ void AzFindSplit::loop(AzTrTsplit *best_split,
     const double *tarDw = target->tarDw_arr(); 
     const double *dw = target->dw_arr(); 
     double wy_sum_move = 0, w_sum_move = 0; 
-    int ix; 
-    for (ix = 0; ix < index_num; ++ix) {
+    for (int ix = 0; ix < index_num; ++ix) {
       int dx = index[ix]; 
       wy_sum_move += tarDw[dx]; 
       w_sum_move += dw[dx]; 

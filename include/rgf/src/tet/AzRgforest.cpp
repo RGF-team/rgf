@@ -535,7 +535,7 @@ void AzRgforest::show_forExpoFamily(const AzDvect *v_dw) const
 /*-------------------------------------------------------------------*/
 void 
 AzRgforest::apply(AzTETrainer_TestData *td, 
-                  AzDvect *v_test_p, 
+                  AzDvect *v_test_p,  /* output vector (predection) */
                   AzTE_ModelInfo *info, /* may be NULL */
                   AzTreeEnsemble *out_ens) /* may be NULL */ const 
 {
