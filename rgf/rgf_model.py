@@ -381,6 +381,10 @@ class RGFRegressor(utils.RGFRegressorBase):
                             'Training is abnormally finished.'.format(utils.TEMP_PATH))
         self._model_file = sorted(model_files, reverse=True)[0]
 
+    def dump_model(self):
+        cmd = (utils.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
+        self._execute_command(cmd, verbose=True)
+
 
 class RGFClassifier(utils.RGFClassifierBase):
     """
@@ -659,6 +663,10 @@ class RGFClassifier(utils.RGFClassifierBase):
                                                                                       sample_weight)
                                                         for i in range(self._n_classes))
 
+    def dump_model(self):
+        for est in self.estimators_:
+            est.dump_model()
+
 
 class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
     def _save_sparse_X(self, path, X):
@@ -718,3 +726,8 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
         cmd = (utils.RGF_PATH, "predict", ",".join(params))
 
         return cmd
+
+    def dump_model(self):
+        self._check_fitted()
+        cmd = (utils.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
+        self._execute_command(cmd, verbose=True)

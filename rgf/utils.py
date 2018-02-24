@@ -293,13 +293,13 @@ class RGFMixin(object):
             self._save_dense_files(X, y, sample_weight)
             self._is_sparse_train_X = False
 
-    def _execute_command(self, cmd):
+    def _execute_command(self, cmd, verbose=False):
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
                                   universal_newlines=True).communicate()
 
-        if self.verbose:
+        if self.verbose or verbose:
             for k in output:
                 print(k)
 

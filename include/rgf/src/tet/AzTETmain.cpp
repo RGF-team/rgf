@@ -831,7 +831,7 @@ bool AzTETmain::resetParam_batch_predict(const char *argv[], int argc)
 {
   if (argc-config_argx != 1) {
     printHelp_batch_predict(log_out, argv, argc); 
-    return false; /* faied */
+    return false; /* failed */
   }
 
   const char *param = argv[config_argx]; 
@@ -883,23 +883,23 @@ void AzTETmain::printParam_batch_predict(const AzOut &out) const
 void AzTETmain::printHelp_batch_predict(const AzOut &out, 
                 const char *argv[], int argc) const
 {
-  print_usage(out, argv, argc); 
+  print_usage(out, argv, argc);
 
   /*---  driver config  ---*/
   AzHelp h(out);
 
-  h.begin("batch_predict", "AzTETmain"); 
-  h.item_required(kw_model_names_fn, help_model_names_fn_inp); 
-  h.item_required(kw_test_x_fn, help_test_x_fn); 
-  h.item_required(kw_pred_fn_suffix, help_pred_fn_suffix); 
+  h.begin("batch_predict", "AzTETmain");
+  h.item_required(kw_model_names_fn, help_model_names_fn_inp);
+  h.item_required(kw_test_x_fn, help_test_x_fn);
+  h.item_required(kw_pred_fn_suffix, help_pred_fn_suffix);
 
-  h.nl(); 
-  h.writeln_header("To optionally evaluate the prediction values: "); 
-  h.item(kw_test_y_fn, help_test_y_fn); 
-  h.item(kw_eval_fn, help_eval_fn, "stdout"); 
-  h.item_experimental(kw_doAppend_eval, help_doAppend_eval); 
-  h.item_experimental(kw_not_doLog, help_not_doLog); 
-  h.item_experimental(kw_doDump, help_doDump); 
+  h.nl();
+  h.writeln_header("To optionally evaluate the prediction values: ");
+  h.item(kw_test_y_fn, help_test_y_fn);
+  h.item(kw_eval_fn, help_eval_fn, "stdout");
+  h.item_experimental(kw_doAppend_eval, help_doAppend_eval);
+  h.item_experimental(kw_not_doLog, help_not_doLog);
+  h.item_experimental(kw_doDump, help_doDump);
 
   h.end(); 
 }
@@ -1186,4 +1186,58 @@ void AzTETmain::printHelp_features(const AzOut &out,
   h.item(kw_features_digits, help_features_digits); 
   h.item(kw_doSparse_features, help_doSparse_features); 
   h.end(); 
+}
+
+/*------------------------------------------------*/
+void AzTETmain::dump_model(const char *argv[], int argc)
+{
+  bool success = resetParam_dump_model(argv, argc);
+  if (!success) return;
+
+  printParam_dump_model(log_out);
+  checkParam_dump_model();
+
+  AzTimeLog::print("Dump model ... ", log_out);
+  AzTreeEnsemble ens(s_model_fn.c_str());
+  AzOut o;
+  ens.show(NULL, log_out, "");
+
+  AzTimeLog::print("Done ... ", log_out);
+}
+
+void AzTETmain::checkParam_dump_model() const
+{
+  const char *eyec = "AzTETmain::checkParam_dump_model";
+  throw_if_missing(kw_model_fn, s_model_fn, eyec);
+}
+
+void AzTETmain::printParam_dump_model(const AzOut &out) const
+{
+  if (out.isNull()) return;
+  AzPrint o(out);
+
+  o.ppBegin("AzTETmain::dump_model", "\"dump_model\"");
+  o.printV(kw_model_fn, s_model_fn);
+  o.ppEnd();
+}
+
+bool AzTETmain::resetParam_dump_model(const char *argv[], int argc)
+{
+  if (argc-config_argx != 1) {
+    printHelp_predict_single(log_out, argv, argc);
+    return false; /* failed */
+  }
+
+  const char *param = argv[config_argx];
+  if (isHelpNeeded(param)) {
+    printHelp_predict_single(log_out, argv, argc);
+    return false; /* failed */
+  }
+
+  AzParam p(param);
+
+  p.vStr(kw_model_fn, &s_model_fn);
+  p.check(log_out);
+
+  return true;
 }

@@ -72,6 +72,7 @@ public:
   virtual void train_predict(const char *argv[], int argc, bool do2=false); 
   virtual void batch_predict(const char *argv[], int argc); 
   virtual void predict_single(const char *argv[], int argc); 
+  void dump_model(const char *argv[], int argc);
   virtual void xv(const char *argv[], int argc); 
 
   virtual void features(const char *argv[], int argc); 
@@ -170,7 +171,10 @@ protected:
                             const AzOut &out) const; 
   virtual void print_hline(const AzOut &out) const; 
   virtual void show_elapsed(const AzOut &out, 
-                            clock_t clocks) const; 
+                            clock_t clocks) const;
+  void checkParam_dump_model() const;
+  void printParam_dump_model(const AzOut &out) const;
+  bool resetParam_dump_model(const char *argv[], int argc);
 }; 
 
 #endif
