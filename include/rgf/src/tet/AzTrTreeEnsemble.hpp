@@ -236,7 +236,12 @@ public:
     my_a.alloc(&my_tree, t_num, "AzTrTreeEnsemble::copy_to"); 
     for (int tx = 0; tx < t_num; ++tx) {
       if (t[tx] != NULL) {
-        my_tree[tx] = new AzTree(t[tx]); 
+        my_tree[tx] = new AzTree(t[tx]);
+        // TODO(fukatani): This is hack to copy gain.
+        // I don't understand why gain is not copied still.
+        for (int nx = 0; nx < t[tx]->nodeNum(); ++nx) {
+          my_tree[tx]->nodes[nx].gain = t[tx]->node(nx)->gain;
+        }
       }
     }
     out->transfer_from(my_tree, t_num, const_val, org_dim, config, sign); 

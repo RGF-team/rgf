@@ -24,7 +24,8 @@
 void AzTrTree::_release()
 {
   ia_root_dx.reset(); 
-  a_node.free(&nodes); nodes_used = 0; 
+  a_node.free(&nodes);
+  nodes_used = 0;
   a_split.free(&split); 
   a_sorted_arr.free(&sorted_arr); 
 
@@ -55,7 +56,7 @@ double AzTrTree::getRule(int inp_nx,
       isLE = true; 
     }
     rule->append(nodes[nx].fx, isLE, 
-                 nodes[nx].border_val); 
+                 nodes[nx].border_val);
 
     child_nx = nx; 
     nx = nodes[nx].parent_nx; 
@@ -164,7 +165,8 @@ void AzTrTree::_show(const AzSvFeatInfo *feat,
     o.inParen(s_pop_weight); 
   }
 
-  o.printV("depth=", depth); 
+  o.printV("depth=", depth);
+  o.printV("gain=", np->gain);
   if (np->fx >= 0 && feat != NULL) {
     AzBytArr s_desc; 
     feat->concatDesc(np->fx, &s_desc); 
@@ -190,7 +192,8 @@ void AzTrTree::_splitNode(const AzDataForTrTree *data,
   _checkNode(nx, "AzTrTree::splitNode"); 
 
   nodes[nx].fx = inp->fx; 
-  nodes[nx].border_val = inp->border_val; 
+  nodes[nx].border_val = inp->border_val;
+  nodes[nx].gain = inp->gain;
 
   AzIntArr ia_le, ia_gt; 
   const AzSortedFeatArr *s_arr = sorted_arr[nx]; 
@@ -227,7 +230,6 @@ void AzTrTree::_splitNode(const AzDataForTrTree *data,
   np->dxs_num = ia_le.size();
   np->parent_nx = nx;
   np->weight = inp->bestP[0];
-  np->impurity = inp->impurity[0];
   if (curr_min_pop < 0 || np->dxs_num < curr_min_pop) curr_min_pop = np->dxs_num; 
   curr_max_depth = MAX(curr_max_depth, np->depth); 
 
@@ -240,7 +242,6 @@ void AzTrTree::_splitNode(const AzDataForTrTree *data,
   np->dxs_num = ia_gt.size(); 
   np->parent_nx = nx; 
   np->weight = inp->bestP[1]; 
-  np->impurity = inp->impurity[1];
   curr_min_pop = MIN(curr_min_pop, np->dxs_num); 
 
   /*------------------------------*/
@@ -278,7 +279,8 @@ void AzTrTree::dump_split(const AzTrTsplit *inp,
     o.inBrackets(nx); 
   }
   o.print("d", nodes[nx].depth); 
-  o.print("fx", nodes[nx].fx); o.print(nodes[nx].border_val, 5); 
+  o.print("fx", nodes[nx].fx);
+  o.print(nodes[nx].border_val, 5);
 
   o.print(nodes[nx].dxs_num); 
   o.disableDlm(); 
@@ -547,9 +549,7 @@ void AzTrTree::warmup(const AzTreeNodes *inp,
     double dummy_gain = 1.0; 
     AzTrTsplit split(inp_np->fx, inp_np->border_val, dummy_gain, 
                      inp->node(inp_np->le_nx)->weight, 
-                     inp->node(inp_np->gt_nx)->weight,
-                     inp->node(inp_np->le_nx)->impurity,
-                     inp->node(inp_np->gt_nx)->impurity);
+                     inp->node(inp_np->gt_nx)->weight);
     _splitNode(data, inp->nodeNum(), false, split_nx, &split, dummy_out); 
   }
 
@@ -613,7 +613,7 @@ void AzTrTree::quick_warmup(const AzTreeNodes *inp,
     out_np->gt_nx      = inp_np->gt_nx;
     out_np->parent_nx  = inp_np->parent_nx;
     out_np->weight     = inp_np->weight;
-    out_np->impurity     = inp_np->impurity;
+    out_np->gain     = inp_np->gain;
 
     if (!inp_np->isLeaf() && inp_np->weight != 0) { /* this shouldn't happen, though */
       throw new AzException(eyec, "internal nodes have non-zero weights"); 

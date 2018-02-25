@@ -30,7 +30,7 @@ public:
   int gt_nx; //!< x[fx] >  border_val
   int parent_nx; //!< pointing parent node
   double weight; //!< weight
-  double impurity; //!< impurity for calc feature importances
+  double gain; //!< impurity for calc feature importances
 
   /*---  ---*/
   AzTreeNode() {
@@ -39,7 +39,7 @@ public:
   void reset() {
     border_val = 0;
     weight = 0;
-    impurity = 0;
+    gain = 0;
     fx = le_nx = gt_nx = parent_nx = -1; 
   }
   AzTreeNode(AzFile *file) {
