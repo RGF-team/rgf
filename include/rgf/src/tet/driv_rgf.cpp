@@ -89,6 +89,9 @@ int main(int argc, const char *argv[])
     else if (strcmp(action, kw_dump_model) == 0) {
       driver.dump_model(argv, argc);
     }
+    else if (strcmp(action, kw_feature_importances) == 0) {
+      driver.feature_importances(argv, argc);
+    }
     else {
       help(argc, argv); 
       return -1; 

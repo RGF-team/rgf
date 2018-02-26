@@ -94,10 +94,11 @@ public:
                                      AzFile *file);
 
   static void writeEvaluation(const AzTE_ModelInfo *info, 
-                                const char *model_fn, 
-                                const AzDvect *v_p, 
-                                const AzDvect *v_y, 
-                                AzFile *file); 
+                                const char *model_fn,
+                                const AzDvect *v_p,
+                                const AzDvect *v_y,
+                                AzFile *file);
+  void feature_importances(const char *argv[], int argc);
 
 protected:
   virtual void readData(const char *x_fn, 
@@ -175,6 +176,9 @@ protected:
   void checkParam_dump_model() const;
   void printParam_dump_model(const AzOut &out) const;
   bool resetParam_dump_model(const char *argv[], int argc);
-}; 
+  void checkParam_feature_importances() const;
+  void printParam_feature_importances(const AzOut &out) const;
+  bool resetParam_feature_importances(const char *argv[], int argc);
+};
 
 #endif

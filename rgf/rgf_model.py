@@ -385,6 +385,11 @@ class RGFRegressor(utils.RGFRegressorBase):
         cmd = (utils.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
         self._execute_command(cmd, verbose=True)
 
+    def feature_importances_(self):
+        cmd = (utils.RGF_PATH, "feature_importances", "model_fn=%s" % self._model_file,
+               "train_x_fn=%s" % self._train_x_loc)
+        self._execute_command(cmd)
+
 
 class RGFClassifier(utils.RGFClassifierBase):
     """

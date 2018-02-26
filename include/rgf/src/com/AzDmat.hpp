@@ -144,13 +144,11 @@ public:
   int nonZeroRowNum() const; 
   void all(AzIFarr *ifa) const {
     ifa->prepare(num); 
-    int row; 
-    for (row = 0; row < num; ++row) ifa->put(row, elm[row]); 
+    for (int row = 0; row < num; ++row) ifa->put(row, elm[row]);
   }
   void zeroRowNo(AzIntArr *ia) const {
     ia->reset(); 
-    int row; 
-    for (row = 0; row < num; ++row) if (elm[row] == 0) ia->put(row); 
+    for (int row = 0; row < num; ++row) if (elm[row] == 0) ia->put(row);
   }
   
   inline void set(int row, double val) {
@@ -183,8 +181,7 @@ public:
       throw new AzException("AzDvect::set(inp_tmpl, num)", "Invalid input"); 
     }
     if (inp_num != num) _reform_noset(inp_num); 
-    int ex; 
-    for (ex = 0; ex < num; ++ex) elm[ex] = inp[ex];  
+    for (int ex = 0; ex < num; ++ex) elm[ex] = inp[ex];
   }
  
   void set(double val); 
@@ -272,8 +269,7 @@ public:
   double normalize1(); 
 
   inline void zeroOut() {
-    int ex; 
-    for (ex = 0; ex < num; ++ex) elm[ex] = 0; 
+    for (int ex = 0; ex < num; ++ex) elm[ex] = 0;
   }
   
   int next(AzCursor &cursor, double &out_val) const; 

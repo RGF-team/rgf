@@ -26,6 +26,7 @@
 #define kw_train_predict "train_predict"
 #define kw_features      "output_features"
 #define kw_dump_model    "dump_model"
+#define kw_feature_importances    "feature_importances"
 #define help_train         "Train and save models to files."
 #define help_train_test    "Train and test models.  Optionally models can be saved to files."
 #define help_train_predict "Train models and save predictions on test data to files.  Models can also be saved to files."  
