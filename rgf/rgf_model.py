@@ -395,7 +395,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         cmd = (utils.RGF_PATH, "feature_importances", ",".join(params))
         print(cmd)
         self._execute_command(cmd)
-        return np.loadtxt(self._pred_loc)
+        return np.loadtxt(self._feature_importances_loc)
 
 
 class RGFClassifier(utils.RGFClassifierBase):

@@ -276,7 +276,7 @@ class RGFMixin(object):
         self._train_weight_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.weight")
         self._model_file_loc = os.path.join(TEMP_PATH, self._file_prefix + ".model")
         self._pred_loc = os.path.join(TEMP_PATH, self._file_prefix + ".predictions.txt")
-        self._feature_importances_x_loc = os.path.join(TEMP_PATH, self._file_prefix + ".feature_importances.txt")
+        self._feature_importances_loc = os.path.join(TEMP_PATH, self._file_prefix + ".feature_importances.txt")
 
     def _save_train_data(self, X, y, sample_weight):
         if sample_weight is None:

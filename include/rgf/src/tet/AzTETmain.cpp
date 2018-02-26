@@ -1263,20 +1263,29 @@ void AzTETmain::feature_importances(const char *argv[], int argc)
   double total = 0;
   AzDvect v_feature_importances;  //get feat num
   v_feature_importances.resize(dataset.featNum());
+  printf("bbbb %d \n", v_feature_importances.size());
   v_feature_importances.zeroOut();
 
   for (int tx=0; tx < ens.leafNum(); ++tx) {
     const AzTree* tree = ens.tree(tx);
     for (int nx=0; nx < tree->nodeNum(); ++nx) {
       const AzTreeNode* node = tree->node(nx);
+      if (node->fx == -1) {
+        continue;
+      }
       total += node->gain;
+      printf("gain %f \n", node->gain);
+      printf("cccc %d \n", node->fx);
       v_feature_importances.add(node->fx, node->gain);
     }
   }
+  printf("start_normalize");
   v_feature_importances.divide(v_feature_importances.sum());
+  printf("end_normalize");
 
   /*---  write feature importances  ---*/
   AzFile fi_file(s_fi_fn.c_str());
+  printf("aaaa %s \n", s_fi_fn.c_str());
   fi_file.open("wb");
   writePrediction_single(&v_feature_importances, &fi_file);
   fi_file.close(true);
