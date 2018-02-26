@@ -1130,7 +1130,7 @@ bool AzTETmain::resetParam_features(const char *argv[], int argc)
 {
   if (argc-config_argx != 1) {
     printHelp_features(log_out, argv, argc); 
-    return false; /* faied */
+    return false; /* failed */
   }
 
   const char *param = argv[config_argx]; 
@@ -1258,22 +1258,28 @@ void AzTETmain::feature_importances(const char *argv[], int argc)
   AzTimeLog::print("Reading test data ... ", log_out);
   AzSvDataS dataset;
 
-  dataset.read_features_only(s_test_x_fn.c_str());
+  dataset.read_features_only(s_train_x_fn.c_str());
 
   double total = 0;
-  AzDvect feature_importances;  //get feat num
-  feature_importances.resize(dataset.featNum());
-  feature_importances.zeroOut();
+  AzDvect v_feature_importances;  //get feat num
+  v_feature_importances.resize(dataset.featNum());
+  v_feature_importances.zeroOut();
 
   for (int tx=0; tx < ens.leafNum(); ++tx) {
     const AzTree* tree = ens.tree(tx);
     for (int nx=0; nx < tree->nodeNum(); ++nx) {
       const AzTreeNode* node = tree->node(nx);
       total += node->gain;
-      feature_importances.add(node->fx, node->gain);
+      v_feature_importances.add(node->fx, node->gain);
     }
   }
-  feature_importances.divide(feature_importances.sum());
+  v_feature_importances.divide(v_feature_importances.sum());
+
+  /*---  write feature importances  ---*/
+  AzFile fi_file(s_fi_fn.c_str());
+  fi_file.open("wb");
+  writePrediction_single(&v_feature_importances, &fi_file);
+  fi_file.close(true);
 
   AzTimeLog::print("Done ... ", log_out);
 }
@@ -1282,7 +1288,8 @@ void AzTETmain::checkParam_feature_importances() const
 {
   const char *eyec = "AzTETmain::checkParam_feature_importances";
   throw_if_missing(kw_model_fn, s_model_fn, eyec);
-  throw_if_missing(kw_input_x_fn, s_input_x_fn, eyec);
+  throw_if_missing(kw_train_x_fn, s_train_x_fn, eyec);
+  throw_if_missing(kw_fi_fn, s_fi_fn, eyec);
 }
 
 void AzTETmain::printParam_feature_importances(const AzOut &out) const
@@ -1293,12 +1300,13 @@ void AzTETmain::printParam_feature_importances(const AzOut &out) const
   o.ppBegin("AzTETmain::feature_importances", "\"feature_importances\"");
   o.printV(kw_model_fn, s_model_fn);
   o.printV(kw_train_x_fn, s_train_x_fn);
+  o.printV(kw_fi_fn, s_fi_fn);
   o.ppEnd();
 }
 
 bool AzTETmain::resetParam_feature_importances(const char *argv[], int argc)
 {
-  if (argc-config_argx != 2) {
+  if (argc-config_argx != 1) {
     printHelp_predict_single(log_out, argv, argc);
     return false; /* failed */
   }
@@ -1311,8 +1319,9 @@ bool AzTETmain::resetParam_feature_importances(const char *argv[], int argc)
 
   AzParam p(param);
 
-  p.vStr(kw_model_fn, &s_model_fn);
   p.vStr(kw_train_x_fn, &s_train_x_fn);
+  p.vStr(kw_fi_fn, &s_fi_fn);
+  p.vStr(kw_model_fn, &s_model_fn);
   p.check(log_out);
 
   return true;

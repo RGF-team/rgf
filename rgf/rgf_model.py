@@ -382,13 +382,20 @@ class RGFRegressor(utils.RGFRegressorBase):
         self._model_file = sorted(model_files, reverse=True)[0]
 
     def dump_model(self):
+        self._check_fitted()
         cmd = (utils.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
         self._execute_command(cmd, verbose=True)
 
-    def feature_importances_(self):
-        cmd = (utils.RGF_PATH, "feature_importances", "model_fn=%s" % self._model_file,
-               "train_x_fn=%s" % self._train_x_loc)
+    def feature_importances(self):
+        self._check_fitted()
+        params = []
+        params.append("train_x_fn=%s" % self._train_x_loc)
+        params.append("feature_importances_fn=%s" % self._feature_importances_loc)
+        params.append("model_fn=%s" % self._model_file)
+        cmd = (utils.RGF_PATH, "feature_importances", ",".join(params))
+        print(cmd)
         self._execute_command(cmd)
+        return np.loadtxt(self._pred_loc)
 
 
 class RGFClassifier(utils.RGFClassifierBase):

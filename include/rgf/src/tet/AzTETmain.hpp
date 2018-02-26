@@ -32,6 +32,7 @@
 class AzTETmain {
 protected: 
   AzBytArr s_alg_name, s_train_x_fn, s_train_y_fn, s_fdic_fn, s_pred_fn; 
+  AzBytArr s_fi_fn;
   AzBytArr s_dw_fn; 
   AzBytArr s_pred_fn_suffix; 
   AzBytArr s_eval_fn; 

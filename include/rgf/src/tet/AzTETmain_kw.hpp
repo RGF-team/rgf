@@ -44,6 +44,7 @@
 #define kw_prev_model_fn "model_fn_for_warmstart="
 #define kw_pred_fn "prediction_fn="
 #define kw_pred_fn_suffix "pred_fn_suffix="
+#define kw_fi_fn "feature_importances_fn="
 #define kw_not_doLog "DontLog"
 #define kw_doLog "Log"
 #define kw_doDump "Dump"
