@@ -107,7 +107,8 @@ void AzFindSplit::loop(AzTrTsplit *best_split,
   Az_forFindSplit i[2];
   Az_forFindSplit *src = &i[1];
   Az_forFindSplit *dest = &i[0];
-  int le_idx, gt_idx; 
+
+  int le_idx, gt_idx;
   if (sorted->isForward()) {
     le_idx = 0; 
     gt_idx = 1; 
