@@ -285,8 +285,7 @@ const
 /*--------------------------------------------------------*/
 void AzTree::_genDesc(const AzSvFeatInfo *feat, 
                       int nx, 
-                      AzBytArr *s) /* output */
-const
+                      AzBytArr *s) /* output */ const
 {
   int px = nodes[nx].parent_nx; 
   if (px < 0) return; 

@@ -176,9 +176,11 @@ protected:
                             clock_t clocks) const;
   void checkParam_dump_model() const;
   void printParam_dump_model(const AzOut &out) const;
+  void printHelp_dump_model(const AzOut &out, const char *argv[], int argc) const;
   bool resetParam_dump_model(const char *argv[], int argc);
   void checkParam_feature_importances() const;
   void printParam_feature_importances(const AzOut &out) const;
+  void printHelp_feature_importances(const AzOut &out, const char *argv[], int argc) const;
   bool resetParam_feature_importances(const char *argv[], int argc);
 };
 

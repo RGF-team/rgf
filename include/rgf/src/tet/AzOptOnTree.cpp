@@ -384,8 +384,7 @@ double AzOptOnTree::getDelta(const int *dxs,
                                  double nsig, 
                                  double py_avg, 
                                  /*---  inout  ---*/
-                                 AzRgf_forDelta *for_del) /* updated */
-const 
+                                 AzRgf_forDelta *for_del) /* updated */ const
 {
   const char *eyec = "AzOptOnTree::getDelta"; 
   if (dxs == NULL) return 0; 

@@ -1221,6 +1221,18 @@ void AzTETmain::printParam_dump_model(const AzOut &out) const
   o.ppEnd();
 }
 
+void AzTETmain::printHelp_dump_model(const AzOut &out,
+                const char *argv[], int argc) const
+{
+  print_usage(out, argv, argc);
+
+  AzHelp h(out);
+  h.begin("dump model", "AzTETmain");
+  h.item_required(kw_model_fn, help_model_fn);
+  h.nl();
+  h.end();
+}
+
 bool AzTETmain::resetParam_dump_model(const char *argv[], int argc)
 {
   if (argc-config_argx != 1) {
@@ -1230,7 +1242,7 @@ bool AzTETmain::resetParam_dump_model(const char *argv[], int argc)
 
   const char *param = argv[config_argx];
   if (isHelpNeeded(param)) {
-    printHelp_predict_single(log_out, argv, argc);
+    printHelp_dump_model(log_out, argv, argc);
     return false; /* failed */
   }
 
@@ -1307,16 +1319,31 @@ void AzTETmain::printParam_feature_importances(const AzOut &out) const
   o.ppEnd();
 }
 
+void AzTETmain::printHelp_feature_importances(const AzOut &out,
+                                              const char *argv[], int argc) const
+{
+  print_usage(out, argv, argc);
+
+  AzHelp h(out);
+  h.begin("feature importances", "AzTETmain");
+  h.item_required(kw_model_fn, help_model_fn);
+  h.item_required(kw_train_x_fn, help_train_x_fn);
+  h.item_required(kw_fi_fn, help_fi_fn);
+  h.nl();
+  h.end();
+}
+
+
 bool AzTETmain::resetParam_feature_importances(const char *argv[], int argc)
 {
   if (argc-config_argx != 1) {
-    printHelp_predict_single(log_out, argv, argc);
+    printHelp_feature_importances(log_out, argv, argc);
     return false; /* failed */
   }
 
   const char *param = argv[config_argx];
   if (isHelpNeeded(param)) {
-    printHelp_predict_single(log_out, argv, argc);
+    printHelp_feature_importances(log_out, argv, argc);
     return false; /* failed */
   }
 
