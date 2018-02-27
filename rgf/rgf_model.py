@@ -396,12 +396,14 @@ class RGFRegressor(utils.RGFRegressorBase):
         cmd = (utils.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
         self._execute_command(cmd, verbose=True)
 
-    def feature_importances(self):
+    @property
+    def feature_importances_(self):
         """Return the feature importances.
 
         The importance of a feature is computed from sum of gain of each nodes.
         """
-        self._check_fitted()
+        if self._fitted is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         params = []
         params.append("train_x_fn=%s" % self._train_x_loc)
         params.append("feature_importances_fn=%s" % self._feature_importances_loc)
