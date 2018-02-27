@@ -172,7 +172,8 @@ void AzTreeEnsemble::show(const AzSvFeatInfo *feat, //!< may be NULL
   o.printEnd(); 
 
   for (int tx = 0; tx < t_num; ++tx) {
-    AzBytArr s("tree"); s.inBrackets(tx); 
+    AzBytArr s("tree");
+    s.inBrackets(tx);
     AzPrint::writeln(out, s); 
     if (t[tx] != NULL) {
       t[tx]->show(feat, out); 
