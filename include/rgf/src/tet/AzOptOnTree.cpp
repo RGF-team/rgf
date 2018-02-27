@@ -75,10 +75,9 @@ void AzOptOnTree::reset(AzLossType l_type,
 }
 
 /*--------------------------------------------------------*/
-void 
-AzOptOnTree::_warmup(const AzTrTreeEnsemble_ReadOnly *inp_ens, 
-                    const AzTrTreeFeat *inp_tree_feat, 
-                    const AzDvect *inp_v_p)
+void AzOptOnTree::_warmup(const AzTrTreeEnsemble_ReadOnly *inp_ens,
+                          const AzTrTreeFeat *inp_tree_feat,
+                          const AzDvect *inp_v_p)
 {
   v_w.reform(inp_tree_feat->featNum()); 
   var_const = inp_ens->constant() - fixed_const; 
