@@ -336,7 +336,7 @@ References
 
 .. |Build Status Travis| image:: https://travis-ci.org/RGF-team/rgf_python.svg?branch=master
    :target: https://travis-ci.org/RGF-team/rgf_python
-.. |Build Status AppVeyor| image:: https://ci.appveyor.com/api/projects/status/vpanb9hnncjr16hn/branch/master?svg=true
+.. |Build Status AppVeyor| image:: https://ci.appveyor.com/api/projects/status/u3612bfh9pmela42/branch/master?svg=true
    :target: https://ci.appveyor.com/project/RGF-team/rgf-python
 .. |License| image:: https://img.shields.io/badge/license-GPLv3-blue.svg
    :target: https://github.com/RGF-team/rgf_python/blob/master/LICENSE
