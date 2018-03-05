@@ -65,7 +65,7 @@ deploy:
   release: $(APPVEYOR_REPO_TAG_NAME)
   provider: GitHub
   auth_token:
-    secure: iGMgQcGFl96QWnliaddwr6xESvFviRt5J9pmLlJvyLP1OZYgeFr5Jutgq7UE0THX
+    secure: aQFQmcjdGxGTDK58XGXC/TpIJKVfGCHh+ZIGMYsHEZIgo0hVgL0NoREaTluD+E7v
   artifact: pip
   force_update: true
   draft: true
