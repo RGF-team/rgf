@@ -400,7 +400,7 @@ class RGFRegressor(utils.RGFRegressorBase):
     def feature_importances_(self):
         """Return the feature importances.
 
-        The importance of a feature is computed from sum of gain of each nodes.
+        The importance of a feature is computed from sum of gain of each node.
         """
         if self._fitted is None:
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
@@ -409,7 +409,6 @@ class RGFRegressor(utils.RGFRegressorBase):
         params.append("feature_importances_fn=%s" % self._feature_importances_loc)
         params.append("model_fn=%s" % self._model_file)
         cmd = (utils.RGF_PATH, "feature_importances", ",".join(params))
-        print(cmd)
         self._execute_command(cmd)
         return np.loadtxt(self._feature_importances_loc)
 
@@ -709,7 +708,7 @@ class RGFClassifier(utils.RGFClassifierBase):
     def feature_importances_(self):
         """Return the feature importances.
 
-        The importance of a feature is computed from sum of gain of each nodes.
+        The importance of a feature is computed from sum of gain of each node.
         """
         if self._fitted is None:
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
@@ -788,13 +787,12 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
     def feature_importances_(self):
         """Return the feature importances.
 
-        The importance of a feature is computed from sum of gain of each nodes.
+        The importance of a feature is computed from sum of gain of each node.
         """
         params = []
         params.append("train_x_fn=%s" % self._train_x_loc)
         params.append("feature_importances_fn=%s" % self._feature_importances_loc)
         params.append("model_fn=%s" % self._model_file)
         cmd = (utils.RGF_PATH, "feature_importances", ",".join(params))
-        print(cmd)
         self._execute_command(cmd)
         return np.loadtxt(self._feature_importances_loc)
