@@ -49,9 +49,9 @@ Examples
     rgf_score = sum(rgf_scores)/n_folds
     print('RGF Classfier score: {0:.5f}'.format(rgf_score))
 
-More examples of using RGF estimators could be found `here <https://github.com/fukatani/rgf_python/tree/master/examples/RGF>`__.
+More examples of using RGF estimators could be found `here <https://github.com/RGF-team/rgf_python/tree/master/examples/RGF>`__.
 
-Examples of using FastRGF estimators could be found `here <https://github.com/fukatani/rgf_python/tree/master/examples/FastRGF>`__.
+Examples of using FastRGF estimators could be found `here <https://github.com/RGF-team/rgf_python/tree/master/examples/FastRGF>`__.
 
 Software Requirements
 ---------------------
@@ -68,11 +68,11 @@ From `PyPI <https://pypi.python.org/pypi/rgf_python>`__ using ``pip``:
 
     pip install rgf_python
 
-or from `GitHub <https://github.com/fukatani/rgf_python>`__:
+or from `GitHub <https://github.com/RGF-team/rgf_python>`__:
 
 ::
 
-    git clone --recursive https://github.com/fukatani/rgf_python.git
+    git clone --recursive https://github.com/RGF-team/rgf_python.git
     cd rgf_python
     python setup.py install
 
@@ -96,7 +96,7 @@ or
 
 ::
 
-    git clone --recursive https://github.com/fukatani/rgf_python.git
+    git clone --recursive https://github.com/RGF-team/rgf_python.git
     cd rgf_python
     python setup.py install --nocompilation
 
@@ -226,12 +226,12 @@ CMake
 Docker image
 ^^^^^^^^^^^^
 
-We provide `docker image <https://github.com/fukatani/rgf_python/blob/master/docker/Dockerfile>`__ with installed **rgf\_python**.
+We provide `docker image <https://github.com/RGF-team/rgf_python/blob/master/docker/Dockerfile>`__ with installed **rgf\_python**.
 
 ::
 
     # Run docker image
-    docker run -it fukatani/rgf_python /bin/bash
+    docker run -it RGF-team/rgf_python /bin/bash
     # Run RGF example
     python ./rgf_python/examples/RGF/comparison_RGF_and_RF_regressors_on_boston_dataset.py
     # Run FastRGF example
@@ -260,7 +260,7 @@ You can tune hyper-parameters as follows.
 -  *opt\_interval*: Weight optimization interval in terms of the number of leaf nodes.
 -  *learning\_rate*: Step size of Newton updates used in coordinate descent to optimize weights.
 
-Detailed instruction of tuning hyper-parameters is `here <https://github.com/fukatani/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf>`__.
+Detailed instruction of tuning hyper-parameters is `here <https://github.com/RGF-team/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf>`__.
 
 FastRGF
 '''''''
@@ -289,23 +289,23 @@ Kaggle Kernels support **rgf\_python**. Please see `this page <https://www.kaggl
 Troubleshooting
 ---------------
 
-If you meet any error, please try to run `test_rgf_python.py <https://github.com/fukatani/rgf_python/blob/master/tests/test_rgf_python.py>`__ to confirm successful package installation.
+If you meet any error, please try to run `test_rgf_python.py <https://github.com/RGF-team/rgf_python/blob/master/tests/test_rgf_python.py>`__ to confirm successful package installation.
 
-Then feel free to `open new issue <https://github.com/fukatani/rgf_python/issues/new>`__.
+Then feel free to `open new issue <https://github.com/RGF-team/rgf_python/issues/new>`__.
 
 Known Issues
 ''''''''''''
 
-* FastRGF crashes if training dataset is too small (#data < 28). (`rgf\_python#92 <https://github.com/fukatani/rgf_python/issues/92>`__)
+* FastRGF crashes if training dataset is too small (#data < 28). (`rgf\_python#92 <https://github.com/RGF-team/rgf_python/issues/92>`__)
 
-* **rgf\_python** does not provide any built-in method to calculate feature importances. (`rgf\_python#109 <https://github.com/fukatani/rgf_python/issues/109>`__)
+* **rgf\_python** does not provide any built-in method to calculate feature importances. (`rgf\_python#109 <https://github.com/RGF-team/rgf_python/issues/109>`__)
 
 FAQ
 '''
 
 * Q: Temporary files use too much space on my hard drive (Kaggle Kernels disc space is exhausted while fitting **rgf\_python** model).
    
-  A: Please see `rgf\_python#75 <https://github.com/fukatani/rgf_python/issues/75>`__.
+  A: Please see `rgf\_python#75 <https://github.com/RGF-team/rgf_python/issues/75>`__.
 
 * Q: GridSearchCV/RandomizedSearchCV/RFECV or other scikit-learn tool with ``n_jobs`` parameter hangs/freezes/crashes when runs with **rgf\_python** estimator.
 
@@ -314,7 +314,7 @@ FAQ
 License
 -------
 
-**rgf\_python** is distributed under the GNU General Public License v3 (GPLv3). Please read file `LICENSE <https://github.com/fukatani/rgf_python/blob/master/LICENSE>`__ for more information.
+**rgf\_python** is distributed under the GNU General Public License v3 (GPLv3). Please read file `LICENSE <https://github.com/RGF-team/rgf_python/blob/master/LICENSE>`__ for more information.
 
 **rgf\_python** includes RGF version 1.2 which is distributed under the GPLv3. Original CLI implementation of RGF you can download at http://tongzhang-ml.org/software/rgf.
 
@@ -334,12 +334,12 @@ References
 
 [2] `Tong Zhang, FastRGF: Multi-core Implementation of Regularized Greedy Forest <https://github.com/baidu/fast_rgf>`__
 
-.. |Build Status Travis| image:: https://travis-ci.org/fukatani/rgf_python.svg?branch=master
-   :target: https://travis-ci.org/fukatani/rgf_python
-.. |Build Status AppVeyor| image:: https://ci.appveyor.com/api/projects/status/vpanb9hnncjr16hn/branch/master?svg=true
-   :target: https://ci.appveyor.com/project/fukatani/rgf-python
+.. |Build Status Travis| image:: https://travis-ci.org/RGF-team/rgf_python.svg?branch=master
+   :target: https://travis-ci.org/RGF-team/rgf_python
+.. |Build Status AppVeyor| image:: https://ci.appveyor.com/api/projects/status/u3612bfh9pmela42/branch/master?svg=true
+   :target: https://ci.appveyor.com/project/RGF-team/rgf-python
 .. |License| image:: https://img.shields.io/badge/license-GPLv3-blue.svg
-   :target: https://github.com/fukatani/rgf_python/blob/master/LICENSE
+   :target: https://github.com/RGF-team/rgf_python/blob/master/LICENSE
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/rgf_python.svg
    :target: https://pypi.python.org/pypi/rgf_python/
 .. |PyPI Version| image:: https://badge.fury.io/py/rgf_python.svg

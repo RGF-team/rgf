@@ -125,7 +125,7 @@ class RGFRegressor(utils.RGFRegressorBase):
     A Regularized Greedy Forest [1] regressor.
 
     Tuning parameters detailed instruction:
-        https://github.com/fukatani/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf
+        https://github.com/RGF-team/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf
 
     Parameters
     ----------
@@ -387,7 +387,7 @@ class RGFClassifier(utils.RGFClassifierBase):
     A Regularized Greedy Forest [1] classifier.
 
     Tuning parameters detailed instruction:
-        https://github.com/fukatani/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf
+        https://github.com/RGF-team/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf
 
     Parameters
     ----------
