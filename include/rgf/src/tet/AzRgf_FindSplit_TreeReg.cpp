@@ -48,11 +48,10 @@ double AzRgf_FindSplit_TreeReg::evalSplit(
 
   double penalty_diff = reg->penalty_diff(d); /* new - old */
 
-  double gain = 2*d[0]*i[0].wy_sum - d[0]*d[0]*i[0].w_sum
-              + 2*d[1]*i[1].wy_sum - d[1]*d[1]*i[1].w_sum; 
+  double gain = 2*d[0]*i[0].wy_sum - d[0]*d[0]*i[0].w_sum - nlam * penalty_diff;
+  gain += 2*d[1]*i[1].wy_sum - d[1]*d[1]*i[1].w_sum - nlam * penalty_diff;
 
-  gain -= 2 * nlam * penalty_diff; 
   /* "2*" b/c penalty is sum v^2/2 */
 
-  return gain; 
+  return gain;
 }

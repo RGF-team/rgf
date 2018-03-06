@@ -82,8 +82,7 @@ protected:
                              double *out_best_p) /* must not be null */
                              const = 0; 
   virtual double evalSplit(const Az_forFindSplit i[2], 
-                           double bestP[2]) /* output */
-                           const; 
+                           double bestP[2]) /* output */ const;
   /*----------------------------------------------------------------*/
 
   void _findBestSplit(int nx, 

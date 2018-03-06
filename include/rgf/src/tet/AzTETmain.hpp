@@ -32,6 +32,7 @@
 class AzTETmain {
 protected: 
   AzBytArr s_alg_name, s_train_x_fn, s_train_y_fn, s_fdic_fn, s_pred_fn; 
+  AzBytArr s_fi_fn;
   AzBytArr s_dw_fn; 
   AzBytArr s_pred_fn_suffix; 
   AzBytArr s_eval_fn; 
@@ -72,6 +73,7 @@ public:
   virtual void train_predict(const char *argv[], int argc, bool do2=false); 
   virtual void batch_predict(const char *argv[], int argc); 
   virtual void predict_single(const char *argv[], int argc); 
+  void dump_model(const char *argv[], int argc);
   virtual void xv(const char *argv[], int argc); 
 
   virtual void features(const char *argv[], int argc); 
@@ -93,10 +95,11 @@ public:
                                      AzFile *file);
 
   static void writeEvaluation(const AzTE_ModelInfo *info, 
-                                const char *model_fn, 
-                                const AzDvect *v_p, 
-                                const AzDvect *v_y, 
-                                AzFile *file); 
+                                const char *model_fn,
+                                const AzDvect *v_p,
+                                const AzDvect *v_y,
+                                AzFile *file);
+  void feature_importances(const char *argv[], int argc);
 
 protected:
   virtual void readData(const char *x_fn, 
@@ -170,7 +173,15 @@ protected:
                             const AzOut &out) const; 
   virtual void print_hline(const AzOut &out) const; 
   virtual void show_elapsed(const AzOut &out, 
-                            clock_t clocks) const; 
-}; 
+                            clock_t clocks) const;
+  void checkParam_dump_model() const;
+  void printParam_dump_model(const AzOut &out) const;
+  void printHelp_dump_model(const AzOut &out, const char *argv[], int argc) const;
+  bool resetParam_dump_model(const char *argv[], int argc);
+  void checkParam_feature_importances() const;
+  void printParam_feature_importances(const AzOut &out) const;
+  void printHelp_feature_importances(const AzOut &out, const char *argv[], int argc) const;
+  bool resetParam_feature_importances(const char *argv[], int argc);
+};
 
 #endif

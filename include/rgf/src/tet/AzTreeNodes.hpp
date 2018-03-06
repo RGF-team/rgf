@@ -24,19 +24,22 @@
 /*! Tree node */
 class AzTreeNode {
 public:
-  int fx;       //!< feature id 
+  int fx; //!< feature id
   double border_val;
-  int le_nx; //!< x[fx] <= border_val 
-  int gt_nx; //!< x[fx] >  border_val 
-  int parent_nx; //!< pointing parent node 
-  double weight; //!< weight 
+  int le_nx; //!< x[fx] <= border_val
+  int gt_nx; //!< x[fx] >  border_val
+  int parent_nx; //!< pointing parent node
+  double weight; //!< weight
+  double gain; //!< impurity for calc feature importances
 
   /*---  ---*/
   AzTreeNode() {
     reset(); 
   }
   void reset() {
-    border_val = weight = 0; 
+    border_val = 0;
+    weight = 0;
+    gain = 0;
     fx = le_nx = gt_nx = parent_nx = -1; 
   }
   AzTreeNode(AzFile *file) {

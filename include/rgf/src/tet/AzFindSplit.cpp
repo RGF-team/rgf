@@ -88,8 +88,7 @@ void AzFindSplit::_findBestSplit(int nx,
 double AzFindSplit::evalSplit(const Az_forFindSplit i[2],
                               double bestP[2]) const
 {
-  double gain = 0;
-  gain += getBestGain(i[0].w_sum, i[0].wy_sum, &bestP[0]);
+  double gain = getBestGain(i[0].w_sum, i[0].wy_sum, &bestP[0]);
   gain += getBestGain(i[1].w_sum, i[1].wy_sum, &bestP[1]);
   return gain;
 }
@@ -108,8 +107,8 @@ void AzFindSplit::loop(AzTrTsplit *best_split,
   Az_forFindSplit i[2];
   Az_forFindSplit *src = &i[1];
   Az_forFindSplit *dest = &i[0];
-  double bestP[2] = {0,0}; 
-  int le_idx, gt_idx; 
+
+  int le_idx, gt_idx;
   if (sorted->isForward()) {
     le_idx = 0; 
     gt_idx = 1; 
@@ -156,10 +155,11 @@ void AzFindSplit::loop(AzTrTsplit *best_split,
     src->wy_sum = total->wy_sum - dest->wy_sum; 
     src->w_sum  = total->w_sum  - dest->w_sum; 
 
+    double bestP[2] = {0, 0};
     const double gain = evalSplit(i, bestP);
     if (gain > best_split->gain) {
-      best_split->reset_values(fx, value, gain, 
-                        bestP[le_idx], bestP[gt_idx]); 
+      best_split->reset_values(fx, value, gain,
+                               bestP[le_idx], bestP[gt_idx]);
     }
   }
 }
@@ -168,25 +168,24 @@ void AzFindSplit::loop(AzTrTsplit *best_split,
 void AzFindSplit::_pickFeats(int pick_num, int f_num)
 {
   if (pick_num < 1 || pick_num > f_num) {
-    throw new AzException("AzFindSplit::pickFeats", "out of range"); 
+    throw new AzException("AzFindSplit::pickFeats", "out of range");
   }
-  ia_feats.reset(); 
+  ia_feats.reset();
   if (pick_num == f_num) {
-    ia_fx = NULL; 
-    return; 
+    ia_fx = NULL;
+    return;
   }
 
-  AzIntArr ia_onOff; 
-  ia_onOff.reset(f_num, 0); 
-  int *onOff = ia_onOff.point_u(); 
+  AzIntArr ia_onOff;
+  ia_onOff.reset(f_num, 0);
+  int *onOff = ia_onOff.point_u();
   for ( ; ; ) {
-    if (ia_feats.size() >= pick_num) break; 
-    int fx = rand() % f_num; 
+    if (ia_feats.size() >= pick_num) break;
+    int fx = rand() % f_num;
     if (onOff[fx] == 0) {
-      onOff[fx] = 1; 
-      ia_feats.put(fx); 
+      onOff[fx] = 1;
+      ia_feats.put(fx);
     }
   }
-  ia_fx = &ia_feats; 
+  ia_fx = &ia_feats;
 }
- 

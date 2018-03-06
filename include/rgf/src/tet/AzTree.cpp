@@ -44,8 +44,11 @@ void AzTree::copy_from(const AzTreeNodes *tree_nodes)
   nodes_used = tree_nodes->nodeNum(); 
   a_nodes.alloc(&nodes, nodes_used, "AzTree::copy_from", "nodes"); 
   for (int nx = 0; nx < nodes_used; ++nx) {
-    nodes[nx] = *tree_nodes->node(nx); 
-  }               
+    // printf("gain %f \n", tree_nodes->node(nx)->gain);
+    nodes[nx] = *tree_nodes->node(nx);
+    //printf("weight %f \n", nodes[nx].gain);
+    nodes[nx].gain = tree_nodes->node(nx)->gain;
+  }
 }
 
 /*--------------------------------------------------------*/
@@ -64,23 +67,25 @@ void AzTree::_read(AzFile *file)
 /*--------------------------------------------------------*/
 void AzTreeNode::write(AzFile *file) 
 {
-  file->writeDouble(border_val); 
-  file->writeDouble(weight); 
-  file->writeInt(fx); 
-  file->writeInt(le_nx); 
-  file->writeInt(gt_nx); 
-  file->writeInt(parent_nx); 
+  file->writeDouble(border_val);
+  file->writeDouble(weight);
+  file->writeInt(fx);
+  file->writeInt(le_nx);
+  file->writeInt(gt_nx);
+  file->writeInt(parent_nx);
+  file->writeDouble(gain);
 }
 
 /*--------------------------------------------------------*/
 void AzTreeNode::read(AzFile *file) 
 {
-  border_val = file->readDouble(); 
-  weight = file->readDouble(); 
-  fx = file->readInt(); 
-  le_nx = file->readInt(); 
-  gt_nx = file->readInt(); 
-  parent_nx = file->readInt(); 
+  border_val = file->readDouble();
+  weight = file->readDouble();
+  fx = file->readInt();
+  le_nx = file->readInt();
+  gt_nx = file->readInt();
+  parent_nx = file->readInt();
+  gain = file->readDouble();
 }
 
 /*--------------------------------------------------------*/
@@ -131,14 +136,13 @@ void AzTree::show(const AzSvFeatInfo *feat, const AzOut &out,
 	  AzPrint::writeln(out, "AzTree::show, No tree\n"); 
     return; 
   }
-  _show(feat, root_nx, 0, out); 
+  _show(feat, root_nx, 0, out);
 }
 
 /*--------------------------------------------------------*/
-void AzTree::_show(const AzSvFeatInfo *feat, 
-                    int nx, 
-                    int depth, 
-                    const AzOut &out) const
+void AzTree::_show(const AzSvFeatInfo *feat,
+                   int nx, int depth,
+                   const AzOut &out) const
 {
   if (out.isNull()) return; 
 
@@ -146,12 +150,13 @@ void AzTree::_show(const AzSvFeatInfo *feat,
 
   AzPrint o(out); 
   o.printBegin("", ", ", "=", depth*2); 
-  /* [nx], (weight), depth=d, desc,border */
+  /* [nx], (weight), depth=d, gain=d, desc, border */
   o.inBrackets(nx,3); 
   if (np->weight != 0) {
     o.inParen(np->weight,3); 
   }
-  o.printV("depth=", depth); 
+  o.printV("depth=", depth);
+  o.printV("gain=", np->gain);
   if (np->fx >= 0) {
     AzBytArr s_desc; 
     if (feat != NULL) {
@@ -167,7 +172,7 @@ void AzTree::_show(const AzSvFeatInfo *feat,
   o.printEnd(); 
 
   if (!np->isLeaf()) {
-    _show(feat, np->le_nx, depth+1, out); 
+    _show(feat, np->le_nx, depth+1, out);
     _show(feat, np->gt_nx, depth+1, out); 
   }
 }
@@ -210,8 +215,7 @@ void AzTree::clean_up()
 
 /*--------------------------------------------------------*/
 void AzTree::finfo(AzIFarr *ifa_fx_count, 
-                   AzIFarr *ifa_fx_w) /* appended */
-const 
+                   AzIFarr *ifa_fx_w) /* appended */ const
 {
   for (int nx = 0; nx < nodes_used; ++nx) {
     if (!nodes[nx].isLeaf()) continue;
@@ -281,8 +285,7 @@ const
 /*--------------------------------------------------------*/
 void AzTree::_genDesc(const AzSvFeatInfo *feat, 
                       int nx, 
-                      AzBytArr *s) /* output */
-const
+                      AzBytArr *s) /* output */ const
 {
   int px = nodes[nx].parent_nx; 
   if (px < 0) return; 
@@ -298,6 +301,6 @@ const
   else {
     s->c(">"); 
   }
-  s->cn(nodes[px].border_val, 5); 
+  s->cn(nodes[px].border_val, 5);
 }
 

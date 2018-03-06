@@ -24,7 +24,8 @@
 void AzTrTree::_release()
 {
   ia_root_dx.reset(); 
-  a_node.free(&nodes); nodes_used = 0; 
+  a_node.free(&nodes);
+  nodes_used = 0;
   a_split.free(&split); 
   a_sorted_arr.free(&sorted_arr); 
 
@@ -55,7 +56,7 @@ double AzTrTree::getRule(int inp_nx,
       isLE = true; 
     }
     rule->append(nodes[nx].fx, isLE, 
-                 nodes[nx].border_val); 
+                 nodes[nx].border_val);
 
     child_nx = nx; 
     nx = nodes[nx].parent_nx; 
@@ -104,8 +105,8 @@ int AzTrTree::_newNode(int max_size)
 {
   const char *eyec = "AzTrTree::_newNode"; 
 
-  int node_no = nodes_used; 
-  int node_max = a_node.size(); 
+  const int node_no = nodes_used;
+  int node_max = a_node.size();
 
   if (nodes_used >= node_max) {
     int inc = MAX(node_max, 128); 
@@ -164,7 +165,8 @@ void AzTrTree::_show(const AzSvFeatInfo *feat,
     o.inParen(s_pop_weight); 
   }
 
-  o.printV("depth=", depth); 
+  o.printV("depth=", depth);
+  o.printV("gain=", np->gain);
   if (np->fx >= 0 && feat != NULL) {
     AzBytArr s_desc; 
     feat->concatDesc(np->fx, &s_desc); 
@@ -190,7 +192,8 @@ void AzTrTree::_splitNode(const AzDataForTrTree *data,
   _checkNode(nx, "AzTrTree::splitNode"); 
 
   nodes[nx].fx = inp->fx; 
-  nodes[nx].border_val = inp->border_val; 
+  nodes[nx].border_val = inp->border_val;
+  nodes[nx].gain = inp->gain;
 
   AzIntArr ia_le, ia_gt; 
   const AzSortedFeatArr *s_arr = sorted_arr[nx]; 
@@ -222,11 +225,11 @@ void AzTrTree::_splitNode(const AzDataForTrTree *data,
   nodes[nx].le_nx = le_nx; 
   AzTrTreeNode *np = &nodes[le_nx]; 
   np->depth = nodes[nx].depth + 1;
-  np->dxs_offset = le_offset; 
-  np->dxs = set_data_indexes(le_offset, ia_le.point(), ia_le.size()); 
-  np->dxs_num = ia_le.size(); 
-  np->parent_nx = nx; 
-  np->weight = inp->bestP[0]; 
+  np->dxs_offset = le_offset;
+  np->dxs = set_data_indexes(le_offset, ia_le.point(), ia_le.size());
+  np->dxs_num = ia_le.size();
+  np->parent_nx = nx;
+  np->weight = inp->bestP[0];
   if (curr_min_pop < 0 || np->dxs_num < curr_min_pop) curr_min_pop = np->dxs_num; 
   curr_max_depth = MAX(curr_max_depth, np->depth); 
 
@@ -251,7 +254,8 @@ void AzTrTree::_splitNode(const AzDataForTrTree *data,
   dump_split(inp, nx, org_weight, out); 
 
   /*---  release split info for the node we just split  ---*/
-  delete split[nx]; split[nx] = NULL; 
+  delete split[nx];
+  split[nx] = NULL;
 }
 
 /*--------------------------------------------------------*/
@@ -275,7 +279,8 @@ void AzTrTree::dump_split(const AzTrTsplit *inp,
     o.inBrackets(nx); 
   }
   o.print("d", nodes[nx].depth); 
-  o.print("fx", nodes[nx].fx); o.print(nodes[nx].border_val, 5); 
+  o.print("fx", nodes[nx].fx);
+  o.print(nodes[nx].border_val, 5);
 
   o.print(nodes[nx].dxs_num); 
   o.disableDlm(); 
@@ -532,8 +537,7 @@ void AzTrTree::warmup(const AzTreeNodes *inp,
 
   AzOut dummy_out; 
   dummy_out.deactivate(); 
-  int ix; 
-  for (ix = 0; ix < ia_split_nx.size(); ++ix) {
+  for (int ix = 0; ix < ia_split_nx.size(); ++ix) {
     int split_nx = ia_split_nx.get(ix); 
     if (split_nx >= nodes_used) {
       throw new AzException(eyec, "something is wrong with split order"); 
@@ -545,7 +549,7 @@ void AzTrTree::warmup(const AzTreeNodes *inp,
     double dummy_gain = 1.0; 
     AzTrTsplit split(inp_np->fx, inp_np->border_val, dummy_gain, 
                      inp->node(inp_np->le_nx)->weight, 
-                     inp->node(inp_np->gt_nx)->weight);  
+                     inp->node(inp_np->gt_nx)->weight);
     _splitNode(data, inp->nodeNum(), false, split_nx, &split, dummy_out); 
   }
 
@@ -600,16 +604,16 @@ void AzTrTree::quick_warmup(const AzTreeNodes *inp,
   a_node.alloc(&nodes, nodes_used, eyec, "nodes"); 
   a_split.free(&split); 
   a_sorted_arr.free(&sorted_arr); 
-  int nx; 
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     const AzTreeNode *inp_np = inp->node(nx); 
     AzTrTreeNode *out_np = &nodes[nx]; 
-    out_np->fx         = inp_np->fx; 
-    out_np->border_val = inp_np->border_val; 
-    out_np->le_nx      = inp_np->le_nx; 
-    out_np->gt_nx      = inp_np->gt_nx; 
-    out_np->parent_nx  = inp_np->parent_nx; 
-    out_np->weight     = inp_np->weight; 
+    out_np->fx         = inp_np->fx;
+    out_np->border_val = inp_np->border_val;
+    out_np->le_nx      = inp_np->le_nx;
+    out_np->gt_nx      = inp_np->gt_nx;
+    out_np->parent_nx  = inp_np->parent_nx;
+    out_np->weight     = inp_np->weight;
+    out_np->gain     = inp_np->gain;
 
     if (!inp_np->isLeaf() && inp_np->weight != 0) { /* this shouldn't happen, though */
       throw new AzException(eyec, "internal nodes have non-zero weights"); 
@@ -619,15 +623,13 @@ void AzTrTree::quick_warmup(const AzTreeNodes *inp,
   /*---  set data points  ---*/
   AzDataArray<AzIntArr> aIa_dx(nodes_used); 
   int dx_num = ia_tr_dx->size(); 
-  int ix; 
-  for (ix = 0; ix < dx_num; ++ix) {
+  for (int ix = 0; ix < dx_num; ++ix) {
     int dx = ia_tr_dx->get(ix); 
     AzIntArr ia_nx; 
     double val = apply(data, dx, &ia_nx); 
     v_p->add(dx, val); 
-    int jx; 
-    for (jx = 0; jx < ia_nx.size(); ++jx) {
-      nx = ia_nx.get(jx); 
+    for (int jx = 0; jx < ia_nx.size(); ++jx) {
+      int nx = ia_nx.get(jx);
       if (nodes[nx].isLeaf()) {
         aIa_dx.point_u(nx)->put(dx); 
       }
@@ -635,12 +637,12 @@ void AzTrTree::quick_warmup(const AzTreeNodes *inp,
   }
 
   /*---  set node depth and pop ---*/
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     nodes[nx].dxs_num = nodes[nx].depth = 0; 
     nodes[nx].dxs = NULL; 
     nodes[nx].dxs_offset = -1; 
   }
-  for (nx = 0; nx < nodes_used; ++nx) {
+  for (int nx = 0; nx < nodes_used; ++nx) {
     int temp_nx = nodes[nx].parent_nx; 
     while(temp_nx >= 0) {
       ++nodes[nx].depth; 
@@ -654,7 +656,7 @@ void AzTrTree::quick_warmup(const AzTreeNodes *inp,
 
   ia_root_dx.reset(ia_tr_dx->size(), -1); 
   int offset = 0; 
-  for (ix = 0; ix < ia_leaf_in_order.size(); ++ix) {
+  for (int ix = 0; ix < ia_leaf_in_order.size(); ++ix) {
     int leaf_nx = ia_leaf_in_order.get(ix); 
     const AzIntArr *ia_leaf_dx = aIa_dx.point(leaf_nx); 
     nodes[leaf_nx].dxs_offset = offset; 
@@ -819,7 +821,8 @@ const AzSortedFeatArr *AzTrTree::sorted_array(int nx,
                             nodes[gt_nx].dxs, nodes[gt_nx].dxs_num, 
                             sorted_arr[le_nx], sorted_arr[gt_nx]); 
   if (px != root_nx) { /* can't delete the one at the root as it's the base */
-    delete sorted_arr[px]; sorted_arr[px] = NULL; 
+    delete sorted_arr[px];
+    sorted_arr[px] = NULL;
   }
 
   return sorted_arr[nx]; 

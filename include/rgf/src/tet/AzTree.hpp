@@ -30,7 +30,6 @@ class AzTree : /* implements */ public virtual AzTreeNodes {
 protected:
   int root_nx; 
   int nodes_used; 
-  AzTreeNode *nodes; 
   AzBaseArray<AzTreeNode> a_nodes; 
 
   inline void _checkNode(int nx, const char *eyec) const {
@@ -47,10 +46,12 @@ public:
   }
   AzTree(const AzTreeNodes *inp) : root_nx(-1), nodes_used(0), nodes(NULL) {
     if (inp != NULL) {
-      copy_from(inp); 
+      copy_from(inp);
     }
   }
   ~AzTree() {}
+
+  AzTreeNode *nodes;
 
   void copy_from(const AzTreeNodes *tree_nodes); 
 
@@ -120,9 +121,8 @@ protected:
     }
   }
   void _show(const AzSvFeatInfo *feat, 
-                    int nx, 
-                    int depth, 
-                    const AzOut &out) const; 
+             int nx, int depth,
+             const AzOut &out) const;
 
   void _release(); 
   virtual void _genDesc(const AzSvFeatInfo *feat, 

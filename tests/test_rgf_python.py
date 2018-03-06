@@ -275,6 +275,14 @@ class TestRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
         else:
             self.assertEqual(clf.n_iter_, clf.n_iter)
 
+    def test_feature_impotances(self):
+        clf = self.classifier_class(**self.kwargs)
+        clf.fit(self.X_train, self.y_train)
+
+        fi = clf.feature_importances_
+        self.assertEqual(fi.shape[0], self.X_train.shape[1])
+        self.assertAlmostEquals(fi.sum(), 1)
+
 
 class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
     def setUp(self):
@@ -558,6 +566,14 @@ class TestRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
         y_pred = reg.predict(self.X_test)
         mae = mean_absolute_error(self.y_test, y_pred)
         self.assertLess(mae, 1.9916427774, "Failed with MAE = {0:.5f}".format(mae))
+
+    def test_feature_impotances(self):
+        reg = self.regressor_class(**self.kwargs)
+        reg.fit(self.X_train, self.y_train)
+
+        fi = reg.feature_importances_
+        self.assertEqual(fi.shape[0], self.X_train.shape[1])
+        self.assertAlmostEquals(fi.sum(), 1)
 
 
 class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):

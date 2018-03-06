@@ -326,47 +326,6 @@ double AzDmat::get(int row, int col) const
   return column[col]->get(row); 
 }
 
-#if 0 
-/*-------------------------------------------------------------*/
-void AzDmat::dump(const AzOut &out, const char *header, 
-                     const AzStrArray *sp_row, 
-                     const AzStrArray *sp_col, 
-                     int cut_num) const
-{
-  if (out.isNull()) return; 
-
-  AzPrint o(out); 
-
-  const char *my_header = ""; 
-  if (header != NULL) my_header = header; 
-  o.writeln(my_header); 
-
-  /* (row,col)=(r,c)\n */
-  o.printBegin("", ""); 
-  o.print("(row,col)="); 
-  o.pair_inParen(row_num, col_num, ","); 
-  o.printEnd(); 
-
-  int cx; 
-  for (cx = 0; cx < col_num; ++cx) {
-    if (column[cx] == NULL) {
-      continue; 
-    }
-
-    /* column=cx (col_header) */
-    o.printBegin("", " ", "="); 
-    o.print("column", cx); 
-    if (sp_col != NULL) {
-      o.inParen(sp_col->c_str(cx)); 
-    }
-    o.printEnd();
-
-    column[cx]->dump(out, "", sp_row, cut_num); 
-  }
-  o.flush(); 
-}
-#endif 
- 
 /*-------------------------------------------------------------*/
 void AzDmat::dump(const AzOut &out, const char *header, 
                   int max_col, 
@@ -971,25 +930,6 @@ void AzDvect::max_abs(const AzDvect *v)
   }
 }
 
-#if 0 
-/*-------------------------------------------------------------*/
-void AzDvect::max_abs(const AzReadOnlyVector *v) 
-{
-  const char *eyec = "AzDvect::max_abs"; 
-  if (num != v->rowNum()) {
-    throw new AzException(eyec, "shape mismatch"); 
-  }
-  AzCursor cur; 
-  for ( ; ; ) {
-    double val; 
-    int ex = v->next(cur, val); 
-    if (ex < 0) break; 
-    val = (val > 0) ? val : -val; 
-    elm[ex] = MAX(elm[ex], val);     
-  }
-}
-#endif 
- 
 /*-------------------------------------------------------------*/
 void AzDvect::add_abs(const AzDvect *v) 
 {
@@ -1006,29 +946,6 @@ void AzDvect::add_abs(const AzDvect *v)
     }
   }
 }
-
-#if 0 
-/*-------------------------------------------------------------*/
-void AzDvect::add_abs(const AzReadOnlyVector *v) 
-{
-  const char *eyec = "AzDvect::add_abs"; 
-  if (num != v->rowNum()) {
-    throw new AzException(eyec, "shape mismatch"); 
-  }
-  AzCursor cur; 
-  for ( ; ; ) {
-    double val; 
-    int ex = v->next(cur, val); 
-    if (ex < 0) break; 
-    if (val > 0) {
-      elm[ex] += val; 
-    }
-    else {
-      elm[ex] -= val; 
-    }
-  }
-}
-#endif 
 
 /*-------------------------------------------------------------*/
 /* WARNING: This could be very slow.  */

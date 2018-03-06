@@ -41,9 +41,9 @@ void AzTETproc::train(const AzOut &out,
   for ( ; ; ) {
     AzTETrainer_Ret ret = trainer->proceed_until(); 
     if (out_model_fn != NULL) {
-      AzTreeEnsemble ens; 
-      trainer->copy_to(&ens); 
-      writeModel(&ens, seq_no, out_model_fn, NULL, &s_model_names, out); 
+      AzTreeEnsemble ens;
+      trainer->copy_to(&ens);
+      writeModel(&ens, seq_no, out_model_fn, NULL, &s_model_names, out);
       ++seq_no; 
     }
     if (ret == AzTETrainer_Ret_Exit) {

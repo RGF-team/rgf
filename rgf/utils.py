@@ -276,6 +276,7 @@ class RGFMixin(object):
         self._train_weight_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.weight")
         self._model_file_loc = os.path.join(TEMP_PATH, self._file_prefix + ".model")
         self._pred_loc = os.path.join(TEMP_PATH, self._file_prefix + ".predictions.txt")
+        self._feature_importances_loc = os.path.join(TEMP_PATH, self._file_prefix + ".feature_importances.txt")
 
     def _save_train_data(self, X, y, sample_weight):
         if sample_weight is None:
@@ -293,13 +294,13 @@ class RGFMixin(object):
             self._save_dense_files(X, y, sample_weight)
             self._is_sparse_train_X = False
 
-    def _execute_command(self, cmd):
+    def _execute_command(self, cmd, verbose=False):
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
                                   universal_newlines=True).communicate()
 
-        if self.verbose:
+        if self.verbose or verbose:
             for k in output:
                 print(k)
 
