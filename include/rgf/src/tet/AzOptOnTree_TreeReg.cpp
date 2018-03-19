@@ -20,12 +20,11 @@
 #include "AzPrint.hpp"
 
 /*--------------------------------------------------------*/
-void
-AzOptOnTree_TreeReg::optimize(AzRgfTreeEnsemble *inp_rgf_ens, 
-                      const AzTrTreeFeat *inp_tree_feat, 
-                      int ite_num, 
-                      double lam, 
-                      double sig)
+void AzOptOnTree_TreeReg::optimize(AzRgfTreeEnsemble *inp_rgf_ens,
+                                   const AzTrTreeFeat *inp_tree_feat,
+                                   int ite_num,
+                                   double lam,
+                                   double sig)
 {
   ens = inp_rgf_ens;
   tree_feat = inp_tree_feat; 
