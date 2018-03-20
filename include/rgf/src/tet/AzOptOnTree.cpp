@@ -148,8 +148,8 @@ void AzOptOnTree::synchronize()
 
 /*--------------------------------------------------------*/
 void AzOptOnTree::iterate(int inp_ite_num, 
-                             double lam, 
-                             double sig)
+                          double lam,
+                          double sig)
 {
   int ite_num = max_ite_num; 
   if (inp_ite_num >= 0) {
@@ -170,8 +170,11 @@ void AzOptOnTree::iterate(int inp_ite_num,
   }
 
   double nn; 
-  if (AzDvect::isNull(&v_fixed_dw)) nn = v_y.rowNum(); 
-  else                              nn = v_fixed_dw.sum(); 
+  if (AzDvect::isNull(&v_fixed_dw)) {
+    nn = v_y.rowNum();
+  } else {
+    nn = v_fixed_dw.sum();
+  }
   double nlam = lambda * nn; 
   if (lam >= 0) {
     nlam = lam * nn; 
@@ -183,11 +186,9 @@ void AzOptOnTree::iterate(int inp_ite_num,
 
   bool doExit = false; 
   int ite_chk = MIN(5, ite_num); 
-  int ite; 
-  for (ite = 0; ite < ite_num; ++ite) {
+  for (int ite = 0; ite < ite_num; ++ite) {
     double delta = update(nlam, nsig); 
-    if (exit_delta > 0 && 
-        delta < exit_delta) {
+    if (exit_delta > 0 && delta < exit_delta) {
       doExit = true; 
     }
     if (!out.isNull() && (ite+1 == ite_chk || doExit)) {
@@ -209,8 +210,8 @@ void AzOptOnTree::iterate(int inp_ite_num,
 
 /*--------------------------------------------------------*/
 void AzOptOnTree::monitorLoss(int ite, 
-                                  double delta, 
-                                  const AzOut &out) const 
+                              double delta,
+                              const AzOut &out) const
 {
   if (out.isNull()) return; 
 
@@ -225,8 +226,7 @@ void AzOptOnTree::monitorLoss(int ite,
   const double *p = v_p.point(); 
   double uloss_sum=0; 
   int t=0,g=0,ok=0; 
-  int dx; 
-  for (dx = 0; dx < data_num; ++dx) {
+  for (int dx = 0; dx < data_num; ++dx) {
     if (p[dx] > 0) ++t; 
     if (y[dx] > 0) ++g; 
     if (y[dx] > 0 && p[dx] > 0) ++ok; 
@@ -347,8 +347,7 @@ void AzOptOnTree::update_with_features(
 {
   if (ens->usingTempFile()) {
     _update_with_features_TempFile(nlam, nsig, py_avg, for_del); 
-  }
-  else {
+  } else {
     _update_with_features(nlam, nsig, py_avg, for_del); 
   }
 }
@@ -402,8 +401,7 @@ double AzOptOnTree::getDelta(const int *dxs,
   if (fixed_dw == NULL) {
     AzLoss::sum_deriv(loss_type, dxs, dxs_num, p, y, py_avg, 
                       nega_dL, ddL); 
-  }
-  else {
+  } else {
     AzLoss::sum_deriv_weighted(loss_type, dxs, dxs_num, p, y, fixed_dw, py_avg, 
                       nega_dL, ddL); 
   }
@@ -465,13 +463,12 @@ void AzOptOnTree::dumpWeights(const AzOut &out,
 }
 
 /*--------------------------------------------------------*/
-void 
-AzOptOnTree::optimize(AzRgfTreeEnsemble *rgf_ens, 
-                      const AzTrTreeFeat *inp_tree_feat, 
-                      bool doRefreshP, 
-                      int ite_num, 
-                      double lam, 
-                      double sig)
+void  AzOptOnTree::optimize(AzRgfTreeEnsemble *rgf_ens,
+                            const AzTrTreeFeat *inp_tree_feat,
+                            bool doRefreshP,
+                            int ite_num,
+                            double lam,
+                            double sig)
 {
   ens = rgf_ens; 
   tree_feat = inp_tree_feat; 
@@ -532,14 +529,12 @@ void AzOptOnTree::_refreshPred_TempFile()
   const double *w = v_w.point(); 
 
   int tree_num = ens->size(); 
-  int tx; 
-  for (tx = 0; tx < tree_num; ++tx) {
+  for (int tx = 0; tx < tree_num; ++tx) {
     ens->tree_u(tx)->restoreDataIndexes(); 
     AzIIarr iia_nx_fx; 
     tree_feat->featIds(tx, &iia_nx_fx); 
     int num = iia_nx_fx.size(); 
-    int ix; 
-    for (ix = 0; ix < num; ++ix) {
+    for (int ix = 0; ix < num; ++ix) {
       int nx, fx; 
       iia_nx_fx.get(ix, &nx, &fx); 
 

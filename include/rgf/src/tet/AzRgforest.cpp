@@ -463,7 +463,7 @@ void AzRgforest::_updateTarget_OtherLoss(const AzRgfTree *tree,
 
 /*------------------------------------------------------------------*/
 /* static */
-//! _updataeTarget_OtherLoss could be called for LS too.  
+//! _updateTarget_OtherLoss could be called for LS too.
 //  But perhaps this is faster.    
 void AzRgforest::_updateTarget_LS(const AzRgfTree *tree, 
                                   const int leaf_nx[2], 
