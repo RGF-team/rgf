@@ -35,13 +35,12 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
 
-  - conda create -q -n test-environment python=$PYTHON_VERSION
+  - conda create -q -n test-environment python=$PYTHON_VERSION numpy scipy nose pandas scikit-learn pytest
   - source activate test-environment
 
   - RGF_VER=$(head -n 1 rgf/VERSION)
 
 install:
-  - conda install -q numpy scipy nose pandas scikit-learn pytest
   - python setup.py sdist --formats gztar
   - pip install dist/rgf_python-$RGF_VER.tar.gz -v
 
