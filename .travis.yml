@@ -18,9 +18,9 @@ git:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      rm '/usr/local/include/c++';
       brew install gcc;
-      brew link --overwrite gcc;
-      export CXX=g++-7 && export CC=gcc-7;
+      export CXX=g++-8 && export CC=gcc-8;
       curl https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
     else
       sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
@@ -35,13 +35,12 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
 
-  - conda create -q -n test-environment python=$PYTHON_VERSION
+  - conda create -q -n test-environment python=$PYTHON_VERSION numpy scipy nose pandas scikit-learn pytest
   - source activate test-environment
 
   - RGF_VER=$(head -n 1 rgf/VERSION)
 
 install:
-  - conda install -q numpy scipy nose pandas scikit-learn pytest
   - python setup.py sdist --formats gztar
   - pip install dist/rgf_python-$RGF_VER.tar.gz -v
 
@@ -64,6 +63,9 @@ before_deploy:
       zip rgf_python-${RGF_VER}-py2.py3-none-manylinux1_i686.whl rgf/rgf rgf/forest_train rgf/forest_predict;
       cd ..;
     fi
+
+notifications:
+  email: false
 
 deploy:
   file_glob: true
