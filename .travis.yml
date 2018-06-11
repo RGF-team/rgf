@@ -64,6 +64,9 @@ before_deploy:
       cd ..;
     fi
 
+notifications:
+  email: false
+
 deploy:
   file_glob: true
   file: dist/*.whl
