@@ -1,6 +1,6 @@
 |Build Status Travis| |Build Status AppVeyor| |License| |Python Versions| |PyPI Version|
 
-.. [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.python.org/pypi/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io
+.. [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.org/project/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io
 
 rgf\_python
 ===========
@@ -62,7 +62,7 @@ Software Requirements
 Installation
 ------------
 
-From `PyPI <https://pypi.python.org/pypi/rgf_python>`__ using ``pip``:
+From `PyPI <https://pypi.org/project/rgf_python>`__ using ``pip``:
 
 ::
 
@@ -341,6 +341,6 @@ References
 .. |License| image:: https://img.shields.io/badge/license-GPLv3-blue.svg
    :target: https://github.com/RGF-team/rgf_python/blob/master/LICENSE
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/rgf_python.svg
-   :target: https://pypi.python.org/pypi/rgf_python/
+   :target: https://pypi.org/project/rgf_python/
 .. |PyPI Version| image:: https://badge.fury.io/py/rgf_python.svg
    :target: https://badge.fury.io/py/rgf_python
