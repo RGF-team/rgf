@@ -15,7 +15,7 @@ environment:
 clone_depth: 50
 
 install:
-  - git submodule update --init --recursive  # retrieve fast_rgf
+  - git submodule update --init --recursive  # Retrieve fast_rgf
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%  # Delete sh.exe from PATH (mingw32-make fix)
   - ps: >-
       switch($env:PYTHON_VERSION) {
@@ -36,7 +36,7 @@ install:
   - conda update -q conda
   - conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose pandas scikit-learn pytest
   - activate test-environment
-  - conda install mkl=2017.0.3  # Temp fix. Delete the line in the future when compatibility will be fixed.
+  - conda install mkl=2018.0.3  # Temp fix. Delete the line in the future when compatibility will be fixed.
   - ps: $env:RGF_VER = (Get-Content rgf\VERSION).trim()
   - python setup.py sdist --formats gztar
   - pip install dist\rgf_python-%RGF_VER%.tar.gz -v
