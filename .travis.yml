@@ -18,9 +18,9 @@ git:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      rm '/usr/local/include/c++'
       brew install gcc;
-      brew link --overwrite gcc;
-      export CXX=g++-7 && export CC=gcc-7;
+      export CXX=g++-8 && export CC=gcc-8;
       curl https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
     else
       sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
