@@ -384,13 +384,15 @@ class RGFRegressor(utils.RGFRegressorBase):
     def dump_model(self):
         """
         Dump forest information to console.
-        ex.
+
+        Examples:
+        ---------
         [  0], depth=0, gain=0.599606, F11, 392.8
           [  1], depth=1, gain=0.818876, F4, 0.6275
             [  3], depth=2, gain=0.806904, F5, 7.226
             [  4], depth=2, gain=0.832003, F4, 0.686
           [  2], (-0.0146), depth=1, gain=0
-        Here, [ x] is order of generated, (x) is weight for leaf nodes, last value is border.
+        Here, [ x] is order of generated, (x) is weight for leaf nodes, last value is a border.
         """
         self._check_fitted()
         cmd = (utils.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
@@ -398,8 +400,8 @@ class RGFRegressor(utils.RGFRegressorBase):
 
     @property
     def feature_importances_(self):
-        """Return the feature importances.
-
+        """
+        The feature importances.
         The importance of a feature is computed from sum of gain of each node.
         """
         if self._fitted is None:
@@ -693,26 +695,27 @@ class RGFClassifier(utils.RGFClassifierBase):
     def dump_model(self):
         """
         Dump forest information to console.
-        ex.
+
+        Examples:
+        ---------
         [  0], depth=0, gain=0.599606, F11, 392.8
           [  1], depth=1, gain=0.818876, F4, 0.6275
             [  3], depth=2, gain=0.806904, F5, 7.226
             [  4], depth=2, gain=0.832003, F4, 0.686
           [  2], (-0.0146), depth=1, gain=0
-        Here, [ x] is order of generated, (x) is weight for leaf nodes, last value is border.
+        Here, [ x] is order of generated, (x) is weight for leaf nodes, last value is a border.
         """
         for est in self.estimators_:
             est.dump_model()
 
     @property
     def feature_importances_(self):
-        """Return the feature importances.
-
+        """
+        The feature importances.
         The importance of a feature is computed from sum of gain of each node.
         """
         if self._fitted is None:
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-
         each_estimator_feature_importances = []
         for est in self._estimators:
             each_estimator_feature_importances.append(est.feature_importances_)
@@ -785,10 +788,6 @@ class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
 
     @property
     def feature_importances_(self):
-        """Return the feature importances.
-
-        The importance of a feature is computed from sum of gain of each node.
-        """
         params = []
         params.append("train_x_fn=%s" % self._train_x_loc)
         params.append("feature_importances_fn=%s" % self._feature_importances_loc)
