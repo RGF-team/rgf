@@ -623,6 +623,7 @@ class RGFBinaryClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
+            setattr(self, '_{0}'.format(key), value)
 
         self._file_prefix = str(uuid4()) + str(COUNTER.increment())
         UUIDS.append(self._file_prefix)

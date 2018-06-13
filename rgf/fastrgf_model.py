@@ -128,7 +128,139 @@ def validate_fast_rgf_params(n_estimators,
         raise ValueError("calc_prob must be 'sigmoid' or 'softmax' but was %r." % calc_prob)
 
 
-class FastRGFRegressor(utils.RGFRegressorBase):
+class FastRGFPropertiesAndParams(object):
+    @property
+    def max_bin_(self):
+        """
+        The concrete maximum number of discretized values (bins)
+        used in model building process for given data.
+        """
+        if self._max_bin is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
+        else:
+            return self._max_bin
+
+    @property
+    def min_samples_leaf_(self):
+        """
+        Minimum number of training data points in each leaf node
+        used in model building process.
+        """
+        if self._min_samples_leaf is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
+        else:
+            return self._min_samples_leaf
+
+    def _validate_params(self, params):
+        validate_fast_rgf_params(**params)
+
+    def _set_params_with_dependencies(self):
+        if self.max_bin is None:
+            if self._is_sparse_train_X:
+                self._max_bin = 200
+            else:
+                self._max_bin = 65000
+        else:
+            self._max_bin = self.max_bin
+
+        if isinstance(self.min_samples_leaf, utils.FLOATS):
+            self._min_samples_leaf = ceil(self.min_samples_leaf * self._n_samples)
+        else:
+            self._min_samples_leaf = self.min_samples_leaf
+
+        if self.n_jobs == -1:
+            self._n_jobs = 0
+        elif self.n_jobs < 0:
+            self._n_jobs = cpu_count() + self.n_jobs + 1
+        else:
+            self._n_jobs = self.n_jobs
+
+
+class FastRGFEstimatorBase(object):
+    def _get_train_command(self):
+        params = []
+        params.append("forest.ntrees=%s" % self.n_estimators)
+        params.append("forest.stepsize=%s" % self.learning_rate)
+        params.append("forest.opt=%s" % self.opt_algorithm)
+        params.append("dtree.max_level=%s" % self.max_depth)
+        params.append("dtree.max_nodes=%s" % self.max_leaf)
+        params.append("dtree.new_tree_gain_ratio=%s" % self.tree_gain_ratio)
+        params.append("dtree.min_sample=%s" % self._min_samples_leaf)
+        params.append("dtree.lamL1=%s" % self.l1)
+        params.append("dtree.lamL2=%s" % self.l2)
+        if self._is_sparse_train_X:
+            params.append("discretize.sparse.max_features=%s" % self.sparse_max_features)
+            params.append("discretize.sparse.max_buckets=%s" % self._max_bin)
+            params.append("discretize.sparse.lamL2=%s" % self.data_l2)
+            params.append("discretize.sparse.min_bucket_weights=%s" % self.min_child_weight)
+            params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
+            params.append("trn.x-file_format=x.sparse")
+            params.append("trn.y-file=%s" % self._train_y_loc)
+            if self._use_sample_weight:
+                params.append("trn.w-file=%s" % self._train_weight_loc)
+        else:
+            params.append("discretize.dense.max_buckets=%s" % self._max_bin)
+            params.append("discretize.dense.lamL2=%s" % self.data_l2)
+            params.append("discretize.dense.min_bucket_weights=%s" % self.min_child_weight)
+            if self._use_sample_weight:
+                fmt = "w.y.x"
+            else:
+                fmt = "y.x"
+            params.append("trn.x-file_format=%s" % fmt)
+        params.append("trn.x-file=%s" % self._train_x_loc)
+        params.append("set.nthreads=%s" % self._n_jobs)
+        params.append("set.verbose=%s" % self.verbose)
+        params.append("model.save=%s" % self._model_file_loc)
+
+        params.extend(self._get_train_task_specific_params())
+
+        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_train")]
+        cmd.extend(params)
+
+        return cmd
+
+    def _get_test_command(self, is_sparse_x):
+        params = []
+        params.append("model.load=%s" % self._model_file)
+        params.append("tst.x-file=%s" % self._test_x_loc)
+        if is_sparse_x:
+            params.append("tst.x-file_format=x.sparse")
+        params.append("tst.output-prediction=%s" % self._pred_loc)
+        params.append("set.nthreads=%s" % self._n_jobs)
+        params.append("set.verbose=%s" % self.verbose)
+
+        params.extend(self._get_test_task_specific_params())
+
+        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_predict")]
+        cmd.extend(params)
+
+        return cmd
+
+    def _save_sparse_X(self, path, X):
+        utils.sparse_savetxt(path, X, including_header=False)
+
+    def _save_dense_files(self, X, y, sample_weight):
+        self._train_x_loc = self._train_x_loc[:-2]
+        if self._use_sample_weight:
+            arrs = (sample_weight, y, X)
+        else:
+            arrs = (y, X)
+        np.savetxt(self._train_x_loc, np.c_[arrs], delimiter=' ', fmt="%s")
+
+    def _find_model_file(self):
+        if not os.path.isfile(self._model_file_loc):
+            raise Exception('Model learning result is not found in {0}. '
+                            'Training has been abnormally finished.'.format(utils.TEMP_PATH))
+        self._model_file = self._model_file_loc
+
+    def _get_train_task_specific_params(self):
+        raise NotImplementedError(utils.NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _get_test_task_specific_params(self):
+        raise NotImplementedError(utils.NOT_IMPLEMENTED_ERROR_DESC)
+
+
+class FastRGFRegressor(FastRGFPropertiesAndParams, FastRGFEstimatorBase, utils.RGFRegressorBase):
     """
     A Fast Regularized Greedy Forest [1] regressor.
 
@@ -275,128 +407,18 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         self._n_features = None
         self._fitted = None
 
-    @property
-    def max_bin_(self):
-        """
-        The concrete maximum number of discretized values (bins)
-        used in model building process for given data.
-        """
-        if self._max_bin is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._max_bin
-
-    @property
-    def min_samples_leaf_(self):
-        """
-        Minimum number of training data points in each leaf node
-        used in model building process.
-        """
-        if self._min_samples_leaf is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._min_samples_leaf
-
-    def _validate_params(self, params):
-        validate_fast_rgf_params(**params)
-
-    def _set_params_with_dependencies(self):
-        if self.max_bin is None:
-            if self._is_sparse_train_X:
-                self._max_bin = 200
-            else:
-                self._max_bin = 65000
-        else:
-            self._max_bin = self.max_bin
-
-        if isinstance(self.min_samples_leaf, utils.FLOATS):
-            self._min_samples_leaf = ceil(self.min_samples_leaf * self._n_samples)
-        else:
-            self._min_samples_leaf = self.min_samples_leaf
-
-        if self.n_jobs == -1:
-            self._n_jobs = 0
-        elif self.n_jobs < 0:
-            self._n_jobs = cpu_count() + self.n_jobs + 1
-        else:
-            self._n_jobs = self.n_jobs
-
-    def _get_train_command(self):
+    def _get_train_task_specific_params(self):
         params = []
-        params.append("forest.ntrees=%s" % self.n_estimators)
-        params.append("forest.stepsize=%s" % self.learning_rate)
-        params.append("forest.opt=%s" % self.opt_algorithm)
-        params.append("dtree.max_level=%s" % self.max_depth)
-        params.append("dtree.max_nodes=%s" % self.max_leaf)
-        params.append("dtree.new_tree_gain_ratio=%s" % self.tree_gain_ratio)
-        params.append("dtree.min_sample=%s" % self._min_samples_leaf)
-        params.append("dtree.lamL1=%s" % self.l1)
-        params.append("dtree.lamL2=%s" % self.l2)
-        if self._is_sparse_train_X:
-            params.append("discretize.sparse.max_features=%s" % self.sparse_max_features)
-            params.append("discretize.sparse.max_buckets=%s" % self._max_bin)
-            params.append("discretize.sparse.lamL2=%s" % self.data_l2)
-            params.append("discretize.sparse.min_bucket_weights=%s" % self.min_child_weight)
-            params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
-            params.append("trn.x-file_format=x.sparse")
-            params.append("trn.y-file=%s" % self._train_y_loc)
-            if self._use_sample_weight:
-                params.append("trn.w-file=%s" % self._train_weight_loc)
-        else:
-            params.append("discretize.dense.max_buckets=%s" % self._max_bin)
-            params.append("discretize.dense.lamL2=%s" % self.data_l2)
-            params.append("discretize.dense.min_bucket_weights=%s" % self.min_child_weight)
-            if self._use_sample_weight:
-                fmt = "w.y.x"
-            else:
-                fmt = "y.x"
-            params.append("trn.x-file_format=%s" % fmt)
-        params.append("trn.x-file=%s" % self._train_x_loc)
         params.append("trn.target=REAL")
-        params.append("set.nthreads=%s" % self._n_jobs)
-        params.append("set.verbose=%s" % self.verbose)
-        params.append("model.save=%s" % self._model_file_loc)
+        return params
 
-        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_train")]
-        cmd.extend(params)
-
-        return cmd
-
-    def _get_test_command(self, is_sparse_x):
+    def _get_test_task_specific_params(self):
         params = []
-        params.append("model.load=%s" % self._model_file)
-        params.append("tst.x-file=%s" % self._test_x_loc)
-        if is_sparse_x:
-            params.append("tst.x-file_format=x.sparse")
         params.append("tst.target=REAL")
-        params.append("tst.output-prediction=%s" % self._pred_loc)
-        params.append("set.nthreads=%s" % self._n_jobs)
-        params.append("set.verbose=%s" % self.verbose)
-
-        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_predict")]
-        cmd.extend(params)
-
-        return cmd
-
-    def _save_sparse_X(self, path, X):
-        utils.sparse_savetxt(path, X, including_header=False)
-
-    def _save_dense_files(self, X, y, sample_weight):
-        self._train_x_loc = self._train_x_loc[:-2]
-        if self._use_sample_weight:
-            arrs = (sample_weight, y, X)
-        else:
-            arrs = (y, X)
-        np.savetxt(self._train_x_loc, np.c_[arrs], delimiter=' ', fmt="%s")
-
-    def _find_model_file(self):
-        if not os.path.isfile(self._model_file_loc):
-            raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.TEMP_PATH))
-        self._model_file = self._model_file_loc
+        return params
 
 
-class FastRGFClassifier(utils.RGFClassifierBase):
+class FastRGFClassifier(FastRGFPropertiesAndParams, utils.RGFClassifierBase):
     """
     A Fast Regularized Greedy Forest [1] classifier.
 
@@ -569,52 +591,6 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         self._n_features = None
         self._fitted = None
 
-    @property
-    def max_bin_(self):
-        """
-        The concrete maximum number of discretized values (bins)
-        used in model building process for given data.
-        """
-        if self._max_bin is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._max_bin
-
-    @property
-    def min_samples_leaf_(self):
-        """
-        Minimum number of training data points in each leaf node
-        used in model building process.
-        """
-        if self._min_samples_leaf is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._min_samples_leaf
-
-    def _validate_params(self, params):
-        validate_fast_rgf_params(**params)
-
-    def _set_params_with_dependencies(self):
-        if self.max_bin is None:
-            if self._is_sparse_train_X:
-                self._max_bin = 200
-            else:
-                self._max_bin = 65000
-        else:
-            self._max_bin = self.max_bin
-
-        if isinstance(self.min_samples_leaf, utils.FLOATS):
-            self._min_samples_leaf = ceil(self.min_samples_leaf * self._n_samples)
-        else:
-            self._min_samples_leaf = self.min_samples_leaf
-
-        if self.n_jobs == -1:
-            self._n_jobs = 0
-        elif self.n_jobs < 0:
-            self._n_jobs = cpu_count() + self.n_jobs + 1
-        else:
-            self._n_jobs = self.n_jobs
-
     def _get_params(self):
         return dict(max_depth=self.max_depth,
                     max_leaf=self.max_leaf,
@@ -645,78 +621,14 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                                                                             sample_weight)
 
 
-class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
-    def _save_sparse_X(self, path, X):
-        utils.sparse_savetxt(path, X, including_header=False)
-
-    def _save_dense_files(self, X, y, sample_weight):
-        self._train_x_loc = self._train_x_loc[:-2]
-        if self._use_sample_weight:
-            arrs = (sample_weight, y, X)
-        else:
-            arrs = (y, X)
-        np.savetxt(self._train_x_loc, np.c_[arrs], delimiter=' ', fmt="%s")
-
-    def _get_train_command(self):
+class FastRGFBinaryClassifier(FastRGFEstimatorBase, utils.RGFBinaryClassifierBase):
+    def _get_train_task_specific_params(self):
         params = []
-        params.append("forest.ntrees=%s" % self.n_estimators)
-        params.append("forest.stepsize=%s" % self.learning_rate)
-        params.append("forest.opt=%s" % self.opt_algorithm)
-        params.append("dtree.max_level=%s" % self.max_depth)
-        params.append("dtree.max_nodes=%s" % self.max_leaf)
-        params.append("dtree.new_tree_gain_ratio=%s" % self.tree_gain_ratio)
-        params.append("dtree.min_sample=%s" % self.min_samples_leaf)
-        params.append("dtree.loss=%s" % self.loss)
-        params.append("dtree.lamL1=%s" % self.l1)
-        params.append("dtree.lamL2=%s" % self.l2)
-        if self._is_sparse_train_X:
-            params.append("discretize.sparse.max_features=%s" % self.sparse_max_features)
-            params.append("discretize.sparse.max_buckets=%s" % self.max_bin)
-            params.append("discretize.sparse.lamL2=%s" % self.data_l2)
-            params.append("discretize.sparse.min_bucket_weights=%s" % self.min_child_weight)
-            params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
-            params.append("trn.x-file_format=x.sparse")
-            params.append("trn.y-file=%s" % self._train_y_loc)
-            if self._use_sample_weight:
-                params.append("trn.w-file=%s" % self._train_weight_loc)
-        else:
-            params.append("discretize.dense.max_buckets=%s" % self.max_bin)
-            params.append("discretize.dense.lamL2=%s" % self.data_l2)
-            params.append("discretize.dense.min_bucket_weights=%s" % self.min_child_weight)
-            if self._use_sample_weight:
-                fmt = "w.y.x"
-            else:
-                fmt = "y.x"
-            params.append("trn.x-file_format=%s" % fmt)
-        params.append("trn.x-file=%s" % self._train_x_loc)
         params.append("trn.target=BINARY")
-        params.append("set.nthreads=%s" % self.n_jobs)
-        params.append("set.verbose=%s" % self.verbose)
-        params.append("model.save=%s" % self._model_file_loc)
+        params.append("dtree.loss=%s" % self.loss)
+        return params
 
-        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_train")]
-        cmd.extend(params)
-
-        return cmd
-
-    def _find_model_file(self):
-        if not os.path.isfile(self._model_file_loc):
-            raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.TEMP_PATH))
-        self._model_file = self._model_file_loc
-
-    def _get_test_command(self, is_sparse_test_X):
+    def _get_test_task_specific_params(self):
         params = []
-        params.append("model.load=%s" % self._model_file)
-        params.append("tst.x-file=%s" % self._test_x_loc)
-        if is_sparse_test_X:
-            params.append("tst.x-file_format=x.sparse")
         params.append("tst.target=BINARY")
-        params.append("tst.output-prediction=%s" % self._pred_loc)
-        params.append("set.nthreads=%s" % self.n_jobs)
-        params.append("set.verbose=%s" % self.verbose)
-
-        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_predict")]
-        cmd.extend(params)
-
-        return cmd
+        return params
