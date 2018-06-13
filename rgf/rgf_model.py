@@ -16,110 +16,6 @@ ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
 LOSSES = ("LS", "Expo", "Log", "Abs")
 
 
-def validate_rgf_params(max_leaf,
-                        test_interval,
-                        algorithm,
-                        loss,
-                        reg_depth,
-                        l2,
-                        sl2,
-                        normalize,
-                        min_samples_leaf,
-                        n_iter,
-                        n_tree_search,
-                        opt_interval,
-                        learning_rate,
-                        verbose,
-                        memory_policy,
-                        calc_prob="sigmoid",
-                        n_jobs=-1):
-    if not isinstance(max_leaf, utils.INTS):
-        raise ValueError("max_leaf must be an integer, got {0}.".format(type(max_leaf)))
-    elif max_leaf <= 0:
-        raise ValueError("max_leaf must be greater than 0 but was %r." % max_leaf)
-
-    if not isinstance(test_interval, utils.INTS):
-        raise ValueError("test_interval must be an integer, got {0}.".format(type(test_interval)))
-    elif test_interval <= 0:
-        raise ValueError("test_interval must be greater than 0 but was %r." % test_interval)
-
-    if not isinstance(algorithm, six.string_types):
-        raise ValueError("algorithm must be a string, got {0}.".format(type(algorithm)))
-    elif algorithm not in ALGORITHMS:
-        raise ValueError("algorithm must be 'RGF' or 'RGF_Opt' or 'RGF_Sib' but was %r." % algorithm)
-
-    if not isinstance(loss, six.string_types):
-        raise ValueError("loss must be a string, got {0}.".format(type(loss)))
-    elif loss not in LOSSES:
-        raise ValueError("loss must be 'LS' or 'Expo' or 'Log' but was %r." % loss)
-
-    if not isinstance(reg_depth, (utils.INTS, utils.FLOATS)):
-        raise ValueError("reg_depth must be an integer or float, got {0}.".format(type(reg_depth)))
-    elif reg_depth < 1:
-        raise ValueError("reg_depth must be no smaller than 1.0 but was %r." % reg_depth)
-
-    if not isinstance(l2, utils.FLOATS):
-        raise ValueError("l2 must be a float, got {0}.".format(type(l2)))
-    elif l2 < 0:
-        raise ValueError("l2 must be no smaller than 0.0 but was %r." % l2)
-
-    if not isinstance(sl2, (type(None), utils.FLOATS)):
-        raise ValueError("sl2 must be a float or None, got {0}.".format(type(sl2)))
-    elif sl2 is not None and sl2 < 0:
-        raise ValueError("sl2 must be no smaller than 0.0 but was %r." % sl2)
-
-    if not isinstance(normalize, bool):
-        raise ValueError("normalize must be a boolean, got {0}.".format(type(normalize)))
-
-    err_desc = "min_samples_leaf must be at least 1 or in (0, 0.5], got %r." % min_samples_leaf
-    if isinstance(min_samples_leaf, utils.INTS):
-        if min_samples_leaf < 1:
-            raise ValueError(err_desc)
-    elif isinstance(min_samples_leaf, utils.FLOATS):
-        if not 0.0 < min_samples_leaf <= 0.5:
-            raise ValueError(err_desc)
-    else:
-        raise ValueError("min_samples_leaf must be an integer or float, got {0}.".format(type(min_samples_leaf)))
-
-    if not isinstance(n_iter, (type(None), utils.INTS)):
-        raise ValueError("n_iter must be an integer or None, got {0}.".format(type(n_iter)))
-    elif n_iter is not None and n_iter < 1:
-        raise ValueError("n_iter must be no smaller than 1 but was %r." % n_iter)
-
-    if not isinstance(n_tree_search, utils.INTS):
-        raise ValueError("n_tree_search must be an integer, got {0}.".format(type(n_tree_search)))
-    elif n_tree_search < 1:
-        raise ValueError("n_tree_search must be no smaller than 1 but was %r." % n_tree_search)
-
-    if not isinstance(opt_interval, utils.INTS):
-        raise ValueError("opt_interval must be an integer, got {0}.".format(type(opt_interval)))
-    elif opt_interval < 1:
-        raise ValueError("opt_interval must be no smaller than 1 but was %r." % opt_interval)
-
-    if not isinstance(learning_rate, utils.FLOATS):
-        raise ValueError("learning_rate must be a float, got {0}.".format(type(learning_rate)))
-    elif learning_rate <= 0:
-        raise ValueError("learning_rate must be greater than 0 but was %r." % learning_rate)
-
-    if not isinstance(verbose, utils.INTS):
-        raise ValueError("verbose must be an integer, got {0}.".format(type(verbose)))
-    elif verbose < 0:
-        raise ValueError("verbose must be no smaller than 0 but was %r." % verbose)
-
-    if not isinstance(memory_policy, six.string_types):
-        raise ValueError("memory_policy must be a string, got {0}.".format(type(memory_policy)))
-    elif memory_policy not in ("conservative", "generous"):
-        raise ValueError("memory_policy must be 'conservative' or 'generous' but was %r." % memory_policy)
-
-    if not isinstance(calc_prob, six.string_types):
-        raise ValueError("calc_prob must be a string, got {0}.".format(type(calc_prob)))
-    elif calc_prob not in ("sigmoid", "softmax"):
-        raise ValueError("calc_prob must be 'sigmoid' or 'softmax' but was %r." % calc_prob)
-
-    if not isinstance(n_jobs, utils.INTS):
-        raise ValueError("n_jobs must be an integer, got {0}.".format(type(n_jobs)))
-
-
 class RGFPropertiesAndParams(object):
     @property
     def sl2_(self):
@@ -155,7 +51,111 @@ class RGFPropertiesAndParams(object):
             return self._n_iter
 
     def _validate_params(self, params):
-        validate_rgf_params(**params)
+
+        def check_params(max_leaf,
+                         test_interval,
+                         algorithm,
+                         loss,
+                         reg_depth,
+                         l2,
+                         sl2,
+                         normalize,
+                         min_samples_leaf,
+                         n_iter,
+                         n_tree_search,
+                         opt_interval,
+                         learning_rate,
+                         verbose,
+                         memory_policy,
+                         calc_prob="sigmoid",
+                         n_jobs=-1):
+            if not isinstance(max_leaf, utils.INTS):
+                raise ValueError("max_leaf must be an integer, got {0}.".format(type(max_leaf)))
+            elif max_leaf <= 0:
+                raise ValueError("max_leaf must be greater than 0 but was %r." % max_leaf)
+
+            if not isinstance(test_interval, utils.INTS):
+                raise ValueError("test_interval must be an integer, got {0}.".format(type(test_interval)))
+            elif test_interval <= 0:
+                raise ValueError("test_interval must be greater than 0 but was %r." % test_interval)
+
+            if not isinstance(algorithm, six.string_types):
+                raise ValueError("algorithm must be a string, got {0}.".format(type(algorithm)))
+            elif algorithm not in ALGORITHMS:
+                raise ValueError("algorithm must be 'RGF' or 'RGF_Opt' or 'RGF_Sib' but was %r." % algorithm)
+
+            if not isinstance(loss, six.string_types):
+                raise ValueError("loss must be a string, got {0}.".format(type(loss)))
+            elif loss not in LOSSES:
+                raise ValueError("loss must be 'LS' or 'Expo' or 'Log' but was %r." % loss)
+
+            if not isinstance(reg_depth, (utils.INTS, utils.FLOATS)):
+                raise ValueError("reg_depth must be an integer or float, got {0}.".format(type(reg_depth)))
+            elif reg_depth < 1:
+                raise ValueError("reg_depth must be no smaller than 1.0 but was %r." % reg_depth)
+
+            if not isinstance(l2, utils.FLOATS):
+                raise ValueError("l2 must be a float, got {0}.".format(type(l2)))
+            elif l2 < 0:
+                raise ValueError("l2 must be no smaller than 0.0 but was %r." % l2)
+
+            if not isinstance(sl2, (type(None), utils.FLOATS)):
+                raise ValueError("sl2 must be a float or None, got {0}.".format(type(sl2)))
+            elif sl2 is not None and sl2 < 0:
+                raise ValueError("sl2 must be no smaller than 0.0 but was %r." % sl2)
+
+            if not isinstance(normalize, bool):
+                raise ValueError("normalize must be a boolean, got {0}.".format(type(normalize)))
+
+            err_desc = "min_samples_leaf must be at least 1 or in (0, 0.5], got %r." % min_samples_leaf
+            if isinstance(min_samples_leaf, utils.INTS):
+                if min_samples_leaf < 1:
+                    raise ValueError(err_desc)
+            elif isinstance(min_samples_leaf, utils.FLOATS):
+                if not 0.0 < min_samples_leaf <= 0.5:
+                    raise ValueError(err_desc)
+            else:
+                raise ValueError("min_samples_leaf must be an integer or float, got {0}.".format(type(min_samples_leaf)))
+
+            if not isinstance(n_iter, (type(None), utils.INTS)):
+                raise ValueError("n_iter must be an integer or None, got {0}.".format(type(n_iter)))
+            elif n_iter is not None and n_iter < 1:
+                raise ValueError("n_iter must be no smaller than 1 but was %r." % n_iter)
+
+            if not isinstance(n_tree_search, utils.INTS):
+                raise ValueError("n_tree_search must be an integer, got {0}.".format(type(n_tree_search)))
+            elif n_tree_search < 1:
+                raise ValueError("n_tree_search must be no smaller than 1 but was %r." % n_tree_search)
+
+            if not isinstance(opt_interval, utils.INTS):
+                raise ValueError("opt_interval must be an integer, got {0}.".format(type(opt_interval)))
+            elif opt_interval < 1:
+                raise ValueError("opt_interval must be no smaller than 1 but was %r." % opt_interval)
+
+            if not isinstance(learning_rate, utils.FLOATS):
+                raise ValueError("learning_rate must be a float, got {0}.".format(type(learning_rate)))
+            elif learning_rate <= 0:
+                raise ValueError("learning_rate must be greater than 0 but was %r." % learning_rate)
+
+            if not isinstance(verbose, utils.INTS):
+                raise ValueError("verbose must be an integer, got {0}.".format(type(verbose)))
+            elif verbose < 0:
+                raise ValueError("verbose must be no smaller than 0 but was %r." % verbose)
+
+            if not isinstance(memory_policy, six.string_types):
+                raise ValueError("memory_policy must be a string, got {0}.".format(type(memory_policy)))
+            elif memory_policy not in ("conservative", "generous"):
+                raise ValueError("memory_policy must be 'conservative' or 'generous' but was %r." % memory_policy)
+
+            if not isinstance(calc_prob, six.string_types):
+                raise ValueError("calc_prob must be a string, got {0}.".format(type(calc_prob)))
+            elif calc_prob not in ("sigmoid", "softmax"):
+                raise ValueError("calc_prob must be 'sigmoid' or 'softmax' but was %r." % calc_prob)
+
+            if not isinstance(n_jobs, utils.INTS):
+                raise ValueError("n_jobs must be an integer, got {0}.".format(type(n_jobs)))
+
+        check_params(**params)
 
     def _set_params_with_dependencies(self):
         if self.sl2 is None:
