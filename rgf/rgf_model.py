@@ -123,7 +123,7 @@ def validate_rgf_params(max_leaf,
         raise ValueError("n_jobs must be an integer, got {0}.".format(type(n_jobs)))
 
 
-class RGFEstimatorBase(utils.RGFClassifierBase):
+class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
     @property
     def sl2_(self):
         """
@@ -385,21 +385,19 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin):
         (https://arxiv.org/abs/1109.0887).
     """
     def __init__(self,
-                 max_leaf=1000,
+                 max_leaf=500,
                  test_interval=100,
                  algorithm="RGF",
-                 loss="Log",
+                 loss="LS",
                  reg_depth=1.0,
                  l2=0.1,
                  sl2=None,
-                 normalize=False,
+                 normalize=True,
                  min_samples_leaf=10,
                  n_iter=None,
                  n_tree_search=1,
                  opt_interval=100,
                  learning_rate=0.5,
-                 calc_prob="sigmoid",
-                 n_jobs=1,
                  memory_policy="generous",
                  verbose=0):
         if not utils.RGF_AVAILABLE:
@@ -420,8 +418,8 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin):
         self.n_tree_search = n_tree_search
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
-        self.calc_prob = calc_prob
-        self.n_jobs = n_jobs
+        self.calc_prob = "sigmoid"
+        self.n_jobs = 1
         self.memory_policy = memory_policy
         self.verbose = verbose
 

@@ -482,7 +482,7 @@ class RGFBinaryClassifierBase(RGFMixin, BaseEstimator):
         return np.loadtxt(self._pred_loc)
 
 
-class RGFClassifierBase(RGFMixin, BaseEstimator):
+class CommonRGFEstimatorBase(RGFMixin, BaseEstimator):
     @property
     def estimators_(self):
         """The collection of fitted sub-estimators when `fit` is performed."""

@@ -398,7 +398,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         self._model_file = self._model_file_loc
 
 
-class FastRGFClassifier(utils.RGFClassifierBase, ClassifierMixin):
+class FastRGFClassifier(utils.CommonRGFEstimatorBase, ClassifierMixin):
     """
     A Fast Regularized Greedy Forest [1] classifier.
 
