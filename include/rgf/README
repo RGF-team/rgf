@@ -1,7 +1,7 @@
 ************************************************************************
-                                                                                                  
-                               README                                   
-                                                                    
+
+                               README
+
                            RGF Version 1.2
                       Released: September 2012
                          Modified: June 2014
@@ -15,7 +15,7 @@
 0.0 CHANGES (June 2014)
 
   1. The restriction on the size of training data files has been removed.
-
+ 
      Old: Training data files had to be smaller than 2GB.
      New: No restriction on the training data file sizes.
           (However, the number of lines and the length of each line must
@@ -33,7 +33,7 @@
   We thank Dave Slate for suggesting a solution to the issue of file size
   restriction above.
 
-************************************************************************  
+************************************************************************
 
 Contents:
 ---------
@@ -60,6 +60,9 @@ Executables are provided only for some versions of Windows (see Section 3 for
 detail). If provided executables do not work for your environment, you need
 to compile C++ code.
 
+To use the provided tools and to go through the examples in the user guide,
+Perl is required.
+
 -----------
 2. Download and Installation
 Download the package and extract the content.
@@ -70,23 +73,28 @@ path expressions are relative to "rgf".
 --------------------------
 3 Creating the Executable
 
+To go through the examples in the user guide, your executable needs to be
+at the "bin" directory. Otherwise, your executable can be anywhere you like.
+
 -----------
 3.1 Windows
-A 64-bit executable is provided with the filename "rgf.exe" at the
-"bin" directory. It was tested on Windows 7 with the latest service pack as
-of 9/17/2012. You can either use it, or you can rebuild it by yourself
-using the provided solution file for MS Visual C++ 2010 Express:
-"Windows\rgf\rgf.sln".
+Executable files are provided with the filename "rgf.exe" for 64-bit Windows
+and "rgf32.exe" for 32-bit Windows at the "bin" directory.
+They were tested on Windows 10 with the latest updates as
+of 8/12/2017. You can either use them
+(rename "rgf32.exe" to "rgf.exe" in case you are using 32-bit Windows),
+or you can rebuild them by yourself using the provided solution file for
+MS Visual C++ 2010 Express: "Windows\rgf\rgf.sln".
 
 ---------------------
 3.2 Unix-like Systems
 You need to build your executable from the source code. A make file
-"makefile" is provided at the top directory. It is configured to use
+"makefile" is provided at the "build" directory. It is configured to use
 "g++" and always compile everything. You may need to customize "makefile"
 for your environment.
 
-To build the executable, change the current directory to the top
-directory "rgf1.2" and enter in the command line "make". Check the
+To build the executable, change the current directory to the "build"
+directory and enter in the command line "make". Check the
 "bin" directory to make sure that your new executable "rgf" is there.
 
 ----------------------------------------
@@ -118,12 +126,12 @@ riejohnson@gmail.com
 
 ------------
 6. Copyright
-RGF Version 1.2 is distributed under the GNU public license. Please read
-the file LICENSE.
+RGF Version 1.2 is distributed under the MIT license. Please read
+the file COPYING.
 
 -------------
 7. References
 
-[1] Rie Johnson and Tong Zhang.  Learning nonlinear functions using
-    regularized greedy forest.  IEEE Transactions on Pattern Analysis and Machine
+[1] Rie Johnson and Tong Zhang. Learning nonlinear functions using
+    regularized greedy forest. IEEE Transactions on Pattern Analysis and Machine
     Intelligence, 36(5):942-954, May 2014.
