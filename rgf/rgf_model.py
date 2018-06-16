@@ -1,13 +1,16 @@
 from __future__ import absolute_import
 
 from glob import glob
-from math import ceil
-from uuid import uuid4
 
 import numpy as np
+from uuid import uuid4
 from sklearn.exceptions import NotFittedError
-from sklearn.externals import six
+
+from math import ceil
 from sklearn.externals.joblib import Parallel, delayed, cpu_count
+
+from sklearn.base import ClassifierMixin, RegressorMixin
+from sklearn.externals import six
 
 from rgf import utils
 
@@ -120,154 +123,7 @@ def validate_rgf_params(max_leaf,
         raise ValueError("n_jobs must be an integer, got {0}.".format(type(n_jobs)))
 
 
-class RGFRegressor(utils.RGFRegressorBase):
-    """
-    A Regularized Greedy Forest [1] regressor.
-
-    Tuning parameters detailed instruction:
-        https://github.com/RGF-team/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf
-
-    Parameters
-    ----------
-    max_leaf : int, optional (default=500)
-        Training will be terminated when the number of
-        leaf nodes in the forest reaches this value.
-
-    test_interval : int, optional (default=100)
-        Test interval in terms of the number of leaf nodes.
-
-    algorithm : string ("RGF" or "RGF_Opt" or "RGF_Sib"), optional (default="RGF")
-        Regularization algorithm.
-        RGF: RGF with L2 regularization on leaf-only models.
-        RGF Opt: RGF with min-penalty regularization.
-        RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
-
-    loss : string ("LS" or "Expo" or "Log" or "Abs"), optional (default="LS")
-        Loss function.
-        LS: Square loss.
-        Expo: Exponential loss.
-        Log: Logistic loss.
-        Abs: Absolute error loss.
-
-    reg_depth : float, optional (default=1.0)
-        Must be no smaller than 1.0.
-        Meant for being used with algorithm="RGF Opt"|"RGF Sib".
-        A larger value penalizes deeper nodes more severely.
-
-    l2 : float, optional (default=0.1)
-        Used to control the degree of L2 regularization.
-
-    sl2 : float or None, optional (default=None)
-        Override L2 regularization parameter l2
-        for the process of growing the forest.
-        That is, if specified, the weight correction process uses l2
-        and the forest growing process uses sl2.
-        If None, no override takes place and
-        l2 is used throughout training.
-
-    normalize : boolean, optional (default=True)
-        If True, training targets are normalized
-        so that the average becomes zero.
-
-    min_samples_leaf : int or float, optional (default=10)
-        Minimum number of training data points in each leaf node.
-        If int, then consider min_samples_leaf as the minimum number.
-        If float, then min_samples_leaf is a percentage and
-        ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
-
-    n_iter : int or None, optional (default=None)
-        Number of iterations of coordinate descent to optimize weights.
-        If None, 10 is used for loss="LS" and 5 for loss="Expo"|"Log".
-
-    n_tree_search : int, optional (default=1)
-        Number of trees to be searched for the nodes to split.
-        The most recently grown trees are searched first.
-
-    opt_interval : int, optional (default=100)
-        Weight optimization interval in terms of the number of leaf nodes.
-        For example, by default, weight optimization is performed
-        every time approximately 100 leaf nodes are newly added to the forest.
-
-    learning_rate : float, optional (default=0.5)
-        Step size of Newton updates used in coordinate descent to optimize weights.
-
-    memory_policy : string ("conservative" or "generous"), optional (default="generous")
-        Memory using policy.
-        Generous: it runs faster using more memory by keeping the sorted orders
-        of the features on memory for reuse.
-        Conservative: it uses less memory at the expense of longer runtime. Try only when
-        with default value it uses too much memory.
-
-    verbose : int, optional (default=0)
-        Controls the verbosity of the tree building process.
-
-    Attributes:
-    -----------
-    n_features_ : int
-        The number of features when `fit` is performed.
-
-    fitted_ : boolean
-        Indicates whether `fit` is performed.
-
-    sl2_ : float
-        The concrete regularization value for the process of growing the forest
-        used in model building process.
-
-    min_samples_leaf_ : int
-        Minimum number of training data points in each leaf node
-        used in model building process.
-
-    n_iter_ : int
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-
-    Reference
-    ---------
-    [1] Rie Johnson and Tong Zhang,
-        Learning Nonlinear Functions Using Regularized Greedy Forest
-        (https://arxiv.org/abs/1109.0887).
-    """
-    def __init__(self,
-                 max_leaf=500,
-                 test_interval=100,
-                 algorithm="RGF",
-                 loss="LS",
-                 reg_depth=1.0,
-                 l2=0.1,
-                 sl2=None,
-                 normalize=True,
-                 min_samples_leaf=10,
-                 n_iter=None,
-                 n_tree_search=1,
-                 opt_interval=100,
-                 learning_rate=0.5,
-                 memory_policy="generous",
-                 verbose=0):
-        if not utils.RGF_AVAILABLE:
-            raise Exception('RGF estimators are unavailable for usage.')
-        self.max_leaf = max_leaf
-        self.test_interval = test_interval
-        self.algorithm = algorithm
-        self.loss = loss
-        self.reg_depth = reg_depth
-        self.l2 = l2
-        self.sl2 = sl2
-        self._sl2 = None
-        self.normalize = normalize
-        self.min_samples_leaf = min_samples_leaf
-        self._min_samples_leaf = None
-        self.n_iter = n_iter
-        self._n_iter = None
-        self.n_tree_search = n_tree_search
-        self.opt_interval = opt_interval
-        self.learning_rate = learning_rate
-        self.memory_policy = memory_policy
-        self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
-        utils.UUIDS.append(self._file_prefix)
-        self._n_features = None
-        self._fitted = None
-
+class RGFEstimatorBase(utils.RGFClassifierBase):
     @property
     def sl2_(self):
         """
@@ -323,63 +179,49 @@ class RGFRegressor(utils.RGFRegressorBase):
         else:
             self._n_iter = self.n_iter
 
-    def _get_train_command(self):
-        params = []
-        if self.verbose > 0:
-            params.append("Verbose")
-        if self.verbose > 5:
-            params.append("Verbose_opt")  # Add some info on weight optimization
-        if self.normalize:
-            params.append("NormalizeTarget")
-        params.append("train_x_fn=%s" % self._train_x_loc)
-        params.append("train_y_fn=%s" % self._train_y_loc)
-        params.append("algorithm=%s" % self.algorithm)
-        params.append("loss=%s" % self.loss)
-        params.append("max_leaf_forest=%s" % self.max_leaf)
-        params.append("test_interval=%s" % self.test_interval)
-        params.append("reg_L2=%s" % self.l2)
-        params.append("reg_sL2=%s" % self._sl2)
-        params.append("reg_depth=%s" % self.reg_depth)
-        params.append("min_pop=%s" % self._min_samples_leaf)
-        params.append("num_iteration_opt=%s" % self._n_iter)
-        params.append("num_tree_search=%s" % self.n_tree_search)
-        params.append("opt_interval=%s" % self.opt_interval)
-        params.append("opt_stepsize=%s" % self.learning_rate)
-        params.append("memory_policy=%s" % self.memory_policy.title())
-        params.append("model_fn_prefix=%s" % self._model_file_loc)
-        if self._use_sample_weight:
-            params.append("train_w_fn=%s" % self._train_weight_loc)
+    def _get_params(self):
+        return dict(max_leaf=self.max_leaf,
+                    test_interval=self.test_interval,
+                    algorithm=self.algorithm,
+                    loss=self.loss,
+                    reg_depth=self.reg_depth,
+                    l2=self.l2,
+                    sl2=self._sl2,
+                    normalize=self.normalize,
+                    min_samples_leaf=self._min_samples_leaf,
+                    n_iter=self._n_iter,
+                    n_tree_search=self.n_tree_search,
+                    opt_interval=self.opt_interval,
+                    learning_rate=self.learning_rate,
+                    memory_policy=self.memory_policy,
+                    verbose=self.verbose,
+                    is_classification=self.is_classification)
 
-        cmd = (utils.RGF_PATH, "train", ",".join(params))
+    def _fit_binary_task(self, X, y, sample_weight, params):
+        if self.n_jobs != 1 and self.verbose:
+            print('n_jobs = {}, but RGFClassifier uses one CPU because classes_ is 2'.format(self.n_jobs))
 
-        return cmd
+        self._estimators[0] = RGFBinaryClassifier(**params).fit(X, y, sample_weight)
 
-    def _get_test_command(self, is_sparse_x):
-        params = []
-        params.append("test_x_fn=%s" % self._test_x_loc)
-        params.append("prediction_fn=%s" % self._pred_loc)
-        params.append("model_fn=%s" % self._model_file)
+    def _fit_multiclass_task(self, X, y, sample_weight, params):
+        ovr_list = [None] * self._n_classes
+        for i, cls_num in enumerate(self._classes):
+            self._classes_map[i] = cls_num
+            ovr_list[i] = (y == cls_num).astype(int)
+            self._estimators[i] = RGFBinaryClassifier(**params)
 
-        cmd = (utils.RGF_PATH, "predict", ",".join(params))
+        n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
+        substantial_njobs = max(n_jobs, self.n_classes_)
+        if substantial_njobs < n_jobs and self.verbose:
+            print('n_jobs = {0}, but RGFClassifier uses {1} CPUs because '
+                  'classes_ is {2}'.format(n_jobs, substantial_njobs,
+                                           self.n_classes_))
 
-        return cmd
-
-    def _save_sparse_X(self, path, X):
-        utils.sparse_savetxt(path, X, including_header=True)
-
-    def _save_dense_files(self, X, y, sample_weight):
-        np.savetxt(self._train_x_loc, X, delimiter=' ', fmt="%s")
-        np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
-        if self._use_sample_weight:
-            np.savetxt(self._train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
-
-    def _find_model_file(self):
-        # Find latest model location
-        model_files = glob(self._model_file_loc + "*")
-        if not model_files:
-            raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.TEMP_PATH))
-        self._model_file = sorted(model_files, reverse=True)[0]
+        self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(utils.fit_ovr_binary)(self._estimators[i],
+                                                                                      X,
+                                                                                      ovr_list[i],
+                                                                                      sample_weight)
+                                                        for i in range(self._n_classes))
 
     def dump_model(self):
         """
@@ -394,9 +236,8 @@ class RGFRegressor(utils.RGFRegressorBase):
           [  2], (-0.0146), depth=1, gain=0
         Here, [ x] is order of generated, (x) is weight for leaf nodes, last value is a border.
         """
-        self._check_fitted()
-        cmd = (utils.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
-        self._execute_command(cmd, verbose=True)
+        for est in self.estimators_:
+            est.dump_model()
 
     @property
     def feature_importances_(self):
@@ -406,16 +247,194 @@ class RGFRegressor(utils.RGFRegressorBase):
         """
         if self._fitted is None:
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        params = []
-        params.append("train_x_fn=%s" % self._train_x_loc)
-        params.append("feature_importances_fn=%s" % self._feature_importances_loc)
-        params.append("model_fn=%s" % self._model_file)
-        cmd = (utils.RGF_PATH, "feature_importances", ",".join(params))
-        self._execute_command(cmd)
-        return np.loadtxt(self._feature_importances_loc)
+        each_estimator_feature_importances = []
+        for est in self._estimators:
+            each_estimator_feature_importances.append(est.feature_importances_)
+        return np.mean(each_estimator_feature_importances, axis=0)
 
 
-class RGFClassifier(utils.RGFClassifierBase):
+class RGFRegressor(RGFEstimatorBase, RegressorMixin):
+    """
+    A Regularized Greedy Forest [1] classifier.
+
+    Tuning parameters detailed instruction:
+        https://github.com/RGF-team/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf
+
+    Parameters
+    ----------
+    max_leaf : int, optional (default=1000)
+        Training will be terminated when the number of
+        leaf nodes in the forest reaches this value.
+
+    test_interval : int, optional (default=100)
+        Test interval in terms of the number of leaf nodes.
+
+    algorithm : string ("RGF" or "RGF_Opt" or "RGF_Sib"), optional (default="RGF")
+        Regularization algorithm.
+        RGF: RGF with L2 regularization on leaf-only models.
+        RGF Opt: RGF with min-penalty regularization.
+        RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
+
+    loss : string ("LS" or "Expo" or "Log" or "Abs"), optional (default="Log")
+        Loss function.
+        LS: Square loss.
+        Expo: Exponential loss.
+        Log: Logistic loss.
+        Abs: Absolute error loss.
+
+    reg_depth : float, optional (default=1.0)
+        Must be no smaller than 1.0.
+        Meant for being used with algorithm="RGF Opt"|"RGF Sib".
+        A larger value penalizes deeper nodes more severely.
+
+    l2 : float, optional (default=0.1)
+        Used to control the degree of L2 regularization.
+
+    sl2 : float or None, optional (default=None)
+        Override L2 regularization parameter l2
+        for the process of growing the forest.
+        That is, if specified, the weight correction process uses l2
+        and the forest growing process uses sl2.
+        If None, no override takes place and
+        l2 is used throughout training.
+
+    normalize : boolean, optional (default=False)
+        If True, training targets are normalized
+        so that the average becomes zero.
+
+    min_samples_leaf : int or float, optional (default=10)
+        Minimum number of training data points in each leaf node.
+        If int, then consider min_samples_leaf as the minimum number.
+        If float, then min_samples_leaf is a percentage and
+        ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
+
+    n_iter : int or None, optional (default=None)
+        Number of iterations of coordinate descent to optimize weights.
+        If None, 10 is used for loss="LS" and 5 for loss="Expo"|"Log".
+
+    n_tree_search : int, optional (default=1)
+        Number of trees to be searched for the nodes to split.
+        The most recently grown trees are searched first.
+
+    opt_interval : int, optional (default=100)
+        Weight optimization interval in terms of the number of leaf nodes.
+        For example, by default, weight optimization is performed
+        every time approximately 100 leaf nodes are newly added to the forest.
+
+    learning_rate : float, optional (default=0.5)
+        Step size of Newton updates used in coordinate descent to optimize weights.
+
+    calc_prob : string ("sigmoid" or "softmax"), optional (default="sigmoid")
+        Method of probability calculation.
+
+    n_jobs : integer, optional (default=-1)
+        The number of jobs to use for the computation.
+        The substantial number of the jobs dependents on classes_.
+        If classes_ = 2, the substantial max number of the jobs is one.
+        If classes_ > 2, the substantial max number of the jobs is the same as
+        classes_.
+        If n_jobs = 1, no parallel computing code is used at all regardless of
+        classes_.
+        If n_jobs = -1 and classes_ >= number of CPU, all CPUs are used.
+        For n_jobs = -2, all CPUs but one are used.
+        For n_jobs below -1, (n_cpus + 1 + n_jobs) are used.
+
+    memory_policy : string ("conservative" or "generous"), optional (default="generous")
+        Memory using policy.
+        Generous: it runs faster using more memory by keeping the sorted orders
+        of the features on memory for reuse.
+        Conservative: it uses less memory at the expense of longer runtime. Try only when
+        with default value it uses too much memory.
+
+    verbose : int, optional (default=0)
+        Controls the verbosity of the tree building process.
+
+    Attributes:
+    -----------
+    estimators_ : list of binary classifiers
+        The collection of fitted sub-estimators when `fit` is performed.
+
+    classes_ : array of shape = [n_classes]
+        The classes labels when `fit` is performed.
+
+    n_classes_ : int
+        The number of classes when `fit` is performed.
+
+    n_features_ : int
+        The number of features when `fit` is performed.
+
+    fitted_ : boolean
+        Indicates whether `fit` is performed.
+
+    sl2_ : float
+        The concrete regularization value for the process of growing the forest
+        used in model building process.
+
+    min_samples_leaf_ : int
+        Minimum number of training data points in each leaf node
+        used in model building process.
+
+    n_iter_ : int
+        Number of iterations of coordinate descent to optimize weights
+        used in model building process depending on the specified loss function.
+
+    Reference
+    ---------
+    [1] Rie Johnson and Tong Zhang,
+        Learning Nonlinear Functions Using Regularized Greedy Forest
+        (https://arxiv.org/abs/1109.0887).
+    """
+    def __init__(self,
+                 max_leaf=1000,
+                 test_interval=100,
+                 algorithm="RGF",
+                 loss="Log",
+                 reg_depth=1.0,
+                 l2=0.1,
+                 sl2=None,
+                 normalize=False,
+                 min_samples_leaf=10,
+                 n_iter=None,
+                 n_tree_search=1,
+                 opt_interval=100,
+                 learning_rate=0.5,
+                 calc_prob="sigmoid",
+                 n_jobs=1,
+                 memory_policy="generous",
+                 verbose=0):
+        if not utils.RGF_AVAILABLE:
+            raise Exception('RGF estimators are unavailable for usage.')
+        self.max_leaf = max_leaf
+        self.test_interval = test_interval
+        self.algorithm = algorithm
+        self.loss = loss
+        self.reg_depth = reg_depth
+        self.l2 = l2
+        self.sl2 = sl2
+        self._sl2 = None
+        self.normalize = normalize
+        self.min_samples_leaf = min_samples_leaf
+        self._min_samples_leaf = None
+        self.n_iter = n_iter
+        self._n_iter = None
+        self.n_tree_search = n_tree_search
+        self.opt_interval = opt_interval
+        self.learning_rate = learning_rate
+        self.calc_prob = calc_prob
+        self.n_jobs = n_jobs
+        self.memory_policy = memory_policy
+        self.verbose = verbose
+
+        self._estimators = None
+        self._classes = None
+        self._classes_map = {}
+        self._n_classes = None
+        self._n_features = None
+        self._fitted = None
+        self.is_classification = False
+
+
+class RGFClassifier(RGFEstimatorBase, ClassifierMixin):
     """
     A Regularized Greedy Forest [1] classifier.
 
@@ -593,133 +612,7 @@ class RGFClassifier(utils.RGFClassifierBase):
         self._n_classes = None
         self._n_features = None
         self._fitted = None
-
-    @property
-    def sl2_(self):
-        """
-        The concrete regularization value for the process of growing the forest
-        used in model building process.
-        """
-        if self._sl2 is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._sl2
-
-    @property
-    def min_samples_leaf_(self):
-        """
-        Minimum number of training data points in each leaf node
-        used in model building process.
-        """
-        if self._min_samples_leaf is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._min_samples_leaf
-
-    @property
-    def n_iter_(self):
-        """
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-        """
-        if self._n_iter is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_iter
-
-    def _validate_params(self, params):
-        validate_rgf_params(**params)
-
-    def _set_params_with_dependencies(self):
-        if self.sl2 is None:
-            self._sl2 = self.l2
-        else:
-            self._sl2 = self.sl2
-
-        if isinstance(self.min_samples_leaf, utils.FLOATS):
-            self._min_samples_leaf = ceil(self.min_samples_leaf * self._n_samples)
-        else:
-            self._min_samples_leaf = self.min_samples_leaf
-
-        if self.n_iter is None:
-            if self.loss == "LS":
-                self._n_iter = 10
-            else:
-                self._n_iter = 5
-        else:
-            self._n_iter = self.n_iter
-
-    def _get_params(self):
-        return dict(max_leaf=self.max_leaf,
-                    test_interval=self.test_interval,
-                    algorithm=self.algorithm,
-                    loss=self.loss,
-                    reg_depth=self.reg_depth,
-                    l2=self.l2,
-                    sl2=self._sl2,
-                    normalize=self.normalize,
-                    min_samples_leaf=self._min_samples_leaf,
-                    n_iter=self._n_iter,
-                    n_tree_search=self.n_tree_search,
-                    opt_interval=self.opt_interval,
-                    learning_rate=self.learning_rate,
-                    memory_policy=self.memory_policy,
-                    verbose=self.verbose)
-
-    def _fit_binary_task(self, X, y, sample_weight, params):
-        if self.n_jobs != 1 and self.verbose:
-            print('n_jobs = {}, but RGFClassifier uses one CPU because classes_ is 2'.format(self.n_jobs))
-
-        self._estimators[0] = RGFBinaryClassifier(**params).fit(X, y, sample_weight)
-
-    def _fit_multiclass_task(self, X, y, sample_weight, params):
-        ovr_list = [None] * self._n_classes
-        for i, cls_num in enumerate(self._classes):
-            self._classes_map[i] = cls_num
-            ovr_list[i] = (y == cls_num).astype(int)
-            self._estimators[i] = RGFBinaryClassifier(**params)
-
-        n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
-        substantial_njobs = max(n_jobs, self.n_classes_)
-        if substantial_njobs < n_jobs and self.verbose:
-            print('n_jobs = {0}, but RGFClassifier uses {1} CPUs because '
-                  'classes_ is {2}'.format(n_jobs, substantial_njobs,
-                                           self.n_classes_))
-
-        self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(utils.fit_ovr_binary)(self._estimators[i],
-                                                                                      X,
-                                                                                      ovr_list[i],
-                                                                                      sample_weight)
-                                                        for i in range(self._n_classes))
-
-    def dump_model(self):
-        """
-        Dump forest information to console.
-
-        Examples:
-        ---------
-        [  0], depth=0, gain=0.599606, F11, 392.8
-          [  1], depth=1, gain=0.818876, F4, 0.6275
-            [  3], depth=2, gain=0.806904, F5, 7.226
-            [  4], depth=2, gain=0.832003, F4, 0.686
-          [  2], (-0.0146), depth=1, gain=0
-        Here, [ x] is order of generated, (x) is weight for leaf nodes, last value is a border.
-        """
-        for est in self.estimators_:
-            est.dump_model()
-
-    @property
-    def feature_importances_(self):
-        """
-        The feature importances.
-        The importance of a feature is computed from sum of gain of each node.
-        """
-        if self._fitted is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        each_estimator_feature_importances = []
-        for est in self._estimators:
-            each_estimator_feature_importances.append(est.feature_importances_)
-        return np.mean(each_estimator_feature_importances, axis=0)
+        self.is_classification = True
 
 
 class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):

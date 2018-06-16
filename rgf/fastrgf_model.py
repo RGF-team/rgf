@@ -5,6 +5,7 @@ from math import ceil
 from uuid import uuid4
 
 import numpy as np
+from sklearn.base import ClassifierMixin
 from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
 from sklearn.externals.joblib import cpu_count
@@ -274,6 +275,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         utils.UUIDS.append(self._file_prefix)
         self._n_features = None
         self._fitted = None
+        self.is_classification = False
 
     @property
     def max_bin_(self):
@@ -396,7 +398,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         self._model_file = self._model_file_loc
 
 
-class FastRGFClassifier(utils.RGFClassifierBase):
+class FastRGFClassifier(utils.RGFClassifierBase, ClassifierMixin):
     """
     A Fast Regularized Greedy Forest [1] classifier.
 
@@ -568,6 +570,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
         self._n_classes = None
         self._n_features = None
         self._fitted = None
+        self.is_classification = True
 
     @property
     def max_bin_(self):
@@ -632,7 +635,8 @@ class FastRGFClassifier(utils.RGFClassifierBase):
                     sparse_max_features=self.sparse_max_features,
                     sparse_min_occurences=self.sparse_min_occurences,
                     n_jobs=self._n_jobs,
-                    verbose=self.verbose)
+                    verbose=self.verbose,
+                    is_classification=self.is_classification)
 
     def _fit_binary_task(self, X, y, sample_weight, params):
         self._estimators[0] = FastRGFBinaryClassifier(**params).fit(X, y, sample_weight)

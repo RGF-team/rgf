@@ -14,10 +14,11 @@ from uuid import uuid4
 
 import numpy as np
 import scipy.sparse as sp
-from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
+from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
 from sklearn.utils.extmath import softmax
+from sklearn.externals.joblib import Parallel, delayed, cpu_count
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
@@ -446,7 +447,42 @@ class RGFRegressorBase(RGFMixin, BaseEstimator, RegressorMixin):
         return cleanup_partial(self._file_prefix, remove_from_list=True)
 
 
-class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
+class RGFBinaryClassifierBase(RGFMixin, BaseEstimator):
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+        self._file_prefix = str(uuid4()) + str(COUNTER.increment())
+        UUIDS.append(self._file_prefix)
+        self._fitted = None
+
+    def fit(self, X, y, sample_weight):
+        self._set_paths()
+        if self.is_classification:
+            # Convert 1 to 1, 0 to -1
+            y = 2 * y - 1
+        else:
+            pass
+        self._save_train_data(X, y, sample_weight)
+        cmd = self._get_train_command()
+        self._execute_command(cmd)
+
+        self._find_model_file()
+        self._fitted = True
+        return self
+
+    def predict(self, X):
+        self._check_fitted()
+
+        is_sparse_test_X = self._save_test_X(X)
+
+        cmd = self._get_test_command(is_sparse_test_X)
+        self._execute_command(cmd)
+
+        return np.loadtxt(self._pred_loc)
+
+
+class RGFClassifierBase(RGFMixin, BaseEstimator):
     @property
     def estimators_(self):
         """The collection of fitted sub-estimators when `fit` is performed."""
@@ -500,16 +536,19 @@ class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
             self._is_sparse_train_X = False
         self._n_samples, self._n_features = X.shape
         sample_weight = self._get_sample_weight(sample_weight)
-        check_consistent_length(X, y, sample_weight)
-        check_classification_targets(y)
-
-        self._classes = sorted(np.unique(y))
-        self._n_classes = len(self._classes)
+        if self.is_classification:
+            check_consistent_length(X, y, sample_weight)
+            check_classification_targets(y)
+            self._classes = sorted(np.unique(y))
+            self._n_classes = len(self._classes)
 
         self._set_params_with_dependencies()
         params = self._get_params()
 
-        if self._n_classes == 2:
+        if not self.is_classification:
+            self._estimators = [None]
+            self._fit_binary_task(X, y, sample_weight, params)
+        elif self._n_classes == 2:
             self._classes_map[0] = self._classes[0]
             self._classes_map[1] = self._classes[1]
             self._estimators = [None]
@@ -550,13 +589,13 @@ class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
         self._check_n_features(X.shape[1])
 
         if self._n_classes == 2:
-            y = self._estimators[0].predict_proba(X)
+            y = self._estimators[0].predict(X)
             y = sigmoid(y)
             y = np.c_[y, 1 - y]
         else:
             y = np.zeros((X.shape[0], self._n_classes))
             for i, clf in enumerate(self._estimators):
-                class_proba = clf.predict_proba(X)
+                class_proba = clf.predict(X)
                 y[:, i] = class_proba
 
             # In honest, I don't understand which is better
@@ -569,6 +608,29 @@ class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
             else:
                 y = softmax(y)
         return y
+
+    def predict_regression(self, X):
+        """
+        Predict class probabilities for X.
+
+        The predicted class probabilities of an input sample are computed.
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The input samples.
+
+        Returns
+        -------
+        p : array of shape = [n_samples, n_classes].
+            The class probabilities of the input samples.
+            The order of the classes corresponds to that in the attribute classes_.
+        """
+        if self._fitted is None:
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
+        X = check_array(X, accept_sparse=True)
+        self._check_n_features(X.shape[1])
+        return self._estimators[0].predict(X)
 
     def predict(self, X):
         """
@@ -586,9 +648,12 @@ class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
         y : array of shape = [n_samples]
             The predicted classes.
         """
-        y = self.predict_proba(X)
-        y = np.argmax(y, axis=1)
-        return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y)]
+        if self.is_classification:
+            y = self.predict_proba(X)
+            y = np.argmax(y, axis=1)
+            return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y)]
+        else:
+            return self.predict_regression(X)
 
     def cleanup(self):
         """
@@ -603,7 +668,7 @@ class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
         if self._estimators is not None:
             for est in self._estimators:
                 n_removed_files += cleanup_partial(est._file_prefix,
-                                                   remove_from_list=True)
+                                                         remove_from_list=True)
 
         # No more able to predict without refitting.
         self._fitted = None
@@ -617,39 +682,3 @@ class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
 
     def _fit_multiclass_task(self, X, y, sample_weight, params):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
-
-
-class RGFBinaryClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-        self._file_prefix = str(uuid4()) + str(COUNTER.increment())
-        UUIDS.append(self._file_prefix)
-        self._fitted = None
-
-    def fit(self, X, y, sample_weight):
-        self._set_paths()
-
-        # Convert 1 to 1, 0 to -1
-        y = 2 * y - 1
-
-        self._save_train_data(X, y, sample_weight)
-
-        cmd = self._get_train_command()
-        self._execute_command(cmd)
-
-        self._find_model_file()
-        self._fitted = True
-					        
-        return self
-
-    def predict_proba(self, X):
-        self._check_fitted()
-
-        is_sparse_test_X = self._save_test_X(X)
-
-        cmd = self._get_test_command(is_sparse_test_X)
-        self._execute_command(cmd)
-
-        return np.loadtxt(self._pred_loc)
