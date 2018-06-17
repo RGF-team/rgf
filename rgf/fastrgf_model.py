@@ -194,20 +194,22 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
                     sparse_min_occurences=self.sparse_min_occurences,
                     n_jobs=self._n_jobs,
                     verbose=self.verbose,
-                    is_classification=self.is_classification)
+                    is_classification=self.is_classification,
+                    target=self.target)
 
     def _fit_binary_task(self, X, y, sample_weight, params):
-        self._estimators[0] = FastRGFBinaryClassifier(**params).fit(X, y, sample_weight)
+        self._estimators[0] = FastRGFExecuter(**params).fit(X, y, sample_weight)
 
     def _fit_multiclass_task(self, X, y, sample_weight, params):
-            for i, cls_num in enumerate(self._classes):
-                self._classes_map[i] = cls_num
-                self._estimators[i] = FastRGFBinaryClassifier(**params).fit(X,
-                                                                            (y == cls_num).astype(int),
-                                                                            sample_weight)
+        for i, cls_num in enumerate(self._classes):
+            self._classes_map[i] = cls_num
+            self._estimators[i] = \
+                FastRGFExecuter(**params).fit(X, (y == cls_num).astype(int),
+                                              sample_weight)
 
 
-class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin):
+class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
+                       utils.RGFRegressorMixin):
     """
     A Fast Regularized Greedy Forest [1] regressor.
 
@@ -356,9 +358,11 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin):
         self._n_features = None
         self._fitted = None
         self.is_classification = False
+        self.target = "REAL"
 
 
-class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin):
+class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
+                        utils.RGFClassifierMixin):
     """
     A Fast Regularized Greedy Forest [1] classifier.
 
@@ -531,9 +535,10 @@ class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin):
         self._n_features = None
         self._fitted = None
         self.is_classification = True
+        self.target = "BINARY"
 
 
-class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
+class FastRGFExecuter(utils.CommonRGFExecuterBase):
     def _save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=False)
 
@@ -577,7 +582,7 @@ class FastRGFBinaryClassifier(utils.RGFBinaryClassifierBase):
                 fmt = "y.x"
             params.append("trn.x-file_format=%s" % fmt)
         params.append("trn.x-file=%s" % self._train_x_loc)
-        params.append("trn.target=BINARY")
+        params.append("trn.target=%s" % self.target)
         params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self._model_file_loc)

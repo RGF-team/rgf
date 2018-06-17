@@ -200,14 +200,14 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
         if self.n_jobs != 1 and self.verbose:
             print('n_jobs = {}, but RGFClassifier uses one CPU because classes_ is 2'.format(self.n_jobs))
 
-        self._estimators[0] = RGFBinaryClassifier(**params).fit(X, y, sample_weight)
+        self._estimators[0] = RGFExecuter(**params).fit(X, y, sample_weight)
 
     def _fit_multiclass_task(self, X, y, sample_weight, params):
         ovr_list = [None] * self._n_classes
         for i, cls_num in enumerate(self._classes):
             self._classes_map[i] = cls_num
             ovr_list[i] = (y == cls_num).astype(int)
-            self._estimators[i] = RGFBinaryClassifier(**params)
+            self._estimators[i] = RGFExecuter(**params)
 
         n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
         substantial_njobs = max(n_jobs, self.n_classes_)
@@ -252,7 +252,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
         return np.mean(each_estimator_feature_importances, axis=0)
 
 
-class RGFRegressor(RGFEstimatorBase, RegressorMixin):
+class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
     """
     A Regularized Greedy Forest [1] regressor.
     Tuning parameters detailed instruction:
@@ -386,7 +386,7 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin):
         self.is_classification = False
 
 
-class RGFClassifier(RGFEstimatorBase, ClassifierMixin):
+class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin):
     """
     A Regularized Greedy Forest [1] classifier.
 
@@ -567,7 +567,7 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin):
         self.is_classification = True
 
 
-class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
+class RGFExecuter(utils.CommonRGFExecuterBase):
     def _save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=True)
 
