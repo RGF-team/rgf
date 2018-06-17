@@ -1,18 +1,14 @@
 # RGF Version 1.3
 
-_Released: September 2012_
-
-_Modified: March 2018_
-
-### C++ programs for Regularized Greedy Forest (RGF)
+### C++ Programs for Regularized Greedy Forest (RGF)
 
 ************************************************************************
 
 # 0.0 Changes
 
-## March 2018
+## March 2018 (version 1.3)
 
-  1. Calculating of feature importances has been added.
+  1. Calculation of feature importance has been added.
 
   2. Dumping information about the forest model to the console has been added.
 
@@ -45,8 +41,11 @@ _Modified: March 2018_
      from 32-bit to 64-bit; also, `__AZ_MSDN__` has been added to
      Preprocessor Definitions.
 
-  3. Some source code files have been changed for synchronization with
-     my other software releases.
+  3. Some source code files have been changed.
+
+## September 2012 (version 1.2)
+
+  1. The initial release.
 
 # 0.1 Acknowledgements
 
@@ -154,7 +153,8 @@ model files.
 
 # 5. Contact
 
-riejohnson[at]gmail[dot]com
+Please post an [issue](https://github.com/RGF-team/rgf_python/issues)
+at GitHub repository for any errors you encounter.
 
 # 6. Copyright
 
