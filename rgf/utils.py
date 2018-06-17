@@ -536,8 +536,8 @@ class CommonRGFEstimatorBase(RGFMixin, BaseEstimator):
             self._is_sparse_train_X = False
         self._n_samples, self._n_features = X.shape
         sample_weight = self._get_sample_weight(sample_weight)
+        check_consistent_length(X, y, sample_weight)
         if self.is_classification:
-            check_consistent_length(X, y, sample_weight)
             check_classification_targets(y)
             self._classes = sorted(np.unique(y))
             self._n_classes = len(self._classes)
