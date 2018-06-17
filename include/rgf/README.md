@@ -82,7 +82,7 @@ _Modified: March 2018_
 # 1. Introduction
 
 This software package provides implementation of regularized greedy forest
-(RGF) described in [[1]](#(7-references)).
+(RGF) described in [[1]](#7-references).
 
 ## 1.1. System Requirements
 
