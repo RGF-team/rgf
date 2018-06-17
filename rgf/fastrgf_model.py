@@ -198,7 +198,7 @@ class FastRGFRegressor(utils.RGFRegressorBase):
         Meant for being used with sparse data.
         (Original name: discretize.sparse.min_occrrences.)
 
-    n_jobs : integer, optional (default=-1)
+    n_jobs : int, optional (default=-1)
         The number of jobs to run in parallel for both fit and predict.
         If -1, all CPUs are used.
         If -2, all CPUs but one are used.
@@ -476,7 +476,7 @@ class FastRGFClassifier(utils.RGFClassifierBase):
     calc_prob : string ("sigmoid" or "softmax"), optional (default="sigmoid")
         Method of probability calculation.
 
-    n_jobs : integer, optional (default=-1)
+    n_jobs : int, optional (default=-1)
         The number of jobs to run in parallel for both fit and predict.
         If -1, all CPUs are used.
         If -2, all CPUs but one are used.
