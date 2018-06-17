@@ -270,48 +270,6 @@ class RGFMixin(object):
                 raise ValueError("Sample weights must be positive.")
         return sample_weight
 
-    def _set_paths(self):
-        self._train_x_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.x")
-        self._test_x_loc = os.path.join(TEMP_PATH, self._file_prefix + ".test.data.x")
-        self._train_y_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.y")
-        self._train_weight_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.weight")
-        self._model_file_loc = os.path.join(TEMP_PATH, self._file_prefix + ".model")
-        self._pred_loc = os.path.join(TEMP_PATH, self._file_prefix + ".predictions.txt")
-        self._feature_importances_loc = os.path.join(TEMP_PATH, self._file_prefix + ".feature_importances.txt")
-
-    def _save_train_data(self, X, y, sample_weight):
-        if sample_weight is None:
-            self._use_sample_weight = False
-        else:
-            self._use_sample_weight = True
-
-        if sp.isspmatrix(X):
-            self._save_sparse_X(self._train_x_loc, X)
-            np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
-            if self._use_sample_weight:
-                np.savetxt(self._train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
-            self._is_sparse_train_X = True
-        else:
-            self._save_dense_files(X, y, sample_weight)
-            self._is_sparse_train_X = False
-
-    def _execute_command(self, cmd, verbose=False):
-        output = subprocess.Popen(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  universal_newlines=True).communicate()
-
-        if self.verbose or verbose:
-            for k in output:
-                print(k)
-
-    def _check_fitted(self):
-        if self._fitted is None:
-            raise NotFittedError(NOT_FITTED_ERROR_DESC)
-        if not os.path.isfile(self._model_file):
-            raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(TEMP_PATH))
-
     def _check_n_features(self, n_features):
         if self._n_features != n_features:
             raise ValueError("Number of features of the model must "
@@ -319,50 +277,11 @@ class RGFMixin(object):
                              "input n_features is %s "
                              % (self._n_features, n_features))
 
-    def _save_test_X(self, X):
-        if sp.isspmatrix(X):
-            self._save_sparse_X(self._test_x_loc, X)
-            is_sparse_test_X = True
-        else:
-            np.savetxt(self._test_x_loc, X, delimiter=' ', fmt="%s")
-            is_sparse_test_X = False
-
-        return is_sparse_test_X
-
     def _validate_params(self, params):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _set_params_with_dependencies(self):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
-
-    def _save_sparse_X(self, path, X):
-        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
-
-    def _save_dense_files(self, X, y, sample_weight):
-        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
-
-    def _find_model_file(self):
-        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
-
-    def _get_train_command(self):
-        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
-
-    def _get_test_command(self, is_sparse_test_X):
-        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        if hasattr(self, "_model_file") and self._fitted:
-            with open(self._model_file, 'rb') as fr:
-                state["model"] = fr.read()
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        if hasattr(self, "_model_file") and self._fitted:
-            with open(self._model_file, 'wb') as fw:
-                fw.write(self.__dict__["model"])
-            del self.__dict__["model"]
 
 
 class RGFRegressorBase(RGFMixin, BaseEstimator, RegressorMixin):
@@ -392,9 +311,6 @@ class RGFRegressorBase(RGFMixin, BaseEstimator, RegressorMixin):
         self._n_samples, self._n_features = X.shape
         sample_weight = self._get_sample_weight(sample_weight)
         check_consistent_length(X, y, sample_weight)
-
-        self._set_paths()
-        self._save_train_data(X, y, sample_weight)
 
         self._set_params_with_dependencies()
 
@@ -447,7 +363,7 @@ class RGFRegressorBase(RGFMixin, BaseEstimator, RegressorMixin):
         return cleanup_partial(self._file_prefix, remove_from_list=True)
 
 
-class RGFBinaryClassifierBase(RGFMixin, BaseEstimator):
+class RGFBinaryClassifierBase(BaseEstimator):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -455,6 +371,51 @@ class RGFBinaryClassifierBase(RGFMixin, BaseEstimator):
         self._file_prefix = str(uuid4()) + str(COUNTER.increment())
         UUIDS.append(self._file_prefix)
         self._fitted = None
+
+    def _set_paths(self):
+        self._train_x_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.x")
+        self._test_x_loc = os.path.join(TEMP_PATH, self._file_prefix + ".test.data.x")
+        self._train_y_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.y")
+        self._train_weight_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.weight")
+        self._model_file_loc = os.path.join(TEMP_PATH, self._file_prefix + ".model")
+        self._pred_loc = os.path.join(TEMP_PATH, self._file_prefix + ".predictions.txt")
+        self._feature_importances_loc = os.path.join(TEMP_PATH, self._file_prefix + ".feature_importances.txt")
+
+    def _execute_command(self, cmd, verbose=False):
+        output = subprocess.Popen(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
+
+        if self.verbose or verbose:
+            for k in output:
+                print(k)
+
+    def _save_test_X(self, X):
+        if sp.isspmatrix(X):
+            self._save_sparse_X(self._test_x_loc, X)
+            is_sparse_test_X = True
+        else:
+            np.savetxt(self._test_x_loc, X, delimiter=' ', fmt="%s")
+            is_sparse_test_X = False
+
+        return is_sparse_test_X
+
+    def _save_train_data(self, X, y, sample_weight):
+        if sample_weight is None:
+            self._use_sample_weight = False
+        else:
+            self._use_sample_weight = True
+
+        if sp.isspmatrix(X):
+            self._save_sparse_X(self._train_x_loc, X)
+            np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
+            if self._use_sample_weight:
+                np.savetxt(self._train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
+            self._is_sparse_train_X = True
+        else:
+            self._save_dense_files(X, y, sample_weight)
+            self._is_sparse_train_X = False
 
     def fit(self, X, y, sample_weight):
         self._set_paths()
@@ -480,6 +441,42 @@ class RGFBinaryClassifierBase(RGFMixin, BaseEstimator):
         self._execute_command(cmd)
 
         return np.loadtxt(self._pred_loc)
+
+    def _check_fitted(self):
+        if self._fitted is None:
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
+        if not os.path.isfile(self._model_file):
+            raise Exception('Model learning result is not found in {0}. '
+                            'This is rgf_python error.'.format(TEMP_PATH))
+
+    def _save_sparse_X(self, path, X):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _save_dense_files(self, X, y, sample_weight):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _find_model_file(self):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _get_train_command(self):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _get_test_command(self, is_sparse_test_X):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if hasattr(self, "_model_file") and self._fitted:
+            with open(self._model_file, 'rb') as fr:
+                state["model"] = fr.read()
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        if hasattr(self, "_model_file") and self._fitted:
+            with open(self._model_file, 'wb') as fw:
+                fw.write(self.__dict__["model"])
+            del self.__dict__["model"]
 
 
 class CommonRGFEstimatorBase(RGFMixin, BaseEstimator):
