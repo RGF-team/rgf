@@ -72,7 +72,7 @@ or from `GitHub <https://github.com/RGF-team/rgf_python>`__:
 
 ::
 
-    git clone --recursive https://github.com/RGF-team/rgf_python.git
+    git clone https://github.com/RGF-team/rgf_python.git
     cd rgf_python
     python setup.py install
 
@@ -98,7 +98,7 @@ or
 
 ::
 
-    git clone --recursive https://github.com/RGF-team/rgf_python.git
+    git clone https://github.com/RGF-team/rgf_python.git
     cd rgf_python
     python setup.py install --nocompilation
 

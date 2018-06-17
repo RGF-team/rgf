@@ -254,11 +254,6 @@ def compile_fastrgf():
     logger.info("Starting to compile FastRGF executable files.")
     success = False
     fastrgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'fast_rgf')
-    if not os.path.exists(fastrgf_base_dir):
-        logger.error("Cannot find folder with FastRGF sources. "
-                     "Make sure that you haven't forgot to add 'recursive' option "
-                     "to the Git cloning command.")
-        return
     if not os.path.exists(os.path.join(fastrgf_base_dir, 'bin')):
         os.makedirs(os.path.join(fastrgf_base_dir, 'bin'))
     if not os.path.exists(os.path.join(fastrgf_base_dir, 'build')):
