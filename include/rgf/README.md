@@ -159,7 +159,7 @@ riejohnson[at]gmail[dot]com
 # 6. Copyright
 
 RGF Version 1.3 is distributed under the **MIT license**. Please read
-the file `COPYING`.
+the file [`COPYING`](./COPYING).
 
 # 7. References
 
