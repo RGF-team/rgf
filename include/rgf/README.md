@@ -4,7 +4,7 @@ _Released: September 2012_
 
 _Modified: March 2018_
 
-## C++ programs for Regularized Greedy Forest (RGF)
+### C++ programs for Regularized Greedy Forest (RGF)
 
 ************************************************************************
 
