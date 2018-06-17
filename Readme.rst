@@ -316,9 +316,9 @@ FAQ
 License
 -------
 
-**rgf\_python** is distributed under the GNU General Public License v3 (GPLv3). Please read file `LICENSE <https://github.com/RGF-team/rgf_python/blob/master/LICENSE>`__ for more information.
+**rgf\_python** is distributed under the MIT license. Please read file `LICENSE <https://github.com/RGF-team/rgf_python/blob/master/LICENSE>`__ for more information.
 
-**rgf\_python** includes RGF version 1.2 which is distributed under the GPLv3. Original CLI implementation of RGF you can download at http://tongzhang-ml.org/software/rgf.
+**rgf\_python** includes RGF version 1.2 which is distributed under the MIT license. Original CLI implementation of RGF you can download at http://tongzhang-ml.org/software/rgf.
 
 **rgf\_python** includes FastRGF version 0.5 which is distributed under the MIT license. Original CLI implementation of FastRGF you can download at https://github.com/baidu/fast_rgf.
 
@@ -340,7 +340,7 @@ References
    :target: https://travis-ci.org/RGF-team/rgf_python
 .. |Build Status AppVeyor| image:: https://ci.appveyor.com/api/projects/status/u3612bfh9pmela42/branch/master?svg=true
    :target: https://ci.appveyor.com/project/RGF-team/rgf-python
-.. |License| image:: https://img.shields.io/badge/license-GPLv3-blue.svg
+.. |License| image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: https://github.com/RGF-team/rgf_python/blob/master/LICENSE
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/rgf_python.svg
    :target: https://pypi.org/project/rgf_python/
