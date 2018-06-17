@@ -10,7 +10,7 @@ _Modified: March 2018_
 
 # 0.0 Changes
 
-## 0.0.1 (March 2018)
+## March 2018
 
   1. Calculating of feature importances has been added.
 
@@ -18,11 +18,11 @@ _Modified: March 2018_
 
   3. License has been changed from GPLv3 to MIT.
 
-## 0.0.2 (February 2018)
+## February 2018
 
   1. Absolute error loss has been added.
 
-## 0.0.3 (August-December 2017)
+## August-December 2017
 
   1. The executable file for 32-bit Windows has been added.
 
@@ -31,7 +31,7 @@ _Modified: March 2018_
   3. Compilation on 32-bit Windows has been fixed.
      Also, compilation with newer MS Visual Studios has been added.
 
-## 0.0.4 (June 2014)
+## June 2014
 
   1. The restriction on the size of training data files has been removed.
  
