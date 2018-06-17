@@ -3,7 +3,6 @@ from __future__ import absolute_import
 from glob import glob
 
 import numpy as np
-from uuid import uuid4
 from sklearn.exceptions import NotFittedError
 
 from math import ceil
@@ -257,30 +256,37 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
     A Regularized Greedy Forest [1] regressor.
     Tuning parameters detailed instruction:
         https://github.com/RGF-team/rgf_python/blob/master/include/rgf/rgf1.2-guide.pdf
+
     Parameters
     ----------
     max_leaf : int, optional (default=500)
         Training will be terminated when the number of
         leaf nodes in the forest reaches this value.
+
     test_interval : int, optional (default=100)
         Test interval in terms of the number of leaf nodes.
+
     algorithm : string ("RGF" or "RGF_Opt" or "RGF_Sib"), optional (default="RGF")
         Regularization algorithm.
         RGF: RGF with L2 regularization on leaf-only models.
         RGF Opt: RGF with min-penalty regularization.
         RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
+
     loss : string ("LS" or "Expo" or "Log" or "Abs"), optional (default="LS")
         Loss function.
         LS: Square loss.
         Expo: Exponential loss.
         Log: Logistic loss.
         Abs: Absolute error loss.
+
     reg_depth : float, optional (default=1.0)
         Must be no smaller than 1.0.
         Meant for being used with algorithm="RGF Opt"|"RGF Sib".
         A larger value penalizes deeper nodes more severely.
+
     l2 : float, optional (default=0.1)
         Used to control the degree of L2 regularization.
+
     sl2 : float or None, optional (default=None)
         Override L2 regularization parameter l2
         for the process of growing the forest.
@@ -288,49 +294,63 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         and the forest growing process uses sl2.
         If None, no override takes place and
         l2 is used throughout training.
+
     normalize : boolean, optional (default=True)
         If True, training targets are normalized
         so that the average becomes zero.
+
     min_samples_leaf : int or float, optional (default=10)
         Minimum number of training data points in each leaf node.
         If int, then consider min_samples_leaf as the minimum number.
         If float, then min_samples_leaf is a percentage and
         ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
+
     n_iter : int or None, optional (default=None)
         Number of iterations of coordinate descent to optimize weights.
         If None, 10 is used for loss="LS" and 5 for loss="Expo"|"Log".
+
     n_tree_search : int, optional (default=1)
         Number of trees to be searched for the nodes to split.
         The most recently grown trees are searched first.
+
     opt_interval : int, optional (default=100)
         Weight optimization interval in terms of the number of leaf nodes.
         For example, by default, weight optimization is performed
         every time approximately 100 leaf nodes are newly added to the forest.
+
     learning_rate : float, optional (default=0.5)
         Step size of Newton updates used in coordinate descent to optimize weights.
+
     memory_policy : string ("conservative" or "generous"), optional (default="generous")
         Memory using policy.
         Generous: it runs faster using more memory by keeping the sorted orders
         of the features on memory for reuse.
         Conservative: it uses less memory at the expense of longer runtime. Try only when
         with default value it uses too much memory.
+
     verbose : int, optional (default=0)
         Controls the verbosity of the tree building process.
+
     Attributes:
     -----------
     n_features_ : int
         The number of features when `fit` is performed.
+
     fitted_ : boolean
         Indicates whether `fit` is performed.
+
     sl2_ : float
         The concrete regularization value for the process of growing the forest
         used in model building process.
+
     min_samples_leaf_ : int
         Minimum number of training data points in each leaf node
         used in model building process.
+
     n_iter_ : int
         Number of iterations of coordinate descent to optimize weights
         used in model building process depending on the specified loss function.
+
     Reference
     ---------
     [1] Rie Johnson and Tong Zhang,
