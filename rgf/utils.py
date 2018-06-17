@@ -305,8 +305,6 @@ class CommonRGFExecuterBase(BaseEstimator):
         if self.is_classification:
             # Convert 1 to 1, 0 to -1
             y = 2 * y - 1
-        else:
-            pass
         self._save_train_data(X, y, sample_weight)
         cmd = self._get_train_command()
         self._execute_command(cmd)
@@ -407,65 +405,6 @@ class CommonRGFEstimatorBase(BaseEstimator):
         else:
             return self._estimators
 
-    def fit(self, X, y, sample_weight=None):
-        """
-        Build a classifier from the training set (X, y).
-
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The training input samples.
-
-        y : array-like, shape = [n_samples]
-            The target values (class labels in classification).
-
-        sample_weight : array-like, shape = [n_samples] or None
-            Individual weights for each sample.
-
-        Returns
-        -------
-        self : object
-            Returns self.
-        """
-        self._validate_params(self.get_params())
-
-        X, y = check_X_y(X, y, accept_sparse=True)
-        if sp.isspmatrix(X):
-            self._is_sparse_train_X = True
-        else:
-            self._is_sparse_train_X = False
-        self._n_samples, self._n_features = X.shape
-        sample_weight = self._get_sample_weight(sample_weight)
-        check_consistent_length(X, y, sample_weight)
-        if self.is_classification:
-            check_classification_targets(y)
-            self._classes = sorted(np.unique(y))
-            self._n_classes = len(self._classes)
-
-        self._set_params_with_dependencies()
-        params = self._get_params()
-
-        if not self.is_classification:
-            self._estimators = [None]
-            self._fit_binary_task(X, y, sample_weight, params)
-        elif self._n_classes == 2:
-            self._classes_map[0] = self._classes[0]
-            self._classes_map[1] = self._classes[1]
-            self._estimators = [None]
-            y = (y == self._classes[0]).astype(int)
-            self._fit_binary_task(X, y, sample_weight, params)
-        elif self._n_classes > 2:
-            if sp.isspmatrix_dok(X):
-                X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
-            self._estimators = [None] * self._n_classes
-            self._fit_multiclass_task(X, y, sample_weight, params)
-        else:
-            raise ValueError("Classifier can't predict when only one class is present.")
-
-        self._fitted = True
-
-        return self
-
     def cleanup(self):
         """
         Remove tempfiles used by this model.
@@ -511,6 +450,61 @@ class RGFClassifierMixin(object):
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._n_classes
+
+    def fit(self, X, y, sample_weight=None):
+        """
+        Build a classifier from the training set (X, y).
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The training input samples.
+
+        y : array-like, shape = [n_samples]
+            The target values (class labels in classification).
+
+        sample_weight : array-like, shape = [n_samples] or None
+            Individual weights for each sample.
+
+        Returns
+        -------
+        self : object
+            Returns self.
+        """
+        self._validate_params(self.get_params())
+
+        X, y = check_X_y(X, y, accept_sparse=True)
+        if sp.isspmatrix(X):
+            self._is_sparse_train_X = True
+        else:
+            self._is_sparse_train_X = False
+        self._n_samples, self._n_features = X.shape
+        sample_weight = self._get_sample_weight(sample_weight)
+        check_consistent_length(X, y, sample_weight)
+        check_classification_targets(y)
+        self._classes = sorted(np.unique(y))
+        self._n_classes = len(self._classes)
+
+        self._set_params_with_dependencies()
+        params = self._get_params()
+
+        if self._n_classes == 2:
+            self._classes_map[0] = self._classes[0]
+            self._classes_map[1] = self._classes[1]
+            self._estimators = [None]
+            y = (y == self._classes[0]).astype(int)
+            self._fit_binary_task(X, y, sample_weight, params)
+        elif self._n_classes > 2:
+            if sp.isspmatrix_dok(X):
+                X = X.tocsr().tocoo()  # Fix to avoid scipy 7699 issue
+            self._estimators = [None] * self._n_classes
+            self._fit_multiclass_task(X, y, sample_weight, params)
+        else:
+            raise ValueError("Classifier can't predict when only one class is present.")
+
+        self._fitted = True
+
+        return self
 
     def predict(self, X):
         """
@@ -577,6 +571,47 @@ class RGFClassifierMixin(object):
 
 
 class RGFRegressorMixin(object):
+    def fit(self, X, y, sample_weight=None):
+        """
+        Build a classifier from the training set (X, y).
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The training input samples.
+
+        y : array-like, shape = [n_samples]
+            The target values (class labels in classification).
+
+        sample_weight : array-like, shape = [n_samples] or None
+            Individual weights for each sample.
+
+        Returns
+        -------
+        self : object
+            Returns self.
+        """
+        self._validate_params(self.get_params())
+
+        X, y = check_X_y(X, y, accept_sparse=True)
+        if sp.isspmatrix(X):
+            self._is_sparse_train_X = True
+        else:
+            self._is_sparse_train_X = False
+        self._n_samples, self._n_features = X.shape
+        sample_weight = self._get_sample_weight(sample_weight)
+        check_consistent_length(X, y, sample_weight)
+
+        self._set_params_with_dependencies()
+        params = self._get_params()
+
+        self._estimators = [None]
+        self._fit_binary_task(X, y, sample_weight, params)
+
+        self._fitted = True
+
+        return self
+
     def predict(self, X):
         """
         Predict class probabilities for X.
