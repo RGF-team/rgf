@@ -605,7 +605,7 @@ class RGFRegressorMixin(object):
         params = self._get_params()
 
         self._estimators = [None]
-        self._fit_binary_task(X, y, sample_weight, params)
+        self._fit_regression_task(X, y, sample_weight, params)
 
         self._fitted = True
 

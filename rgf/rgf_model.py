@@ -228,12 +228,15 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
                     learning_rate=self.learning_rate,
                     memory_policy=self.memory_policy,
                     verbose=self.verbose,
-                    is_classification=self.is_classification)
+                    is_classification=self._is_classification)
 
     def _fit_binary_task(self, X, y, sample_weight, params):
         if self.n_jobs != 1 and self.verbose:
             print('n_jobs = {}, but RGFClassifier uses one CPU because classes_ is 2'.format(self.n_jobs))
 
+        self._estimators[0] = RGFExecuter(**params).fit(X, y, sample_weight)
+
+    def _fit_regression_task(self, X, y, sample_weight, params):
         self._estimators[0] = RGFExecuter(**params).fit(X, y, sample_weight)
 
     def _fit_multiclass_task(self, X, y, sample_weight, params):
@@ -428,7 +431,6 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
         self.calc_prob = "sigmoid"
-        self.n_jobs = 1
         self.memory_policy = memory_policy
         self.verbose = verbose
 
@@ -438,7 +440,7 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         self._n_classes = None
         self._n_features = None
         self._fitted = None
-        self.is_classification = False
+        self._is_classification = False
 
 
 class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin):
@@ -619,7 +621,7 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
         self._n_classes = None
         self._n_features = None
         self._fitted = None
-        self.is_classification = True
+        self._is_classification = True
 
 
 class RGFExecuter(utils.CommonRGFExecuterBase):

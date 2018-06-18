@@ -229,10 +229,13 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
                     sparse_min_occurences=self.sparse_min_occurences,
                     n_jobs=self._n_jobs,
                     verbose=self.verbose,
-                    is_classification=self.is_classification,
+                    is_classification=self._is_classification,
                     target=self._target)
 
     def _fit_binary_task(self, X, y, sample_weight, params):
+        self._estimators[0] = FastRGFExecuter(**params).fit(X, y, sample_weight)
+
+    def _fit_regression_task(self, X, y, sample_weight, params):
         self._estimators[0] = FastRGFExecuter(**params).fit(X, y, sample_weight)
 
     def _fit_multiclass_task(self, X, y, sample_weight, params):
@@ -273,6 +276,13 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
         If float, then min_samples_leaf is a percentage and
         ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
         (Original name: dtree.min_sample.)
+
+    loss : string ("LS" or "MODLS" or "LOGISTIC"), optional (default="LS")
+        Loss function.
+        LS: Least squares loss.
+        MODLS: Modified least squares loss.
+        LOGISTIC: Logistic loss.
+        (Original name: dtree.loss.)
 
     l1 : float, optional (default=1.0)
         Used to control the degree of L1 regularization.
@@ -392,7 +402,7 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
         utils.UUIDS.append(self._file_prefix)
         self._n_features = None
         self._fitted = None
-        self.is_classification = False
+        self._is_classification = False
         self._target = "REAL"
 
 
@@ -569,7 +579,7 @@ class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
         self._n_classes = None
         self._n_features = None
         self._fitted = None
-        self.is_classification = True
+        self._is_classification = True
         self._target = "BINARY"
 
 
