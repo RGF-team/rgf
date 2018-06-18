@@ -14,6 +14,10 @@
 
   3. License has been changed from GPLv3 to MIT.
 
+**Breaking changes:**
+
+  - Due to adding feature importance, old model files are not compatible with version `1.3`.
+
 ## February 2018
 
   1. Absolute error loss has been added.
@@ -28,6 +32,9 @@
      Also, compilation with newer MS Visual Studios has been added.
 
 ## June 2014
+
+This version (`1.2` with modifications listed below)
+you can download [here](http://tongzhang-ml.org/software/rgf/index.html).
 
   1. The restriction on the size of training data files has been removed.
  
@@ -158,7 +165,7 @@ at GitHub repository for any errors you encounter.
 
 # 6. Copyright
 
-RGF Version 1.3 is distributed under the **MIT license**. Please read
+RGF version 1.3 is distributed under the **MIT license**. Please read
 the file [`COPYING`](./COPYING).
 
 # 7. References
