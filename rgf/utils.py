@@ -580,7 +580,7 @@ class RGFRegressorMixin(object):
             The training input samples.
 
         y : array-like, shape = [n_samples]
-            The target values (class labels in classification).
+            The target values (real numbers in regression).
 
         sample_weight : array-like, shape = [n_samples] or None
             Individual weights for each sample.
@@ -624,9 +624,8 @@ class RGFRegressorMixin(object):
 
         Returns
         -------
-        p : array of shape = [n_samples, n_classes].
-            The class probabilities of the input samples.
-            The order of the classes corresponds to that in the attribute classes_.
+        y : array of shape = [n_samples]
+            The predicted values.
         """
         if self._fitted is None:
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
