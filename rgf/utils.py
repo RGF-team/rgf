@@ -417,7 +417,7 @@ class CommonRGFEstimatorBase(BaseEstimator):
         if self._estimators is not None:
             for est in self._estimators:
                 n_removed_files += cleanup_partial(est._file_prefix,
-                                                         remove_from_list=True)
+                                                   remove_from_list=True)
 
         # No more able to predict without refitting.
         self._fitted = None
