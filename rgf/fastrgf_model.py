@@ -5,7 +5,7 @@ from math import ceil
 from uuid import uuid4
 
 import numpy as np
-from sklearn.base import ClassifierMixin, RegressorMixin
+from sklearn.base import ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
 from sklearn.externals.joblib import cpu_count
@@ -229,7 +229,7 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
                     sparse_min_occurences=self.sparse_min_occurences,
                     n_jobs=self._n_jobs,
                     verbose=self.verbose,
-                    is_classification=self._is_classification,
+                    is_classification=is_classifier(self),
                     target=self._target)
 
     def _fit_binary_task(self, X, y, sample_weight, params):
@@ -394,7 +394,6 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
         utils.UUIDS.append(self._file_prefix)
         self._n_features = None
         self._fitted = None
-        self._is_classification = False
         self._target = "REAL"
 
 
@@ -571,7 +570,6 @@ class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
         self._n_classes = None
         self._n_features = None
         self._fitted = None
-        self._is_classification = True
         self._target = "BINARY"
 
 

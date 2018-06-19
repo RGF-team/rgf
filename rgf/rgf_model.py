@@ -8,7 +8,7 @@ from sklearn.exceptions import NotFittedError
 from math import ceil
 from sklearn.externals.joblib import Parallel, delayed, cpu_count
 
-from sklearn.base import ClassifierMixin, RegressorMixin
+from sklearn.base import ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.externals import six
 
 from rgf import utils
@@ -228,7 +228,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
                     learning_rate=self.learning_rate,
                     memory_policy=self.memory_policy,
                     verbose=self.verbose,
-                    is_classification=self._is_classification)
+                    is_classification=is_classifier(self))
 
     def _fit_binary_task(self, X, y, sample_weight, params):
         if self.n_jobs != 1 and self.verbose:
@@ -440,7 +440,6 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         self._n_classes = None
         self._n_features = None
         self._fitted = None
-        self._is_classification = False
 
 
 class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin):
@@ -621,7 +620,6 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
         self._n_classes = None
         self._n_features = None
         self._fitted = None
-        self._is_classification = True
 
 
 class RGFExecuter(utils.CommonRGFExecuterBase):
