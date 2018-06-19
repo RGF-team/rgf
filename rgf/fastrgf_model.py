@@ -277,13 +277,6 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
         ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
         (Original name: dtree.min_sample.)
 
-    loss : string ("LS" or "MODLS" or "LOGISTIC"), optional (default="LS")
-        Loss function.
-        LS: Least squares loss.
-        MODLS: Modified least squares loss.
-        LOGISTIC: Logistic loss.
-        (Original name: dtree.loss.)
-
     l1 : float, optional (default=1.0)
         Used to control the degree of L1 regularization.
         (Original name: dtree.lamL1.)
@@ -363,7 +356,6 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
                  max_leaf=50,
                  tree_gain_ratio=1.0,
                  min_samples_leaf=5,
-                 loss="LS",
                  l1=1.0,
                  l2=1000.0,
                  opt_algorithm="rgf",
@@ -383,7 +375,7 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
         self.tree_gain_ratio = tree_gain_ratio
         self.min_samples_leaf = min_samples_leaf
         self._min_samples_leaf = None
-        self.loss = loss
+        self.loss = "LS"  # Regressor can use only LS loss.
         self.l1 = l1
         self.l2 = l2
         self.opt_algorithm = opt_algorithm
