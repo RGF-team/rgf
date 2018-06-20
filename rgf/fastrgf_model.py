@@ -618,7 +618,6 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
             params.append("trn.x-file_format=%s" % fmt)
         params.append("trn.x-file=%s" % self._train_x_loc)
         params.append("trn.target=%s" % self.target)
-        params.append("trn.target=%s" % self.target)
         params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self._model_file_loc)

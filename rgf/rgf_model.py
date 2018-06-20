@@ -430,15 +430,11 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         self.n_tree_search = n_tree_search
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
-        self.calc_prob = "sigmoid"
         self.memory_policy = memory_policy
         self.verbose = verbose
 
-        self._estimators = None
-        self._classes = None
-        self._classes_map = {}
-        self._n_classes = None
         self._n_features = None
+        self._estimators = None
         self._fitted = None
 
 

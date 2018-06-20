@@ -613,15 +613,12 @@ class RGFRegressorMixin(object):
 
     def predict(self, X):
         """
-        Predict class probabilities for X.
-
-        The predicted class probabilities of an input sample are computed.
-
+        Predict regression target for X.
+        The predicted regression target of an input sample is computed.
         Parameters
         ----------
         X : array-like or sparse matrix of shape = [n_samples, n_features]
             The input samples.
-
         Returns
         -------
         y : array of shape = [n_samples]
