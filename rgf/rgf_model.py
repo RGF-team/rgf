@@ -1,13 +1,11 @@
 from __future__ import absolute_import
 
 from glob import glob
+from math import ceil
 
 import numpy as np
 from sklearn.exceptions import NotFittedError
-
-from math import ceil
 from sklearn.externals.joblib import Parallel, delayed, cpu_count
-
 from sklearn.base import ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.externals import six
 
