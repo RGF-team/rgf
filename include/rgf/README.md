@@ -160,7 +160,7 @@ model files.
 
 # 5. Contact
 
-Please post an [issue](https://github.com/RGF-team/rgf_python/issues)
+Please post an [issue](https://github.com/RGF-team/rgf/issues)
 at GitHub repository for any errors you encounter.
 
 # 6. Copyright
