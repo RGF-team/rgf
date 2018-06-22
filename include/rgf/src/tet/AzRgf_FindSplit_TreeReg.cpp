@@ -1,6 +1,6 @@
 /* * * * *
  *  AzRgf_FindSplit_TreeReg.cpp 
- *  Copyright (C) 2011, 2012 Rie Johnson
+ *  Copyright (C) 2011, 2012 Rie Johnson, 2018 RGF team
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the COPYING file for details.
