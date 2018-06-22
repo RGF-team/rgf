@@ -572,7 +572,7 @@ class RGFClassifierMixin(object):
 class RGFRegressorMixin(object):
     def fit(self, X, y, sample_weight=None):
         """
-        Build a classifier from the training set (X, y).
+        Build a regressior from the training set (X, y).
 
         Parameters
         ----------
@@ -615,10 +615,12 @@ class RGFRegressorMixin(object):
         """
         Predict regression target for X.
         The predicted regression target of an input sample is computed.
+
         Parameters
         ----------
         X : array-like or sparse matrix of shape = [n_samples, n_features]
             The input samples.
+
         Returns
         -------
         y : array of shape = [n_samples]
