@@ -51,21 +51,24 @@ after_test:
          $env:PYTHON_VERSION -ne "3.6") {
           Exit-AppVeyorBuild
       }
-  - IF "%PLATFORM%"=="x64" (
+  - IF "%PLATFORM%" == "x64" (
     python setup.py bdist_wheel --plat-name=win-amd64 --universal)
     ELSE (
     python setup.py bdist_wheel --plat-name=win32 --universal)
+  - IF NOT "%PLATFORM%" == "x64" rename include\rgf\bin\rgf.exe rgf32.exe
 
 artifacts:
   - path: dist/*
     name: pip
+  - path: include\rgf\bin\*
+    name: rgf_exe
 
 deploy:
   release: $(APPVEYOR_REPO_TAG_NAME)
   provider: GitHub
   auth_token:
     secure: aQFQmcjdGxGTDK58XGXC/TpIJKVfGCHh+ZIGMYsHEZIgo0hVgL0NoREaTluD+E7v
-  artifact: pip
+  artifact: pip,rgf_exe
   force_update: true
   draft: true
   on:
