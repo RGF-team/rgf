@@ -572,7 +572,7 @@ class RGFClassifierMixin(object):
 class RGFRegressorMixin(object):
     def fit(self, X, y, sample_weight=None):
         """
-        Build a regressior from the training set (X, y).
+        Build a regressor from the training set (X, y).
 
         Parameters
         ----------
