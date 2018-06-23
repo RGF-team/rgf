@@ -115,8 +115,9 @@ Windows
 Precompiled file
 ^^^^^^^^^^^^^^^^
 
-The easiest way. Just take precompiled file from ``rgf/include/rgf/bin``.
-For Windows 32-bit rename ``rgf32.exe`` to ``rgf.exe`` and take it.
+The easiest way. Just download the precompiled file from the latest `GitHub release <https://github.com/RGF-team/rgf/releases>`__.
+
+For Windows 32-bit download ``rgf32.exe`` file and rename it to ``rgf.exe``.
 
 Visual Studio (existing solution)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
