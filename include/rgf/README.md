@@ -115,9 +115,9 @@ at the `bin` directory. Otherwise, your executable can be anywhere you like.
 ## 3.1. Windows
 
 Executable files are provided with the filename `rgf.exe` for 64-bit Windows
-and `rgf32.exe` for 32-bit Windows at the `bin` directory.
-They were tested on Windows 10 with the latest updates as
-of 8/12/2017. You can either use them
+and `rgf32.exe` for 32-bit Windows
+at the [GitHub Releases page](https://github.com/RGF-team/rgf/releases).
+You can either use them
 (rename `rgf32.exe` to `rgf.exe` in case you are using 32-bit Windows),
 or you can rebuild them by yourself using the provided solution file for
 MS Visual C++ 2010 Express: `Windows\rgf\rgf.sln`.
