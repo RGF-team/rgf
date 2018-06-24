@@ -11,8 +11,8 @@ RUN apt-get update && \
     export PATH="/opt/conda/bin:$PATH" && \
     # rgf_python
     conda install -y numpy scipy scikit-learn pandas && \
-    git clone https://github.com/RGF-team/rgf_python.git && \
-    cd rgf_python && python setup.py install && \
+    git clone https://github.com/RGF-team/rgf.git && \
+    cd rgf && python setup.py install && \
 
 # clean
     apt-get autoremove -y && apt-get clean && \
