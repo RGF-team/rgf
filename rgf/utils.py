@@ -560,8 +560,6 @@ class RGFClassifierMixin(object):
                 class_proba = clf.predict(X)
                 y[:, i] = class_proba
 
-            # In honest, I don't understand which is better
-            # softmax or normalized sigmoid for calc probability.
             if self.calc_prob == "sigmoid":
                 y = sigmoid(y)
                 normalizer = np.sum(y, axis=1)[:, np.newaxis]

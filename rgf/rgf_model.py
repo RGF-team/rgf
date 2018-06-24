@@ -658,7 +658,6 @@ class RGFExecuter(utils.CommonRGFExecuterBase):
         return cmd
 
     def _find_model_file(self):
-        # Find latest model location
         model_files = glob(self._model_file_loc + "*")
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
