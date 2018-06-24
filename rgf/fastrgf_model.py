@@ -18,7 +18,7 @@ LOSSES = ("LS", "MODLS", "LOGISTIC")
 
 
 class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
-    def validate_fast_rgf_params(self,
+    def _validate_fast_rgf_params(self,
                                  n_estimators,
                                  max_depth,
                                  max_leaf,
@@ -188,7 +188,7 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
             return self._min_samples_leaf
 
     def _validate_params(self, params):
-        self.validate_fast_rgf_params(**params)
+        self._validate_fast_rgf_params(**params)
 
     def _set_params_with_dependencies(self):
         if self.max_bin is None:

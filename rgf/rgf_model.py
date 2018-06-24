@@ -17,7 +17,7 @@ LOSSES = ("LS", "Expo", "Log", "Abs")
 
 
 class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
-    def validate_rgf_params(self,
+    def _validate_rgf_params(self,
                             max_leaf,
                             test_interval,
                             algorithm,
@@ -189,7 +189,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             return self._n_iter
 
     def _validate_params(self, params):
-        self.validate_rgf_params(**params)
+        self._validate_rgf_params(**params)
 
     def _set_params_with_dependencies(self):
         if self.sl2 is None:

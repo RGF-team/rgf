@@ -432,6 +432,9 @@ class CommonRGFEstimatorBase(BaseEstimator):
     def _fit_multiclass_task(self, X, y, sample_weight, params):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
+    def _fit_regression_task(self, X, y, sample_weight, params):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+
 
 class RGFClassifierMixin(object):
     @property
