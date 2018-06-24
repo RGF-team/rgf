@@ -677,7 +677,7 @@ class RGFExecuter(utils.CommonRGFExecuterBase):
     def dump_model(self):
         self._check_fitted()
         cmd = (utils.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
-        self._execute_command(cmd, verbose=True)
+        self._execute_command(cmd, force_verbose=True)
 
     @property
     def feature_importances_(self):
