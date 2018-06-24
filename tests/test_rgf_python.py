@@ -469,7 +469,7 @@ class RGFRegressorBaseTest(object):
         self.assertNotEqual(reg1.cleanup(), 0)
         self.assertEqual(reg1.cleanup(), 0)
 
-        glob_file = os.path.join(TEMP_PATH, reg1._file_prefix + "*")
+        glob_file = os.path.join(TEMP_PATH, reg1._estimators[0]._file_prefix + "*")
         self.assertFalse(glob.glob(glob_file))
 
         self.assertRaises(NotFittedError, reg1.predict, self.X_test)

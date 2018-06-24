@@ -2,12 +2,12 @@ from __future__ import absolute_import
 
 from glob import glob
 from math import ceil
-from uuid import uuid4
 
 import numpy as np
+from sklearn.base import ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.exceptions import NotFittedError
-from sklearn.externals import six
 from sklearn.externals.joblib import Parallel, delayed, cpu_count
+from sklearn.externals import six
 
 from rgf import utils
 
@@ -16,114 +16,280 @@ ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
 LOSSES = ("LS", "Expo", "Log", "Abs")
 
 
-def validate_rgf_params(max_leaf,
-                        test_interval,
-                        algorithm,
-                        loss,
-                        reg_depth,
-                        l2,
-                        sl2,
-                        normalize,
-                        min_samples_leaf,
-                        n_iter,
-                        n_tree_search,
-                        opt_interval,
-                        learning_rate,
-                        verbose,
-                        memory_policy,
-                        calc_prob="sigmoid",
-                        n_jobs=-1):
-    if not isinstance(max_leaf, utils.INTS):
-        raise ValueError("max_leaf must be an integer, got {0}.".format(type(max_leaf)))
-    elif max_leaf <= 0:
-        raise ValueError("max_leaf must be greater than 0 but was %r." % max_leaf)
+class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
+    def _validate_rgf_params(self,
+                             max_leaf,
+                             test_interval,
+                             algorithm,
+                             loss,
+                             reg_depth,
+                             l2,
+                             sl2,
+                             normalize,
+                             min_samples_leaf,
+                             n_iter,
+                             n_tree_search,
+                             opt_interval,
+                             learning_rate,
+                             verbose,
+                             memory_policy,
+                             calc_prob="sigmoid",
+                             n_jobs=-1):
+        if not isinstance(max_leaf, utils.INTS):
+            raise ValueError(
+                "max_leaf must be an integer, got {0}.".format(type(max_leaf)))
+        elif max_leaf <= 0:
+            raise ValueError(
+                "max_leaf must be greater than 0 but was %r." % max_leaf)
 
-    if not isinstance(test_interval, utils.INTS):
-        raise ValueError("test_interval must be an integer, got {0}.".format(type(test_interval)))
-    elif test_interval <= 0:
-        raise ValueError("test_interval must be greater than 0 but was %r." % test_interval)
+        if not isinstance(test_interval, utils.INTS):
+            raise ValueError(
+                "test_interval must be an integer, got {0}.".format(
+                    type(test_interval)))
+        elif test_interval <= 0:
+            raise ValueError(
+                "test_interval must be greater than 0 but was %r." % test_interval)
 
-    if not isinstance(algorithm, six.string_types):
-        raise ValueError("algorithm must be a string, got {0}.".format(type(algorithm)))
-    elif algorithm not in ALGORITHMS:
-        raise ValueError("algorithm must be 'RGF' or 'RGF_Opt' or 'RGF_Sib' but was %r." % algorithm)
+        if not isinstance(algorithm, six.string_types):
+            raise ValueError(
+                "algorithm must be a string, got {0}.".format(type(algorithm)))
+        elif algorithm not in ALGORITHMS:
+            raise ValueError(
+                "algorithm must be 'RGF' or 'RGF_Opt' or 'RGF_Sib' but was %r." % algorithm)
 
-    if not isinstance(loss, six.string_types):
-        raise ValueError("loss must be a string, got {0}.".format(type(loss)))
-    elif loss not in LOSSES:
-        raise ValueError("loss must be 'LS' or 'Expo' or 'Log' but was %r." % loss)
+        if not isinstance(loss, six.string_types):
+            raise ValueError(
+                "loss must be a string, got {0}.".format(type(loss)))
+        elif loss not in LOSSES:
+            raise ValueError(
+                "loss must be 'LS' or 'Expo' or 'Log' but was %r." % loss)
 
-    if not isinstance(reg_depth, (utils.INTS, utils.FLOATS)):
-        raise ValueError("reg_depth must be an integer or float, got {0}.".format(type(reg_depth)))
-    elif reg_depth < 1:
-        raise ValueError("reg_depth must be no smaller than 1.0 but was %r." % reg_depth)
+        if not isinstance(reg_depth, (utils.INTS, utils.FLOATS)):
+            raise ValueError(
+                "reg_depth must be an integer or float, got {0}.".format(
+                    type(reg_depth)))
+        elif reg_depth < 1:
+            raise ValueError(
+                "reg_depth must be no smaller than 1.0 but was %r." % reg_depth)
 
-    if not isinstance(l2, utils.FLOATS):
-        raise ValueError("l2 must be a float, got {0}.".format(type(l2)))
-    elif l2 < 0:
-        raise ValueError("l2 must be no smaller than 0.0 but was %r." % l2)
+        if not isinstance(l2, utils.FLOATS):
+            raise ValueError("l2 must be a float, got {0}.".format(type(l2)))
+        elif l2 < 0:
+            raise ValueError("l2 must be no smaller than 0.0 but was %r." % l2)
 
-    if not isinstance(sl2, (type(None), utils.FLOATS)):
-        raise ValueError("sl2 must be a float or None, got {0}.".format(type(sl2)))
-    elif sl2 is not None and sl2 < 0:
-        raise ValueError("sl2 must be no smaller than 0.0 but was %r." % sl2)
+        if not isinstance(sl2, (type(None), utils.FLOATS)):
+            raise ValueError(
+                "sl2 must be a float or None, got {0}.".format(type(sl2)))
+        elif sl2 is not None and sl2 < 0:
+            raise ValueError(
+                "sl2 must be no smaller than 0.0 but was %r." % sl2)
 
-    if not isinstance(normalize, bool):
-        raise ValueError("normalize must be a boolean, got {0}.".format(type(normalize)))
+        if not isinstance(normalize, bool):
+            raise ValueError(
+                "normalize must be a boolean, got {0}.".format(type(normalize)))
 
-    err_desc = "min_samples_leaf must be at least 1 or in (0, 0.5], got %r." % min_samples_leaf
-    if isinstance(min_samples_leaf, utils.INTS):
-        if min_samples_leaf < 1:
-            raise ValueError(err_desc)
-    elif isinstance(min_samples_leaf, utils.FLOATS):
-        if not 0.0 < min_samples_leaf <= 0.5:
-            raise ValueError(err_desc)
-    else:
-        raise ValueError("min_samples_leaf must be an integer or float, got {0}.".format(type(min_samples_leaf)))
+        err_desc = "min_samples_leaf must be at least 1 or in (0, 0.5], got %r." % min_samples_leaf
+        if isinstance(min_samples_leaf, utils.INTS):
+            if min_samples_leaf < 1:
+                raise ValueError(err_desc)
+        elif isinstance(min_samples_leaf, utils.FLOATS):
+            if not 0.0 < min_samples_leaf <= 0.5:
+                raise ValueError(err_desc)
+        else:
+            raise ValueError(
+                "min_samples_leaf must be an integer or float, got {0}.".format(
+                    type(min_samples_leaf)))
 
-    if not isinstance(n_iter, (type(None), utils.INTS)):
-        raise ValueError("n_iter must be an integer or None, got {0}.".format(type(n_iter)))
-    elif n_iter is not None and n_iter < 1:
-        raise ValueError("n_iter must be no smaller than 1 but was %r." % n_iter)
+        if not isinstance(n_iter, (type(None), utils.INTS)):
+            raise ValueError(
+                "n_iter must be an integer or None, got {0}.".format(
+                    type(n_iter)))
+        elif n_iter is not None and n_iter < 1:
+            raise ValueError(
+                "n_iter must be no smaller than 1 but was %r." % n_iter)
 
-    if not isinstance(n_tree_search, utils.INTS):
-        raise ValueError("n_tree_search must be an integer, got {0}.".format(type(n_tree_search)))
-    elif n_tree_search < 1:
-        raise ValueError("n_tree_search must be no smaller than 1 but was %r." % n_tree_search)
+        if not isinstance(n_tree_search, utils.INTS):
+            raise ValueError(
+                "n_tree_search must be an integer, got {0}.".format(
+                    type(n_tree_search)))
+        elif n_tree_search < 1:
+            raise ValueError(
+                "n_tree_search must be no smaller than 1 but was %r." % n_tree_search)
 
-    if not isinstance(opt_interval, utils.INTS):
-        raise ValueError("opt_interval must be an integer, got {0}.".format(type(opt_interval)))
-    elif opt_interval < 1:
-        raise ValueError("opt_interval must be no smaller than 1 but was %r." % opt_interval)
+        if not isinstance(opt_interval, utils.INTS):
+            raise ValueError("opt_interval must be an integer, got {0}.".format(
+                type(opt_interval)))
+        elif opt_interval < 1:
+            raise ValueError(
+                "opt_interval must be no smaller than 1 but was %r." % opt_interval)
 
-    if not isinstance(learning_rate, utils.FLOATS):
-        raise ValueError("learning_rate must be a float, got {0}.".format(type(learning_rate)))
-    elif learning_rate <= 0:
-        raise ValueError("learning_rate must be greater than 0 but was %r." % learning_rate)
+        if not isinstance(learning_rate, utils.FLOATS):
+            raise ValueError("learning_rate must be a float, got {0}.".format(
+                type(learning_rate)))
+        elif learning_rate <= 0:
+            raise ValueError(
+                "learning_rate must be greater than 0 but was %r." % learning_rate)
 
-    if not isinstance(verbose, utils.INTS):
-        raise ValueError("verbose must be an integer, got {0}.".format(type(verbose)))
-    elif verbose < 0:
-        raise ValueError("verbose must be no smaller than 0 but was %r." % verbose)
+        if not isinstance(verbose, utils.INTS):
+            raise ValueError(
+                "verbose must be an integer, got {0}.".format(type(verbose)))
+        elif verbose < 0:
+            raise ValueError(
+                "verbose must be no smaller than 0 but was %r." % verbose)
 
-    if not isinstance(memory_policy, six.string_types):
-        raise ValueError("memory_policy must be a string, got {0}.".format(type(memory_policy)))
-    elif memory_policy not in ("conservative", "generous"):
-        raise ValueError("memory_policy must be 'conservative' or 'generous' but was %r." % memory_policy)
+        if not isinstance(memory_policy, six.string_types):
+            raise ValueError("memory_policy must be a string, got {0}.".format(
+                type(memory_policy)))
+        elif memory_policy not in ("conservative", "generous"):
+            raise ValueError(
+                "memory_policy must be 'conservative' or 'generous' but was %r." % memory_policy)
 
-    if not isinstance(calc_prob, six.string_types):
-        raise ValueError("calc_prob must be a string, got {0}.".format(type(calc_prob)))
-    elif calc_prob not in ("sigmoid", "softmax"):
-        raise ValueError("calc_prob must be 'sigmoid' or 'softmax' but was %r." % calc_prob)
+        if not isinstance(calc_prob, six.string_types):
+            raise ValueError(
+                "calc_prob must be a string, got {0}.".format(type(calc_prob)))
+        elif calc_prob not in ("sigmoid", "softmax"):
+            raise ValueError(
+                "calc_prob must be 'sigmoid' or 'softmax' but was %r." % calc_prob)
 
-    if not isinstance(n_jobs, utils.INTS):
-        raise ValueError("n_jobs must be an integer, got {0}.".format(type(n_jobs)))
+        if not isinstance(n_jobs, utils.INTS):
+            raise ValueError(
+                "n_jobs must be an integer, got {0}.".format(type(n_jobs)))
+
+    @property
+    def sl2_(self):
+        """
+        The concrete regularization value for the process of growing the forest
+        used in model building process.
+        """
+        if self._sl2 is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
+        else:
+            return self._sl2
+
+    @property
+    def min_samples_leaf_(self):
+        """
+        Minimum number of training data points in each leaf node
+        used in model building process.
+        """
+        if self._min_samples_leaf is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
+        else:
+            return self._min_samples_leaf
+
+    @property
+    def n_iter_(self):
+        """
+        Number of iterations of coordinate descent to optimize weights
+        used in model building process depending on the specified loss function.
+        """
+        if self._n_iter is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
+        else:
+            return self._n_iter
+
+    def _validate_params(self, params):
+        self._validate_rgf_params(**params)
+
+    def _set_params_with_dependencies(self):
+        if self.sl2 is None:
+            self._sl2 = self.l2
+        else:
+            self._sl2 = self.sl2
+
+        if isinstance(self.min_samples_leaf, utils.FLOATS):
+            self._min_samples_leaf = ceil(self.min_samples_leaf * self._n_samples)
+        else:
+            self._min_samples_leaf = self.min_samples_leaf
+
+        if self.n_iter is None:
+            if self.loss == "LS":
+                self._n_iter = 10
+            else:
+                self._n_iter = 5
+        else:
+            self._n_iter = self.n_iter
+
+    def _get_params(self):
+        return dict(max_leaf=self.max_leaf,
+                    test_interval=self.test_interval,
+                    algorithm=self.algorithm,
+                    loss=self.loss,
+                    reg_depth=self.reg_depth,
+                    l2=self.l2,
+                    sl2=self._sl2,
+                    normalize=self.normalize,
+                    min_samples_leaf=self._min_samples_leaf,
+                    n_iter=self._n_iter,
+                    n_tree_search=self.n_tree_search,
+                    opt_interval=self.opt_interval,
+                    learning_rate=self.learning_rate,
+                    memory_policy=self.memory_policy,
+                    verbose=self.verbose,
+                    is_classification=is_classifier(self))
+
+    def _fit_binary_task(self, X, y, sample_weight, params):
+        if self.n_jobs != 1 and self.verbose:
+            print('n_jobs = {}, but RGFClassifier uses one CPU because classes_ is 2'.format(self.n_jobs))
+
+        self._estimators[0] = RGFExecuter(**params).fit(X, y, sample_weight)
+
+    def _fit_regression_task(self, X, y, sample_weight, params):
+        self._estimators[0] = RGFExecuter(**params).fit(X, y, sample_weight)
+
+    def _fit_multiclass_task(self, X, y, sample_weight, params):
+        ovr_list = [None] * self._n_classes
+        for i, cls_num in enumerate(self._classes):
+            self._classes_map[i] = cls_num
+            ovr_list[i] = (y == cls_num).astype(int)
+            self._estimators[i] = RGFExecuter(**params)
+
+        n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
+        substantial_njobs = max(n_jobs, self.n_classes_)
+        if substantial_njobs < n_jobs and self.verbose:
+            print('n_jobs = {0}, but RGFClassifier uses {1} CPUs because '
+                  'classes_ is {2}'.format(n_jobs, substantial_njobs,
+                                           self.n_classes_))
+
+        self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(utils.fit_ovr_binary)(self._estimators[i],
+                                                                                      X,
+                                                                                      ovr_list[i],
+                                                                                      sample_weight)
+                                                        for i in range(self._n_classes))
+
+    def dump_model(self):
+        """
+        Dump forest information to console.
+
+        Examples:
+        ---------
+        [  0], depth=0, gain=0.599606, F11, 392.8
+          [  1], depth=1, gain=0.818876, F4, 0.6275
+            [  3], depth=2, gain=0.806904, F5, 7.226
+            [  4], depth=2, gain=0.832003, F4, 0.686
+          [  2], (-0.0146), depth=1, gain=0
+        Here, [ x] is order of generated, (x) is weight for leaf nodes, last value is a border.
+        """
+        for est in self.estimators_:
+            est.dump_model()
+
+    @property
+    def feature_importances_(self):
+        """
+        The feature importances.
+        The importance of a feature is computed from sum of gain of each node.
+        """
+        if self._fitted is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
+        each_estimator_feature_importances = []
+        for est in self._estimators:
+            each_estimator_feature_importances.append(est.feature_importances_)
+        return np.mean(each_estimator_feature_importances, axis=0)
 
 
-class RGFRegressor(utils.RGFRegressorBase):
+class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
     """
     A Regularized Greedy Forest [1] regressor.
-
     Tuning parameters detailed instruction:
         https://github.com/RGF-team/rgf/blob/master/include/rgf/rgf-guide.pdf
 
@@ -227,6 +393,7 @@ class RGFRegressor(utils.RGFRegressorBase):
         Learning Nonlinear Functions Using Regularized Greedy Forest
         (https://arxiv.org/abs/1109.0887).
     """
+
     def __init__(self,
                  max_leaf=500,
                  test_interval=100,
@@ -263,159 +430,13 @@ class RGFRegressor(utils.RGFRegressorBase):
         self.learning_rate = learning_rate
         self.memory_policy = memory_policy
         self.verbose = verbose
-        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
-        utils.UUIDS.append(self._file_prefix)
+
         self._n_features = None
+        self._estimators = None
         self._fitted = None
 
-    @property
-    def sl2_(self):
-        """
-        The concrete regularization value for the process of growing the forest
-        used in model building process.
-        """
-        if self._sl2 is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._sl2
 
-    @property
-    def min_samples_leaf_(self):
-        """
-        Minimum number of training data points in each leaf node
-        used in model building process.
-        """
-        if self._min_samples_leaf is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._min_samples_leaf
-
-    @property
-    def n_iter_(self):
-        """
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-        """
-        if self._n_iter is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_iter
-
-    def _validate_params(self, params):
-        validate_rgf_params(**params)
-
-    def _set_params_with_dependencies(self):
-        if self.sl2 is None:
-            self._sl2 = self.l2
-        else:
-            self._sl2 = self.sl2
-
-        if isinstance(self.min_samples_leaf, utils.FLOATS):
-            self._min_samples_leaf = ceil(self.min_samples_leaf * self._n_samples)
-        else:
-            self._min_samples_leaf = self.min_samples_leaf
-
-        if self.n_iter is None:
-            if self.loss == "LS":
-                self._n_iter = 10
-            else:
-                self._n_iter = 5
-        else:
-            self._n_iter = self.n_iter
-
-    def _get_train_command(self):
-        params = []
-        if self.verbose > 0:
-            params.append("Verbose")
-        if self.verbose > 5:
-            params.append("Verbose_opt")  # Add some info on weight optimization
-        if self.normalize:
-            params.append("NormalizeTarget")
-        params.append("train_x_fn=%s" % self._train_x_loc)
-        params.append("train_y_fn=%s" % self._train_y_loc)
-        params.append("algorithm=%s" % self.algorithm)
-        params.append("loss=%s" % self.loss)
-        params.append("max_leaf_forest=%s" % self.max_leaf)
-        params.append("test_interval=%s" % self.test_interval)
-        params.append("reg_L2=%s" % self.l2)
-        params.append("reg_sL2=%s" % self._sl2)
-        params.append("reg_depth=%s" % self.reg_depth)
-        params.append("min_pop=%s" % self._min_samples_leaf)
-        params.append("num_iteration_opt=%s" % self._n_iter)
-        params.append("num_tree_search=%s" % self.n_tree_search)
-        params.append("opt_interval=%s" % self.opt_interval)
-        params.append("opt_stepsize=%s" % self.learning_rate)
-        params.append("memory_policy=%s" % self.memory_policy.title())
-        params.append("model_fn_prefix=%s" % self._model_file_loc)
-        if self._use_sample_weight:
-            params.append("train_w_fn=%s" % self._train_weight_loc)
-
-        cmd = (utils.RGF_PATH, "train", ",".join(params))
-
-        return cmd
-
-    def _get_test_command(self, is_sparse_x):
-        params = []
-        params.append("test_x_fn=%s" % self._test_x_loc)
-        params.append("prediction_fn=%s" % self._pred_loc)
-        params.append("model_fn=%s" % self._model_file)
-
-        cmd = (utils.RGF_PATH, "predict", ",".join(params))
-
-        return cmd
-
-    def _save_sparse_X(self, path, X):
-        utils.sparse_savetxt(path, X, including_header=True)
-
-    def _save_dense_files(self, X, y, sample_weight):
-        np.savetxt(self._train_x_loc, X, delimiter=' ', fmt="%s")
-        np.savetxt(self._train_y_loc, y, delimiter=' ', fmt="%s")
-        if self._use_sample_weight:
-            np.savetxt(self._train_weight_loc, sample_weight, delimiter=' ', fmt="%s")
-
-    def _find_model_file(self):
-        # Find latest model location
-        model_files = glob(self._model_file_loc + "*")
-        if not model_files:
-            raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.TEMP_PATH))
-        self._model_file = sorted(model_files, reverse=True)[0]
-
-    def dump_model(self):
-        """
-        Dump forest information to console.
-
-        Examples:
-        ---------
-        [  0], depth=0, gain=0.599606, F11, 392.8
-          [  1], depth=1, gain=0.818876, F4, 0.6275
-            [  3], depth=2, gain=0.806904, F5, 7.226
-            [  4], depth=2, gain=0.832003, F4, 0.686
-          [  2], (-0.0146), depth=1, gain=0
-        Here, [ x] is order of generated, (x) is weight for leaf nodes, last value is a border.
-        """
-        self._check_fitted()
-        cmd = (utils.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
-        self._execute_command(cmd, verbose=True)
-
-    @property
-    def feature_importances_(self):
-        """
-        The feature importances.
-        The importance of a feature is computed from sum of gain of each node.
-        """
-        if self._fitted is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        params = []
-        params.append("train_x_fn=%s" % self._train_x_loc)
-        params.append("feature_importances_fn=%s" % self._feature_importances_loc)
-        params.append("model_fn=%s" % self._model_file)
-        cmd = (utils.RGF_PATH, "feature_importances", ",".join(params))
-        self._execute_command(cmd)
-        return np.loadtxt(self._feature_importances_loc)
-
-
-class RGFClassifier(utils.RGFClassifierBase):
+class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin):
     """
     A Regularized Greedy Forest [1] classifier.
 
@@ -594,135 +615,8 @@ class RGFClassifier(utils.RGFClassifierBase):
         self._n_features = None
         self._fitted = None
 
-    @property
-    def sl2_(self):
-        """
-        The concrete regularization value for the process of growing the forest
-        used in model building process.
-        """
-        if self._sl2 is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._sl2
 
-    @property
-    def min_samples_leaf_(self):
-        """
-        Minimum number of training data points in each leaf node
-        used in model building process.
-        """
-        if self._min_samples_leaf is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._min_samples_leaf
-
-    @property
-    def n_iter_(self):
-        """
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-        """
-        if self._n_iter is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_iter
-
-    def _validate_params(self, params):
-        validate_rgf_params(**params)
-
-    def _set_params_with_dependencies(self):
-        if self.sl2 is None:
-            self._sl2 = self.l2
-        else:
-            self._sl2 = self.sl2
-
-        if isinstance(self.min_samples_leaf, utils.FLOATS):
-            self._min_samples_leaf = ceil(self.min_samples_leaf * self._n_samples)
-        else:
-            self._min_samples_leaf = self.min_samples_leaf
-
-        if self.n_iter is None:
-            if self.loss == "LS":
-                self._n_iter = 10
-            else:
-                self._n_iter = 5
-        else:
-            self._n_iter = self.n_iter
-
-    def _get_params(self):
-        return dict(max_leaf=self.max_leaf,
-                    test_interval=self.test_interval,
-                    algorithm=self.algorithm,
-                    loss=self.loss,
-                    reg_depth=self.reg_depth,
-                    l2=self.l2,
-                    sl2=self._sl2,
-                    normalize=self.normalize,
-                    min_samples_leaf=self._min_samples_leaf,
-                    n_iter=self._n_iter,
-                    n_tree_search=self.n_tree_search,
-                    opt_interval=self.opt_interval,
-                    learning_rate=self.learning_rate,
-                    memory_policy=self.memory_policy,
-                    verbose=self.verbose)
-
-    def _fit_binary_task(self, X, y, sample_weight, params):
-        if self.n_jobs != 1 and self.verbose:
-            print('n_jobs = {}, but RGFClassifier uses one CPU because classes_ is 2'.format(self.n_jobs))
-
-        self._estimators[0] = RGFBinaryClassifier(**params).fit(X, y, sample_weight)
-
-    def _fit_multiclass_task(self, X, y, sample_weight, params):
-        ovr_list = [None] * self._n_classes
-        for i, cls_num in enumerate(self._classes):
-            self._classes_map[i] = cls_num
-            ovr_list[i] = (y == cls_num).astype(int)
-            self._estimators[i] = RGFBinaryClassifier(**params)
-
-        n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
-        substantial_njobs = max(n_jobs, self.n_classes_)
-        if substantial_njobs < n_jobs and self.verbose:
-            print('n_jobs = {0}, but RGFClassifier uses {1} CPUs because '
-                  'classes_ is {2}'.format(n_jobs, substantial_njobs,
-                                           self.n_classes_))
-
-        self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(utils.fit_ovr_binary)(self._estimators[i],
-                                                                                      X,
-                                                                                      ovr_list[i],
-                                                                                      sample_weight)
-                                                        for i in range(self._n_classes))
-
-    def dump_model(self):
-        """
-        Dump forest information to console.
-
-        Examples:
-        ---------
-        [  0], depth=0, gain=0.599606, F11, 392.8
-          [  1], depth=1, gain=0.818876, F4, 0.6275
-            [  3], depth=2, gain=0.806904, F5, 7.226
-            [  4], depth=2, gain=0.832003, F4, 0.686
-          [  2], (-0.0146), depth=1, gain=0
-        Here, [ x] is order of generated, (x) is weight for leaf nodes, last value is a border.
-        """
-        for est in self.estimators_:
-            est.dump_model()
-
-    @property
-    def feature_importances_(self):
-        """
-        The feature importances.
-        The importance of a feature is computed from sum of gain of each node.
-        """
-        if self._fitted is None:
-            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        each_estimator_feature_importances = []
-        for est in self._estimators:
-            each_estimator_feature_importances.append(est.feature_importances_)
-        return np.mean(each_estimator_feature_importances, axis=0)
-
-
-class RGFBinaryClassifier(utils.RGFBinaryClassifierBase):
+class RGFExecuter(utils.CommonRGFExecuterBase):
     def _save_sparse_X(self, path, X):
         utils.sparse_savetxt(path, X, including_header=True)
 

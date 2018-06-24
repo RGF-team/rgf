@@ -35,9 +35,9 @@ rf_scores = cross_val_score(rf,
                             cv=n_folds)
 
 rgf_score = sum(rgf_scores)/n_folds
-print('RGF Classfier MSE: {0:.5f}'.format(rgf_score))
-# >>>RGF Classfier MSE: 11.79409
+print('RGF Regressor MSE: {0:.5f}'.format(rgf_score))
+# >>>RGF Regressor MSE: 11.79409
 
 rf_score = sum(rf_scores)/n_folds
-print('Random Forest Classfier MSE: {0:.5f}'.format(rf_score))
-# >>>Random Forest Classfier MSE: 13.58614
+print('Random Forest Regressor MSE: {0:.5f}'.format(rf_score))
+# >>>Random Forest Regressor MSE: 13.58614

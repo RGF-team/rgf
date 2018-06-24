@@ -14,7 +14,7 @@ from uuid import uuid4
 
 import numpy as np
 import scipy.sparse as sp
-from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
+from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
 from sklearn.externals import six
 from sklearn.utils.extmath import softmax
@@ -245,29 +245,14 @@ def fit_ovr_binary(binary_clf, X, y, sample_weight):
     return binary_clf.fit(X, y, sample_weight)
 
 
-class RGFMixin(object):
-    @property
-    def n_features_(self):
-        """The number of features when `fit` is performed."""
-        if self._n_features is None:
-            raise NotFittedError(NOT_FITTED_ERROR_DESC)
-        else:
-            return self._n_features
+class CommonRGFExecuterBase(BaseEstimator):
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
-    @property
-    def fitted_(self):
-        """Indicates whether `fit` is performed."""
-        if self._fitted is None:
-            raise NotFittedError(NOT_FITTED_ERROR_DESC)
-        else:
-            return self._fitted
-
-    def _get_sample_weight(self, sample_weight):
-        if sample_weight is not None:
-            sample_weight = column_or_1d(sample_weight, warn=True)
-            if (sample_weight <= 0).any():
-                raise ValueError("Sample weights must be positive.")
-        return sample_weight
+        self._file_prefix = str(uuid4()) + str(COUNTER.increment())
+        UUIDS.append(self._file_prefix)
+        self._fitted = None
 
     def _set_paths(self):
         self._train_x_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.x")
@@ -277,6 +262,26 @@ class RGFMixin(object):
         self._model_file_loc = os.path.join(TEMP_PATH, self._file_prefix + ".model")
         self._pred_loc = os.path.join(TEMP_PATH, self._file_prefix + ".predictions.txt")
         self._feature_importances_loc = os.path.join(TEMP_PATH, self._file_prefix + ".feature_importances.txt")
+
+    def _execute_command(self, cmd, verbose=False):
+        output = subprocess.Popen(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True).communicate()
+
+        if self.verbose or verbose:
+            for k in output:
+                print(k)
+
+    def _save_test_X(self, X):
+        if sp.isspmatrix(X):
+            self._save_sparse_X(self._test_x_loc, X)
+            is_sparse_test_X = True
+        else:
+            np.savetxt(self._test_x_loc, X, delimiter=' ', fmt="%s")
+            is_sparse_test_X = False
+
+        return is_sparse_test_X
 
     def _save_train_data(self, X, y, sample_weight):
         if sample_weight is None:
@@ -294,15 +299,28 @@ class RGFMixin(object):
             self._save_dense_files(X, y, sample_weight)
             self._is_sparse_train_X = False
 
-    def _execute_command(self, cmd, verbose=False):
-        output = subprocess.Popen(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  universal_newlines=True).communicate()
+    def fit(self, X, y, sample_weight):
+        self._set_paths()
+        if self.is_classification:
+            # Convert 1 to 1, 0 to -1
+            y = 2 * y - 1
+        self._save_train_data(X, y, sample_weight)
+        cmd = self._get_train_command()
+        self._execute_command(cmd)
 
-        if self.verbose or verbose:
-            for k in output:
-                print(k)
+        self._find_model_file()
+        self._fitted = True
+        return self
+
+    def predict(self, X):
+        self._check_fitted()
+
+        is_sparse_test_X = self._save_test_X(X)
+
+        cmd = self._get_test_command(is_sparse_test_X)
+        self._execute_command(cmd)
+
+        return np.loadtxt(self._pred_loc)
 
     def _check_fitted(self):
         if self._fitted is None:
@@ -310,29 +328,6 @@ class RGFMixin(object):
         if not os.path.isfile(self._model_file):
             raise Exception('Model learning result is not found in {0}. '
                             'This is rgf_python error.'.format(TEMP_PATH))
-
-    def _check_n_features(self, n_features):
-        if self._n_features != n_features:
-            raise ValueError("Number of features of the model must "
-                             "match the input. Model n_features is %s and "
-                             "input n_features is %s "
-                             % (self._n_features, n_features))
-
-    def _save_test_X(self, X):
-        if sp.isspmatrix(X):
-            self._save_sparse_X(self._test_x_loc, X)
-            is_sparse_test_X = True
-        else:
-            np.savetxt(self._test_x_loc, X, delimiter=' ', fmt="%s")
-            is_sparse_test_X = False
-
-        return is_sparse_test_X
-
-    def _validate_params(self, params):
-        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
-
-    def _set_params_with_dependencies(self):
-        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
     def _save_sparse_X(self, path, X):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
@@ -364,73 +359,50 @@ class RGFMixin(object):
             del self.__dict__["model"]
 
 
-class RGFRegressorBase(RGFMixin, BaseEstimator, RegressorMixin):
-    def fit(self, X, y, sample_weight=None):
-        """
-        Build a regressor from the training set (X, y).
+class CommonRGFEstimatorBase(BaseEstimator):
+    @property
+    def n_features_(self):
+        """The number of features when `fit` is performed."""
+        if self._n_features is None:
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
+        else:
+            return self._n_features
 
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The training input samples.
+    @property
+    def fitted_(self):
+        """Indicates whether `fit` is performed."""
+        if self._fitted is None:
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
+        else:
+            return self._fitted
 
-        y : array-like, shape = [n_samples]
-            The target values (real numbers in regression).
+    def _get_sample_weight(self, sample_weight):
+        if sample_weight is not None:
+            sample_weight = column_or_1d(sample_weight, warn=True)
+            if (sample_weight <= 0).any():
+                raise ValueError("Sample weights must be positive.")
+        return sample_weight
 
-        sample_weight : array-like, shape = [n_samples] or None
-            Individual weights for each sample.
+    def _check_n_features(self, n_features):
+        if self._n_features != n_features:
+            raise ValueError("Number of features of the model must "
+                             "match the input. Model n_features is %s and "
+                             "input n_features is %s "
+                             % (self._n_features, n_features))
 
-        Returns
-        -------
-        self : object
-            Returns self.
-        """
-        self._validate_params(self.get_params())
+    def _validate_params(self, params):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
-        X, y = check_X_y(X, y, accept_sparse=True, multi_output=False, y_numeric=True)
-        self._n_samples, self._n_features = X.shape
-        sample_weight = self._get_sample_weight(sample_weight)
-        check_consistent_length(X, y, sample_weight)
+    def _set_params_with_dependencies(self):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
-        self._set_paths()
-        self._save_train_data(X, y, sample_weight)
-
-        self._set_params_with_dependencies()
-
-        cmd = self._get_train_command()
-        self._execute_command(cmd)
-
-        self._find_model_file()
-        self._fitted = True
-
-        return self
-
-    def predict(self, X):
-        """
-        Predict regression target for X.
-
-        The predicted regression target of an input sample is computed.
-
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The input samples.
-
-        Returns
-        -------
-        y : array of shape = [n_samples]
-            The predicted values.
-        """
-        self._check_fitted()
-
-        X = check_array(X, accept_sparse=True)
-        self._check_n_features(X.shape[1])
-        is_sparse_test_X = self._save_test_X(X)
-
-        cmd = self._get_test_command(is_sparse_test_X)
-        self._execute_command(cmd)
-
-        return np.loadtxt(self._pred_loc)
+    @property
+    def estimators_(self):
+        """The collection of fitted sub-estimators when `fit` is performed."""
+        if self._estimators is None:
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
+        else:
+            return self._estimators
 
     def cleanup(self):
         """
@@ -441,20 +413,30 @@ class RGFRegressorBase(RGFMixin, BaseEstimator, RegressorMixin):
         n_removed_files : int
             Returns the number of removed files.
         """
+        n_removed_files = 0
+        if self._estimators is not None:
+            for est in self._estimators:
+                n_removed_files += cleanup_partial(est._file_prefix,
+                                                   remove_from_list=True)
+
         # No more able to predict without refitting.
         self._fitted = None
-        return cleanup_partial(self._file_prefix, remove_from_list=True)
+        return n_removed_files
+
+    def _get_params(self):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _fit_binary_task(self, X, y, sample_weight, params):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _fit_multiclass_task(self, X, y, sample_weight, params):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+
+    def _fit_regression_task(self, X, y, sample_weight, params):
+        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
 
 
-class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
-    @property
-    def estimators_(self):
-        """The collection of fitted sub-estimators when `fit` is performed."""
-        if self._estimators is None:
-            raise NotFittedError(NOT_FITTED_ERROR_DESC)
-        else:
-            return self._estimators
-
+class RGFClassifierMixin(object):
     @property
     def classes_(self):
         """The classes labels when `fit` is performed."""
@@ -502,7 +484,6 @@ class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
         sample_weight = self._get_sample_weight(sample_weight)
         check_consistent_length(X, y, sample_weight)
         check_classification_targets(y)
-
         self._classes = sorted(np.unique(y))
         self._n_classes = len(self._classes)
 
@@ -527,6 +508,26 @@ class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
 
         return self
 
+    def predict(self, X):
+        """
+        Predict class for X.
+
+        The predicted class of an input sample is computed.
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The input samples.
+
+        Returns
+        -------
+        y : array of shape = [n_samples]
+            The predicted classes.
+        """
+        y = self.predict_proba(X)
+        y = np.argmax(y, axis=1)
+        return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y)]
+
     def predict_proba(self, X):
         """
         Predict class probabilities for X.
@@ -550,13 +551,13 @@ class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
         self._check_n_features(X.shape[1])
 
         if self._n_classes == 2:
-            y = self._estimators[0].predict_proba(X)
+            y = self._estimators[0].predict(X)
             y = sigmoid(y)
             y = np.c_[y, 1 - y]
         else:
             y = np.zeros((X.shape[0], self._n_classes))
             for i, clf in enumerate(self._estimators):
-                class_proba = clf.predict_proba(X)
+                class_proba = clf.predict(X)
                 y[:, i] = class_proba
 
             # In honest, I don't understand which is better
@@ -570,11 +571,53 @@ class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
                 y = softmax(y)
         return y
 
+
+class RGFRegressorMixin(object):
+    def fit(self, X, y, sample_weight=None):
+        """
+        Build a regressor from the training set (X, y).
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The training input samples.
+
+        y : array-like, shape = [n_samples]
+            The target values (real numbers in regression).
+
+        sample_weight : array-like, shape = [n_samples] or None
+            Individual weights for each sample.
+
+        Returns
+        -------
+        self : object
+            Returns self.
+        """
+        self._validate_params(self.get_params())
+
+        X, y = check_X_y(X, y, accept_sparse=True)
+        if sp.isspmatrix(X):
+            self._is_sparse_train_X = True
+        else:
+            self._is_sparse_train_X = False
+        self._n_samples, self._n_features = X.shape
+        sample_weight = self._get_sample_weight(sample_weight)
+        check_consistent_length(X, y, sample_weight)
+
+        self._set_params_with_dependencies()
+        params = self._get_params()
+
+        self._estimators = [None]
+        self._fit_regression_task(X, y, sample_weight, params)
+
+        self._fitted = True
+
+        return self
+
     def predict(self, X):
         """
-        Predict class for X.
-
-        The predicted class of an input sample is computed.
+        Predict regression target for X.
+        The predicted regression target of an input sample is computed.
 
         Parameters
         ----------
@@ -584,72 +627,10 @@ class RGFClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
         Returns
         -------
         y : array of shape = [n_samples]
-            The predicted classes.
+            The predicted values.
         """
-        y = self.predict_proba(X)
-        y = np.argmax(y, axis=1)
-        return np.asarray(list(self._classes_map.values()))[np.searchsorted(list(self._classes_map.keys()), y)]
-
-    def cleanup(self):
-        """
-        Remove tempfiles used by this model.
-
-        Returns
-        -------
-        n_removed_files : int
-            Returns the number of removed files.
-        """
-        n_removed_files = 0
-        if self._estimators is not None:
-            for est in self._estimators:
-                n_removed_files += cleanup_partial(est._file_prefix,
-                                                   remove_from_list=True)
-
-        # No more able to predict without refitting.
-        self._fitted = None
-        return n_removed_files
-
-    def _get_params(self):
-        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
-
-    def _fit_binary_task(self, X, y, sample_weight, params):
-        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
-
-    def _fit_multiclass_task(self, X, y, sample_weight, params):
-        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
-
-
-class RGFBinaryClassifierBase(RGFMixin, BaseEstimator, ClassifierMixin):
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-        self._file_prefix = str(uuid4()) + str(COUNTER.increment())
-        UUIDS.append(self._file_prefix)
-        self._fitted = None
-
-    def fit(self, X, y, sample_weight):
-        self._set_paths()
-
-        # Convert 1 to 1, 0 to -1
-        y = 2 * y - 1
-
-        self._save_train_data(X, y, sample_weight)
-
-        cmd = self._get_train_command()
-        self._execute_command(cmd)
-
-        self._find_model_file()
-        self._fitted = True
-					        
-        return self
-
-    def predict_proba(self, X):
-        self._check_fitted()
-
-        is_sparse_test_X = self._save_test_X(X)
-
-        cmd = self._get_test_command(is_sparse_test_X)
-        self._execute_command(cmd)
-
-        return np.loadtxt(self._pred_loc)
+        if self._fitted is None:
+            raise NotFittedError(NOT_FITTED_ERROR_DESC)
+        X = check_array(X, accept_sparse=True)
+        self._check_n_features(X.shape[1])
+        return self._estimators[0].predict(X)
