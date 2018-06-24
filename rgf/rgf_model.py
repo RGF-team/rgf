@@ -281,10 +281,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
         """
         if self._fitted is None:
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        each_estimator_feature_importances = []
-        for est in self._estimators:
-            each_estimator_feature_importances.append(est.feature_importances_)
-        return np.mean(each_estimator_feature_importances, axis=0)
+        return np.mean([est.feature_importances_ for est in self._estimators], axis=0)
 
 
 class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
