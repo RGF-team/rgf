@@ -245,10 +245,10 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             self._estimators[i] = RGFExecuter(**params)
 
         n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
-        substantial_njobs = max(n_jobs, self.n_classes_)
-        if substantial_njobs < n_jobs and self.verbose:
+        substantial_n_jobs = max(n_jobs, self.n_classes_)
+        if substantial_n_jobs < n_jobs and self.verbose:
             print('n_jobs = {0}, but RGFClassifier uses {1} CPUs because '
-                  'classes_ is {2}'.format(n_jobs, substantial_njobs,
+                  'classes_ is {2}'.format(n_jobs, substantial_n_jobs,
                                            self.n_classes_))
 
         self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(utils.fit_ovr_binary)(self._estimators[i],
