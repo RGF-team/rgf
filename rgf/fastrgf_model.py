@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 import os
 from math import ceil
-from uuid import uuid4
 
 import numpy as np
 from sklearn.base import ClassifierMixin, RegressorMixin, is_classifier
@@ -19,24 +18,24 @@ LOSSES = ("LS", "MODLS", "LOGISTIC")
 
 class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
     def _validate_fast_rgf_params(self,
-                                 n_estimators,
-                                 max_depth,
-                                 max_leaf,
-                                 tree_gain_ratio,
-                                 min_samples_leaf,
-                                 l1,
-                                 l2,
-                                 opt_algorithm,
-                                 learning_rate,
-                                 max_bin,
-                                 min_child_weight,
-                                 data_l2,
-                                 sparse_max_features,
-                                 sparse_min_occurences,
-                                 n_jobs,
-                                 verbose,
-                                 loss="LS",
-                                 calc_prob="sigmoid"):
+                                  n_estimators,
+                                  max_depth,
+                                  max_leaf,
+                                  tree_gain_ratio,
+                                  min_samples_leaf,
+                                  l1,
+                                  l2,
+                                  opt_algorithm,
+                                  learning_rate,
+                                  max_bin,
+                                  min_child_weight,
+                                  data_l2,
+                                  sparse_max_features,
+                                  sparse_min_occurences,
+                                  n_jobs,
+                                  verbose,
+                                  loss="LS",
+                                  calc_prob="sigmoid"):
         if not isinstance(n_estimators, utils.INTS):
             raise ValueError("n_estimators must be an integer, got {0}.".format(
                 type(n_estimators)))
@@ -390,8 +389,6 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
         self._n_jobs = None
         self.verbose = verbose
 
-        self._file_prefix = str(uuid4()) + str(utils.COUNTER.increment())
-        utils.UUIDS.append(self._file_prefix)
         self._n_features = None
         self._fitted = None
         self._target = "REAL"

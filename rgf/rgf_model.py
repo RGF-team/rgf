@@ -18,23 +18,23 @@ LOSSES = ("LS", "Expo", "Log", "Abs")
 
 class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
     def _validate_rgf_params(self,
-                            max_leaf,
-                            test_interval,
-                            algorithm,
-                            loss,
-                            reg_depth,
-                            l2,
-                            sl2,
-                            normalize,
-                            min_samples_leaf,
-                            n_iter,
-                            n_tree_search,
-                            opt_interval,
-                            learning_rate,
-                            verbose,
-                            memory_policy,
-                            calc_prob="sigmoid",
-                            n_jobs=-1):
+                             max_leaf,
+                             test_interval,
+                             algorithm,
+                             loss,
+                             reg_depth,
+                             l2,
+                             sl2,
+                             normalize,
+                             min_samples_leaf,
+                             n_iter,
+                             n_tree_search,
+                             opt_interval,
+                             learning_rate,
+                             verbose,
+                             memory_policy,
+                             calc_prob="sigmoid",
+                             n_jobs=-1):
         if not isinstance(max_leaf, utils.INTS):
             raise ValueError(
                 "max_leaf must be an integer, got {0}.".format(type(max_leaf)))
