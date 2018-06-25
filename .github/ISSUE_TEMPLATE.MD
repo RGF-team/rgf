@@ -4,9 +4,9 @@ For bugs and unexpected issues, please provide the following information, so tha
 
 Operating System:
 
-Python version:
-
 RGF/FastRGF/rgf_python version:
+
+Python version (for rgf_python errors):
 
 ## Error Message
 
