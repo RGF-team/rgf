@@ -245,10 +245,10 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             self._estimators[i] = RGFExecuter(**params)
 
         n_jobs = self.n_jobs if self.n_jobs > 0 else cpu_count() + self.n_jobs + 1
-        substantial_njobs = max(n_jobs, self.n_classes_)
-        if substantial_njobs < n_jobs and self.verbose:
+        substantial_n_jobs = max(n_jobs, self.n_classes_)
+        if substantial_n_jobs < n_jobs and self.verbose:
             print('n_jobs = {0}, but RGFClassifier uses {1} CPUs because '
-                  'classes_ is {2}'.format(n_jobs, substantial_njobs,
+                  'classes_ is {2}'.format(n_jobs, substantial_n_jobs,
                                            self.n_classes_))
 
         self._estimators = Parallel(n_jobs=self.n_jobs)(delayed(utils.fit_ovr_binary)(self._estimators[i],
@@ -281,10 +281,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
         """
         if self._fitted is None:
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
-        each_estimator_feature_importances = []
-        for est in self._estimators:
-            each_estimator_feature_importances.append(est.feature_importances_)
-        return np.mean(each_estimator_feature_importances, axis=0)
+        return np.mean([est.feature_importances_ for est in self._estimators], axis=0)
 
 
 class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
@@ -658,7 +655,6 @@ class RGFExecuter(utils.CommonRGFExecuterBase):
         return cmd
 
     def _find_model_file(self):
-        # Find latest model location
         model_files = glob(self._model_file_loc + "*")
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
@@ -678,7 +674,7 @@ class RGFExecuter(utils.CommonRGFExecuterBase):
     def dump_model(self):
         self._check_fitted()
         cmd = (utils.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
-        self._execute_command(cmd, verbose=True)
+        self._execute_command(cmd, force_verbose=True)
 
     @property
     def feature_importances_(self):

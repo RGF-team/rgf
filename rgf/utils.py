@@ -263,13 +263,13 @@ class CommonRGFExecuterBase(BaseEstimator):
         self._pred_loc = os.path.join(TEMP_PATH, self._file_prefix + ".predictions.txt")
         self._feature_importances_loc = os.path.join(TEMP_PATH, self._file_prefix + ".feature_importances.txt")
 
-    def _execute_command(self, cmd, verbose=False):
+    def _execute_command(self, cmd, force_verbose=False):
         output = subprocess.Popen(cmd,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
                                   universal_newlines=True).communicate()
 
-        if self.verbose or verbose:
+        if self.verbose or force_verbose:
             for k in output:
                 print(k)
 
@@ -560,8 +560,6 @@ class RGFClassifierMixin(object):
                 class_proba = clf.predict(X)
                 y[:, i] = class_proba
 
-            # In honest, I don't understand which is better
-            # softmax or normalized sigmoid for calc probability.
             if self.calc_prob == "sigmoid":
                 y = sigmoid(y)
                 normalizer = np.sum(y, axis=1)[:, np.newaxis]
