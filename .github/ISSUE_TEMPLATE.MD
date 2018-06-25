@@ -6,10 +6,12 @@ Operating System:
 
 Python version:
 
-rgf_python version:
-
-Whether [``test_rgf_python.py``](https://github.com/RGF-team/rgf/blob/master/tests/test_rgf_python.py) is passed or not:
+RGF/FastRGF/rgf_python version:
 
 ## Error Message
 
+<Paste the error message here>
+
 ## Reproducible Example
+
+<Paste your code here>
