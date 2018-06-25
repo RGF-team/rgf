@@ -36,6 +36,7 @@ install:
   - conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose pandas scikit-learn pytest
   - activate test-environment
   - conda install mkl=2018.0.3  # Temp fix. Delete the line in the future when compatibility will be fixed.
+  - cd python-package
   - ps: $env:RGF_VER = (Get-Content rgf\VERSION).trim()
   - python setup.py sdist --formats gztar
   - pip install dist\rgf_python-%RGF_VER%.tar.gz -v
@@ -58,9 +59,9 @@ after_test:
   - IF NOT "%PLATFORM%" == "x64" rename include\rgf\bin\rgf.exe rgf32.exe
 
 artifacts:
-  - path: dist/*
+  - path: python-package\dist\*
     name: pip
-  - path: include\rgf\bin\*
+  - path: python-package\include\rgf\bin\*
     name: rgf_exe
 
 deploy:
