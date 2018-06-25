@@ -3,6 +3,7 @@ temp/
 rgf_python.egg-info/
 dist/
 build/*
-include/rgf/bin/rgf
+python-package/include/rgf/bin/*
+python-package/include/fast_rgf/bin/*
 *.pkl
 
