@@ -49,9 +49,9 @@ Examples
     rgf_score = sum(rgf_scores)/n_folds
     print('RGF Classfier score: {0:.5f}'.format(rgf_score))
 
-More examples of using RGF estimators could be found `here <https://github.com/RGF-team/rgf/tree/master/examples/RGF>`__.
+More examples of using RGF estimators could be found `here <https://github.com/RGF-team/rgf/tree/master/python-package/examples/RGF>`__.
 
-Examples of using FastRGF estimators could be found `here <https://github.com/RGF-team/rgf/tree/master/examples/FastRGF>`__.
+Examples of using FastRGF estimators could be found `here <https://github.com/RGF-team/rgf/tree/master/python-package/examples/FastRGF>`__.
 
 Software Requirements
 ---------------------
@@ -73,7 +73,7 @@ or from `GitHub <https://github.com/RGF-team/rgf>`__:
 ::
 
     git clone https://github.com/RGF-team/rgf.git
-    cd rgf
+    cd rgf/python-package
     python setup.py install
 
 MacOS users, **rgf\_python** after the ``3.1.0`` version is built with **g++-8** and cannot be launched on systems with **g++-7** and earlier. You should update your **g++** compiler if you don't want to build from sources or install **rgf\_python** ``3.1.0`` from PyPI which is the last version built with **g++-7**.
@@ -99,12 +99,12 @@ or
 ::
 
     git clone https://github.com/RGF-team/rgf.git
-    cd rgf
+    cd rgf/python-package
     python setup.py install --nocompilation
 
 ``sudo`` (or administrator privileges in Windows) may be needed to perform commands.
 
-Here is the guide how you can build executable files from binaries. The file for RGF will be in ``rgf/include/rgf/bin`` folder and files for FastRGF will appear in ``rgf/include/fast_rgf/bin`` folder.
+Here is the guide how you can build executable files from binaries. The file for RGF will be in ``rgf/python-package/include/rgf/bin`` folder and files for FastRGF will appear in ``rgf/python-package/include/fast_rgf/bin`` folder.
 
 RGF Compilation
 '''''''''''''''
@@ -122,10 +122,10 @@ For Windows 32-bit download ``rgf32.exe`` file and rename it to ``rgf.exe``.
 Visual Studio (existing solution)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1. Open directory ``rgf/include/rgf/Windows/rgf``.
+1. Open directory ``rgf/python-package/include/rgf/Windows/rgf``.
 2. Open ``rgf.sln`` file with Visual Studio and choose ``BUILD -> Build Solution (Ctrl+Shift+B)``.
-   If you are asked to upgrade solution file after opening it click ``OK``.
-   If you have errors about **Platform Toolset** go to ``PROJECT -> Properties -> Configuration Properties -> General`` and select the toolset installed on your machine.
+   If you are asked to upgrade solution file after opening it, click ``OK``.
+   If you have errors about **Platform Toolset**, go to ``PROJECT -> Properties -> Configuration Properties -> General`` and select the toolset installed on your machine.
 
 MinGW (existing makefile)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -134,7 +134,7 @@ Build executable file with MinGW g++ from existing ``makefile`` (you may want to
 
 ::
 
-    cd rgf/include/rgf/build
+    cd rgf/python-package/include/rgf/build
     mingw32-make
 
 CMake and Visual Studio
@@ -144,11 +144,11 @@ Create solution file with CMake and then compile with Visual Studio.
 
 ::
 
-    cd rgf/include/rgf/build
+    cd rgf/python-package/include/rgf/build
     cmake ../ -G "Visual Studio 10 2010"
     cmake --build . --config Release
     
-If you are compiling on 64-bit machine then add ``Win64`` to the end of generator's name: ``Visual Studio 10 2010 Win64``. We tested following versions of Visual Studio:
+If you are compiling on 64-bit machine, then add ``Win64`` to the end of generator's name: ``Visual Studio 10 2010 Win64``. We tested following versions of Visual Studio:
 
 - Visual Studio 10 2010 [Win64]
 - Visual Studio 11 2012 [Win64]
@@ -165,7 +165,7 @@ Create ``makefile`` with CMake and then compile with MinGW.
 
 ::
 
-    cd rgf/include/rgf/build
+    cd rgf/python-package/include/rgf/build
     cmake ../ -G "MinGW Makefiles"
     cmake --build . --config Release
 
@@ -179,7 +179,7 @@ Build executable file with g++ from existing ``makefile`` (you may want to custo
 
 ::
 
-    cd rgf/include/rgf/build
+    cd rgf/python-package/include/rgf/build
     make
 
 CMake
@@ -189,14 +189,14 @@ Create ``makefile`` with CMake and then compile.
 
 ::
 
-    cd rgf/include/rgf/build
+    cd rgf/python-package/include/rgf/build
     cmake ../
     cmake --build . --config Release
 
 FastRGF Compilation
 '''''''''''''''''''
 
-Note that compilation only with g++-5 and newer versions is possible. Other compilers are unsupported and older versions are produces corrupted files.
+Note that compilation only with g++-5 and newer versions is possible. Other compilers are unsupported and older versions produce corrupted files.
 
 Windows
 ~~~~~~~
@@ -208,7 +208,9 @@ On Windows compilation only with `MinGW-w64 <https://mingw-w64.org/doku.php>`__ 
 
 ::
 
-    cd rgf/include/fast_rgf/build
+    cd rgf/python-package/include/fast_rgf
+    mkdir build
+    cd build
     cmake .. -G "MinGW Makefiles"
     mingw32-make 
     mingw32-make install
@@ -221,7 +223,9 @@ CMake
 
 ::
 
-    cd rgf/include/fast_rgf/build
+    cd rgf/python-package/include/fast_rgf
+    mkdir build
+    cd build
     cmake ..
     make 
     make install
@@ -229,17 +233,16 @@ CMake
 Docker image
 ^^^^^^^^^^^^
 
-We provide `docker image <https://github.com/RGF-team/rgf/blob/master/docker/Dockerfile>`__ with installed **rgf\_python**.
+We provide `docker image <https://github.com/RGF-team/rgf/blob/master/python-package/docker/Dockerfile>`__ with installed **rgf\_python**.
 
 ::
 
     # Run docker image
     docker run -it RGF-team/rgf /bin/bash
     # Run RGF example
-    python ./rgf/examples/RGF/comparison_RGF_and_RF_regressors_on_boston_dataset.py
+    python ./rgf/python-package/examples/RGF/comparison_RGF_and_RF_regressors_on_boston_dataset.py
     # Run FastRGF example
-    python ./rgf/examples/FastRGF/FastRGF_classifier_on_iris_dataset.py
-
+    python ./rgf/python-package/examples/FastRGF/FastRGF_classifier_on_iris_dataset.py
 
 Tuning Hyper-parameters
 -----------------------
@@ -263,7 +266,7 @@ You can tune hyper-parameters as follows.
 -  *opt\_interval*: Weight optimization interval in terms of the number of leaf nodes.
 -  *learning\_rate*: Step size of Newton updates used in coordinate descent to optimize weights.
 
-Detailed instruction of tuning hyper-parameters is `here <https://github.com/RGF-team/rgf/blob/master/include/rgf/rgf-guide.pdf>`__.
+Detailed instruction of tuning hyper-parameters is `here <https://github.com/RGF-team/rgf/blob/master/python-package/include/rgf/rgf-guide.pdf>`__.
 
 FastRGF
 '''''''
@@ -292,7 +295,7 @@ Kaggle Kernels support **rgf\_python**. Please see `this page <https://www.kaggl
 Troubleshooting
 ---------------
 
-If you meet any error, please try to run `test_rgf_python.py <https://github.com/RGF-team/rgf/blob/master/tests/test_rgf_python.py>`__ to confirm successful package installation.
+If you meet any error, please try to run `test_rgf_python.py <https://github.com/RGF-team/rgf/blob/master/python-package/tests/test_rgf_python.py>`__ to confirm successful package installation.
 
 Then feel free to `open new issue <https://github.com/RGF-team/rgf/issues/new>`__.
 
@@ -317,11 +320,7 @@ FAQ
 License
 -------
 
-**rgf\_python** is distributed under the MIT license. Please read file `LICENSE <https://github.com/RGF-team/rgf/blob/master/LICENSE>`__ for more information.
-
-**rgf\_python** includes RGF version 1.2 which is distributed under the MIT license. Original CLI implementation of RGF you can download at http://tongzhang-ml.org/software/rgf.
-
-**rgf\_python** includes FastRGF version 0.5 which is distributed under the MIT license. Original CLI implementation of FastRGF you can download at https://github.com/baidu/fast_rgf.
+**rgf\_python** is distributed under the MIT license. Please read file `LICENSE <https://github.com/RGF-team/rgf/blob/master/python-package/LICENSE>`__ for more information.
 
 Many thanks to Rie Johnson and Tong Zhang (the authors of RGF).
 
@@ -342,7 +341,7 @@ References
 .. |Build Status AppVeyor| image:: https://ci.appveyor.com/api/projects/status/u3612bfh9pmela42/branch/master?svg=true
    :target: https://ci.appveyor.com/project/RGF-team/rgf
 .. |License| image:: https://img.shields.io/badge/license-MIT-blue.svg
-   :target: https://github.com/RGF-team/rgf/blob/master/LICENSE
+   :target: https://github.com/RGF-team/rgf/blob/master/python-package/LICENSE
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/rgf_python.svg
    :target: https://pypi.org/project/rgf_python/
 .. |PyPI Version| image:: https://badge.fury.io/py/rgf_python.svg
