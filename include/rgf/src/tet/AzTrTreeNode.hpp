@@ -23,9 +23,8 @@ public:
   int dxs_offset;  /* position in the data indexes at the root */
   int dxs_num; 
   int depth; //!< node depth
-  double gain;
 
-  AzTrTreeNode() : depth(-1), dxs(NULL), dxs_offset(-1), dxs_num(-1), gain(0) {}
+  AzTrTreeNode() : depth(-1), dxs(NULL), dxs_offset(-1), dxs_num(-1) {}
   void reset() {
     AzTreeNode::reset();
     depth = dxs_offset = dxs_num = -1;

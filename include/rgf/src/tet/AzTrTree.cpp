@@ -536,8 +536,7 @@ void AzTrTree::warmup(const AzTreeNodes *inp,
     sorted_array(split_nx, data); 
 
     const AzTreeNode *inp_np = inp->node(split_nx); 
-    double dummy_gain = 1.0; 
-    AzTrTsplit split(inp_np->fx, inp_np->border_val, dummy_gain, 
+    AzTrTsplit split(inp_np->fx, inp_np->border_val, inp_np->gain,
                      inp->node(inp_np->le_nx)->weight, 
                      inp->node(inp_np->gt_nx)->weight);
     _splitNode(data, inp->nodeNum(), false, split_nx, &split, dummy_out); 
