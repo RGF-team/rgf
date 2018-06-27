@@ -104,41 +104,107 @@ Perl is required.
 
 # 2. Download and Installation
 
-Download the package and extract the content.
+[Download](https://github.com/RGF-team/rgf/archive/master.zip) the package and extract the content.
+Otherwise, you can use git
 
-The top directory of the extracted content is `rgf`. Below all the
-path expressions are relative to `rgf`.
+```
+git clone https://github.com/RGF-team/rgf.git
+```
+
+The top directory of the extracted (or cloned) content is `rgf`
+and this software package is located into `RGF` subfolder.
+Below all the path expressions are relative to `rgf/RGF`.
 
 # 3. Creating the Executable
 
 To go through the examples in the user guide, your executable needs to be
-at the `bin` directory. Otherwise, your executable can be anywhere you like.
+at the `bin` directory (it will appear there after you compile it by any method from the listed below).
+Otherwise, your executable can be anywhere you like.
 
 ## 3.1. Windows
 
-Executable files are provided with the filename `rgf.exe` for 64-bit Windows
-and `rgf32.exe` for 32-bit Windows
-at the [GitHub Releases page](https://github.com/RGF-team/rgf/releases).
-You can either use them
-(rename `rgf32.exe` to `rgf.exe` in case you are using 32-bit Windows),
-or you can rebuild them by yourself using the provided solution file for
-MS Visual C++ 2010 Express: `Windows\rgf\rgf.sln`.
+### 3.1.1. Precompiled File
+
+The easiest way. Just download the precompiled file from the latest [GitHub release](https://github.com/RGF-team/rgf/releases).
+
+For 32-bit Windows download `rgf32.exe` file and rename it to `rgf.exe`.
+
+### 3.1.2. Visual Studio (Existing Solution)
+
+1. Open directory `Windows/rgf`.
+2. Open `rgf.sln` file with Visual Studio and choose `BUILD -> Build Solution (Ctrl+Shift+B)`.
+   If you are asked to upgrade the solution file after opening it, click `OK`.
+   If you have errors about **Platform Toolset**, go to `PROJECT -> Properties -> Configuration Properties -> General`
+   and select the toolset installed on your machine.
+
+### 3.1.3. MinGW (Existing makefile)
+
+Build executable file with MinGW g++ from existing `makefile`
+(you may want to customize this file for your environment).
+
+```
+cd build
+mingw32-make
+```
+
+### 3.1.4. CMake and Visual Studio
+
+Create solution file with CMake and then compile with Visual Studio.
+
+```
+cd build
+cmake ../ -G "Visual Studio 10 2010"
+cmake --build . --config Release
+```
+
+If you are compiling on 64-bit machine, then add `Win64` to the end of generator's name: `Visual Studio 10 2010 Win64`.
+
+We tested following versions of Visual Studio:
+
+- Visual Studio 10 2010 [Win64]
+- Visual Studio 11 2012 [Win64]
+- Visual Studio 12 2013 [Win64]
+- Visual Studio 14 2015 [Win64]
+- Visual Studio 15 2017 [Win64]
+
+Other versions may work but are untested.
+
+### 3.1.5. CMake and MinGW
+
+Create `makefile` with CMake and then compile with MinGW.
+
+```
+cd build
+cmake ../ -G "MinGW Makefiles"
+cmake --build . --config Release
+```
 
 ## 3.2. Unix-like Systems
 
-You need to build your executable from the source code. A make file
-`makefile` is provided at the `build` directory. It is configured to use
-**g++** and always compile everything. You may need to customize `makefile`
-for your environment.
+### 3.2.1. g++ (Existing makefile)
 
-To build the executable, change the current directory to the `build`
-directory and enter in the command line `make`. Check the
-`bin` directory to make sure that your new executable `rgf` is there.
+Build executable file with g++ from existing `makefile`
+(you may want to customize this file for your environment).
+
+```
+cd build
+make
+```
+
+### 3.2.2. CMake
+
+Create `makefile` with CMake and then compile.
+
+```
+cd build
+cmake ../
+cmake --build . --config Release
+```
 
 ## 3.3. [Optional] Endianness Consideration
 
 The models obtained by RGF training can be saved to files.
-The model files are essentially snap shots of memory that include
+The model files are essentially snapshots of memory that include
 numerical values. Therefore, the model files are sensitive to
 "endianness" of the environments. For this reason, if you wish to
 share model files among environments of different endianness, you need
@@ -167,8 +233,8 @@ at GitHub repository for any errors you encounter.
 
 # 6. Copyright
 
-RGF version 1.3 is distributed under the **MIT license**. Please read
-the file [`COPYING`](./COPYING).
+RGF is distributed under the **MIT license**.
+Please read the file [`COPYING`](./COPYING).
 
 # 7. References
 
