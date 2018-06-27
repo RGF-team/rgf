@@ -265,7 +265,7 @@ def compile_fastrgf():
         return
     if not is_valid_gpp():
         logger.error("Cannot compile FastRGF. "
-                    "Compilation only with g++-5 and newer versions is possible.")
+                     "Compilation only with g++-5 and newer versions is possible.")
         return
     os.chdir(os.path.join(fastrgf_base_dir, 'build'))
     if system() in ('Windows', 'Microsoft'):
