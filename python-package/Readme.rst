@@ -104,7 +104,7 @@ or
 
 ``sudo`` (or administrator privileges in Windows) may be needed to perform commands.
 
-Here is the guide how you can build executable files from binaries. The file for RGF will be in ``rgf/python-package/include/rgf/bin`` folder and files for FastRGF will appear in ``rgf/python-package/include/fast_rgf/bin`` folder.
+Detailed guides how you can build executable files of RGF and FastRGF from source files could be found in their folders `here <https://github.com/RGF-team/rgf/tree/master/RGF##3-creating-the-executable>`__ and `here <https://github.com/RGF-team/rgf/tree/master/python-package#fastrgf-compilation>`__ respectively.
 
 RGF Compilation
 '''''''''''''''
@@ -266,7 +266,7 @@ You can tune hyper-parameters as follows.
 -  *opt\_interval*: Weight optimization interval in terms of the number of leaf nodes.
 -  *learning\_rate*: Step size of Newton updates used in coordinate descent to optimize weights.
 
-Detailed instruction of tuning hyper-parameters is `here <https://github.com/RGF-team/rgf/blob/master/python-package/include/rgf/rgf-guide.pdf>`__.
+Detailed instruction of tuning hyper-parameters is `here <https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.pdf>`__.
 
 FastRGF
 '''''''
