@@ -26,9 +26,11 @@
 
   1. The executable file for 32-bit Windows has been added.
 
-  2. `CMakeLists.txt` file has been added.
+  2. Compilation with MinGW on Windows has been fixed.
 
-  3. Compilation on 32-bit Windows has been fixed.
+  3. `CMakeLists.txt` file has been added.
+
+  4. Compilation on 32-bit Windows has been fixed.
      Also, compilation with newer MS Visual Studios has been added.
 
 ## June 2014
