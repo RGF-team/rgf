@@ -1,10 +1,10 @@
-include Readme.rst
+include Readme.rst _IS_SOURCE_PACKAGE
 recursive-include rgf VERSION
-recursive-include include/rgf CMakeLists.txt
-recursive-include include/rgf/build makefile
-recursive-include include/rgf/Windows/rgf *
-recursive-include include/rgf/src/com *
-recursive-include include/rgf/src/tet *
+recursive-include include/RGF CMakeLists.txt
+recursive-include include/RGF/build makefile
+recursive-include include/RGF/Windows/rgf *
+recursive-include include/RGF/src/com *
+recursive-include include/RGF/src/tet *
 
 recursive-include include/fast_rgf CMakeLists.txt
 recursive-include include/fast_rgf/src *
