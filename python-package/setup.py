@@ -326,6 +326,8 @@ class CustomInstall(install):
     def run(self):
         if not self.nocompilation:
             logger.info("Starting to compile executable files.")
+            install.copy_tree(os.path.join(CURRENT_DIR, os.path.pardir, 'RGF'),
+                              os.path.join(CURRENT_DIR, 'include', 'rgf'))
             compile_rgf()
             compile_fastrgf()
         else:
