@@ -12,7 +12,7 @@ RUN apt-get update && \
     # rgf_python
     conda install -y numpy scipy scikit-learn pandas && \
     git clone https://github.com/RGF-team/rgf.git && \
-    cd rgf && python setup.py install && \
+    cd rgf/python-package && python setup.py install && \
 
 # clean
     apt-get autoremove -y && apt-get clean && \

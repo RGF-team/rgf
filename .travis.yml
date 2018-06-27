@@ -38,9 +38,10 @@ before_install:
   - conda create -q -n test-environment python=$PYTHON_VERSION numpy scipy nose pandas scikit-learn pytest
   - source activate test-environment
 
-  - RGF_VER=$(head -n 1 rgf/VERSION)
+  - RGF_VER=$(head -n 1 python-package/rgf/VERSION)
 
 install:
+  - cd python-package
   - python setup.py sdist --formats gztar
   - pip install dist/rgf_python-$RGF_VER.tar.gz -v
 
@@ -61,7 +62,6 @@ before_deploy:
       wget https://github.com/RGF-team/rgf/releases/download/3.1.0/forest_train -O rgf/forest_train;
       wget https://github.com/RGF-team/rgf/releases/download/3.1.0/forest_predict -O rgf/forest_predict;
       zip rgf_python-${RGF_VER}-py2.py3-none-manylinux1_i686.whl rgf/rgf rgf/forest_train rgf/forest_predict;
-      cd ..;
     fi
 
 notifications:
@@ -69,7 +69,7 @@ notifications:
 
 deploy:
   file_glob: true
-  file: dist/*.whl
+  file: python-package/dist/*.whl
   skip_cleanup: true
   draft: true
   provider: releases

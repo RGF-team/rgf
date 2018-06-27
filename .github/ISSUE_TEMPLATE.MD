@@ -4,12 +4,14 @@ For bugs and unexpected issues, please provide the following information, so tha
 
 Operating System:
 
-Python version:
+RGF/FastRGF/rgf_python version:
 
-rgf_python version:
-
-Whether [``test_rgf_python.py``](https://github.com/RGF-team/rgf/blob/master/tests/test_rgf_python.py) is passed or not:
+Python version (for rgf_python errors):
 
 ## Error Message
 
+<Paste the error message here>
+
 ## Reproducible Example
+
+<Paste your code here>
