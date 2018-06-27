@@ -144,7 +144,7 @@ CMake
     make install
 
 Docker image
-^^^^^^^^^^^^
+''''''''''''
 
 We provide `docker image <https://github.com/RGF-team/rgf/blob/master/python-package/docker/Dockerfile>`__ with installed **rgf\_python**.
 
