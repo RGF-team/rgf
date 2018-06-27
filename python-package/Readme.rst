@@ -104,7 +104,7 @@ or
 
 ``sudo`` (or administrator privileges in Windows) may be needed to perform commands.
 
-Detailed guides how you can build executable files of RGF and FastRGF from source files could be found in their folders `here <https://github.com/RGF-team/rgf/tree/master/RGF##3-creating-the-executable>`__ and `here <https://github.com/RGF-team/rgf/tree/master/python-package#fastrgf-compilation>`__ respectively.
+Detailed guides how you can build executable files of RGF and FastRGF from source files could be found in their folders `here <https://github.com/RGF-team/rgf/tree/master/RGF#3-creating-the-executable>`__ and `here <https://github.com/RGF-team/rgf/tree/master/python-package#fastrgf-compilation>`__ respectively.
 
 FastRGF Compilation
 '''''''''''''''''''
