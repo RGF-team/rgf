@@ -129,7 +129,7 @@ The easiest way. Just download the precompiled file `rgf.exe` from the latest [G
 
 For 32-bit Windows download `rgf32.exe` file and rename it to `rgf.exe`.
 
-### 3.1.2. Visual Studio (Existing Solution)
+### 3.1.2. Visual Studio (Using the Provided Solution File)
 
 1. Open directory `Windows/rgf`.
 2. Open `rgf.sln` file with Visual Studio and choose `BUILD -> Build Solution (Ctrl+Shift+B)`.
@@ -139,7 +139,7 @@ For 32-bit Windows download `rgf32.exe` file and rename it to `rgf.exe`.
    If you have errors about **Platform Toolset**, go to `PROJECT -> Properties -> Configuration Properties -> General`
    and select the toolset installed on your machine.
 
-### 3.1.3. MinGW (Existing makefile)
+### 3.1.3. MinGW (Using the Provided makefile)
 
 Build executable file with MinGW g++ from existing `makefile`
 (you may want to customize this file for your environment).
@@ -183,7 +183,7 @@ cmake --build . --config Release
 
 ## 3.2. Unix-like Systems
 
-### 3.2.1. g++ (Existing makefile)
+### 3.2.1. g++ (Using the Provided makefile)
 
 Build executable file with g++ from existing `makefile`
 (you may want to customize this file for your environment).
