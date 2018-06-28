@@ -125,7 +125,7 @@ Otherwise, your executable can be anywhere you like.
 
 ### 3.1.1. Precompiled File
 
-The easiest way. Just download the precompiled file from the latest [GitHub release](https://github.com/RGF-team/rgf/releases).
+The easiest way. Just download the precompiled file `rgf.exe` from the latest [GitHub release](https://github.com/RGF-team/rgf/releases).
 
 For 32-bit Windows download `rgf32.exe` file and rename it to `rgf.exe`.
 
@@ -133,7 +133,9 @@ For 32-bit Windows download `rgf32.exe` file and rename it to `rgf.exe`.
 
 1. Open directory `Windows/rgf`.
 2. Open `rgf.sln` file with Visual Studio and choose `BUILD -> Build Solution (Ctrl+Shift+B)`.
+
    If you are asked to upgrade the solution file after opening it, click `OK`.
+
    If you have errors about **Platform Toolset**, go to `PROJECT -> Properties -> Configuration Properties -> General`
    and select the toolset installed on your machine.
 
