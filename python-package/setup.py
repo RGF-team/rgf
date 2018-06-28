@@ -26,14 +26,14 @@ def copy_files():
 
     def copy_files_helper(folder_name):
         src = os.path.join(CURRENT_DIR, os.path.pardir, folder_name)
-        if os.path.exists(src):
+        if os.path.isdir(src):
             dst = os.path.join(CURRENT_DIR, 'include', folder_name)
             rmtree(dst, ignore_errors=True)
             copy_tree(src, dst)
         else:
             raise Exception('Cannot copy {} folder'.format(src))
 
-    if not os.path.exists(os.path.join(CURRENT_DIR, '_IS_SOURCE_PACKAGE')):
+    if not os.path.isfile(os.path.join(CURRENT_DIR, '_IS_SOURCE_PACKAGE')):
         copy_files_helper('RGF')
 #        copy_files_helper('FastRGF')
 
