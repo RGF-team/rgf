@@ -35,7 +35,6 @@ def copy_files():
 
     if not os.path.isfile(os.path.join(CURRENT_DIR, '_IS_SOURCE_PACKAGE')):
         copy_files_helper('RGF')
-#        copy_files_helper('FastRGF')
 
 
 def clear_folder(path):
