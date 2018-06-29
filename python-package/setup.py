@@ -35,6 +35,7 @@ def copy_files():
 
     if not os.path.isfile(os.path.join(CURRENT_DIR, '_IS_SOURCE_PACKAGE')):
         copy_files_helper('RGF')
+        copy_files_helper('FastRGF')
 
 
 def clear_folder(path):
@@ -65,14 +66,14 @@ def find_rgf_lib():
 def find_fastrgf_lib():
     exe_files = []
     if system() in ('Windows', 'Microsoft'):
-        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'fast_rgf',
+        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'FastRGF',
                                       'bin', 'forest_train.exe'))
-        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'fast_rgf',
+        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'FastRGF',
                                       'bin', 'forest_predict.exe'))
     else:
-        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'fast_rgf',
+        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'FastRGF',
                                       'bin', 'forest_train'))
-        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'fast_rgf',
+        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'FastRGF',
                                       'bin', 'forest_predict'))
     for exe_file in exe_files:
         if not os.path.isfile(exe_file):
@@ -270,7 +271,7 @@ def compile_fastrgf():
 
     logger.info("Starting to compile FastRGF executable files.")
     success = False
-    fastrgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'fast_rgf')
+    fastrgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'FastRGF')
     if not os.path.exists(os.path.join(fastrgf_base_dir, 'bin')):
         os.makedirs(os.path.join(fastrgf_base_dir, 'bin'))
     if not os.path.exists(os.path.join(fastrgf_base_dir, 'build')):
