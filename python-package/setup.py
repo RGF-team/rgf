@@ -1,7 +1,9 @@
+from distutils.dir_util import copy_tree
 from platform import system
 from setuptools import find_packages, setup
 from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
+from setuptools.command.sdist import sdist
 from shutil import rmtree
 import io
 import logging
@@ -20,6 +22,21 @@ def read(filename):
     return io.open(os.path.join(CURRENT_DIR, filename), encoding='utf-8').read()
 
 
+def copy_files():
+
+    def copy_files_helper(folder_name):
+        src = os.path.join(CURRENT_DIR, os.path.pardir, folder_name)
+        if os.path.isdir(src):
+            dst = os.path.join(CURRENT_DIR, 'include', folder_name)
+            rmtree(dst, ignore_errors=True)
+            copy_tree(src, dst)
+        else:
+            raise Exception('Cannot copy {} folder'.format(src))
+
+    if not os.path.isfile(os.path.join(CURRENT_DIR, '_IS_SOURCE_PACKAGE')):
+        copy_files_helper('RGF')
+
+
 def clear_folder(path):
     if os.path.isdir(path):
         file_list = os.listdir(path)
@@ -36,9 +53,9 @@ def clear_folder(path):
 
 def find_rgf_lib():
     if system() in ('Windows', 'Microsoft'):
-        exe_file = os.path.join(CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf.exe')
+        exe_file = os.path.join(CURRENT_DIR, 'include', 'RGF', 'bin', 'rgf.exe')
     else:
-        exe_file = os.path.join(CURRENT_DIR, 'include', 'rgf', 'bin', 'rgf')
+        exe_file = os.path.join(CURRENT_DIR, 'include', 'RGF', 'bin', 'rgf')
     if os.path.isfile(exe_file):
         return exe_file
     else:
@@ -144,7 +161,7 @@ def silent_call(cmd):
 def compile_rgf():
     logger.info("Starting to compile RGF executable file.")
     success = False
-    rgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'rgf')
+    rgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'RGF')
     if not os.path.exists(os.path.join(rgf_base_dir, 'bin')):
         os.makedirs(os.path.join(rgf_base_dir, 'bin'))
     clear_folder(os.path.join(rgf_base_dir, 'bin'))  # Delete precompiled file
@@ -196,7 +213,7 @@ def compile_rgf():
             clear_folder(os.path.join(rgf_base_dir, 'build'))
             success = silent_call(('cmake', '../', '-G', 'MinGW Makefiles'))
             success &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
-    else:
+    else:  # Linux, Darwin (macOS), etc.
         os.chdir(os.path.join(rgf_base_dir, 'build'))
         target = os.path.join(rgf_base_dir, 'bin', 'rgf')
         logger.info("Trying to build executable file with g++ from existing makefile.")
@@ -265,7 +282,7 @@ def compile_fastrgf():
         return
     if not is_valid_gpp():
         logger.error("Cannot compile FastRGF. "
-                    "Compilation only with g++-5 and newer versions is possible.")
+                     "Compilation only with g++-5 and newer versions is possible.")
         return
     os.chdir(os.path.join(fastrgf_base_dir, 'build'))
     if system() in ('Windows', 'Microsoft'):
@@ -280,7 +297,7 @@ def compile_fastrgf():
         success = silent_call(('cmake', '..', '-G', 'MinGW Makefiles'))
         success &= silent_call(('mingw32-make'))
         success &= silent_call(('mingw32-make', 'install'))
-    else:
+    else:  # Linux, Darwin (macOS), etc.
         logger.info("Trying to build executable files with CMake.")
         target = os.path.join(fastrgf_base_dir, 'bin', 'forest_train')
         success = silent_call(('cmake', '..'))
@@ -293,6 +310,17 @@ def compile_fastrgf():
         logger.error("Compilation of FastRGF executable files failed. "
                      "Please build from binaries on your own and "
                      "specify path to the compiled files in the config file.")
+
+
+class CustomSdist(sdist):
+
+    def run(self):
+        copy_files()
+        tmp_flag_file_path = os.path.join(CURRENT_DIR, '_IS_SOURCE_PACKAGE')
+        open(tmp_flag_file_path, 'w').close()
+        sdist.run(self)
+        if os.path.isfile(tmp_flag_file_path):
+            os.remove(tmp_flag_file_path)
 
 
 class CustomInstallLib(install_lib):
@@ -326,6 +354,7 @@ class CustomInstall(install):
     def run(self):
         if not self.nocompilation:
             logger.info("Starting to compile executable files.")
+            copy_files()
             compile_rgf()
             compile_fastrgf()
         else:
@@ -346,7 +375,8 @@ setup(name='rgf_python',
       url='https://github.com/RGF-team/rgf',
       license="MIT License",
       cmdclass={'install': CustomInstall,
-                'install_lib': CustomInstallLib},
+                'install_lib': CustomInstallLib,
+                'sdist': CustomSdist},
       packages=find_packages(),
       include_package_data=True,
       install_requires=["scikit-learn>=0.18"],
