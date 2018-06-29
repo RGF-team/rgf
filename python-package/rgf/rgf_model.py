@@ -287,6 +287,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
 class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
     """
     A Regularized Greedy Forest [1] regressor.
+
     Tuning parameters detailed instruction:
         https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.pdf
 
