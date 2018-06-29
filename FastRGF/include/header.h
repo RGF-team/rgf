@@ -37,7 +37,7 @@
 namespace rgf {
   
 
-#define VER "version 0.4 (Aug 2017) by Tong Zhang"
+#define VER "version 0.6"
 
   
   const int max_thrds=128;
@@ -70,16 +70,3 @@ using namespace std;
 using namespace rgf;
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
