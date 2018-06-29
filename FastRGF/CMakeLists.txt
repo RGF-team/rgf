@@ -19,14 +19,14 @@ if(OPENMP)
     #  if the executables are gcc-7 and g++-7, then use the following in build/
     #  cmake .. -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7
     if(NOT CMAKE_CXX_COMPILER_ID MATCHES "[gG][nN][uU]")
-     message(FATAL_ERROR "Compilation only with g++ is supported\n Install a gcc-x and g++-x and use cmake command option -DCMAKE_C_COMPILER=gcc-x -DCMAKE_CXX_COMPILER=g++-x, where x is a version number")
+     message(FATAL_ERROR "Compilation only with g++ is supported.\nInstall a gcc-x and g++-x and use cmake command option -DCMAKE_C_COMPILER=gcc-x -DCMAKE_CXX_COMPILER=g++-x, where x is a version number")
     endif()
     set(CMAKE_CXX_COMPILER_ID "GNU")
   endif()
 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 else()
- message("Use standard c++11 thread library")
+ message("Use standard C++11 thread library")
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -37,10 +37,10 @@ if(WIN32 AND MINGW)
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++")
 endif()
 
-message("c++ compiler: " ${CMAKE_CXX_COMPILER})
-message("c++ options: " ${CMAKE_CXX_FLAGS})
+message("C++ compiler: " ${CMAKE_CXX_COMPILER})
+message("C++ options: " ${CMAKE_CXX_FLAGS})
 get_directory_property(cDirDefs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS)
-message("c++ definitions: " ${cDirDefs})
+message("C++ definitions: " ${cDirDefs})
 
 include_directories(include)
 
