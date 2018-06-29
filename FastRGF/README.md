@@ -1,6 +1,6 @@
 # FastRGF Version 0.6
 
-### C++ multi-core implementation of Regularized Greedy Forest (RGF)
+### C++ Multi-core Implementation of Regularized Greedy Forest (RGF)
 
 ************************************************************************
 
