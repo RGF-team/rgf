@@ -104,94 +104,7 @@ or
 
 ``sudo`` (or administrator privileges in Windows) may be needed to perform commands.
 
-Here is the guide how you can build executable files from binaries. The file for RGF will be in ``rgf/python-package/include/rgf/bin`` folder and files for FastRGF will appear in ``rgf/python-package/include/fast_rgf/bin`` folder.
-
-RGF Compilation
-'''''''''''''''
-
-Windows
-~~~~~~~
-
-Precompiled file
-^^^^^^^^^^^^^^^^
-
-The easiest way. Just download the precompiled file from the latest `GitHub release <https://github.com/RGF-team/rgf/releases>`__.
-
-For Windows 32-bit download ``rgf32.exe`` file and rename it to ``rgf.exe``.
-
-Visual Studio (existing solution)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-1. Open directory ``rgf/python-package/include/rgf/Windows/rgf``.
-2. Open ``rgf.sln`` file with Visual Studio and choose ``BUILD -> Build Solution (Ctrl+Shift+B)``.
-   If you are asked to upgrade solution file after opening it, click ``OK``.
-   If you have errors about **Platform Toolset**, go to ``PROJECT -> Properties -> Configuration Properties -> General`` and select the toolset installed on your machine.
-
-MinGW (existing makefile)
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Build executable file with MinGW g++ from existing ``makefile`` (you may want to customize this file for your environment).
-
-::
-
-    cd rgf/python-package/include/rgf/build
-    mingw32-make
-
-CMake and Visual Studio
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Create solution file with CMake and then compile with Visual Studio.
-
-::
-
-    cd rgf/python-package/include/rgf/build
-    cmake ../ -G "Visual Studio 10 2010"
-    cmake --build . --config Release
-    
-If you are compiling on 64-bit machine, then add ``Win64`` to the end of generator's name: ``Visual Studio 10 2010 Win64``. We tested following versions of Visual Studio:
-
-- Visual Studio 10 2010 [Win64]
-- Visual Studio 11 2012 [Win64]
-- Visual Studio 12 2013 [Win64]
-- Visual Studio 14 2015 [Win64]
-- Visual Studio 15 2017 [Win64]
-
-Other versions may work but are untested.
-
-CMake and MinGW
-^^^^^^^^^^^^^^^
-
-Create ``makefile`` with CMake and then compile with MinGW.
-
-::
-
-    cd rgf/python-package/include/rgf/build
-    cmake ../ -G "MinGW Makefiles"
-    cmake --build . --config Release
-
-\*nix
-~~~~~
-
-g++ (existing makefile)
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Build executable file with g++ from existing ``makefile`` (you may want to customize this file for your environment).
-
-::
-
-    cd rgf/python-package/include/rgf/build
-    make
-
-CMake
-^^^^^
-
-Create ``makefile`` with CMake and then compile.
-
-::
-
-    cd rgf/python-package/include/rgf/build
-    cmake ../
-    cmake --build . --config Release
+Detailed guides how you can build executable files of RGF and FastRGF from source files could be found in their folders `here <https://github.com/RGF-team/rgf/tree/master/RGF#3-creating-the-executable>`__ and `here <https://github.com/RGF-team/rgf/tree/master/python-package#fastrgf-compilation>`__ respectively.
 
 FastRGF Compilation
 '''''''''''''''''''
@@ -231,7 +144,7 @@ CMake
     make install
 
 Docker image
-^^^^^^^^^^^^
+''''''''''''
 
 We provide `docker image <https://github.com/RGF-team/rgf/blob/master/python-package/docker/Dockerfile>`__ with installed **rgf\_python**.
 
@@ -266,7 +179,7 @@ You can tune hyper-parameters as follows.
 -  *opt\_interval*: Weight optimization interval in terms of the number of leaf nodes.
 -  *learning\_rate*: Step size of Newton updates used in coordinate descent to optimize weights.
 
-Detailed instruction of tuning hyper-parameters is `here <https://github.com/RGF-team/rgf/blob/master/python-package/include/rgf/rgf-guide.pdf>`__.
+Detailed instruction of tuning hyper-parameters is `here <https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.pdf>`__.
 
 FastRGF
 '''''''
