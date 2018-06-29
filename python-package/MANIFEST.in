@@ -1,14 +1,14 @@
 include Readme.rst _IS_SOURCE_PACKAGE
 recursive-include rgf VERSION
 
-recursive-include include/RGF CMakeLists.txt
-recursive-include include/RGF/build makefile
-recursive-include include/RGF/Windows/rgf *
-recursive-include include/RGF/src *
+recursive-include compile/RGF CMakeLists.txt
+recursive-include compile/RGF/build makefile
+recursive-include compile/RGF/Windows/rgf *
+recursive-include compile/RGF/src *
 
-recursive-include include/FastRGF CMakeLists.txt
-recursive-include include/FastRGF/src *
-recursive-include include/FastRGF/include *
+recursive-include compile/FastRGF CMakeLists.txt
+recursive-include compile/FastRGF/src *
+recursive-include compile/FastRGF/include *
 
 global-exclude *.pyo
 global-exclude *.pyc

@@ -27,7 +27,7 @@ def copy_files():
     def copy_files_helper(folder_name):
         src = os.path.join(CURRENT_DIR, os.path.pardir, folder_name)
         if os.path.isdir(src):
-            dst = os.path.join(CURRENT_DIR, 'include', folder_name)
+            dst = os.path.join(CURRENT_DIR, 'compile', folder_name)
             rmtree(dst, ignore_errors=True)
             copy_tree(src, dst)
         else:
@@ -54,9 +54,9 @@ def clear_folder(path):
 
 def find_rgf_lib():
     if system() in ('Windows', 'Microsoft'):
-        exe_file = os.path.join(CURRENT_DIR, 'include', 'RGF', 'bin', 'rgf.exe')
+        exe_file = os.path.join(CURRENT_DIR, 'compile', 'RGF', 'bin', 'rgf.exe')
     else:
-        exe_file = os.path.join(CURRENT_DIR, 'include', 'RGF', 'bin', 'rgf')
+        exe_file = os.path.join(CURRENT_DIR, 'compile', 'RGF', 'bin', 'rgf')
     if os.path.isfile(exe_file):
         return exe_file
     else:
@@ -66,14 +66,14 @@ def find_rgf_lib():
 def find_fastrgf_lib():
     exe_files = []
     if system() in ('Windows', 'Microsoft'):
-        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'FastRGF',
+        exe_files.append(os.path.join(CURRENT_DIR, 'compile', 'FastRGF',
                                       'bin', 'forest_train.exe'))
-        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'FastRGF',
+        exe_files.append(os.path.join(CURRENT_DIR, 'compile', 'FastRGF',
                                       'bin', 'forest_predict.exe'))
     else:
-        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'FastRGF',
+        exe_files.append(os.path.join(CURRENT_DIR, 'compile', 'FastRGF',
                                       'bin', 'forest_train'))
-        exe_files.append(os.path.join(CURRENT_DIR, 'include', 'FastRGF',
+        exe_files.append(os.path.join(CURRENT_DIR, 'compile', 'FastRGF',
                                       'bin', 'forest_predict'))
     for exe_file in exe_files:
         if not os.path.isfile(exe_file):
@@ -162,7 +162,7 @@ def silent_call(cmd):
 def compile_rgf():
     logger.info("Starting to compile RGF executable file.")
     success = False
-    rgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'RGF')
+    rgf_base_dir = os.path.join(CURRENT_DIR, 'compile', 'RGF')
     if not os.path.exists(os.path.join(rgf_base_dir, 'bin')):
         os.makedirs(os.path.join(rgf_base_dir, 'bin'))
     clear_folder(os.path.join(rgf_base_dir, 'bin'))  # Delete precompiled file
@@ -271,7 +271,7 @@ def compile_fastrgf():
 
     logger.info("Starting to compile FastRGF executable files.")
     success = False
-    fastrgf_base_dir = os.path.join(CURRENT_DIR, 'include', 'FastRGF')
+    fastrgf_base_dir = os.path.join(CURRENT_DIR, 'compile', 'FastRGF')
     if not os.path.exists(os.path.join(fastrgf_base_dir, 'bin')):
         os.makedirs(os.path.join(fastrgf_base_dir, 'bin'))
     if not os.path.exists(os.path.join(fastrgf_base_dir, 'build')):
