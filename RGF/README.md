@@ -240,6 +240,7 @@ Please read the file [`COPYING`](./COPYING).
 
 # 7. References
 
-[1] Rie Johnson and Tong Zhang. Learning nonlinear functions using
-    regularized greedy forest. IEEE Transactions on Pattern Analysis and Machine
+[1] [Rie Johnson and Tong Zhang. Learning nonlinear functions using
+    regularized greedy forest.](https://arxiv.org/abs/1109.0887)
+    IEEE Transactions on Pattern Analysis and Machine
     Intelligence, 36(5):942-954, May 2014.
