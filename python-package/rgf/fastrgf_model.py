@@ -395,6 +395,7 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
         self._n_jobs = None
         self.verbose = verbose
 
+        self._estimators = None
         self._n_features = None
         self._fitted = None
         self._target = "REAL"
@@ -453,7 +454,6 @@ class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
         self.data_l2 = data_l2
         self.sparse_max_features = sparse_max_features
         self.sparse_min_occurences = sparse_min_occurences
-
         self.calc_prob = calc_prob
         self.n_jobs = n_jobs
         self._n_jobs = None
