@@ -446,7 +446,7 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         self._estimators = None
         self._fitted = None
 
-    regressor_specific_values = {
+    _regressor_specific_values = {
         '{%estimator_type%}': 'regressor',
         '{%max_leaf_default_value%}': '500',
         '{%loss_default_value%}': 'LS',
@@ -458,8 +458,8 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         '{%n_classes_property%}': ''
     }
     __doc__ = rgf_estimator_docstring_template
-    for template, value in regressor_specific_values.items():
-        __doc__ = __doc__.replace(template, value)
+    for _template, _value in _regressor_specific_values.items():
+        __doc__ = __doc__.replace(_template, _value)
 
 
 class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin):
@@ -512,7 +512,7 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
         self._n_features = None
         self._fitted = None
 
-    classifier_specific_values = {
+    _classifier_specific_values = {
         '{%estimator_type%}': 'classifier',
         '{%max_leaf_default_value%}': '1000',
         '{%loss_default_value%}': 'Log',
@@ -543,8 +543,8 @@ n_classes_ : int
 """
     }
     __doc__ = rgf_estimator_docstring_template
-    for template, value in classifier_specific_values.items():
-        __doc__ = __doc__.replace(template, value)
+    for _template, _value in _classifier_specific_values.items():
+        __doc__ = __doc__.replace(_template, _value)
 
 
 class RGFExecuter(utils.CommonRGFExecuterBase):

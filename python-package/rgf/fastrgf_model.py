@@ -400,7 +400,7 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
         self._fitted = None
         self._target = "REAL"
 
-    regressor_specific_values = {
+    _regressor_specific_values = {
         '{%estimator_type%}': 'regressor',
         '{%loss_parameter%}': '',
         '{%calc_prob_parameter%}': '',
@@ -409,8 +409,8 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
         '{%n_classes_property%}': ''
     }
     __doc__ = fastrgf_estimator_docstring_template
-    for template, value in regressor_specific_values.items():
-        __doc__ = __doc__.replace(template, value)
+    for _template, _value in _regressor_specific_values.items():
+        __doc__ = __doc__.replace(_template, _value)
 
 
 class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
@@ -467,7 +467,7 @@ class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
         self._fitted = None
         self._target = "BINARY"
 
-    classifier_specific_values = {
+    _classifier_specific_values = {
         '{%estimator_type%}': 'classifier',
         '{%loss_parameter%}': """
 loss : string ("LS" or "MODLS" or "LOGISTIC"), optional (default="LS")
@@ -492,8 +492,8 @@ n_classes_ : int
 """
     }
     __doc__ = fastrgf_estimator_docstring_template
-    for template, value in classifier_specific_values.items():
-        __doc__ = __doc__.replace(template, value)
+    for _template, _value in _classifier_specific_values.items():
+        __doc__ = __doc__.replace(_template, _value)
 
 
 class FastRGFExecuter(utils.CommonRGFExecuterBase):
