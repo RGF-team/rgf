@@ -295,6 +295,7 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
     max_leaf : int, optional (default=500)
         Training will be terminated when the number of
         leaf nodes in the forest reaches this value.
+        (Original name: max_leaf_forest.)
 
     test_interval : int, optional (default=100)
         Test interval in terms of the number of leaf nodes.
@@ -319,6 +320,7 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
 
     l2 : float, optional (default=0.1)
         Used to control the degree of L2 regularization.
+        (Original name: reg_L2.)
 
     sl2 : float or None, optional (default=None)
         Override L2 regularization parameter l2
@@ -327,24 +329,29 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         and the forest growing process uses sl2.
         If None, no override takes place and
         l2 is used throughout training.
+        (Original name: reg_sL2.)
 
     normalize : boolean, optional (default=True)
         If True, training targets are normalized
         so that the average becomes zero.
+        (Original name: NormalizeTarget.)
 
     min_samples_leaf : int or float, optional (default=10)
         Minimum number of training data points in each leaf node.
         If int, then consider min_samples_leaf as the minimum number.
         If float, then min_samples_leaf is a percentage and
         ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
+        (Original name: min_pop.)
 
     n_iter : int or None, optional (default=None)
         Number of iterations of coordinate descent to optimize weights.
         If None, 10 is used for loss="LS" and 5 for loss="Expo"|"Log".
+        (Original name: num_iteration_opt.)
 
     n_tree_search : int, optional (default=1)
         Number of trees to be searched for the nodes to split.
         The most recently grown trees are searched first.
+        (Original name: num_tree_search.)
 
     opt_interval : int, optional (default=100)
         Weight optimization interval in terms of the number of leaf nodes.
@@ -353,6 +360,7 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
 
     learning_rate : float, optional (default=0.5)
         Step size of Newton updates used in coordinate descent to optimize weights.
+        (Original name: opt_stepsize.)
 
     memory_policy : string ("conservative" or "generous"), optional (default="generous")
         Memory using policy.
@@ -445,6 +453,7 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
     max_leaf : int, optional (default=1000)
         Training will be terminated when the number of
         leaf nodes in the forest reaches this value.
+        (Original name: max_leaf_forest.)
 
     test_interval : int, optional (default=100)
         Test interval in terms of the number of leaf nodes.
@@ -469,6 +478,7 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
 
     l2 : float, optional (default=0.1)
         Used to control the degree of L2 regularization.
+        (Original name: reg_L2.)
 
     sl2 : float or None, optional (default=None)
         Override L2 regularization parameter l2
@@ -477,24 +487,29 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
         and the forest growing process uses sl2.
         If None, no override takes place and
         l2 is used throughout training.
+        (Original name: reg_sL2.)
 
     normalize : boolean, optional (default=False)
         If True, training targets are normalized
         so that the average becomes zero.
+        (Original name: NormalizeTarget.)
 
     min_samples_leaf : int or float, optional (default=10)
         Minimum number of training data points in each leaf node.
         If int, then consider min_samples_leaf as the minimum number.
         If float, then min_samples_leaf is a percentage and
         ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
+        (Original name: min_pop.)
 
     n_iter : int or None, optional (default=None)
         Number of iterations of coordinate descent to optimize weights.
         If None, 10 is used for loss="LS" and 5 for loss="Expo"|"Log".
+        (Original name: num_iteration_opt.)
 
     n_tree_search : int, optional (default=1)
         Number of trees to be searched for the nodes to split.
         The most recently grown trees are searched first.
+        (Original name: num_tree_search.)
 
     opt_interval : int, optional (default=100)
         Weight optimization interval in terms of the number of leaf nodes.
@@ -503,6 +518,7 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
 
     learning_rate : float, optional (default=0.5)
         Step size of Newton updates used in coordinate descent to optimize weights.
+        (Original name: opt_stepsize.)
 
     calc_prob : string ("sigmoid" or "softmax"), optional (default="sigmoid")
         Method of probability calculation.
