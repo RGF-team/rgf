@@ -15,6 +15,113 @@ from rgf import utils
 ALGORITHMS = ("rgf", "epsilon-greedy")
 LOSSES = ("LS", "MODLS", "LOGISTIC")
 
+fastrgf_estimator_docstring_template = \
+"""
+A Fast Regularized Greedy Forest [1] {%estimator_type%}.
+
+Parameters
+----------
+n_estimators : int, optional (default=500)
+    The number of trees in the forest.
+    (Original name: forest.ntrees.)
+
+max_depth : int, optional (default=6)
+    Maximum tree depth.
+    (Original name: dtree.max_level.)
+
+max_leaf : int, optional (default=50)
+    Maximum number of leaf nodes in best-first search.
+    (Original name: dtree.max_nodes.)
+
+tree_gain_ratio : float, optional (default=1.0)
+    New tree is created when leaf-nodes gain < this value * estimated gain
+    of creating new tree.
+    (Original name: dtree.new_tree_gain_ratio.)
+
+min_samples_leaf : int or float, optional (default=5)
+    Minimum number of training data points in each leaf node.
+    If int, then consider min_samples_leaf as the minimum number.
+    If float, then min_samples_leaf is a percentage and
+    ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
+    (Original name: dtree.min_sample.)
+{%loss_parameter%}
+l1 : float, optional (default=1.0)
+    Used to control the degree of L1 regularization.
+    (Original name: dtree.lamL1.)
+
+l2 : float, optional (default=1000.0)
+    Used to control the degree of L2 regularization.
+    (Original name: dtree.lamL2.)
+
+opt_algorithm : string ("rgf" or "epsilon-greedy"), optional (default="rgf")
+    Optimization method for training forest.
+    (Original name: forest.opt.)
+
+learning_rate : float, optional (default=0.001)
+    Step size of epsilon-greedy boosting.
+    Meant for being used with opt_algorithm="epsilon-greedy".
+    (Original name: forest.stepsize.)
+
+max_bin : int or None, optional (default=None)
+    Maximum number of discretized values (bins).
+    If None, 65000 is used for dense data and 200 for sparse data.
+    (Original name: discretize.(sparse/dense).max_buckets.)
+
+min_child_weight : float, optional (default=5.0)
+    Minimum number of effective samples for each discretized value (bin).
+    (Original name: discretize.(sparse/dense).min_bucket_weights.)
+
+data_l2 : float, optional (default=2.0)
+    Used to control the degree of L2 regularization for discretization.
+    (Original name: discretize.(sparse/dense).lamL2.)
+
+sparse_max_features : int, optional (default=80000)
+    Maximum number of selected features.
+    Meant for being used with sparse data.
+    (Original name: discretize.sparse.max_features.)
+
+sparse_min_occurences : int, optional (default=5)
+    Minimum number of occurrences for a feature to be selected.
+    Meant for being used with sparse data.
+    (Original name: discretize.sparse.min_occrrences.)
+{%calc_prob_parameter%}
+n_jobs : int, optional (default=-1)
+    The number of jobs to run in parallel for both fit and predict.
+    If -1, all CPUs are used.
+    If -2, all CPUs but one are used.
+    If < -1, (n_cpus + 1 + n_jobs) are used.
+    (Original name: set.nthreads.)
+
+verbose : int, optional (default=0)
+    Controls the verbosity of the tree building process.
+    (Original name: set.verbose.)
+
+Attributes:
+-----------
+estimators_ : {%estimators_property_type_desc%}
+    The collection of fitted sub-estimators when `fit` is performed.
+{%classes_property%}{%n_classes_property%}
+n_features_ : int
+    The number of features when `fit` is performed.
+
+fitted_ : boolean
+    Indicates whether `fit` is performed.
+
+max_bin_ : int
+    The concrete maximum number of discretized values (bins)
+    used in model building process for given data.
+
+min_samples_leaf_ : int
+    Minimum number of training data points in each leaf node
+    used in model building process.
+
+Reference
+---------
+[1] Tong Zhang,
+    FastRGF: Multi-core Implementation of Regularized Greedy Forest
+    (https://github.com/baidu/fast_rgf).
+"""
+
 
 class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
     def _validate_fastrgf_params(self,
@@ -247,108 +354,7 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
 
 class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
                        utils.RGFRegressorMixin):
-    """
-    A Fast Regularized Greedy Forest [1] regressor.
 
-    Parameters
-    ----------
-    n_estimators : int, optional (default=500)
-        The number of trees in the forest.
-        (Original name: forest.ntrees.)
-
-    max_depth : int, optional (default=6)
-        Maximum tree depth.
-        (Original name: dtree.max_level.)
-
-    max_leaf : int, optional (default=50)
-        Maximum number of leaf nodes in best-first search.
-        (Original name: dtree.max_nodes.)
-
-    tree_gain_ratio : float, optional (default=1.0)
-        New tree is created when leaf-nodes gain < this value * estimated gain
-        of creating new tree.
-        (Original name: dtree.new_tree_gain_ratio.)
-
-    min_samples_leaf : int or float, optional (default=5)
-        Minimum number of training data points in each leaf node.
-        If int, then consider min_samples_leaf as the minimum number.
-        If float, then min_samples_leaf is a percentage and
-        ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
-        (Original name: dtree.min_sample.)
-
-    l1 : float, optional (default=1.0)
-        Used to control the degree of L1 regularization.
-        (Original name: dtree.lamL1.)
-
-    l2 : float, optional (default=1000.0)
-        Used to control the degree of L2 regularization.
-        (Original name: dtree.lamL2.)
-
-    opt_algorithm : string ("rgf" or "epsilon-greedy"), optional (default="rgf")
-        Optimization method for training forest.
-        (Original name: forest.opt.)
-
-    learning_rate : float, optional (default=0.001)
-        Step size of epsilon-greedy boosting.
-        Meant for being used with opt_algorithm="epsilon-greedy".
-        (Original name: forest.stepsize.)
-
-    max_bin : int or None, optional (default=None)
-        Maximum number of discretized values (bins).
-        If None, 65000 is used for dense data and 200 for sparse data.
-        (Original name: discretize.(sparse/dense).max_buckets.)
-
-    min_child_weight : float, optional (default=5.0)
-        Minimum number of effective samples for each discretized value (bin).
-        (Original name: discretize.(sparse/dense).min_bucket_weights.)
-
-    data_l2 : float, optional (default=2.0)
-        Used to control the degree of L2 regularization for discretization.
-        (Original name: discretize.(sparse/dense).lamL2.)
-
-    sparse_max_features : int, optional (default=80000)
-        Maximum number of selected features.
-        Meant for being used with sparse data.
-        (Original name: discretize.sparse.max_features.)
-
-    sparse_min_occurences : int, optional (default=5)
-        Minimum number of occurrences for a feature to be selected.
-        Meant for being used with sparse data.
-        (Original name: discretize.sparse.min_occrrences.)
-
-    n_jobs : int, optional (default=-1)
-        The number of jobs to run in parallel for both fit and predict.
-        If -1, all CPUs are used.
-        If -2, all CPUs but one are used.
-        If < -1, (n_cpus + 1 + n_jobs) are used.
-        (Original name: set.nthreads.)
-
-    verbose : int, optional (default=0)
-        Controls the verbosity of the tree building process.
-        (Original name: set.verbose.)
-
-    Attributes:
-    -----------
-    n_features_ : int
-        The number of features when `fit` is performed.
-
-    fitted_ : boolean
-        Indicates whether `fit` is performed.
-
-    max_bin_ : int
-        The concrete maximum number of discretized values (bins)
-        used in model building process for given data.
-
-    min_samples_leaf_ : int
-        Minimum number of training data points in each leaf node
-        used in model building process.
-
-    Reference
-    ---------
-    [1] Tong Zhang,
-        FastRGF: Multi-core Implementation of Regularized Greedy Forest
-        (https://github.com/baidu/fast_rgf).
-    """
     def __init__(self,
                  n_estimators=500,
                  max_depth=6,
@@ -389,134 +395,27 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
         self._n_jobs = None
         self.verbose = verbose
 
+        self._estimators = None
         self._n_features = None
         self._fitted = None
         self._target = "REAL"
 
+    _regressor_specific_values = {
+        '{%estimator_type%}': 'regressor',
+        '{%loss_parameter%}': '',
+        '{%calc_prob_parameter%}': '',
+        '{%estimators_property_type_desc%}': 'one-element list of underlying regressors',
+        '{%classes_property%}': '',
+        '{%n_classes_property%}': ''
+    }
+    __doc__ = fastrgf_estimator_docstring_template
+    for _template, _value in _regressor_specific_values.items():
+        __doc__ = __doc__.replace(_template, _value)
+
 
 class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
                         utils.RGFClassifierMixin):
-    """
-    A Fast Regularized Greedy Forest [1] classifier.
 
-    Parameters
-    ----------
-    n_estimators : int, optional (default=500)
-        The number of trees in the forest.
-        (Original name: forest.ntrees.)
-
-    max_depth : int, optional (default=6)
-        Maximum tree depth.
-        (Original name: dtree.max_level.)
-
-    max_leaf : int, optional (default=50)
-        Maximum number of leaf nodes in best-first search.
-        (Original name: dtree.max_nodes.)
-
-    tree_gain_ratio : float, optional (default=1.0)
-        New tree is created when leaf-nodes gain < this value * estimated gain
-        of creating new tree.
-        (Original name: dtree.new_tree_gain_ratio.)
-
-    min_samples_leaf : int or float, optional (default=5)
-        Minimum number of training data points in each leaf node.
-        If int, then consider min_samples_leaf as the minimum number.
-        If float, then min_samples_leaf is a percentage and
-        ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
-        (Original name: dtree.min_sample.)
-
-    loss : string ("LS" or "MODLS" or "LOGISTIC"), optional (default="LS")
-        Loss function.
-        LS: Least squares loss.
-        MODLS: Modified least squares loss.
-        LOGISTIC: Logistic loss.
-        (Original name: dtree.loss.)
-
-    l1 : float, optional (default=1.0)
-        Used to control the degree of L1 regularization.
-        (Original name: dtree.lamL1.)
-
-    l2 : float, optional (default=1000.0)
-        Used to control the degree of L2 regularization.
-        (Original name: dtree.lamL2.)
-
-    opt_algorithm : string ("rgf" or "epsilon-greedy"), optional (default="rgf")
-        Optimization method for training forest.
-        (Original name: forest.opt.)
-
-    learning_rate : float, optional (default=0.001)
-        Step size of epsilon-greedy boosting.
-        Meant for being used with opt_algorithm="epsilon-greedy".
-        (Original name: forest.stepsize.)
-
-    max_bin : int or None, optional (default=None)
-        Maximum number of discretized values (bins).
-        If None, 65000 is used for dense data and 200 for sparse data.
-        (Original name: discretize.(sparse/dense).max_buckets.)
-
-    min_child_weight : float, optional (default=5.0)
-        Minimum number of effective samples for each discretized value (bin).
-        (Original name: discretize.(sparse/dense).min_bucket_weights.)
-
-    data_l2 : float, optional (default=2.0)
-        Used to control the degree of L2 regularization for discretization.
-        (Original name: discretize.(sparse/dense).lamL2.)
-
-    sparse_max_features : int, optional (default=80000)
-        Maximum number of selected features.
-        Meant for being used with sparse data.
-        (Original name: discretize.sparse.max_features.)
-
-    sparse_min_occurences : int, optional (default=5)
-        Minimum number of occurrences for a feature to be selected.
-        Meant for being used with sparse data.
-        (Original name: discretize.sparse.min_occrrences.)
-
-    calc_prob : string ("sigmoid" or "softmax"), optional (default="sigmoid")
-        Method of probability calculation.
-
-    n_jobs : int, optional (default=-1)
-        The number of jobs to run in parallel for both fit and predict.
-        If -1, all CPUs are used.
-        If -2, all CPUs but one are used.
-        If < -1, (n_cpus + 1 + n_jobs) are used.
-        (Original name: set.nthreads.)
-
-    verbose : int, optional (default=0)
-        Controls the verbosity of the tree building process.
-        (Original name: set.verbose.)
-
-    Attributes:
-    -----------
-    estimators_ : list of binary classifiers
-        The collection of fitted sub-estimators when `fit` is performed.
-
-    classes_ : array of shape = [n_classes]
-        The classes labels when `fit` is performed.
-
-    n_classes_ : int
-        The number of classes when `fit` is performed.
-
-    n_features_ : int
-        The number of features when `fit` is performed.
-
-    fitted_ : boolean
-        Indicates whether `fit` is performed.
-
-    max_bin_ : int
-        The concrete maximum number of discretized values (bins)
-        used in model building process for given data.
-
-    min_samples_leaf_ : int
-        Minimum number of training data points in each leaf node
-        used in model building process.
-
-    Reference
-    ---------
-    [1] Tong Zhang,
-        FastRGF: Multi-core Implementation of Regularized Greedy Forest
-        (https://github.com/baidu/fast_rgf).
-    """
     def __init__(self,
                  n_estimators=500,
                  max_depth=6,
@@ -555,7 +454,6 @@ class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
         self.data_l2 = data_l2
         self.sparse_max_features = sparse_max_features
         self.sparse_min_occurences = sparse_min_occurences
-
         self.calc_prob = calc_prob
         self.n_jobs = n_jobs
         self._n_jobs = None
@@ -568,6 +466,34 @@ class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
         self._n_features = None
         self._fitted = None
         self._target = "BINARY"
+
+    _classifier_specific_values = {
+        '{%estimator_type%}': 'classifier',
+        '{%loss_parameter%}': """
+loss : string ("LS" or "MODLS" or "LOGISTIC"), optional (default="LS")
+    Loss function.
+    LS: Least squares loss.
+    MODLS: Modified least squares loss.
+    LOGISTIC: Logistic loss.
+    (Original name: dtree.loss.)
+""",
+        '{%calc_prob_parameter%}': """
+calc_prob : string ("sigmoid" or "softmax"), optional (default="sigmoid")
+    Method of probability calculation.
+""",
+        '{%estimators_property_type_desc%}': 'list of binary classifiers',
+        '{%classes_property%}': """
+classes_ : array of shape = [n_classes]
+    The classes labels when `fit` is performed.
+""",
+        '{%n_classes_property%}': """
+n_classes_ : int
+    The number of classes when `fit` is performed.
+"""
+    }
+    __doc__ = fastrgf_estimator_docstring_template
+    for _template, _value in _classifier_specific_values.items():
+        __doc__ = __doc__.replace(_template, _value)
 
 
 class FastRGFExecuter(utils.CommonRGFExecuterBase):
