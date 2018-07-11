@@ -15,6 +15,125 @@ from rgf import utils
 ALGORITHMS = ("RGF", "RGF_Opt", "RGF_Sib")
 LOSSES = ("LS", "Expo", "Log", "Abs")
 
+rgf_estimator_docstring_template = \
+"""
+A Regularized Greedy Forest [1] {%estimator_type%}.
+
+Tuning parameters detailed instruction:
+    https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.pdf
+
+Parameters
+----------
+max_leaf : int, optional (default={%max_leaf_default_value%})
+    Training will be terminated when the number of
+    leaf nodes in the forest reaches this value.
+    (Original name: max_leaf_forest.)
+
+test_interval : int, optional (default=100)
+    Test interval in terms of the number of leaf nodes.
+
+algorithm : string ("RGF" or "RGF_Opt" or "RGF_Sib"), optional (default="RGF")
+    Regularization algorithm.
+    RGF: RGF with L2 regularization on leaf-only models.
+    RGF Opt: RGF with min-penalty regularization.
+    RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
+
+loss : string ("LS" or "Expo" or "Log" or "Abs"), optional (default="{%loss_default_value%}")
+    Loss function.
+    LS: Square loss.
+    Expo: Exponential loss.
+    Log: Logistic loss.
+    Abs: Absolute error loss.
+
+reg_depth : float, optional (default=1.0)
+    Must be no smaller than 1.0.
+    Meant for being used with algorithm="RGF Opt"|"RGF Sib".
+    A larger value penalizes deeper nodes more severely.
+
+l2 : float, optional (default=0.1)
+    Used to control the degree of L2 regularization.
+    (Original name: reg_L2.)
+
+sl2 : float or None, optional (default=None)
+    Override L2 regularization parameter l2
+    for the process of growing the forest.
+    That is, if specified, the weight correction process uses l2
+    and the forest growing process uses sl2.
+    If None, no override takes place and
+    l2 is used throughout training.
+    (Original name: reg_sL2.)
+
+normalize : boolean, optional (default={%normalize_default_value%})
+    If True, training targets are normalized
+    so that the average becomes zero.
+    (Original name: NormalizeTarget.)
+
+min_samples_leaf : int or float, optional (default=10)
+    Minimum number of training data points in each leaf node.
+    If int, then consider min_samples_leaf as the minimum number.
+    If float, then min_samples_leaf is a percentage and
+    ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
+    (Original name: min_pop.)
+
+n_iter : int or None, optional (default=None)
+    Number of iterations of coordinate descent to optimize weights.
+    If None, 10 is used for loss="LS" and 5 for loss="Expo"|"Log".
+    (Original name: num_iteration_opt.)
+
+n_tree_search : int, optional (default=1)
+    Number of trees to be searched for the nodes to split.
+    The most recently grown trees are searched first.
+    (Original name: num_tree_search.)
+
+opt_interval : int, optional (default=100)
+    Weight optimization interval in terms of the number of leaf nodes.
+    For example, by default, weight optimization is performed
+    every time approximately 100 leaf nodes are newly added to the forest.
+
+learning_rate : float, optional (default=0.5)
+    Step size of Newton updates used in coordinate descent to optimize weights.
+    (Original name: opt_stepsize.)
+{%calc_prob_parameter%}{%n_jobs_parameter%}
+memory_policy : string ("conservative" or "generous"), optional (default="generous")
+    Memory using policy.
+    Generous: it runs faster using more memory by keeping the sorted orders
+    of the features on memory for reuse.
+    Conservative: it uses less memory at the expense of longer runtime. Try only when
+    with default value it uses too much memory.
+
+verbose : int, optional (default=0)
+    Controls the verbosity of the tree building process.
+
+Attributes:
+-----------
+estimators_ : {%estimators_property_type_desc%}
+    The collection of fitted sub-estimators when `fit` is performed.
+{%classes_property%}{%n_classes_property%}
+n_features_ : int
+    The number of features when `fit` is performed.
+
+fitted_ : boolean
+    Indicates whether `fit` is performed.
+
+sl2_ : float
+    The concrete regularization value for the process of growing the forest
+    used in model building process.
+
+min_samples_leaf_ : int
+    Minimum number of training data points in each leaf node
+    used in model building process.
+
+n_iter_ : int
+    Number of iterations of coordinate descent to optimize weights
+    used in model building process depending on the specified loss function.
+
+Reference
+---------
+[1] Rie Johnson and Tong Zhang,
+    Learning Nonlinear Functions Using Regularized Greedy Forest
+    (https://arxiv.org/abs/1109.0887).
+"""
+
 
 class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
     def _validate_rgf_params(self,
@@ -285,113 +404,6 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
 
 
 class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
-    """
-    A Regularized Greedy Forest [1] regressor.
-
-    Tuning parameters detailed instruction:
-        https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.pdf
-
-    Parameters
-    ----------
-    max_leaf : int, optional (default=500)
-        Training will be terminated when the number of
-        leaf nodes in the forest reaches this value.
-
-    test_interval : int, optional (default=100)
-        Test interval in terms of the number of leaf nodes.
-
-    algorithm : string ("RGF" or "RGF_Opt" or "RGF_Sib"), optional (default="RGF")
-        Regularization algorithm.
-        RGF: RGF with L2 regularization on leaf-only models.
-        RGF Opt: RGF with min-penalty regularization.
-        RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
-
-    loss : string ("LS" or "Expo" or "Log" or "Abs"), optional (default="LS")
-        Loss function.
-        LS: Square loss.
-        Expo: Exponential loss.
-        Log: Logistic loss.
-        Abs: Absolute error loss.
-
-    reg_depth : float, optional (default=1.0)
-        Must be no smaller than 1.0.
-        Meant for being used with algorithm="RGF Opt"|"RGF Sib".
-        A larger value penalizes deeper nodes more severely.
-
-    l2 : float, optional (default=0.1)
-        Used to control the degree of L2 regularization.
-
-    sl2 : float or None, optional (default=None)
-        Override L2 regularization parameter l2
-        for the process of growing the forest.
-        That is, if specified, the weight correction process uses l2
-        and the forest growing process uses sl2.
-        If None, no override takes place and
-        l2 is used throughout training.
-
-    normalize : boolean, optional (default=True)
-        If True, training targets are normalized
-        so that the average becomes zero.
-
-    min_samples_leaf : int or float, optional (default=10)
-        Minimum number of training data points in each leaf node.
-        If int, then consider min_samples_leaf as the minimum number.
-        If float, then min_samples_leaf is a percentage and
-        ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
-
-    n_iter : int or None, optional (default=None)
-        Number of iterations of coordinate descent to optimize weights.
-        If None, 10 is used for loss="LS" and 5 for loss="Expo"|"Log".
-
-    n_tree_search : int, optional (default=1)
-        Number of trees to be searched for the nodes to split.
-        The most recently grown trees are searched first.
-
-    opt_interval : int, optional (default=100)
-        Weight optimization interval in terms of the number of leaf nodes.
-        For example, by default, weight optimization is performed
-        every time approximately 100 leaf nodes are newly added to the forest.
-
-    learning_rate : float, optional (default=0.5)
-        Step size of Newton updates used in coordinate descent to optimize weights.
-
-    memory_policy : string ("conservative" or "generous"), optional (default="generous")
-        Memory using policy.
-        Generous: it runs faster using more memory by keeping the sorted orders
-        of the features on memory for reuse.
-        Conservative: it uses less memory at the expense of longer runtime. Try only when
-        with default value it uses too much memory.
-
-    verbose : int, optional (default=0)
-        Controls the verbosity of the tree building process.
-
-    Attributes:
-    -----------
-    n_features_ : int
-        The number of features when `fit` is performed.
-
-    fitted_ : boolean
-        Indicates whether `fit` is performed.
-
-    sl2_ : float
-        The concrete regularization value for the process of growing the forest
-        used in model building process.
-
-    min_samples_leaf_ : int
-        Minimum number of training data points in each leaf node
-        used in model building process.
-
-    n_iter_ : int
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-
-    Reference
-    ---------
-    [1] Rie Johnson and Tong Zhang,
-        Learning Nonlinear Functions Using Regularized Greedy Forest
-        (https://arxiv.org/abs/1109.0887).
-    """
-
     def __init__(self,
                  max_leaf=500,
                  test_interval=100,
@@ -433,138 +445,23 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         self._estimators = None
         self._fitted = None
 
+    _regressor_specific_values = {
+        '{%estimator_type%}': 'regressor',
+        '{%max_leaf_default_value%}': '500',
+        '{%loss_default_value%}': 'LS',
+        '{%normalize_default_value%}': 'True',
+        '{%calc_prob_parameter%}': '',
+        '{%n_jobs_parameter%}': '',
+        '{%estimators_property_type_desc%}': 'one-element list of underlying regressors',
+        '{%classes_property%}': '',
+        '{%n_classes_property%}': ''
+    }
+    __doc__ = rgf_estimator_docstring_template
+    for _template, _value in _regressor_specific_values.items():
+        __doc__ = __doc__.replace(_template, _value)
+
 
 class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin):
-    """
-    A Regularized Greedy Forest [1] classifier.
-
-    Tuning parameters detailed instruction:
-        https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.pdf
-
-    Parameters
-    ----------
-    max_leaf : int, optional (default=1000)
-        Training will be terminated when the number of
-        leaf nodes in the forest reaches this value.
-
-    test_interval : int, optional (default=100)
-        Test interval in terms of the number of leaf nodes.
-
-    algorithm : string ("RGF" or "RGF_Opt" or "RGF_Sib"), optional (default="RGF")
-        Regularization algorithm.
-        RGF: RGF with L2 regularization on leaf-only models.
-        RGF Opt: RGF with min-penalty regularization.
-        RGF Sib: RGF with min-penalty regularization with the sum-to-zero sibling constraints.
-
-    loss : string ("LS" or "Expo" or "Log" or "Abs"), optional (default="Log")
-        Loss function.
-        LS: Square loss.
-        Expo: Exponential loss.
-        Log: Logistic loss.
-        Abs: Absolute error loss.
-
-    reg_depth : float, optional (default=1.0)
-        Must be no smaller than 1.0.
-        Meant for being used with algorithm="RGF Opt"|"RGF Sib".
-        A larger value penalizes deeper nodes more severely.
-
-    l2 : float, optional (default=0.1)
-        Used to control the degree of L2 regularization.
-
-    sl2 : float or None, optional (default=None)
-        Override L2 regularization parameter l2
-        for the process of growing the forest.
-        That is, if specified, the weight correction process uses l2
-        and the forest growing process uses sl2.
-        If None, no override takes place and
-        l2 is used throughout training.
-
-    normalize : boolean, optional (default=False)
-        If True, training targets are normalized
-        so that the average becomes zero.
-
-    min_samples_leaf : int or float, optional (default=10)
-        Minimum number of training data points in each leaf node.
-        If int, then consider min_samples_leaf as the minimum number.
-        If float, then min_samples_leaf is a percentage and
-        ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
-
-    n_iter : int or None, optional (default=None)
-        Number of iterations of coordinate descent to optimize weights.
-        If None, 10 is used for loss="LS" and 5 for loss="Expo"|"Log".
-
-    n_tree_search : int, optional (default=1)
-        Number of trees to be searched for the nodes to split.
-        The most recently grown trees are searched first.
-
-    opt_interval : int, optional (default=100)
-        Weight optimization interval in terms of the number of leaf nodes.
-        For example, by default, weight optimization is performed
-        every time approximately 100 leaf nodes are newly added to the forest.
-
-    learning_rate : float, optional (default=0.5)
-        Step size of Newton updates used in coordinate descent to optimize weights.
-
-    calc_prob : string ("sigmoid" or "softmax"), optional (default="sigmoid")
-        Method of probability calculation.
-
-    n_jobs : integer, optional (default=-1)
-        The number of jobs to use for the computation.
-        The substantial number of the jobs dependents on classes_.
-        If classes_ = 2, the substantial max number of the jobs is one.
-        If classes_ > 2, the substantial max number of the jobs is the same as
-        classes_.
-        If n_jobs = 1, no parallel computing code is used at all regardless of
-        classes_.
-        If n_jobs = -1 and classes_ >= number of CPU, all CPUs are used.
-        For n_jobs = -2, all CPUs but one are used.
-        For n_jobs below -1, (n_cpus + 1 + n_jobs) are used.
-
-    memory_policy : string ("conservative" or "generous"), optional (default="generous")
-        Memory using policy.
-        Generous: it runs faster using more memory by keeping the sorted orders
-        of the features on memory for reuse.
-        Conservative: it uses less memory at the expense of longer runtime. Try only when
-        with default value it uses too much memory.
-
-    verbose : int, optional (default=0)
-        Controls the verbosity of the tree building process.
-
-    Attributes:
-    -----------
-    estimators_ : list of binary classifiers
-        The collection of fitted sub-estimators when `fit` is performed.
-
-    classes_ : array of shape = [n_classes]
-        The classes labels when `fit` is performed.
-
-    n_classes_ : int
-        The number of classes when `fit` is performed.
-
-    n_features_ : int
-        The number of features when `fit` is performed.
-
-    fitted_ : boolean
-        Indicates whether `fit` is performed.
-
-    sl2_ : float
-        The concrete regularization value for the process of growing the forest
-        used in model building process.
-
-    min_samples_leaf_ : int
-        Minimum number of training data points in each leaf node
-        used in model building process.
-
-    n_iter_ : int
-        Number of iterations of coordinate descent to optimize weights
-        used in model building process depending on the specified loss function.
-
-    Reference
-    ---------
-    [1] Rie Johnson and Tong Zhang,
-        Learning Nonlinear Functions Using Regularized Greedy Forest
-        (https://arxiv.org/abs/1109.0887).
-    """
     def __init__(self,
                  max_leaf=1000,
                  test_interval=100,
@@ -612,6 +509,40 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
         self._n_classes = None
         self._n_features = None
         self._fitted = None
+
+    _classifier_specific_values = {
+        '{%estimator_type%}': 'classifier',
+        '{%max_leaf_default_value%}': '1000',
+        '{%loss_default_value%}': 'Log',
+        '{%normalize_default_value%}': 'False',
+        '{%calc_prob_parameter%}': """
+calc_prob : string ("sigmoid" or "softmax"), optional (default="sigmoid")
+    Method of probability calculation.
+""",
+        '{%n_jobs_parameter%}': """
+n_jobs : integer, optional (default=-1)
+    The number of jobs to use for the computation.
+    The substantial number of the jobs dependents on classes_.
+    If classes_ = 2, the substantial max number of the jobs is one.
+    If classes_ > 2, the substantial max number of the jobs is the same as classes_.
+    If n_jobs = 1, no parallel computing code is used at all regardless of classes_.
+    If n_jobs = -1 and classes_ >= number of CPU, all CPUs are used.
+    For n_jobs = -2, all CPUs but one are used.
+    For n_jobs below -1, (n_cpus + 1 + n_jobs) are used.
+""",
+        '{%estimators_property_type_desc%}': 'list of binary classifiers',
+        '{%classes_property%}': """
+classes_ : array of shape = [n_classes]
+    The classes labels when `fit` is performed.
+""",
+        '{%n_classes_property%}': """
+n_classes_ : int
+    The number of classes when `fit` is performed.
+"""
+    }
+    __doc__ = rgf_estimator_docstring_template
+    for _template, _value in _classifier_specific_values.items():
+        __doc__ = __doc__.replace(_template, _value)
 
 
 class RGFExecuter(utils.CommonRGFExecuterBase):

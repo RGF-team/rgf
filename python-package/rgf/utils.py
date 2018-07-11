@@ -407,6 +407,7 @@ class CommonRGFEstimatorBase(BaseEstimator):
     def cleanup(self):
         """
         Remove tempfiles used by this model.
+        Note, that after calling this method you'll need to refit the estimator.
 
         Returns
         -------
