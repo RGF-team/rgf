@@ -1,4 +1,4 @@
-|Build Status Travis| |Build Status AppVeyor| |License| |Python Versions| |PyPI Version|
+|License| |Python Versions| |PyPI Version|
 
 .. [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.org/project/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io
 
@@ -208,12 +208,8 @@ Shamelessly, some part of the implementation is based on the following `code <ht
 References
 ----------
 
-[1] `Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest <https://arxiv.org/abs/1109.0887>`__
+[1] `Rie Johnson and Tong Zhang. Learning Nonlinear Functions Using Regularized Greedy Forest. <https://arxiv.org/abs/1109.0887>`__ IEEE Transactions on Pattern Analysis and Machine Intelligence, 36(5):942-954, May 2014
 
-.. |Build Status Travis| image:: https://travis-ci.org/RGF-team/rgf.svg?branch=master
-   :target: https://travis-ci.org/RGF-team/rgf
-.. |Build Status AppVeyor| image:: https://ci.appveyor.com/api/projects/status/u3612bfh9pmela42/branch/master?svg=true
-   :target: https://ci.appveyor.com/project/RGF-team/rgf
 .. |License| image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: https://github.com/RGF-team/rgf/blob/master/python-package/LICENSE
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/rgf_python.svg
