@@ -118,8 +118,8 @@ min_samples_leaf_ : int
 Reference
 ---------
 [1] Tong Zhang,
-    FastRGF: Multi-core Implementation of Regularized Greedy Forest
-    (https://github.com/baidu/fast_rgf).
+    FastRGF: C++ Multi-core Implementation of Regularized Greedy Forest (RGF)
+    (https://github.com/RGF-team/rgf/tree/master/FastRGF).
 """
 
 
@@ -354,7 +354,6 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
 
 class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
                        utils.RGFRegressorMixin):
-
     def __init__(self,
                  n_estimators=500,
                  max_depth=6,
@@ -415,7 +414,6 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
 
 class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
                         utils.RGFClassifierMixin):
-
     def __init__(self,
                  n_estimators=500,
                  max_depth=6,

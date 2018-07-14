@@ -1,5 +1,4 @@
 # create test programs forest_train forest_predict
-#
 
 add_executable(auc auc.cpp) 
 target_link_libraries(auc base)

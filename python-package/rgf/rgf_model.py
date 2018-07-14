@@ -404,7 +404,6 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
 
 
 class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
-
     def __init__(self,
                  max_leaf=500,
                  test_interval=100,
@@ -463,7 +462,6 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
 
 
 class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin):
-
     def __init__(self,
                  max_leaf=1000,
                  test_interval=100,

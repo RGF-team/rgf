@@ -56,12 +56,12 @@ after_test:
     python setup.py bdist_wheel --plat-name=win-amd64 --universal)
     ELSE (
     python setup.py bdist_wheel --plat-name=win32 --universal)
-  - IF NOT "%PLATFORM%" == "x64" rename include\rgf\bin\rgf.exe rgf32.exe
+  - IF NOT "%PLATFORM%" == "x64" rename compile\RGF\bin\rgf.exe rgf32.exe
 
 artifacts:
   - path: python-package\dist\*
     name: pip
-  - path: python-package\include\rgf\bin\*
+  - path: python-package\compile\RGF\bin\*
     name: rgf_exe
 
 deploy:

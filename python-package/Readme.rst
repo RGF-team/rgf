@@ -12,7 +12,7 @@ Features
 
 **Scikit-learn interface and possibility of usage for multiclass classification problem.**
 
-**rgf\_python** contains both vanilla RGF from the paper `[1] <#references>`__  and FastRGF `[2] <#references>`__ implementations.
+**rgf\_python** contains both `original RGF <https://github.com/RGF-team/rgf/tree/master/RGF>`__ from the paper `[1] <#references>`__  and `FastRGF <https://github.com/RGF-team/rgf/tree/master/FastRGF>`__ implementations.
 
 Note that FastRGF is developed to be used with large (and sparse) datasets, so on small datasets it often shows poorer performance compared to vanilla RGF.
 
@@ -102,46 +102,9 @@ or
     cd rgf/python-package
     python setup.py install --nocompilation
 
-``sudo`` (or administrator privileges in Windows) may be needed to perform commands.
+``sudo`` (or administrator privileges in Windows) may be needed to perform installation commands.
 
-Detailed guides how you can build executable files of RGF and FastRGF from source files could be found in their folders `here <https://github.com/RGF-team/rgf/tree/master/RGF#3-creating-the-executable>`__ and `here <https://github.com/RGF-team/rgf/tree/master/python-package#fastrgf-compilation>`__ respectively.
-
-FastRGF Compilation
-'''''''''''''''''''
-
-Note that compilation only with g++-5 and newer versions is possible. Other compilers are unsupported and older versions produce corrupted files.
-
-Windows
-~~~~~~~
-
-CMake and MinGW-w64
-^^^^^^^^^^^^^^^^^^^
-
-On Windows compilation only with `MinGW-w64 <https://mingw-w64.org/doku.php>`__ is supported because only this version provides POSIX threads.
-
-::
-
-    cd rgf/python-package/include/fast_rgf
-    mkdir build
-    cd build
-    cmake .. -G "MinGW Makefiles"
-    mingw32-make 
-    mingw32-make install
-
-\*nix
-~~~~~
-
-CMake
-^^^^^
-
-::
-
-    cd rgf/python-package/include/fast_rgf
-    mkdir build
-    cd build
-    cmake ..
-    make 
-    make install
+Detailed guides how you can build executable files of RGF and FastRGF from source files could be found in their folders `here <https://github.com/RGF-team/rgf/tree/master/RGF#3-creating-the-executable>`__ and `here <https://github.com/RGF-team/rgf/tree/master/FastRGF#2-installation>`__ respectively.
 
 Docker image
 ''''''''''''
@@ -233,7 +196,7 @@ FAQ
 License
 -------
 
-**rgf\_python** is distributed under the MIT license. Please read file `LICENSE <https://github.com/RGF-team/rgf/blob/master/python-package/LICENSE>`__ for more information.
+**rgf\_python** is distributed under the **MIT license**. Please read file `LICENSE <https://github.com/RGF-team/rgf/blob/master/python-package/LICENSE>`__ for more information.
 
 Many thanks to Rie Johnson and Tong Zhang (the authors of RGF).
 
@@ -246,8 +209,6 @@ References
 ----------
 
 [1] `Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest <https://arxiv.org/abs/1109.0887>`__
-
-[2] `Tong Zhang, FastRGF: Multi-core Implementation of Regularized Greedy Forest <https://github.com/baidu/fast_rgf>`__
 
 .. |Build Status Travis| image:: https://travis-ci.org/RGF-team/rgf.svg?branch=master
    :target: https://travis-ci.org/RGF-team/rgf
