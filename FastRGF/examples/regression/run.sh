@@ -32,4 +32,4 @@ do
    time ${exe_predict} tst.x-file=${datafile} tst.x-file_format=${orig_format} tst.target=REAL model.load=${model_rgf} tst.output-prediction=${prediction}-${suffix} 
 done
     
-    
+cmd /k
