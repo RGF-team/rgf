@@ -1,19 +1,13 @@
-### Examples
----
-* ex1 This is a binary classification problem, in libsvm's sparse feature format.
-Use the *shell script* [run.sh](ex1/run.sh) to perform training/test.
-The dataset is downloaded from <https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary.html#madelon>.
-    
-    
-* ex2: This is a regression problem, in dense feature format. Use the *shell script* [run.sh](ex2/run.sh) to perform training/test.
-The dataset is from <https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/regression.html#housing>.
-    
+# Examples
 
-Note that for these small examples, the running time with multi-threads may be slower than with single-thread due to the overhead it introduces. However, for large datasets, one can observe an almost linear speed up.
+You can learn how to use FastRGF by these examples.
 
-The program can directly handle high dimensional sparse features in the libsvm format as in ex1. This is the recommended format to use when the dataset is relatively large (although some other formats are supported).
+Note that for these small examples, the running time with multithreading may be slower than with single-threading due to the overhead it introduces.
+However, for large datasets, one can observe an almost linear speedup.
 
----
+FastRGF can directly handle high-dimensional sparse features in the libsvm format as in [binary_classification example](./binary_classification).
+This is the recommended format to use when the dataset is relatively large (although some other formats are supported).
+
 ### Tips for Parameter Tuning
 
 There are multiple training parameters that can affect performance. The following are the more important ones:
@@ -31,4 +25,3 @@ You may also modify the discreitzation options below:
  "*using disc_sparse_value_t=unsigned char;*"
     by "*using disc_sparse_value_t=unsigned short;*". However, this increase the memory useage.     
 * **discretize.sparse.max_features**: you may try a different value in [1000,10000000].
-
