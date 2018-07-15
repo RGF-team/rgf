@@ -67,17 +67,17 @@ you can download [here](http://tongzhang-ml.org/software/rgf/index.html).
 
 1. [Introduction](#1-introduction)
 
-1.1. [System Requirements](#11-system-requirements)
+   1.1. [System Requirements](#11-system-requirements)
 
 2. [Download and Installation](#2-download-and-installation)
 
 3. [Creating the Executable](#3-creating-the-executable)
 
-3.1. [Windows](#31-windows)
+   3.1. [Windows](#31-windows)
 
-3.2. [Unix-like Systems](#32-unix-like-systems)
+   3.2. [Unix-like Systems](#32-unix-like-systems)
 
-3.3. [[Optional] Endianness Consideration](#33-optional-endianness-consideration)
+   3.3. [[Optional] Endianness Consideration](#33-optional-endianness-consideration)
 
 4. [Documentation](#4-documentation)
 
