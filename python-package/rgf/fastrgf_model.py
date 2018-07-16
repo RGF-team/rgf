@@ -83,7 +83,7 @@ sparse_max_features : int, optional (default=80000)
 sparse_min_occurences : int, optional (default=5)
     Minimum number of occurrences for a feature to be selected.
     Meant for being used with sparse data.
-    (Original name: discretize.sparse.min_occrrences.)
+    (Original name: discretize.sparse.min_occurrences.)
 {%calc_prob_parameter%}
 n_jobs : int, optional (default=-1)
     The number of jobs to run in parallel for both fit and predict.
@@ -523,7 +523,7 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
             params.append("discretize.sparse.max_buckets=%s" % self.max_bin)
             params.append("discretize.sparse.lamL2=%s" % self.data_l2)
             params.append("discretize.sparse.min_bucket_weights=%s" % self.min_child_weight)
-            params.append("discretize.sparse.min_occrrences=%s" % self.sparse_min_occurences)
+            params.append("discretize.sparse.min_occurrences=%s" % self.sparse_min_occurences)
             params.append("trn.x-file_format=x.sparse")
             params.append("trn.y-file=%s" % self._train_y_loc)
             if self._use_sample_weight:

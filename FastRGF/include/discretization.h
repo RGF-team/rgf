@@ -144,7 +144,7 @@ namespace rgf {
 			    80000, 
 			    "maximum number of selected features",
 			    this);
-	min_occurrences.insert(prefix+"min_occrrences",
+	min_occurrences.insert(prefix+"min_occurrences",
 			      5, 
 			      "minimum number of occurrences for a feature to be selected",
 			      this);
@@ -275,5 +275,3 @@ namespace rgf {
 }
 
 #endif
-
-
