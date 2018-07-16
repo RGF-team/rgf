@@ -35,7 +35,9 @@ install:
   - conda update -q conda
   - conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose pandas scikit-learn pytest
   - activate test-environment
-  - conda install mkl=2018.0.3  # Temp fix. Delete the line in the future when compatibility will be fixed.
+  - IF "%PYTHON_VERSION%" == "3.4" (
+        conda uninstall numpy scipy scikit-learn &&
+        pip install numpy scipy scikit-learn)  # Hotfix for versions incompatibility on Python 3.4
   - cd python-package
   - ps: $env:RGF_VER = (Get-Content rgf\VERSION).trim()
   - python setup.py sdist --formats gztar
