@@ -13,9 +13,6 @@ env:
   - PYTHON_VERSION=3.5
   - PYTHON_VERSION=3.6
 
-git:
-  submodules: true
-
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       rm '/usr/local/include/c++';
@@ -58,9 +55,9 @@ before_deploy:
       cd dist;
       zip -d rgf_python-${RGF_VER}-py2.py3-none-manylinux1_i686.whl rgf/rgf rgf/forest_train rgf/forest_predict;
       mkdir rgf;
-      wget https://github.com/RGF-team/rgf/releases/download/3.1.0/rgf -O rgf/rgf;
-      wget https://github.com/RGF-team/rgf/releases/download/3.1.0/forest_train -O rgf/forest_train;
-      wget https://github.com/RGF-team/rgf/releases/download/3.1.0/forest_predict -O rgf/forest_predict;
+      wget https://github.com/RGF-team/rgf/releases/download/3.2.0/rgf -O rgf/rgf;
+      wget https://github.com/RGF-team/rgf/releases/download/3.2.0/forest_train -O rgf/forest_train;
+      wget https://github.com/RGF-team/rgf/releases/download/3.2.0/forest_predict -O rgf/forest_predict;
       zip rgf_python-${RGF_VER}-py2.py3-none-manylinux1_i686.whl rgf/rgf rgf/forest_train rgf/forest_predict;
     fi
 

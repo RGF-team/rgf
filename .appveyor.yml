@@ -12,8 +12,6 @@ environment:
     - PYTHON_VERSION: 3.5
     - PYTHON_VERSION: 3.6
 
-clone_depth: 50
-
 install:
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%  # Delete sh.exe from PATH (mingw32-make fix)
   - ps: >-
