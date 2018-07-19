@@ -24,10 +24,8 @@ ${exe_predict} model.load=${model_rgf} tst.print-forest=${model_rgf}.print tst.f
 echo " "
 
 echo ------ testing ------
-for datafile in ${trn}  ${tst}
-do
-   suffix=`echo ${datafile}|sed 's/.*\.//g'`
-   echo " "
-   echo === $datafile ===
-   time ${exe_predict} tst.x-file=${datafile} tst.x-file_format=${orig_format} tst.target=REAL model.load=${model_rgf} tst.output-prediction=${prediction}-${suffix}
-done
+echo === ${trn} ===
+time ${exe_predict} tst.x-file=${trn} tst.x-file_format=${orig_format} tst.target=REAL model.load=${model_rgf} tst.output-prediction=${prediction}-train
+echo " "
+echo === ${tst} ===
+time ${exe_predict} tst.x-file=${tst} tst.x-file_format=${orig_format} tst.target=REAL model.load=${model_rgf} tst.output-prediction=${prediction}-test

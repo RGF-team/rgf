@@ -23,10 +23,8 @@ time ${exe_predict} tst.x-file=${tst} tst.x-file_format=${orig_format} tst.targe
 echo " "
 
 echo ------ testing ------
-for datafile in ${trn}  ${tst}
-do
-   suffix=`echo ${datafile}|sed 's/.*\.//g'`
-   echo " "
-   echo === $datafile ===
-   time ${exe_predict} tst.x-file=${datafile} tst.x-file_format=${orig_format} tst.target=BINARY model.load=${model_rgf} tst.output-prediction=${prediction}-${suffix}
-done
+echo === ${trn} ===
+time ${exe_predict} tst.x-file=${trn} tst.x-file_format=${orig_format} tst.target=BINARY model.load=${model_rgf} tst.output-prediction=${prediction}-train
+echo " "
+echo === ${tst} ===
+time ${exe_predict} tst.x-file=${tst} tst.x-file_format=${orig_format} tst.target=BINARY model.load=${model_rgf} tst.output-prediction=${prediction}-test
