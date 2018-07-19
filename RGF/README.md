@@ -195,6 +195,7 @@ Build executable file with g++ from existing `makefile`
 (you may want to customize this file for your environment).
 
 ```
+mkdir bin
 cd build
 make
 ```
