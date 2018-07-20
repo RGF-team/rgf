@@ -60,6 +60,7 @@ before_deploy:
       wget https://github.com/RGF-team/rgf/releases/download/3.2.0/forest_predict -O rgf/forest_predict;
       zip rgf_python-${RGF_VER}-py2.py3-none-manylinux1_i686.whl rgf/rgf rgf/forest_train rgf/forest_predict;
     fi
+  - cd $TRAVIS_BUILD_DIR
 
 notifications:
   email: false
@@ -74,6 +75,6 @@ deploy:
     secure: "WGMJ/0VoQ34g1m9k6RkxLOS796HRgK0M8JsVUSs2zW3miwmGGRvh5p8cn+IlOJD0uJyZQksueyN5aEVwUZ5tDuNHb21CDUDupxNjt74EqWAB1fc9Dp72sSWImIPY6PEA/f8OTwQKI00B9WfDJJMPOdlPN57gq7+DlJLsEtWxXssvs/l5JiBc4qO1CwA+y4460cpTrBgB3VnhAF6tju6H4dJtj8lWtXdnFc9gUF/3xTi1QliGrE4doQyLoNOAr4pzNgNjeUjkw9yVKUfa2XsQhyCcLZjBg4Z1t4P15nN/NRaQv/IaYu2WjbRIW1bVadfHUVmuf5F2oRLmR2KrWaJSYTd7wsr+6/Pd/ejZXoL5XJCjCFRxJKHbdL4zIUJa50Auqw6NAwoZSqrLatfsxEjXZaUhaGPg63f44GOA8RSB4X3txPwTXPwXCb8QSq51rfm2zPe6UEvfiVGlyylHtTwP+GKqy1Ml4q+0HPCjne1qufLtNhy+Ke6rD7KgODJi/XElmJwhF8pPCeDp+AmMYbd+Ppid0sISJFCv4IJmAl3FUJ5dtH/wGFUWMQDH8zsF1v94AFXmuO0zvaoOnKOC7P+j3/UXqOUopdC4z0YYqkjJU+OkWO/rnhHhFoWQjys3f1D1q/++yF7wwEu/DkUbxr/29YV2hfa5yH/gHusLmX01d1o="
   tag_name: $TRAVIS_TAG
   on:
-    all_branches: true
+    branch: master
     condition: "$PYTHON_VERSION = 3.6"
     tags: true
