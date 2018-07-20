@@ -203,9 +203,9 @@ namespace rgf {
 	maxNodes.insert(prefix + "max_nodes", 50,
 			"maximum number of leaf nodes in best-first search", this);
 	newTreeGainRatio.insert(prefix + "new_tree_gain_ratio",1.0,
-				"new tree is created when leaf-nodes gain < this value * estimated gain of creating new three", this);
+				"new tree is created when leaf nodes gain < this value * estimated gain of creating new tree", this);
 	min_sample.insert(prefix + "min_sample", 5,
-			  "minum sample per node", this);
+			  "minimum number of samples per node", this);
 
 	lamL1.insert(prefix + "lamL1", 1,
 		     "L1 regularization parameter", this);

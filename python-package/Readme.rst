@@ -120,13 +120,13 @@ We provide `docker image <https://github.com/RGF-team/rgf/blob/master/python-pac
     # Run FastRGF example
     python ./rgf/python-package/examples/FastRGF/FastRGF_classifier_on_iris_dataset.py
 
-Tuning Hyper-parameters
------------------------
+Tuning Hyperparameters
+----------------------
 
 RGF
 '''
 
-You can tune hyper-parameters as follows.
+You can tune hyperparameters as follows.
 
 -  *max\_leaf*: Appropriate values are data-dependent and usually varied from 1000 to 10000.
 -  *test\_interval*: For efficiency, it must be either multiple or divisor of 100 (default value of the optimization interval).
@@ -142,7 +142,7 @@ You can tune hyper-parameters as follows.
 -  *opt\_interval*: Weight optimization interval in terms of the number of leaf nodes.
 -  *learning\_rate*: Step size of Newton updates used in coordinate descent to optimize weights.
 
-Detailed instruction of tuning hyper-parameters is `here <https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.pdf>`__.
+Detailed instruction of tuning hyperparameters is `here <https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.pdf>`__.
 
 FastRGF
 '''''''
