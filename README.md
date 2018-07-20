@@ -1,5 +1,6 @@
 [![Build Status Travis](https://travis-ci.org/RGF-team/rgf.svg?branch=master)](https://travis-ci.org/RGF-team/rgf)
 [![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/u3612bfh9pmela42/branch/master?svg=true)](https://ci.appveyor.com/project/RGF-team/rgf)
+[![arXiv.org](https://img.shields.io/badge/arXiv-1109.0887-b31b1b.svg)](https://arxiv.org/abs/1109.0887)
 [![Python Versions](https://img.shields.io/pypi/pyversions/rgf_python.svg)](https://pypi.org/project/rgf_python)
 [![PyPI Version](https://badge.fury.io/py/rgf_python.svg)](https://badge.fury.io/py/rgf_python)
 
