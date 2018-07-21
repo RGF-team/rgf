@@ -9,6 +9,7 @@ import platform
 import stat
 import subprocess
 import warnings
+from tempfile import gettempdir
 from threading import Lock
 from uuid import uuid4
 
@@ -22,7 +23,7 @@ from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
 
-CURRENT_DIR = os.path.dirname(__file__)
+CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 INTS = (numbers.Integral, np.integer)
 NOT_FITTED_ERROR_DESC = "Estimator not fitted, call `fit` before exploiting the model."
@@ -69,28 +70,24 @@ def get_paths():
             rgf_exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
         except Exception:
             rgf_exe = os.path.join(os.path.expanduser('~'), 'rgf.exe')
-        try:
-            temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
-        except Exception:
-            temp = os.path.join(os.path.expanduser('~'), 'temp', 'rgf')
         def_rgf = 'rgf.exe'
     else:  # Linux, Darwin (macOS), etc.
         try:
             rgf_exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
         except Exception:
             rgf_exe = os.path.join(os.path.expanduser('~'), 'rgf')
-        try:
-            temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
-        except Exception:
-            temp = os.path.join('/tmp', 'rgf')
         def_rgf = 'rgf'
 
     try:
         fastrgf_path = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
     except Exception:
         fastrgf_path = os.path.expanduser('~')
-
     def_fastrgf = ''
+
+    try:
+        temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
+    except Exception:
+        temp = os.path.join(gettempdir(), 'rgf')
 
     return def_rgf, rgf_exe, def_fastrgf, fastrgf_path, temp
 
