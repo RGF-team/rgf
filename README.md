@@ -17,3 +17,10 @@ This repository contains the following implementations of the RGF algorithm:
 - [RGF](https://github.com/RGF-team/rgf/tree/master/RGF): original implementation from the paper;
 - [FastRGF](https://github.com/RGF-team/rgf/tree/master/FastRGF): multi-core implementation with some simplifications;
 - [rgf_python](https://github.com/RGF-team/rgf/tree/master/python-package): wrapper of both RGF and FastRGF implementations for Python.
+
+## Documentation
+- [RGF](https://github.com/RGF-team/rgf/tree/master/RGF)
+- [FastRGF](https://github.com/RGF-team/rgf/tree/master/FastRGF/README.md)
+- [rgf_python](https://github.com/RGF-team/rgf/tree/master/python-package/Readme.rst)
+- [RGF User Guide](https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.pdf)
+- [Awesome RGF](https://github.com/RGF-team/rgf/tree/master/AWESOME_RGF.md)
