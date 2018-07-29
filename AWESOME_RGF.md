@@ -8,13 +8,14 @@ Please feel free to send a pull request if you find things that could be include
 
 * [Regularized Greedy Forest (RGF) - Nice alternative to tree-boosting](https://www.linkedin.com/pulse/regularized-greedy-forest-rgf-nice-alternative-marios-michailidis/)
 * [An Introductory Guide to Regularized Greedy Forests (RGF) with a case study in Python](https://www.analyticsvidhya.com/blog/2018/02/introductory-guide-regularized-greedy-forests-rgf-python/)
-* [Regularized Greedy Forest – The Scottish Play (Act I): (and ACT II)](https://www.statworx.com/ch/blog/regularized-greedy-forest-the-scottish-play-act-i/)
+* [Regularized Greedy Forest – The Scottish Play (Act I)](https://www.statworx.com/ch/blog/regularized-greedy-forest-the-scottish-play-act-i/)
+* [Regularized Greedy Forest – The Scottish Play (ACT II)](https://www.statworx.com/ch/blog/regularized-greedy-forest-the-scottish-play-act-ii/)
 
 ### Machine Learning Competitions Winning Solutions and Kernels
 
-* [1st Place Solution (Allstate claims severity)](https://www.kaggle.com/c/allstate-claims-severity/discussion/26416)
-* [3rd place solution (Santander Customer Satisfaction)](https://www.kaggle.com/c/santander-customer-satisfaction/discussion/20978)
+* [1st Place Solution (Allstate Claims Severity)](https://www.kaggle.com/c/allstate-claims-severity/discussion/26416)
+* [3rd Place solution (Santander Customer Satisfaction)](https://www.kaggle.com/c/santander-customer-satisfaction/discussion/20978)
 * [18th Place Solution (Porto Seguro’s Safe Driver Prediction)](https://www.kaggle.com/c/porto-seguro-safe-driver-prediction/discussion/44579)
-* [35th place solution (Porto Seguro’s Safe Driver Prediction)](https://www.kaggle.com/c/porto-seguro-safe-driver-prediction/discussion/44711)
+* [35th Place solution (Porto Seguro’s Safe Driver Prediction)](https://www.kaggle.com/c/porto-seguro-safe-driver-prediction/discussion/44711)
 * [Kernel (Porto Seguro’s Safe Driver Prediction)](https://www.kaggle.com/scirpus/regularized-greedy-forest/notebook)
 
