@@ -114,7 +114,7 @@ We provide `docker image <https://github.com/RGF-team/rgf/blob/master/python-pac
 ::
 
     # Run docker image
-    docker run -it fukatani/rgf_python /bin/bash
+    docker run -it rgfteam/rgf /bin/bash
     # Run RGF example
     python ./rgf/python-package/examples/RGF/comparison_RGF_and_RF_regressors_on_boston_dataset.py
     # Run FastRGF example
