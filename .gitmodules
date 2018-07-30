@@ -1,0 +1,3 @@
+[submodule "R-package/RGF"]
+	path = R-package/RGF
+	url = https://github.com/mlampros/RGF
