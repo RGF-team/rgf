@@ -5,9 +5,9 @@ Version: 1.0.4
 Date: 2018-07-22
 Authors@R: c( person("Lampros", "Mouselimis", email = "mouselimislampros@gmail.com", role = c("aut", "cre")), person("Ryosuke", "Fukatani", role = "cph", comment = "Author of the python wrapper of the 'Regularized Greedy Forest' machine learning algorithm"), person("Tong", "Zhang", role = "cph", comment = "Author of the 'Regularized Greedy Forest' and of the Multi-core implementation of Regularized Greedy Forest machine learning algorithm"), person("Rie", "Johnson", role = "cph", comment = "Author of the 'Regularized Greedy Forest' machine learning algorithm") )
 Maintainer: Lampros Mouselimis <mouselimislampros@gmail.com>
-BugReports: https://github.com/mlampros/RGF/issues
-URL: https://github.com/mlampros/RGF
-Description: Regularized Greedy Forest wrapper of the 'Regularized Greedy Forest' <https://github.com/fukatani/rgf_python> 'python' package, which also includes a Multi-core implementation (FastRGF) <https://github.com/baidu/fast_rgf>.
+BugReports: https://github.com/RGF-team/rgf/issues
+URL: https://github.com/RGF-team/rgf/tree/master/R-package
+Description: Regularized Greedy Forest wrapper of the 'Regularized Greedy Forest' <https://github.com/RGF-team/rgf/tree/master/python-package> 'python' package, which also includes a Multi-core implementation (FastRGF) <https://github.com/RGF-team/rgf/tree/master/FastRGF>.
 License: MIT + file LICENSE
 SystemRequirements: Python (2.7 or >= 3.4), rgf_python, scikit-learn (>= 0.18.0), scipy ( >= 1.0.0), numpy ( >= 1.14.0). Detailed installation instructions for each operating system can be found in the README file.
 Depends:
@@ -23,6 +23,3 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
-
-
- 
