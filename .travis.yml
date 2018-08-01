@@ -15,6 +15,7 @@ env:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      sudo softwareupdate -i "Command Line Tools (macOS High Sierra version 10.13) for Xcode-9.3";
       rm '/usr/local/include/c++';
       brew install gcc;
       export CXX=g++-8 && export CC=gcc-8;
