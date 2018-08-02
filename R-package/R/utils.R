@@ -271,7 +271,7 @@ Internal_class <- R6::R6Class("Internal_class",
 #'
 #' the \emph{predict} function predicts the regression target for x.
 #'
-#' the \emph{cleanup} function removes tempfiles used by this model. See the issue \emph{https://github.com/fukatani/rgf_python/issues/75}, which explains in which cases the \emph{cleanup} function applies.
+#' the \emph{cleanup} function removes tempfiles used by this model. See the issue \emph{https://github.com/RGF-team/rgf/issues/75}, which explains in which cases the \emph{cleanup} function applies.
 #'
 #' the \emph{get_params} function returns the parameters of the model.
 #'
@@ -829,8 +829,8 @@ FastRGF_Classifier <- R6::R6Class("FastRGF_Classifier",
                                       }
 
 
-                                      # initialize FastRGF_Regressor
-                                      #-----------------------------
+                                      # initialize FastRGF_Classifier
+                                      #------------------------------
 
                                       private$rgf_init = RGF_mod$FastRGFClassifier(as.integer(n_estimators), as.integer(max_depth), as.integer(max_leaf), tree_gain_ratio, min_samples_leaf,
                                                                                    loss, l1, l2, opt_algorithm, learning_rate, max_bin, min_child_weight, data_l2, as.integer(sparse_max_features),
