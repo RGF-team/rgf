@@ -1,10 +1,9 @@
-
 #' Delete all temporary files of the created RGF estimators
 #'
 #' @details
-#' This function deletes all temporary files of the created RGF estimators. See the issue \emph{https://github.com/fukatani/rgf_python/issues/75} for more details.
+#' This function deletes all temporary files of the created RGF estimators. See the issue \emph{https://github.com/RGF-team/rgf/issues/75} for more details.
 #' @export
-#' @references \emph{https://github.com/fukatani/rgf_python}
+#' @references \emph{https://github.com/RGF-team/rgf/tree/master/python-package}
 #' @examples
 #'
 #' \dontrun{
@@ -75,7 +74,7 @@ mat_2scipy_sparse = function(x, format = 'sparse_row_matrix') {
 #' @details
 #' This function allows the user to convert either an R \emph{dgCMatrix} or a \emph{dgRMatrix} to a scipy sparse matrix (\emph{scipy.sparse.csc_matrix} or \emph{scipy.sparse.csr_matrix}). This is useful because the \emph{RGF} package accepts besides an R dense matrix also python sparse matrices as input.
 #'
-#' The \emph{dgCMatrix} class is a class of sparse numeric matrices in the compressed, sparse, \emph{column-oriented format}. The \emph{dgRMatrix} class is a class of sparse numeric matrices in the compressed, sparse, \emph{column-oriented format}. 
+#' The \emph{dgCMatrix} class is a class of sparse numeric matrices in the compressed, sparse, \emph{column-oriented format}. The \emph{dgRMatrix} class is a class of sparse numeric matrices in the compressed, sparse, \emph{row-oriented format}. 
 #'
 #' @export
 #' @import reticulate
@@ -259,7 +258,7 @@ Internal_class <- R6::R6Class("Internal_class",
 #' @param sl2 a float or NULL. Override L2 regularization parameter l2 for the process of growing the forest. That is, if specified, the weight correction process uses l2 and the forest growing process uses sl2. If NULL, no override takes place and l2 is used throughout training.
 #' @param normalize a boolean. If True, training targets are normalized so that the average becomes zero.
 #' @param min_samples_leaf an integer or a float. Minimum number of training data points in each leaf node. If an integer, then consider \emph{min_samples_leaf} as the minimum number. If a float, then \emph{min_samples_leaf} is a percentage and ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
-#' @param n_iter an int or NULL. The number of iterations of coordinate descent to optimize weights. If NULL, 10 is used for loss = "LS" and 5 for loss = "Expo" or "Log".
+#' @param n_iter an integer or NULL. The number of iterations of coordinate descent to optimize weights. If NULL, 10 is used for loss = "LS" and 5 for loss = "Expo" or "Log".
 #' @param n_tree_search an integer. The number of trees to be searched for the nodes to split. The most recently grown trees are searched first.
 #' @param opt_interval an integer. Weight optimization interval in terms of the number of leaf nodes. For example, by default, weight optimization is performed every time approximately 100 leaf nodes are newly added to the forest.
 #' @param learning_rate a float. Step size of Newton updates used in coordinate descent to optimize weights.
@@ -282,7 +281,7 @@ Internal_class <- R6::R6Class("Internal_class",
 #' 
 #' the \emph{dump_model} function currently prints information about the fitted model in the console
 #'
-#' @references \emph{https://github.com/fukatani/rgf_python}, \emph{Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest}
+#' @references \emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest}
 #' @docType class
 #' @importFrom R6 R6Class
 #' @import reticulate
@@ -408,7 +407,7 @@ RGF_Regressor <- R6::R6Class("RGF_Regressor",
 #' @param sl2 a float or NULL. Override L2 regularization parameter l2 for the process of growing the forest. That is, if specified, the weight correction process uses l2 and the forest growing process uses sl2. If NULL, no override takes place and l2 is used throughout training.
 #' @param normalize a boolean. If True, training targets are normalized so that the average becomes zero.
 #' @param min_samples_leaf an integer or a float. Minimum number of training data points in each leaf node. If an integer, then consider \emph{min_samples_leaf} as the minimum number. If a float, then \emph{min_samples_leaf} is a percentage and ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.
-#' @param n_iter an int or NULL. The number of iterations of coordinate descent to optimize weights. If NULL, 10 is used for loss = "LS" and 5 for loss = "Expo" or "Log".
+#' @param n_iter an integer or NULL. The number of iterations of coordinate descent to optimize weights. If NULL, 10 is used for loss = "LS" and 5 for loss = "Expo" or "Log".
 #' @param n_tree_search an integer. The number of trees to be searched for the nodes to split. The most recently grown trees are searched first.
 #' @param opt_interval an integer. Weight optimization interval in terms of the number of leaf nodes. For example, by default, weight optimization is performed every time approximately 100 leaf nodes are newly added to the forest.
 #' @param learning_rate a float. Step size of Newton updates used in coordinate descent to optimize weights.
@@ -425,7 +424,7 @@ RGF_Regressor <- R6::R6Class("RGF_Regressor",
 #'
 #' the \emph{predict_proba} function predicts class probabilities for x.
 #'
-#' the \emph{cleanup} function removes tempfiles used by this model. See the issue \emph{https://github.com/fukatani/rgf_python/issues/75}, which explains in which cases the \emph{cleanup} function applies.
+#' the \emph{cleanup} function removes tempfiles used by this model. See the issue \emph{https://github.com/RGF-team/rgf/issues/75}, which explains in which cases the \emph{cleanup} function applies.
 #'
 #' the \emph{get_params} function returns the parameters of the model.
 #'
@@ -435,7 +434,7 @@ RGF_Regressor <- R6::R6Class("RGF_Regressor",
 #' 
 #' the \emph{dump_model} function currently prints information about the fitted model in the console
 #'
-#' @references \emph{https://github.com/fukatani/rgf_python}, \emph{Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest}
+#' @references \emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest}
 #' @docType class
 #' @importFrom R6 R6Class
 #' @import reticulate
@@ -581,13 +580,13 @@ RGF_Classifier <- R6::R6Class("RGF_Classifier",
 #'
 #' the \emph{predict} function predicts the regression target for x.
 #'
-#' the \emph{cleanup} function removes tempfiles used by this model. See the issue \emph{https://github.com/fukatani/rgf_python/issues/75}, which explains in which cases the \emph{cleanup} function applies.
+#' the \emph{cleanup} function removes tempfiles used by this model. See the issue \emph{https://github.com/RGF-team/rgf/issues/75}, which explains in which cases the \emph{cleanup} function applies.
 #'
 #' the \emph{get_params} function returns the parameters of the model.
 #'
 #' the \emph{score} function returns the coefficient of determination ( R^2 ) for the predictions.
 #'
-#' @references \emph{https://github.com/fukatani/rgf_python}, \emph{Tong Zhang, FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/baidu/fast_rgf)}
+#' @references \emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Tong Zhang, FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/RGF-team/rgf/tree/master/FastRGF)}
 #' @docType class
 #' @importFrom R6 R6Class
 #' @import reticulate
@@ -680,8 +679,8 @@ FastRGF_Regressor <- R6::R6Class("FastRGF_Regressor",
                                      }
 
 
-                                     # initialize RGF_Regressor
-                                     #------------------------
+                                     # initialize FastRGF_Regressor
+                                     #-----------------------------
 
                                      private$rgf_init = RGF_mod$FastRGFRegressor(as.integer(n_estimators), as.integer(max_depth), as.integer(max_leaf), tree_gain_ratio, min_samples_leaf, l1, l2,
                                                                                  opt_algorithm, learning_rate, max_bin, min_child_weight, data_l2, as.integer(sparse_max_features),
@@ -725,13 +724,13 @@ FastRGF_Regressor <- R6::R6Class("FastRGF_Regressor",
 #'
 #' the \emph{predict_proba} function predicts class probabilities for x.
 #'
-#' the \emph{cleanup} function removes tempfiles used by this model. See the issue \emph{https://github.com/fukatani/rgf_python/issues/75}, which explains in which cases the \emph{cleanup} function applies.
+#' the \emph{cleanup} function removes tempfiles used by this model. See the issue \emph{https://github.com/RGF-team/rgf/issues/75}, which explains in which cases the \emph{cleanup} function applies.
 #'
 #' the \emph{get_params} function returns the parameters of the model.
 #'
 #' the \emph{score} function returns the mean accuracy on the given test data and labels.
 #'
-#' @references \emph{https://github.com/fukatani/rgf_python}, \emph{Tong Zhang, FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/baidu/fast_rgf)}
+#' @references \emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Tong Zhang, FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/RGF-team/rgf/tree/master/FastRGF)}
 #' @docType class
 #' @importFrom R6 R6Class
 #' @import reticulate
@@ -830,8 +829,8 @@ FastRGF_Classifier <- R6::R6Class("FastRGF_Classifier",
                                       }
 
 
-                                      # initialize RGF_Regressor
-                                      #------------------------
+                                      # initialize FastRGF_Regressor
+                                      #-----------------------------
 
                                       private$rgf_init = RGF_mod$FastRGFClassifier(as.integer(n_estimators), as.integer(max_depth), as.integer(max_leaf), tree_gain_ratio, min_samples_leaf,
                                                                                    loss, l1, l2, opt_algorithm, learning_rate, max_bin, min_child_weight, data_l2, as.integer(sparse_max_features),
@@ -839,5 +838,3 @@ FastRGF_Classifier <- R6::R6Class("FastRGF_Classifier",
                                     }
                                   )
 )
-
-

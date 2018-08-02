@@ -24,3 +24,5 @@ I added links to the github repository (master repository, issues).
 
 
 ## RGF 1.0.0
+
+Initial version.

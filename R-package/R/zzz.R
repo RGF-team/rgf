@@ -1,4 +1,3 @@
-
 # temporary startup message beginning from version 1.0.3 [ SEE : http://r-pkgs.had.co.nz/r.html#r-differences ]
 
 .onAttach <- function(libname, pkgname) {
