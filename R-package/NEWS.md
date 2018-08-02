@@ -1,8 +1,6 @@
-
-
 ## RGF 1.0.4
 
-* I modified the license from GPL-3 to MIT to go in accordance with the new structure of the *rgf_python* package. The package includes two files : *LICENSE* (for the RGF R package) and *LICENSE.note* (for the *RGF*, *FastRGF* and *rgf_python* packages).
+* We (RGF-team) modified the license from GPL-3 to MIT to go in accordance with the new structure of the *rgf_python* package. The package includes two files : *LICENSE* (for the RGF R package) and *LICENSE.note* (for the *RGF*, *FastRGF* and *rgf_python* packages).
 * I added the following new features of RGF estimators : *feature_importances_* and *dump_model()*
 * I modified the README.md file and especially the installation instructions for all operating systems (Linux, Macintosh, Windows)
 * I created an R6 class (*Internal_class*) for all secondary functions which are used in RGF and FastRGF
