@@ -1,4 +1,3 @@
-
 #========================================================================================
 
 # helper function to skip tests if we don't have the 'foo' module
@@ -351,4 +350,3 @@ if (Sys.info()["sysname"] != 'Darwin') {
     testthat::expect_true( length(pr) == length(y_reg) && sum(validate) == 15 && is.double(tmp_score) && is.double(tmp_score_W) )
   })
 }
-  
