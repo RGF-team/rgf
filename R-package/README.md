@@ -400,7 +400,7 @@ Open a console with **administrator privileges** (right click on cmd and *run as
 ```R
 
 
-# download the most recent version of rgf-python from the github repository 
+# download the most recent version of rgf-python from the GitHub repository 
 #--------------------------------------------------------------------------
 
 git clone http://github.com/RGF-team/rgf.git
@@ -509,7 +509,7 @@ install.packages(RGF)
 
 <br>
 
-On windows the user can take advantage of the RGF package currently **only** from within the command prompt (console). First, find the full path of the installation location of R (possible if someone right-clicks in the R short-cut (probably on Desktop) and navigates to properties >> shortcut >> target). In my OS, for instance, R is located in **C:\\Program Files\\R\\R-3.4.0\\bin\\x64\\R**. Then, by opening a command prompt (console) and giving (for instance in my case),
+On windows the user can take advantage of the RGF package currently **only** from within the command prompt (console). First, find the full path of the installation location of R (possible if someone right-clicks in the R short-cut (probably on Desktop) and navigates to properties >> shortcut >> target). In case, for instance, that R is located in **C:\\Program Files\\R\\R-3.4.0\\bin\\x64\\R**, then, by opening a command prompt (console) and giving,
 
 <br>
 
@@ -546,7 +546,7 @@ install.packages('RGF')
 ```
 <br>
 
-and to download the latest version from Github use the *install_github* function of the devtools package,
+and to download the latest version from GitHub use the *install_github* function of the devtools package,
 <br><br>
 
 ```R
