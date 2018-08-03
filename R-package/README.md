@@ -1,4 +1,3 @@
-
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/RGF)](http://cran.r-project.org/package=RGF)
 [![Travis-CI Build Status](https://travis-ci.org/mlampros/RGF.svg?branch=master)](https://travis-ci.org/mlampros/RGF)
 [![codecov.io](https://codecov.io/github/mlampros/RGF/coverage.svg?branch=master)](https://codecov.io/github/mlampros/RGF?branch=master)
@@ -9,7 +8,7 @@
 <br>
 
 
-The **RGF** package is a wrapper of the [Regularized Greedy Forest (RGF)](https://github.com/RGF-team/rgf_python) *python* package, which also includes a [Multi-core implementation (FastRGF)](https://github.com/baidu/fast_rgf). More details on the functionality of the RGF package can be found in the [blog-post](http://mlampros.github.io/2018/02/14/the_RGF_package/) and in the package Documentation. 
+The **RGF** package is a wrapper of the [Regularized Greedy Forest (RGF)](https://github.com/RGF-team/rgf_python) *python* package, which also includes a [Multi-core implementation (FastRGF)](https://github.com/RGF-team/rgf/tree/master/FastRGF). More details on the functionality of the RGF package can be found in the [blog-post](http://mlampros.github.io/2018/02/14/the_RGF_package/) and in the package Documentation. 
 
 <br>
 
@@ -21,11 +20,11 @@ The **RGF** package is a wrapper of the [Regularized Greedy Forest (RGF)](https:
 
 [Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest](https://arxiv.org/abs/1109.0887)
 
-https://github.com/RGF-team/rgf/tree/master/RGF
+[RGF](https://github.com/RGF-team/rgf/tree/master/RGF)
 
-https://github.com/RGF-team/rgf/tree/master/FastRGF
+[FastRGF](https://github.com/RGF-team/rgf/tree/master/FastRGF)
 
-https://github.com/RGF-team/rgf/tree/master/python-package
+[python-package](https://github.com/RGF-team/rgf/tree/master/python-package)
 
 
 <br>
@@ -43,7 +42,7 @@ All modules should be installed in the default python configuration (the configu
 
 <br>
 
-#### **Debian/Ubuntu/Fedora**    [ Python 2.7 ]
+#### **Debian/Ubuntu/Fedora**    [ installed / tested on Python 2.7 ]
 
 <br>
 
@@ -86,7 +85,7 @@ sudo python setup.py install
 
 
 
-#### **Macintosh OSX**            [ Python >= 3.4 ]
+#### **Macintosh OSX**            [ installed / tested on Python >= 3.4 ]
 
 <br>
 
@@ -246,7 +245,7 @@ UserWarning: Cannot find FastRGF executable files. FastRGF estimators will be un
 
 <br><br>
 
-#### **Windows OS**            [ Python >= 3.4 ]
+#### **Windows OS**            [ installed / tested on Python >= 3.4 ]
 
 <br>
 
@@ -551,14 +550,12 @@ and to download the latest version from GitHub use the *install_github* function
 
 ```R
 
-devtools::install_github(repo = 'mlampros/RGF')
+devtools::install_github(repo = 'RGF-team/rgf', subdir = 'R-package')
 
 ```
 <br>
 Use the following link to report bugs/issues,
 <br><br>
 
-[https://github.com/mlampros/RGF/issues](https://github.com/mlampros/RGF/issues)
-
+[https://github.com/RGF-team/rgf/issues](https://github.com/RGF-team/rgf/issues)
 <br>
-
