@@ -39,14 +39,14 @@ The *RGF* package includes the following R6-classes / functions,
 
 |    RGF_Regressor        |   RGF_Classifier       |  FastRGF_Regressor    |  FastRGF_Classifier  |
 | :---------------------: |  :-------------------: | :-------------------: | :------------------: |
-|   fit()                 |  fit(()                | fit()                 | fit()                |
-|   predict()             |  predict()             | predict()             | predict()            |
-|   cleanup()             |  predict_proba()       | cleanup()             | predict_proba()      |
-|   get_params()          |  cleanup()             | get_params()          | cleanup()            |
-|   score()               |  get_params()          | score()               | get_params()         |
-|   feature_importances() |  score()               |                       | score()              |
-|   dump_model()          |  feature_importances() |                       |                      |
-|                         |  dump_model()          |                       |                      |  
+|  fit()                  |  fit()                 | fit()                 | fit()                |
+|  predict()              |  predict()             | predict()             | predict()            |
+|                         |  predict_proba()       |                       | predict_proba()      |
+|  cleanup()              |  cleanup()             | cleanup()             | cleanup()            |
+|  get_params()           |  get_params()          | get_params()          | get_params()         |
+|  score()                |  score()               | score()               | score()              |
+|  feature_importances()  |  feature_importances() |                       |                      |
+|  dump_model()           |  dump_model()          |                       |                      |  
 
 
 <br>
