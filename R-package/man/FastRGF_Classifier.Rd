@@ -68,7 +68,7 @@ the \emph{predict} function predicts the class for x.
 
 the \emph{predict_proba} function predicts class probabilities for x.
 
-the \emph{cleanup} function removes tempfiles used by this model. See the issue \emph{https://github.com/fukatani/rgf_python/issues/75}, which explains in which cases the \emph{cleanup} function applies.
+the \emph{cleanup} function removes tempfiles used by this model. See the issue \emph{https://github.com/RGF-team/rgf/issues/75}, which explains in which cases the \emph{cleanup} function applies.
 
 the \emph{get_params} function returns the parameters of the model.
 
@@ -136,6 +136,6 @@ if (reticulate::py_available() && reticulate::py_module_available("rgf.sklearn")
 }
 }
 \references{
-\emph{https://github.com/fukatani/rgf_python}, \emph{Tong Zhang, FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/baidu/fast_rgf)}
+\emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Tong Zhang, FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/RGF-team/rgf/tree/master/FastRGF)}
 }
 \keyword{datasets}

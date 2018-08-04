@@ -10,7 +10,7 @@ RGF_cleanup_temp_files()
 Delete all temporary files of the created RGF estimators
 }
 \details{
-This function deletes all temporary files of the created RGF estimators. See the issue \emph{https://github.com/fukatani/rgf_python/issues/75} for more details.
+This function deletes all temporary files of the created RGF estimators. See the issue \emph{https://github.com/RGF-team/rgf/issues/75} for more details.
 }
 \examples{
 
@@ -21,5 +21,5 @@ RGF_cleanup_temp_files()
 }
 }
 \references{
-\emph{https://github.com/fukatani/rgf_python}
+\emph{https://github.com/RGF-team/rgf/tree/master/python-package}
 }

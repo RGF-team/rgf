@@ -163,7 +163,7 @@ which gcc
 
 <br>
 
-After the new gcc is installed the user should continue with the installation of *rgf-python*,
+After the new gcc is installed the user should continue with the installation of *rgf_python*,
 
 <br>
 

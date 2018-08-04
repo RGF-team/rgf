@@ -39,7 +39,7 @@
 
 \item{min_samples_leaf}{an integer or a float. Minimum number of training data points in each leaf node. If an integer, then consider \emph{min_samples_leaf} as the minimum number. If a float, then \emph{min_samples_leaf} is a percentage and ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.}
 
-\item{n_iter}{an int or NULL. The number of iterations of coordinate descent to optimize weights. If NULL, 10 is used for loss = "LS" and 5 for loss = "Expo" or "Log".}
+\item{n_iter}{an integer or NULL. The number of iterations of coordinate descent to optimize weights. If NULL, 10 is used for loss = "LS" and 5 for loss = "Expo" or "Log".}
 
 \item{n_tree_search}{an integer. The number of trees to be searched for the nodes to split. The most recently grown trees are searched first.}
 
@@ -59,7 +59,7 @@ the \emph{fit} function builds a regressor from the training set (x, y).
 
 the \emph{predict} function predicts the regression target for x.
 
-the \emph{cleanup} function removes tempfiles used by this model. See the issue \emph{https://github.com/fukatani/rgf_python/issues/75}, which explains in which cases the \emph{cleanup} function applies.
+the \emph{cleanup} function removes tempfiles used by this model. See the issue \emph{https://github.com/RGF-team/rgf/issues/75}, which explains in which cases the \emph{cleanup} function applies.
 
 the \emph{get_params} function returns the parameters of the model.
 
@@ -132,6 +132,6 @@ if (reticulate::py_available() && reticulate::py_module_available("rgf.sklearn")
 }
 }
 \references{
-\emph{https://github.com/fukatani/rgf_python}, \emph{Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest}
+\emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest}
 }
 \keyword{datasets}
