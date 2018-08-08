@@ -3,8 +3,27 @@ cd $TRAVIS_BUILD_DIR/R-package
 echo "R_LIBS=$R_LIB_PATH" > .Renviron
 echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
 
-sudo apt-get install texlive-latex-recommended texlive-fonts-recommended qpdf  # packages to build and check documentation
-conda install -c r --no-deps r-base _r-mutex pcre icu libcurl pandoc  # set up minimal R environment
+export PATH="$R_LIB_PATH/R/bin:$PATH"
+
+sudo apt-get install gfortran-5
+sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-5 10
+# use system-wide libraries (fix error "symbol _ZTINSt8ios_base7failureB5cxx11E, version GLIBCXX_3.4.21 not defined in file libstdc++.so.6 with link time reference")
+conda remove --force libgfortran-ng libgcc-ng libstdcxx-ng
+
+# install packages to build and check documentation
+conda install --no-deps pandoc
+sudo apt-get install texlive-latex-recommended texlive-fonts-recommended texlive-fonts-extra qpdf
+
+if ! command -v R &> /dev/null; then
+    R_VER=3.5.1
+    cd $TRAVIS_BUILD_DIR
+    wget https://cran.r-project.org/src/base/R-3/R-$R_VER.tar.gz
+    tar -xzf R-$R_VER.tar.gz
+    R-$R_VER/configure --enable-R-shlib --prefix=$R_LIB_PATH/R
+    make
+    make install
+    cd $TRAVIS_BUILD_DIR/R-package
+fi
 
 Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
 Rscript -e 'if(!"roxygen2" %in% rownames(installed.packages())) { install.packages("roxygen2", dependencies = TRUE) }'
