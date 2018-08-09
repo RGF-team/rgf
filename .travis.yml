@@ -3,11 +3,6 @@ sudo: false
 # Travis CI does not currently support Python on Mac OS X
 language: generic
 
-addons:
-  apt:
-    sources:
-      - r-packages-trusty
-
 os:
   - linux
   - osx
