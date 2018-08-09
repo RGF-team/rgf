@@ -1,3 +1,8 @@
+## RGF 1.0.5
+
+The RGF R package was integrated in the home repository for the Regularized Greedy Forest (RGF) library (https://github.com/RGF-team).
+
+
 ## RGF 1.0.4
 
 * We modified the license from GPL-3 to MIT to go in accordance with the new structure of the *rgf_python* package. The package includes two files : *LICENSE* (for the RGF R package) and *LICENSE.note* (for the *RGF*, *FastRGF* and *rgf_python* packages).
