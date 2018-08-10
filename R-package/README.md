@@ -1,4 +1,4 @@
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/RGF)](http://cran.r-project.org/package=RGF)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/RGF)](https://cran.r-project.org/package=RGF)
 [![Travis-CI Build Status](https://travis-ci.org/mlampros/RGF.svg?branch=master)](https://travis-ci.org/mlampros/RGF)
 [![codecov.io](https://codecov.io/github/mlampros/RGF/coverage.svg?branch=master)](https://codecov.io/github/mlampros/RGF?branch=master)
 [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/RGF?color=blue)](http://www.r-pkg.org/pkg/RGF)
