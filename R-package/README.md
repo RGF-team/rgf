@@ -85,7 +85,7 @@ sudo python setup.py install
 
 
 
-#### **Macintosh OSX**            [ installed / tested on Python >= 3.4 ]
+#### **Mac OS X**            [ installed / tested on Python >= 3.4 ]
 
 <br>
 

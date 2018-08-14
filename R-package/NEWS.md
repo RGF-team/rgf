@@ -7,7 +7,7 @@ The RGF R package was integrated in the home repository for the Regularized Gree
 
 * We modified the license from GPL-3 to MIT to go in accordance with the new structure of the *rgf_python* package. The package includes two files : *LICENSE* (for the RGF R package) and *LICENSE.note* (for the *RGF*, *FastRGF* and *rgf_python* packages).
 * We added the following new features of RGF estimators : *feature_importances_* and *dump_model()*
-* We modified the README.md file and especially the installation instructions for all operating systems (Linux, Macintosh, Windows)
+* We modified the README.md file and especially the installation instructions for all operating systems (Linux, Mac OS X, Windows)
 * We created an R6 class (*Internal_class*) for all secondary functions which are used in RGF and FastRGF
 
 
@@ -20,7 +20,7 @@ The RGF R package was integrated in the home repository for the Regularized Gree
 
 ## RGF 1.0.2
 
-We commented the example(s) and test(s) related to the *dgCMatrix_2scipy_sparse* function [ *if (Sys.info()["sysname"] != 'Darwin')* ], because the *scipy-sparse* library on CRAN is not upgraded and the older version includes a bug (*TypeError : could not interpret data type*). This leads to an error on *Macintosh* ( *reference* : https://github.com/scipy/scipy/issues/5353 ).
+We commented the example(s) and test(s) related to the *dgCMatrix_2scipy_sparse* function [ *if (Sys.info()["sysname"] != 'Darwin')* ], because the *scipy-sparse* library on CRAN is not upgraded and the older version includes a bug (*TypeError : could not interpret data type*). This leads to an error on *Mac OS X* ( *reference* : https://github.com/scipy/scipy/issues/5353 ).
 
 
 ## RGF 1.0.1
