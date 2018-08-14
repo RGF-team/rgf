@@ -1,7 +1,7 @@
 mkdir -p $R_LIB_PATH
 cd $TRAVIS_BUILD_DIR/R-package
 echo "R_LIBS=$R_LIB_PATH" > .Renviron
-echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
+echo 'options(repos = "https://cran.rstudio.com")' > .Rprofile
 
 export PATH="$R_LIB_PATH/R/bin:$PATH"
 
@@ -13,6 +13,9 @@ conda remove --force libgfortran-ng libgcc-ng libstdcxx-ng
 # install packages to build and check documentation
 conda install --no-deps pandoc
 sudo apt-get install texlive-latex-recommended texlive-fonts-recommended texlive-fonts-extra qpdf
+
+# fix "libcurl error code 60: server certificate verification failed. CAfile: /etc/ssl/certs/ca-certificates.crt CRLfile: none"
+echo -n | openssl s_client -connect arxiv.org:443 2>/dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
 
 if ! command -v R &> /dev/null; then
     R_VER=3.5.1
