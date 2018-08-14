@@ -362,7 +362,7 @@ A word of caution, If *Rtools* is already installed then make sure that it does 
 
 <br>
 
-*FastRGF* works only with [MinGW-w64](https://mingw-w64.org/doku.php ) because only this version provides POSIX threads. It can be downloaded from [MingW-W64-builds](https://mingw-w64.org/doku.php/download). After a successful download and installation the user should also update the environment variables field in (Control Panel >> System and Security >> System >> Advanced system settings >> Environment variables >> System variables >> Path >> Edit) by adding the following path (assuming the software is installed in **C:\\Program Files (x86)** folder),
+*FastRGF* works only with [MinGW-w64](http://mingw-w64.org/doku.php) because only this version provides POSIX threads. It can be downloaded from the project's [official SourceForge page](https://sourceforge.net/projects/mingw-w64/). After a successful download and installation the user should also update the environment variables field in (Control Panel >> System and Security >> System >> Advanced system settings >> Environment variables >> System variables >> Path >> Edit) by adding the following path (assuming the software is installed in **C:\\Program Files (x86)** folder),
 
 <br>
 
