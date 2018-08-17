@@ -11,6 +11,7 @@ environment:
     - PYTHON_VERSION: 3.4
     - PYTHON_VERSION: 3.5
     - PYTHON_VERSION: 3.6
+    - PYTHON_VERSION: 3.7
 
 install:
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%  # Delete sh.exe from PATH (mingw32-make fix)
@@ -49,7 +50,7 @@ after_test:
       if(
          $env:APPVEYOR_REPO_TAG -eq "false" -or
          $env:APPVEYOR_REPO_BRANCH -ne "master" -or
-         $env:PYTHON_VERSION -ne "3.6") {
+         $env:PYTHON_VERSION -ne "3.7") {
           Exit-AppVeyorBuild
       }
   - IF "%PLATFORM%" == "x64" (
@@ -75,4 +76,4 @@ deploy:
   on:
     appveyor_repo_tag: true
     branch: master
-    PYTHON_VERSION: 3.6
+    PYTHON_VERSION: 3.7

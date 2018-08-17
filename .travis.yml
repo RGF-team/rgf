@@ -1,6 +1,6 @@
 sudo: false
 
-# Travis CI does not currently support Python on Mac OS X
+# Travis CI does not currently support Python on macOS
 language: generic
 
 os:
@@ -15,7 +15,8 @@ env:
     - PYTHON_VERSION=3.4
     - PYTHON_VERSION=3.5
     - PYTHON_VERSION=3.6
-    - PYTHON_VERSION=3.6 TASK=R_PACKAGE
+    - PYTHON_VERSION=3.7
+    - PYTHON_VERSION=3.7 TASK=R_PACKAGE
 
 matrix:
   exclude:
@@ -94,5 +95,5 @@ deploy:
   tag_name: $TRAVIS_TAG
   on:
     branch: master
-    condition: "$PYTHON_VERSION = 3.6"
+    condition: "$PYTHON_VERSION = 3.7"
     tags: true
