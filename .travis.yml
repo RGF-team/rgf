@@ -21,7 +21,7 @@ env:
 matrix:
   exclude:
     - os: osx
-      env: PYTHON_VERSION=3.6 TASK=R_PACKAGE
+      env: PYTHON_VERSION=3.7 TASK=R_PACKAGE
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
