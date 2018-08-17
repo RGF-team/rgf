@@ -2,6 +2,8 @@
 
 The RGF R package was integrated in the home repository for the Regularized Greedy Forest (RGF) library (https://github.com/RGF-team).
 
+* We downgraded minimum required version of R to 3.1.0
+
 
 ## RGF 1.0.4
 
