@@ -1,0 +1,24 @@
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#       Regularized Greedy Forest (RGF)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+See file COPYING: https://github.com/RGF-team/rgf/blob/master/RGF/COPYING
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#     Fast Regularized Greedy Forest (FastRGF)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+See file LICENSE: https://github.com/RGF-team/rgf/blob/master/FastRGF/LICENSE
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#     Python wrapper of RGF and FastRGF     
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+See file LICENSE: https://github.com/RGF-team/rgf/blob/master/python-package/LICENSE
