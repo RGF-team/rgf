@@ -48,4 +48,5 @@ PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
 PKG_NAME="${PKG_FILE_NAME%%_*}"
 LOG_FILE_NAME="$PKG_NAME.Rcheck/00check.log"
 
+echo "comment: off" > $TRAVIS_BUILD_DIR/codecov.yml
 Rscript -e 'covr::codecov(quiet = FALSE)'

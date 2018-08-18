@@ -38,7 +38,7 @@ install:
   - pip install dist\rgf_python-%RGF_VER%.tar.gz -v
 
 test_script:
-  - pytest tests/ -v
+  - dir
 
 after_test:
   - ps: >-
