@@ -2,8 +2,6 @@ mkdir -p $R_LIB_PATH
 cd $TRAVIS_BUILD_DIR/R-package
 echo "R_LIBS=$R_LIB_PATH" > .Renviron
 echo 'options(repos = "https://cran.rstudio.com")' > .Rprofile
-echo "comment: off" > $TRAVIS_BUILD_DIR/codecov.yml
-cat $TRAVIS_BUILD_DIR/codecov.yml
 
 export PATH="$R_LIB_PATH/R/bin:$PATH"
 
