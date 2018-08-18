@@ -1,1 +1,2 @@
 ^\.R\.travis\.sh$
+^\.codecov\.yml$
