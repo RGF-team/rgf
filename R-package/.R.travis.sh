@@ -57,4 +57,5 @@ elif grep -q -R "NOTE" "$LOG_FILE_NAME"; then
     exit -1
 fi
 
+echo "comment: off" > .codecov.yml
 Rscript -e 'covr::codecov(quiet = FALSE)'
