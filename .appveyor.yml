@@ -3,16 +3,10 @@ image: Visual Studio 2015
 
 platform:
   - x64
-  - x86
 
 environment:
   matrix:
     - PYTHON_VERSION: 2.7
-    - PYTHON_VERSION: 3.4
-    - PYTHON_VERSION: 3.5
-    - PYTHON_VERSION: 3.6
-    - PYTHON_VERSION: 3.7
-
 install:
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%  # Delete sh.exe from PATH (mingw32-make fix)
   - ps: >-
