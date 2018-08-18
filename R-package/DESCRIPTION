@@ -11,7 +11,7 @@ Description: Regularized Greedy Forest wrapper of the 'Regularized Greedy Forest
 License: MIT + file LICENSE
 SystemRequirements: Python (2.7 or >= 3.4), rgf_python, scikit-learn (>= 0.18.0), scipy, numpy. Detailed installation instructions for each operating system can be found in the README file.
 Depends:
-    R(>= 3.2.3)
+    R(>= 3.2.0)
 Imports:
     reticulate, R6, Matrix
 Suggests:
