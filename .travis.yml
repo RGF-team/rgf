@@ -11,11 +11,6 @@ env:
   global:
     - R_LIB_PATH=~/Rlib
   matrix:
-    - PYTHON_VERSION=2.7
-    - PYTHON_VERSION=3.4
-    - PYTHON_VERSION=3.5
-    - PYTHON_VERSION=3.6
-    - PYTHON_VERSION=3.7
     - PYTHON_VERSION=3.7 TASK=R_PACKAGE
 
 matrix:
