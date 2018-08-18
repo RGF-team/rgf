@@ -1,6 +1,6 @@
-[![CRAN_Status_Badge](https://r-pkg.org/badges/version/RGF)](https://cran.r-project.org/package=RGF)
-[![codecov.io](https://codecov.io/github/mlampros/RGF/coverage.svg?branch=master)](https://codecov.io/github/mlampros/RGF?branch=master)
-[![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/RGF?color=blue)](https://cran.r-project.org/package=RGF)
+[![CRAN Version](https://r-pkg.org/badges/version/RGF)](https://cran.r-project.org/package=RGF)
+[![codecov.io](https://codecov.io/github/RGF-team/rgf/coverage.svg?branch=master)](https://codecov.io/github/RGF-team/rgf?branch=master)
+[![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/RGF?color=blue)](https://cran.r-project.org/package=RGF)
 
 
 ## RGF (Regularized Greedy Forest)
