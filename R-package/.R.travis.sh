@@ -7,8 +7,6 @@ export PATH="$R_LIB_PATH/R/bin:$PATH"
 
 sudo apt-get install gfortran-5
 sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-5 10
-# use system-wide libraries (fix error "symbol _ZTINSt8ios_base7failureB5cxx11E, version GLIBCXX_3.4.21 not defined in file libstdc++.so.6 with link time reference")
-conda remove --force libgfortran-ng libgcc-ng libstdcxx-ng
 
 # install packages to build and check documentation
 conda install --no-deps pandoc
