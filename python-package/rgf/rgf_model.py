@@ -20,7 +20,7 @@ rgf_estimator_docstring_template = \
 A Regularized Greedy Forest [1] {%estimator_type%}.
 
 Tuning parameters detailed instruction:
-    https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.pdf
+    https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.rst#432-parameters-to-control-training
 
 Parameters
 ----------

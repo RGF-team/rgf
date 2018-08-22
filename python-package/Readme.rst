@@ -142,7 +142,7 @@ You can tune hyperparameters as follows.
 -  *opt\_interval*: Weight optimization interval in terms of the number of leaf nodes.
 -  *learning\_rate*: Step size of Newton updates used in coordinate descent to optimize weights.
 
-Detailed instruction of tuning hyperparameters is `here <https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.pdf>`__.
+Detailed instruction of tuning hyperparameters is `here <https://github.com/RGF-team/rgf/blob/master/RGF/rgf-guide.rst#432-parameters-to-control-training>`__.
 
 FastRGF
 '''''''
