@@ -1,3 +1,5 @@
+context('rgf R-package tests')
+
 #========================================================================================
 
 # helper function to skip tests if we don't have the 'foo' module
