@@ -185,7 +185,7 @@ model files.
 
 # 4. Documentation
 
-[`rgf-guide.pdf`](./rgf-guide.pdf) "**Regularized Greedy Forest Version 1.2: User Guide**" is included.
+Please see the file [`rgf-guide.rst`](./rgf-guide.rst) "**Regularized Greedy Forest Version 1.2: User Guide**".
 
 # 5. Contact
 
