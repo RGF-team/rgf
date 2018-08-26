@@ -1,5 +1,5 @@
-Regularized Greedy Forest in C++ Version 1.2: User Guide
-********************************************************
+Regularized Greedy Forest in C++: User Guide
+********************************************
 
 1 Introduction
 ==============
@@ -25,18 +25,18 @@ Data formats are described in `Section 3 <#3-inputoutput-file-format>`__.
 2 Get started: A quick tour of functionality
 ============================================
 
-The first thing to do is to download the package, extract the content, and create the executable.
-Please follow the online instructions and ``README``.
+The first thing to do is to download the package (, extract the content, and create the executable, if it's needed).
+Please follow the instructions in the `README <./README.md#2-download-and-installation>`__ file.
 
-The top directory of the extracted content is ``rgf1.2``.
-Make sure that the executable ``rgf`` (or ``rgf.exe`` on Windows) is at ``rgf1.2/bin``.
-To go through the examples in this section, always set the current directory to ``rgf1.2/test`` because the resource files configured for using sample toy data assume that the current directory is ``rgf1.2/test``.
-For the same reason, the path expressions in this section should be understood to be relative to ``rgf1.2/test`` unless it begins with ``rgf1.2``.
+The top directory of the downloaded content is ``rgf`` and this software package is located into ``RGF`` subfolder.
+Make sure that the executable ``rgf`` (or ``rgf.exe`` on Windows) is at ``rgf/RGF/bin``.
+To go through the examples in this section, always set the current directory to ``rgf/RGF/examples`` because the resource files configured for using sample toy data assume that the current directory is ``rgf/RGF/examples``.
+For the same reason, the path expressions in this section should be understood to be relative to ``rgf/RGF/examples`` unless it begins with ``rgf``.
 
 2.1 Get started: ``train`` – training
 -------------------------------------
 
-To get started, set the current directory to ``rgf1.2/test`` and enter in the command line:
+To get started, set the current directory to ``rgf/RGF/examples`` and enter in the command line:
 
 .. code::
 
@@ -57,24 +57,24 @@ If successful, the last several lines of the screen should look like:
     elapsed: 0.115
 
 What happened is:
-the Perl script ``call_exe.pl`` read parameters in the configuration file ``sample/train.inp`` and passed them to the executable ``../bin/rgf`` along with the action to take (``train``);
+the Perl script `call_exe.pl <./examples/call_exe.pl>`__ read parameters in the configuration file `sample/train.inp <./examples/sample/train.inp>`__ and passed them to the executable ``../bin/rgf`` along with the action to take (``train``);
 as a result, training was conducted and five models were saved to files.
-Here is the configuration file ``sample/train.inp`` that ``call_exe.pl`` was given:
+Here is the part of the configuration file ``sample/train.inp`` that ``call_exe.pl`` was given:
 
 .. code::
 
-    #### sample input to "train" ####
-    train x fn=sample/train.data.x   # Training data points
-    train y fn=sample/train.data.y   # Training targets
-    model fn prefix=output/sample.mode
-    reg L2=1                         # Regularization parameter
-    algorithm=RGF
-    loss=LS                          # Square loss
-    test interval=100                # Save models every time 100 leaves are added.
-    max leaf forest=500              # Stop training when #leaf reaches 500
-    Verbose
+    ####  sample input to "train"  ####
+    train_x_fn=sample/train.data.x  # Training data points
+    train_y_fn=sample/train.data.y  # Training targets
+    model_fn_prefix=output/sample.model
+    reg_L2=1            # Regularization parameter
+    algorithm=RGF       # RGF with L2 regularization with leaf-only models
+    loss=LS             # Square loss
+    test_interval=100   # Save models every time 100 leaves are added
+    max_leaf_forest=500 # Stop training when #leaf reaches 500
+    Verbose             # Display info during training
 
-It essentially says: conduct training with the training data points in ``sample/train.data.x`` and the training targets in ``sample/train.data.y`` and save the trained models to the files.
+It essentially says: conduct training with the training data points in `sample/train.data.x <./examples/sample/train.data.x>`__ and the training targets in `sample/train.data.y <./examples/sample/train.data.y>`__ and save the trained models to the files.
 Any texts from ``#`` to the end of line are comments.
 The line ``model_fn_prefix...`` indicates that the system should generate model path names using the string ``output/sample.model`` as a prefix and attaching sequential numbers ``-01``, ``-02``, ... to it.
 It also says: training should proceed until the number of leaf nodes in the forest reaches 500 (``max_leaf_forest=500``);
@@ -113,7 +113,7 @@ That is how one call of training produces several models.
 ---------------------------------------------
 
 The next example reads a model from one of the five model files generated in `Section 2.1 <#21-get-started-train--training>`__ and applies the model to new data.
-Set the current directory to ``rgf1.2/test`` and enter:
+Set the current directory to ``rgf/RGF/examples`` and enter:
 
 .. code::
 
@@ -129,7 +129,7 @@ If successful, after parameters are displayed, something similar to the followin
 which indicates that the prediction values were saved to ``output/sample.pred``;
 the model was read from the file ``output/sample.model-03`` and it contained 301 leaf nodes and 73 trees.
 
-The configuration file ``sample/predict.inp`` we used is:
+The configuration file `sample/predict.inp <./examples/sample/predict.inp>`__ we used is:
 
 .. code::
 
@@ -138,7 +138,7 @@ The configuration file ``sample/predict.inp`` we used is:
     model_fn=output/sample.model-03    # Model file
     prediction_fn=output/sample.pred   # Where to write prediction values
 
-It says: read the model from ``output/sample.model-03``; apply it to the data points in ``sample/test.data.x``;
+It says: read the model from ``output/sample.model-03``; apply it to the data points in `sample/test.data.x <./examples/sample/test.data.x>`__;
 and save the prediction values to ``output/sample.pred``.
 The format of the prediction file is described in `Section 3.3 <#33-prediction-file-format>`__.
 
@@ -169,7 +169,7 @@ The executable ``rgf``, called through the Perl script in the examples above, ta
 |                       |                       | in one call.                               |
 |                       |                       |                                            |
 |                       |                       | Input: training data and test data;        |
-|                       |                       | Output: performance results.               |
+|                       |                       | Output: performance results;               |
 |                       |                       | Optional output: models.                   |
 +                       +-----------------------+--------------------------------------------+
 |                       | ``train_predict``     | Train and apply the models                 |
@@ -185,7 +185,7 @@ The executable ``rgf``, called through the Perl script in the examples above, ta
 |                       | Example: ``algorithm=RGF,train_x_fn=data.x,train_y_fn=data.y,...`` |
 +-----------------------+-----------------------+--------------------------------------------+
 
-Although what is done by ``train_test`` or ``train_predict`` can also be done by combining ``train`` and ``predict``,
+Although what is done by ``train_test`` or ``train_predict`` can also be done by combining ``train`` and ``predict``,
 use of ``train_test`` or ``train_predict`` has advantages in some situations as discussed in `Sections 2.5 <#25-train_test-train-apply-and-evaluate-models>`__ and `2.6 <#26-train_predict-train-and-apply-the-models-and-save-predictions>`__.
 
 To get help on parameters, call ``rgf`` with *action* but without *parameters*, for example:
@@ -195,7 +195,7 @@ To get help on parameters, call ``rgf`` with *action* but without *parameters*, 
     rgf  train
     rgf  predict
 
-Since parameters could be long and tedious to type in, the Perl script ``call_exe.pl`` introduced above is provided to ease the job.
+Since parameters could be long and tedious to type in, the Perl script `call_exe.pl <./examples/call_exe.pl>`__ introduced above is provided to ease the job.
 It essentially reads parameters from a configuration file and concatenates them with delimiter ``,`` to pass to ``rgf``.
 The syntax is as follows:
 
@@ -204,7 +204,7 @@ The syntax is as follows:
     perl  call_exe.pl  executable  action  config_pathname
 
 +-----------------------------------+--------------------------------------------------------------+
-| *executable*                      | Typically, ``../bin/rgf``, i.e., ``rgf1.2/bin/rgf``.         |
+| *executable*                      | Typically, ``../bin/rgf``, i.e., ``rgf/RGF/bin/rgf``.        |
 +-----------------------------------+--------------------------------------------------------------+
 | *action*                          | ``train`` | ``predict`` | ``train_test`` | ``train_predict`` |
 +-----------------------------------+--------------------------------------------------------------+
@@ -216,7 +216,7 @@ In the configuration files, any text from ``#`` to the end of line is considered
 
 Additionally, ``call_exe.pl`` provides an interface to perform several runs in one call with one configuration file.
 This is convenient, for example, for testing different degrees of regularization with other parameters fixed.
-``sample/regress_train_test.inp`` provides a self-explaining example.
+`sample/regress_train_test.inp <./examples/sample/regress_train_test.inp>`__ provides a self-explaining example.
 
 2.5 ``train_test``: train, apply, and evaluate models
 -----------------------------------------------------
@@ -224,7 +224,7 @@ This is convenient, for example, for testing different degrees of regularization
 ``train_test`` performs training and test in one call.
 What ``train_test`` does can also be done by combining ``train`` and ``predict`` and writing an evaluation routine by yourself.
 One advantage of ``train_test`` other than convenience is that it can save disk space by not having to write the models to files.
-To try the example configuration for ``train_test``, set the current directory to ``rgf1.2/test``, and enter:
+To try the example configuration for ``train_test``, set the current directory to ``rgf/RGF/examples``, and enter:
 
 .. code::
 
@@ -244,7 +244,7 @@ If successful, the last several lines of the screen should look like:
     Sat Dec 10 10:17:50 2011: Done ...
     elapsed:   0.135
 
-The configuration file ``sample/train test.inp`` is:
+The part of the configuration file `sample/train_test.inp <./examples/sample/train_test.inp>`__ is:
 
 .. code::
 
@@ -252,16 +252,16 @@ The configuration file ``sample/train test.inp`` is:
     train_x_fn=sample/train.data.x   # Training data points
     train_y_fn=sample/train.data.y   # Training targest
     test_x_fn=sample/test.data.x     # Test data points
-    test_y_fn=sample/test.data.y     # Test targest
+    test_y_fn=sample/test.data.y     # Test targets
     evaluation_fn=output/sample.evaluation
                                      # Where to write evaluation results
-    model_fn_prefix=output/m         # Save models. This is optional.
-    algorithm=RGF
+    model_fn_prefix=output/m         # Save models. This is optional
+    algorithm=RGF                    # RGF with L2 regularization on leaf-only models
     reg_L2=1                         # Regularization parameter
     loss=LS                          # Square loss
-    test_interval=100                # Test at every 100 leaves
-    max_leaf_forest=500              # Stop training when 500 leaves are added
-    Verbose
+    test_interval=100                # Test (and save) models every time 100 leaves are added
+    max_leaf_forest=500              # Stop training when #leaf reaches 500
+    Verbose                          # Display info during training
 
 It is mostly the same as the configuration file for ``train`` in `Section 2.1 <#21-get-started-train--training>`__ except that test data is specified by ``test_x_fn`` (data points) and ``test_y_fn`` (targets) and ``evaluation_fn`` indicates where the performance evaluation results should be written.
 In this example, model files are saved to files, as ``model_fn_prefix`` is specified.
@@ -300,7 +300,7 @@ With this switch on, only the last (and largest) model is written to the file to
 Model information such as sizes is also written to files.
 The original purpose is to save information that would be disposed of otherwise with ``SaveLastModelOnly`` on.
 But for simplicity, ``train_predict`` always generates model information files irrespective of on/off of the switch.
-The provided sample configuration file for ``train_predict``, ``sample/train_predict.inp`` is as follows.
+The part of the provided sample configuration file for ``train_predict``, `sample/train_predict.inp <./examples/sample/train_predict.inp>`__ is as follows.
 
 .. code::
 
@@ -309,9 +309,9 @@ The provided sample configuration file for ``train_predict``, ``sample/train_pre
     train_y_fn=sample/train.data.y   # Training targets
     test_x_fn=sample/test.data.x     # Test data points
     model_fn_prefix=output/m
-    SaveLastModelOnly                # Only the last (largest) model will be saved.
+    SaveLastModelOnly                # Only the last (largest) model will be saved
     :
-    test_interval=100                # Test every time 100 leaves are added.
+    test_interval=100                # Test (and save) models every time 100 leaves are added
     max_leaf_forest=500              # Stop training when #leaf reaches 500
 
 In this example, the model path names will be ``output/m-01``, ..., ``output/m-05``, but the only last one ``output/m-05`` is actually written to the file, as ``SaveLastModelOnly`` is turned on.
@@ -477,7 +477,7 @@ The model files generated by ``train`` or ``train_test`` are binary files.
 Caution is needed *if* you wish to share model files between the environments with different *endianness*.
 By default the code assumes *little-endian*.
 To share model files between environments with different endians the executable used in the *big-endian* environment needs to be compiled in a certain way;
-see ``README`` for detail.
+see `README <./README.md#33-optional-endianness-consideration>`__ for detail.
 
 4 Parameters
 ============

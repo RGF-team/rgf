@@ -6,7 +6,7 @@ train_y_fn=sample/train.data.y  # Training targets
 test_x_fn=sample/test.data.x    # Test data points
 test_y_fn=sample/test.data.y    # Test targets
 
-evaluation_fn=output/sample.evaluation   # Where to write performances
+evaluation_fn=output/sample.evaluation  # Where to write evaluation results
   
 model_fn_prefix=output/m  # Comment this out if models should not be saved
 
