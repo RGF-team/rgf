@@ -51,8 +51,8 @@ Executables are provided only for some versions of Windows
 If provided executables do not work for your environment,
 you need to compile C++ code.
 
-To use the provided tools and to go through the examples in the user guide,
-Perl is required.
+To use the provided tools and to go through the examples
+in the [user guide](./rgf-guide.rst#2-get-started-a-quick-tour-of-functionality), Perl is required.
 
 # 2. Download and Installation
 
@@ -69,7 +69,7 @@ Below all the path expressions are relative to `rgf/RGF`.
 
 # 3. Creating the Executable
 
-To go through the examples in the user guide, your executable needs to be
+To go through the examples in the [user guide](./rgf-guide.rst), your executable needs to be
 at the `bin` directory (it will appear there after you compile it by any method from the listed below).
 Otherwise, your executable can be anywhere you like.
 
@@ -185,7 +185,7 @@ model files.
 
 # 4. Documentation
 
-Please see the file [`rgf-guide.rst`](./rgf-guide.rst) "**Regularized Greedy Forest Version 1.2: User Guide**".
+Please see the file [`rgf-guide.rst`](./rgf-guide.rst) "**Regularized Greedy Forest: User Guide**".
 
 # 5. Contact
 
@@ -199,7 +199,7 @@ Please read the file [`COPYING`](./COPYING).
 
 # 7. References
 
-[1] [Rie Johnson and Tong Zhang. Learning Nonlinear Functions Using
+[1] Rie Johnson and Tong Zhang. [Learning Nonlinear Functions Using
     Regularized Greedy Forest.](https://arxiv.org/abs/1109.0887)
     IEEE Transactions on Pattern Analysis and Machine
     Intelligence, 36(5):942-954, May 2014.
