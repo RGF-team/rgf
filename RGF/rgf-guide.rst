@@ -783,9 +783,9 @@ The parameters to control training for ``train_predict`` are the same as those f
 References
 ==========
 
-[1] Jerome Friedman. Greedy function approximation: A gradient boosting machine. The Annals of Statistics, 29, 2001.
+[1] Jerome Friedman. Greedy Function Approximation: A Gradient Boosting Machine. The Annals of Statistics, 29, 2001.
 
-[2] Rie Johnson and Tong Zhang. `Learning nonlinear functions using regularized greedy forest. <https://ieeexplore.ieee.org/document/6583153/>`__ IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI), 36(5):942-954, 2014, also available as `arXiv:1109.0887 <https://arxiv.org/abs/1109.0887>`__.
+[2] Rie Johnson and Tong Zhang. `Learning Nonlinear Functions Using Regularized Greedy Forest. <https://ieeexplore.ieee.org/document/6583153/>`__ IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI), 36(5):942-954, 2014, also available as `arXiv:1109.0887 <https://arxiv.org/abs/1109.0887>`__.
 
 .. |k definition| image:: https://latex.codecogs.com/svg.latex?%5Cinline%20%5Clarge%20k%3D1%2C2%2C...%2C500
 

@@ -208,7 +208,7 @@ Shamelessly, some part of the implementation is based on the following `code <ht
 References
 ----------
 
-[1] `Rie Johnson and Tong Zhang. Learning Nonlinear Functions Using Regularized Greedy Forest. <https://arxiv.org/abs/1109.0887>`__ IEEE Transactions on Pattern Analysis and Machine Intelligence, 36(5):942-954, May 2014
+[1] Rie Johnson and Tong Zhang. `Learning Nonlinear Functions Using Regularized Greedy Forest. <https://arxiv.org/abs/1109.0887>`__ IEEE Transactions on Pattern Analysis and Machine Intelligence, 36(5):942-954, May 2014
 
 .. |License| image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: https://github.com/RGF-team/rgf/blob/master/python-package/LICENSE
