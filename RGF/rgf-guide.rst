@@ -63,16 +63,16 @@ Here is the part of the configuration file ``sample/train.inp`` that ``call_exe.
 
 .. code::
 
-    ####  sample input to "train"  ####
-    train_x_fn=sample/train.data.x  # Training data points
-    train_y_fn=sample/train.data.y  # Training targets
+    #### sample input to "train" ####
+    train_x_fn=sample/train.data.x   # Training data points
+    train_y_fn=sample/train.data.y   # Training targets
     model_fn_prefix=output/sample.model
-    reg_L2=1            # Regularization parameter
-    algorithm=RGF       # RGF with L2 regularization with leaf-only models
-    loss=LS             # Square loss
-    test_interval=100   # Save models every time 100 leaves are added
-    max_leaf_forest=500 # Stop training when #leaf reaches 500
-    Verbose             # Display info during training
+    reg_L2=1                         # Regularization parameter
+    algorithm=RGF                    # RGF with L2 regularization with leaf-only models
+    loss=LS                          # Square loss
+    test_interval=100                # Save models every time 100 leaves are added
+    max_leaf_forest=500              # Stop training when #leaf reaches 500
+    Verbose                          # Display info during training
 
 It essentially says: conduct training with the training data points in `sample/train.data.x <./examples/sample/train.data.x>`__ and the training targets in `sample/train.data.y <./examples/sample/train.data.y>`__ and save the trained models to the files.
 Any texts from ``#`` to the end of line are comments.
