@@ -68,7 +68,7 @@ From `PyPI <https://pypi.org/project/rgf_python>`__ using ``pip``:
 
     pip install rgf_python
 
-or from `GitHub <https://github.com/RGF-team/rgf>`__:
+or from `GitHub <https://github.com/RGF-team/rgf/python-package>`__:
 
 ::
 
