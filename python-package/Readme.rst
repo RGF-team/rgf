@@ -47,7 +47,7 @@ Examples
                                  cv=StratifiedKFold(n_folds))
 
     rgf_score = sum(rgf_scores)/n_folds
-    print('RGF Classfier score: {0:.5f}'.format(rgf_score))
+    print('RGF Classifier score: {0:.5f}'.format(rgf_score))
 
 More examples of using RGF estimators could be found `here <https://github.com/RGF-team/rgf/tree/master/python-package/examples/RGF>`__.
 
