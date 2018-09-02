@@ -12,9 +12,6 @@ sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-
 conda install --no-deps pandoc
 sudo apt-get install texlive-latex-recommended texlive-fonts-recommended texlive-fonts-extra qpdf
 
-# fix "libcurl error code 60: server certificate verification failed. CAfile: /etc/ssl/certs/ca-certificates.crt CRLfile: none"
-echo -n | openssl s_client -connect arxiv.org:443 2>/dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt
-
 if ! command -v R &> /dev/null; then
     R_VER=3.5.1
     cd $TRAVIS_BUILD_DIR
