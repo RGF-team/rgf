@@ -5,7 +5,7 @@ echo 'options(repos = "https://cran.rstudio.com")' > .Rprofile
 
 export PATH="$R_LIB_PATH/R/bin:$PATH"
 
-sudo apt-get install gfortran-5
+sudo apt-get install gfortran-5 libcurl4-openssl-dev
 sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-5 10
 
 # install packages to build and check documentation
