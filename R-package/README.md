@@ -440,7 +440,7 @@ mkdir build
 cd build
 
 
-# BEFORE PROCEEDING WITH cmake MAKE SURE THAT THE "Rtools" folder IS NOT IN THE SAME DIRECTORY (IF THAT IS THE CASE THEN REMOVE IT TEMPROARILY, i.e. copy-paste the "Rtools" folder somewhere else)
+# BEFORE PROCEEDING WITH cmake MAKE SURE THAT THE "Rtools" folder IS NOT IN THE SAME DIRECTORY (IF THAT IS THE CASE THEN REMOVE IT TEMPORARILY, i.e. copy-paste the "Rtools" folder somewhere else)
 
 
 cmake .. -G "MinGW Makefiles"
