@@ -1,3 +1,14 @@
+# miscellaneous stuff
+.DS_Store
+*/.DS_Store
+
+# build artifacts
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+
+# Python package stuff
 temp/
 *.pyc
 rgf_python.egg-info/
@@ -6,4 +17,11 @@ build/*
 python-package/include/rgf/bin/*
 python-package/include/fast_rgf/bin/*
 *.pkl
+python-package/build/
+python-package/compile/
+python-package/temp_*
 
+# R package stuff
+R-package/*.tar.gz
+*.tar.gz
+*.Rhistory
