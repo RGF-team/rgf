@@ -29,7 +29,7 @@ def copy_files():
         if os.path.isdir(src):
             dst = os.path.join(CURRENT_DIR, 'compile', folder_name)
             rmtree(dst, ignore_errors=True)
-            copy_tree(src, dst)
+            copy_tree(src, dst, verbose=0)
         else:
             raise Exception('Cannot copy {} folder'.format(src))
 
