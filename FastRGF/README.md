@@ -28,11 +28,11 @@ Please see the file [`CHANGES.md`](./CHANGES.md) for the changelog of FastRGF.
 
 # 1. Introduction
 
-This software package provides a multi-core implementation of a simplified Regularized Greedy Forest (RGF) described in [[1]](#6-references). Please cite the paper if you find the software useful.
+This software package provides a multi-core implementation of a simplified Regularized Greedy Forest (RGF) described in [[1]](#7-references). Please cite the paper if you find the software useful.
 
 RGF is a machine learning method for building decision forests that have been used to win some Kaggle competitions. In our experience it works better than *gradient boosting* on many relatively large datasets.
 
-The implementation employs the following concepts described in the original paper [[1]](#6-references):
+The implementation employs the following concepts described in the original paper [[1]](#7-references):
 
 -  tree node regularization;
 -  fully-corrective update;
@@ -40,7 +40,7 @@ The implementation employs the following concepts described in the original pape
 
 However, various **simplifications** are made to accelerate the training speed. Therefore, unlike the [original RGF program](https://github.com/RGF-team/rgf/tree/master/RGF), this software does not reproduce the results in the paper.
 
-The implementation of greedy tree node optimization employs second order Newton approximation for general loss functions. For logistic regression loss, which works especially well for many binary classification problems, this approach was considered in [[2]](#6-references); for general loss functions, second order approximation was considered in [[3]](#6-references).
+The implementation of greedy tree node optimization employs second order Newton approximation for general loss functions. For logistic regression loss, which works especially well for many binary classification problems, this approach was considered in [[2]](#7-references); for general loss functions, second order approximation was considered in [[3]](#7-references).
 
 # 2. Installation
 
@@ -130,8 +130,8 @@ FastRGF is distributed under the **MIT license**. Please read the file [`LICENSE
 
 # 7. References
 
-[1] [Rie Johnson and Tong Zhang. Learning Nonlinear Functions Using Regularized Greedy Forest.](https://arxiv.org/abs/1109.0887) IEEE Transactions on Pattern Analysis and Machine Intelligence, 36(5):942-954, May 2014.
+[1] Rie Johnson and Tong Zhang. [Learning Nonlinear Functions Using Regularized Greedy Forest.](https://arxiv.org/abs/1109.0887) IEEE Transactions on Pattern Analysis and Machine Intelligence, 36(5):942-954, May 2014.
 
-[2] [Ping Li. Robust LogitBoost and Adaptive Base Class (ABC) LogitBoost.](https://arxiv.org/abs/1203.3491) UAI, 2010.
+[2] Ping Li. [Robust LogitBoost and Adaptive Base Class (ABC) LogitBoost.](https://arxiv.org/abs/1203.3491) UAI, 2010.
 
-[3] [Zhaohui Zheng, Hongyuan Zha, Tong Zhang, Olivier Chapelle, Keke Chen, Gordon Sun. A General Boosting Method and its Application to Learning Ranking Functions for Web Search.](https://papers.nips.cc/paper/3305-a-general-boosting-method-and-its-application-to-learning-ranking-functions-for-web-search) NIPS, 2007.
+[3] Zhaohui Zheng, Hongyuan Zha, Tong Zhang, Olivier Chapelle, Keke Chen, Gordon Sun. [A General Boosting Method and its Application to Learning Ranking Functions for Web Search.](https://papers.nips.cc/paper/3305-a-general-boosting-method-and-its-application-to-learning-ranking-functions-for-web-search) NIPS, 2007.
