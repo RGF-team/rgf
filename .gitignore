@@ -5,7 +5,6 @@
 # build artifacts
 CMakeCache.txt
 CMakeFiles/
-Makefile
 cmake_install.cmake
 
 # Python package stuff
