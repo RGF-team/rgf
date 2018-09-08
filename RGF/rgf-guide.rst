@@ -622,7 +622,7 @@ The variables below refer to the corresponding variables in the overview in `Sec
 | \*  ``reg_L2=``      | |lambda|. Used to control the degree of |L_2| regularization.                                                                                  |
 |                      | Crucial for good performance.                                                                                                                  |
 |                      | Appropriate values are data-dependent.                                                                                                         |
-|                      | Either 1, 0.1, or 0.01 often produces good results                                                                                             |
+|                      | Either 1.0, 0.1, or 0.01 often produces good results                                                                                             |
 |                      | though with exponential loss (``loss=Expo``) and logistic loss (``loss=Log``) some data requires smaller values such as 1e-10 or 1e-20.        |
 +----------------------+------------------------------------------------------------------------------------------------------------------------------------------------+
 | ``reg_sL2=``         | |lambda_g|. Override |L_2| regularization parameter |lambda| for the process of growing the forest.                                            |
