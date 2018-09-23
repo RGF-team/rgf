@@ -112,13 +112,13 @@ the \emph{dump_model} function currently prints information about the fitted mod
  \item{\code{--------------}}{}
 
  \item{\code{score(x, y, sample_weight = NULL)}}{}
- 
+
  \item{\code{--------------}}{}
- 
+
  \item{\code{feature_importances()}}{}
 
  \item{\code{--------------}}{}
- 
+
  \item{\code{dump_model()}}{}
 
  \item{\code{--------------}}{}

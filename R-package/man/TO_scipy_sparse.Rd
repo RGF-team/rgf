@@ -20,39 +20,41 @@ The \emph{dgCMatrix} class is a class of sparse numeric matrices in the compress
 \examples{
 
 if (reticulate::py_available() && reticulate::py_module_available("scipy")) {
-  
+
   if (Sys.info()["sysname"] != 'Darwin') {
 
     library(RGF)
-  
-  
+
+
     # 'dgCMatrix' sparse matrix
     #--------------------------
-  
+
     data = c(1, 0, 2, 0, 0, 3, 4, 5, 6)
-  
-    dgcM = Matrix::Matrix(data = data, nrow = 3,
-  
-                          ncol = 3, byrow = TRUE,
-  
-                          sparse = TRUE)
-  
+
+    dgcM = Matrix::Matrix(
+        data = data
+        , nrow = 3
+        , ncol = 3
+        , byrow = TRUE
+        , sparse = TRUE
+    )
+
     print(dim(dgcM))
-  
+
     res = TO_scipy_sparse(dgcM)
-  
+
     print(res$shape)
-    
-    
+
+
     # 'dgRMatrix' sparse matrix
     #--------------------------
-    
+
     dgrM = as(dgcM, "RsparseMatrix")
-    
+
     print(dim(dgrM))
-  
+
     res_dgr = TO_scipy_sparse(dgrM)
-  
+
     print(res_dgr$shape)
   }
 }
