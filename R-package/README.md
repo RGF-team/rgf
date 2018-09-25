@@ -6,7 +6,7 @@
 ## RGF (Regularized Greedy Forest)
 <br>
 
-**UPDATE 17-08-2018**: Now RGF is part of the [official RGF repository](https://github.com/RGF-team/rgf/tree/master/R-package) and active development is performed there. This repository is archived.
+**UPDATE 17-08-2018**: Now RGF is part of the [official RGF repository](https://github.com/RGF-team/rgf/tree/master/R-package) and active development is performed there. **The *mlampros/RGF* repository is archived.**
 
 <br>
 
