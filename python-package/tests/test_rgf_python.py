@@ -281,7 +281,7 @@ class TestRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
 
         fi = clf.feature_importances_
         self.assertEqual(fi.shape[0], self.X_train.shape[1])
-        self.assertAlmostEquals(fi.sum(), 1)
+        self.assertAlmostEqual(fi.sum(), 1)
 
 
 class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
@@ -573,7 +573,7 @@ class TestRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
 
         fi = reg.feature_importances_
         self.assertEqual(fi.shape[0], self.X_train.shape[1])
-        self.assertAlmostEquals(fi.sum(), 1)
+        self.assertAlmostEqual(fi.sum(), 1)
 
 
 class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
