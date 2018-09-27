@@ -280,7 +280,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
         The concrete regularization value for the process of growing the forest
         used in model building process.
         """
-        if self._sl2 is None:
+        if not hasattr(self, '_sl2'):
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._sl2
@@ -291,7 +291,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
         Minimum number of training data points in each leaf node
         used in model building process.
         """
-        if self._min_samples_leaf is None:
+        if not hasattr(self, '_min_samples_leaf'):
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._min_samples_leaf
@@ -302,7 +302,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
         Number of iterations of coordinate descent to optimize weights
         used in model building process depending on the specified loss function.
         """
-        if self._n_iter is None:
+        if not hasattr(self, '_n_iter'):
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._n_iter
@@ -398,7 +398,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
         The feature importances.
         The importance of a feature is computed from sum of gain of each node.
         """
-        if self._fitted is None:
+        if not hasattr(self, '_fitted') or not self._fitted:
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         return np.mean([est.feature_importances_ for est in self._estimators], axis=0)
 
@@ -429,21 +429,14 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         self.reg_depth = reg_depth
         self.l2 = l2
         self.sl2 = sl2
-        self._sl2 = None
         self.normalize = normalize
         self.min_samples_leaf = min_samples_leaf
-        self._min_samples_leaf = None
         self.n_iter = n_iter
-        self._n_iter = None
         self.n_tree_search = n_tree_search
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
         self.memory_policy = memory_policy
         self.verbose = verbose
-
-        self._n_features = None
-        self._estimators = None
-        self._fitted = None
 
     _regressor_specific_values = {
         '{%estimator_type%}': 'regressor',
@@ -489,12 +482,9 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
         self.reg_depth = reg_depth
         self.l2 = l2
         self.sl2 = sl2
-        self._sl2 = None
         self.normalize = normalize
         self.min_samples_leaf = min_samples_leaf
-        self._min_samples_leaf = None
         self.n_iter = n_iter
-        self._n_iter = None
         self.n_tree_search = n_tree_search
         self.opt_interval = opt_interval
         self.learning_rate = learning_rate
@@ -502,13 +492,6 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
         self.n_jobs = n_jobs
         self.memory_policy = memory_policy
         self.verbose = verbose
-
-        self._estimators = None
-        self._classes = None
-        self._classes_map = {}
-        self._n_classes = None
-        self._n_features = None
-        self._fitted = None
 
     _classifier_specific_values = {
         '{%estimator_type%}': 'classifier',

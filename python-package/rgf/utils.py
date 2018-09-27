@@ -249,7 +249,7 @@ class CommonRGFExecuterBase(BaseEstimator):
 
         self._file_prefix = str(uuid4()) + str(COUNTER.increment())
         UUIDS.append(self._file_prefix)
-        self._fitted = None
+        self._fitted = False
 
     def _set_paths(self):
         self._train_x_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.x")
@@ -320,7 +320,7 @@ class CommonRGFExecuterBase(BaseEstimator):
         return np.loadtxt(self._pred_loc)
 
     def _check_fitted(self):
-        if self._fitted is None:
+        if not self._fitted:
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         if not os.path.isfile(self._model_file):
             raise Exception('Model learning result is not found in {0}. '
@@ -360,7 +360,7 @@ class CommonRGFEstimatorBase(BaseEstimator):
     @property
     def n_features_(self):
         """The number of features when `fit` is performed."""
-        if self._n_features is None:
+        if not hasattr(self, '_n_features'):
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._n_features
@@ -368,10 +368,10 @@ class CommonRGFEstimatorBase(BaseEstimator):
     @property
     def fitted_(self):
         """Indicates whether `fit` is performed."""
-        if self._fitted is None:
+        if not hasattr(self, '_fitted') or not self._fitted:
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
-            return self._fitted
+            return True
 
     def _get_sample_weight(self, sample_weight):
         if sample_weight is not None:
@@ -396,7 +396,7 @@ class CommonRGFEstimatorBase(BaseEstimator):
     @property
     def estimators_(self):
         """The collection of fitted sub-estimators when `fit` is performed."""
-        if self._estimators is None:
+        if not hasattr(self, '_estimators'):
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._estimators
@@ -412,13 +412,13 @@ class CommonRGFEstimatorBase(BaseEstimator):
             Returns the number of removed files.
         """
         n_removed_files = 0
-        if self._estimators is not None:
+        if hasattr(self, '_estimators'):
             for est in self._estimators:
                 n_removed_files += cleanup_partial(est._file_prefix,
                                                    remove_from_list=True)
 
         # No more able to predict without refitting.
-        self._fitted = None
+        self._fitted = False
         return n_removed_files
 
     def _get_params(self):
@@ -438,7 +438,7 @@ class RGFClassifierMixin(object):
     @property
     def classes_(self):
         """The classes labels when `fit` is performed."""
-        if self._classes is None:
+        if not hasattr(self, '_classes'):
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._classes
@@ -446,7 +446,7 @@ class RGFClassifierMixin(object):
     @property
     def n_classes_(self):
         """The number of classes when `fit` is performed."""
-        if self._n_classes is None:
+        if not hasattr(self, '_n_classes'):
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._n_classes
@@ -484,6 +484,7 @@ class RGFClassifierMixin(object):
         check_classification_targets(y)
         self._classes = sorted(np.unique(y))
         self._n_classes = len(self._classes)
+        self._classes_map = {}
 
         self._set_params_with_dependencies()
         params = self._get_params()
@@ -543,7 +544,7 @@ class RGFClassifierMixin(object):
             The class probabilities of the input samples.
             The order of the classes corresponds to that in the attribute classes_.
         """
-        if self._fitted is None:
+        if not hasattr(self, '_fitted') or not self._fitted:
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         X = check_array(X, accept_sparse=True)
         self._check_n_features(X.shape[1])
@@ -625,7 +626,7 @@ class RGFRegressorMixin(object):
         y : array of shape = [n_samples]
             The predicted values.
         """
-        if self._fitted is None:
+        if not hasattr(self, '_fitted') or not self._fitted:
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         X = check_array(X, accept_sparse=True)
         self._check_n_features(X.shape[1])

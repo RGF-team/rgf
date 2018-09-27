@@ -60,7 +60,7 @@ install:
   - pip install dist/rgf_python-$RGF_VER.tar.gz -v
 
 script:
-  - pytest tests/ -v
+  - pytest tests/ -v || travis_terminate -1
   - if [[ $TASK == "R_PACKAGE" ]]; then
       bash $TRAVIS_BUILD_DIR/R-package/.R.travis.sh;
     fi
