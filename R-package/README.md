@@ -6,6 +6,9 @@
 ## RGF (Regularized Greedy Forest)
 <br>
 
+**UPDATE 17-08-2018**: Now RGF is part of the [official RGF repository](https://github.com/RGF-team/rgf/tree/master/R-package) and active development is performed there. **The *mlampros/RGF* repository is archived.**
+
+<br>
 
 The **RGF** package is a wrapper of the [Regularized Greedy Forest (RGF)](https://github.com/RGF-team/rgf_python) *python* package, which also includes a [Multi-core implementation (FastRGF)](https://github.com/RGF-team/rgf/tree/master/FastRGF). More details on the functionality of the RGF package can be found in the [blog-post](http://mlampros.github.io/2018/02/14/the_RGF_package/) and in the package Documentation. 
 
