@@ -100,7 +100,7 @@ the \emph{score} function returns the coefficient of determination ( R^2 ) for t
  \item{\code{--------------}}{}
 
  \item{\code{score(x, y, sample_weight = NULL)}}{}
- 
+
  \item{\code{--------------}}{}
  }
 }
