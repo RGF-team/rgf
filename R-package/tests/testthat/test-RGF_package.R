@@ -323,7 +323,7 @@ if (Sys.info()["sysname"] != 'Darwin') {
     skip_test_if_no_module(c("rgf.sklearn", 'scipy'))
   
     set.seed(1)
-    sap = sapply(1:1000, function(x) sample(c(0.0, runif(1)), 1, replace = F))            # create sparse data
+    sap = sapply(1:1000, function(x) sample(c(0.0, runif(1)), 1, replace = FALSE))            # create sparse data
   
     dgcM = Matrix::Matrix(data = sap,
   
