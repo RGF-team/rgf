@@ -373,7 +373,7 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
                  sparse_min_occurences=5,
                  n_jobs=-1,
                  verbose=0):
-        if not utils.FASTRGF_AVAILABLE:
+        if not utils.CONFIG.FASTRGF_AVAILABLE:
             raise Exception('FastRGF estimators are unavailable for usage.')
         self.n_estimators = n_estimators
         self.max_depth = max_depth
@@ -430,7 +430,7 @@ class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
                  calc_prob="sigmoid",
                  n_jobs=-1,
                  verbose=0):
-        if not utils.FASTRGF_AVAILABLE:
+        if not utils.CONFIG.FASTRGF_AVAILABLE:
             raise Exception('FastRGF estimators are unavailable for usage.')
         self.n_estimators = n_estimators
         self.max_depth = max_depth
@@ -533,7 +533,7 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
         params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self._model_file_loc)
 
-        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_train")]
+        cmd = [os.path.join(utils.CONFIG.FASTRGF_PATH, "forest_train")]
         cmd.extend(params)
 
         return cmd
@@ -541,7 +541,7 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
     def _find_model_file(self):
         if not os.path.isfile(self._model_file_loc):
             raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.TEMP_PATH))
+                            'Training is abnormally finished.'.format(utils.CONFIG.TEMP_PATH))
         self._model_file = self._model_file_loc
 
     def _get_test_command(self, is_sparse_test_X):
@@ -555,7 +555,7 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
         params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
 
-        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_predict")]
+        cmd = [os.path.join(utils.CONFIG.FASTRGF_PATH, "forest_predict")]
         cmd.extend(params)
 
         return cmd
