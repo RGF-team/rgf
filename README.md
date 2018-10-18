@@ -9,8 +9,8 @@
 # Regularized Greedy Forest
 
 Regularized Greedy Forest (RGF) is a tree ensemble machine learning method described in [this paper](https://arxiv.org/abs/1109.0887).
-RGF can deliver better results than gradient boosting decision tree (GBDT) on a number of datasets and it have been used to win some Kaggle competitions.
-Unlike the traditional boosted decision tree approach, RGF directly works with the underlying forest structure.
+RGF can deliver better results than gradient boosted decision trees (GBDT) on a number of datasets and it has been used to win a few Kaggle competitions.
+Unlike the traditional boosted decision tree approach, RGF works directly with the underlying forest structure.
 RGF integrates two ideas: one is to include tree-structured regularization into the learning formulation; and the other is to employ the fully-corrective regularized greedy algorithm.
 
 This repository contains the following implementations of the RGF algorithm:
