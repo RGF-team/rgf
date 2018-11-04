@@ -40,7 +40,7 @@ def cleanup():
 def cleanup_partial(uuid, remove_from_list=False):
     n_removed_files = 0
     if uuid in UUIDS:
-        model_glob = os.path.join(CONFIG.TEMP_PATH, uuid + "*")
+        model_glob = os.path.join(Config().TEMP_PATH, uuid + "*")
         for fn in glob.glob(model_glob):
             os.remove(fn)
             n_removed_files += 1
@@ -61,55 +61,58 @@ class Config(object):
     FASTRGF_AVAILABLE = None
 
     def __init__(self):
-        if self.TEMP_PATH is None:
-            self.init_paths()
-        if self.RGF_AVAILABLE is None or self.FASTRGF_AVAILABLE is None:
-            self.set_paths_and_availability()
+        (self.DEFAULT_RGF_PATH, self.RGF_PATH,
+         self.DEFAULT_FASTRGF_PATH, self.FASTRGF_PATH, self.TEMP_PATH) = self.init_paths()
+        (self.RGF_PATH, self.RGF_AVAILABLE,
+         self.FASTRGF_PATH, self.FASTRGF_AVAILABLE) = self.set_paths_and_availability()
 
     @classmethod
     def init_paths(cls):
-        config = six.moves.configparser.RawConfigParser()
-        path = os.path.join(os.path.expanduser('~'), '.rgfrc')
+        if cls.TEMP_PATH is None:
+            config = six.moves.configparser.RawConfigParser()
+            path = os.path.join(os.path.expanduser('~'), '.rgfrc')
 
-        try:
-            with codecs.open(path, 'r', 'utf-8') as cfg:
-                with six.StringIO(cfg.read()) as strIO:
-                    config.readfp(strIO)
-        except six.moves.configparser.MissingSectionHeaderError:
-            with codecs.open(path, 'r', 'utf-8') as cfg:
-                with six.StringIO('[glob]\n' + cfg.read()) as strIO:
-                    config.readfp(strIO)
-        except Exception:
-            pass
-
-        if SYSTEM in ('Windows', 'Microsoft'):
             try:
-                cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+                with codecs.open(path, 'r', 'utf-8') as cfg:
+                    with six.StringIO(cfg.read()) as strIO:
+                        config.readfp(strIO)
+            except six.moves.configparser.MissingSectionHeaderError:
+                with codecs.open(path, 'r', 'utf-8') as cfg:
+                    with six.StringIO('[glob]\n' + cfg.read()) as strIO:
+                        config.readfp(strIO)
             except Exception:
-                cls.RGF_PATH = os.path.join(os.path.expanduser('~'), 'rgf.exe')
-            cls.DEFAULT_RGF_PATH = 'rgf.exe'
-        else:  # Linux, Darwin (macOS), etc.
+                pass
+
+            if SYSTEM in ('Windows', 'Microsoft'):
+                try:
+                    cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+                except Exception:
+                    cls.RGF_PATH = os.path.join(os.path.expanduser('~'), 'rgf.exe')
+                cls.DEFAULT_RGF_PATH = 'rgf.exe'
+            else:  # Linux, Darwin (macOS), etc.
+                try:
+                    cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+                except Exception:
+                    cls.RGF_PATH = os.path.join(os.path.expanduser('~'), 'rgf')
+                cls.DEFAULT_RGF_PATH = 'rgf'
+
             try:
-                cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+                cls.FASTRGF_PATH = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
             except Exception:
-                cls.RGF_PATH = os.path.join(os.path.expanduser('~'), 'rgf')
-            cls.DEFAULT_RGF_PATH = 'rgf'
+                cls.FASTRGF_PATH = os.path.expanduser('~')
+            cls.DEFAULT_FASTRGF_PATH = ''
 
-        try:
-            cls.FASTRGF_PATH = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
-        except Exception:
-            cls.FASTRGF_PATH = os.path.expanduser('~')
-        cls.DEFAULT_FASTRGF_PATH = ''
+            try:
+                cls.TEMP_PATH = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
+            except Exception:
+                cls.TEMP_PATH = os.path.join(gettempdir(), 'rgf')
+            if not os.path.isdir(cls.TEMP_PATH):
+                os.makedirs(cls.TEMP_PATH)
+            if not os.access(cls.TEMP_PATH, os.W_OK):
+                raise Exception("{0} is not writable directory. Please set "
+                                "config flag 'temp_location' to writable directory".format(cls.TEMP_PATH))
 
-        try:
-            cls.TEMP_PATH = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
-        except Exception:
-            cls.TEMP_PATH = os.path.join(gettempdir(), 'rgf')
-        if not os.path.isdir(cls.TEMP_PATH):
-            os.makedirs(cls.TEMP_PATH)
-        if not os.access(cls.TEMP_PATH, os.W_OK):
-            raise Exception("{0} is not writable directory. Please set "
-                            "config flag 'temp_location' to writable directory".format(cls.TEMP_PATH))
+        return cls.DEFAULT_RGF_PATH, cls.RGF_PATH, cls.DEFAULT_FASTRGF_PATH, cls.FASTRGF_PATH, cls.TEMP_PATH
 
     @classmethod
     def is_rgf_executable(cls, path):
@@ -184,32 +187,32 @@ class Config(object):
 
     @classmethod
     def set_paths_and_availability(cls):
-        cls.RGF_AVAILABLE = True
-        if cls.is_rgf_executable(os.path.join(cls.CURRENT_DIR, cls.DEFAULT_RGF_PATH)):
-            cls.RGF_PATH = os.path.join(cls.CURRENT_DIR, cls.DEFAULT_RGF_PATH)
-        elif cls.is_rgf_executable(cls.DEFAULT_RGF_PATH):
-            cls.RGF_PATH = cls.DEFAULT_RGF_PATH
-        elif cls.is_rgf_executable(cls.RGF_PATH):
-            pass
-        else:
-            cls.RGF_AVAILABLE = False
-            warnings.warn("Cannot find RGF executable file."
-                          "RGF estimators will be unavailable for usage.")
+        if cls.RGF_AVAILABLE is None or cls.FASTRGF_AVAILABLE is None:
+            cls.RGF_AVAILABLE = True
+            if cls.is_rgf_executable(os.path.join(cls.CURRENT_DIR, cls.DEFAULT_RGF_PATH)):
+                cls.RGF_PATH = os.path.join(cls.CURRENT_DIR, cls.DEFAULT_RGF_PATH)
+            elif cls.is_rgf_executable(cls.DEFAULT_RGF_PATH):
+                cls.RGF_PATH = cls.DEFAULT_RGF_PATH
+            elif cls.is_rgf_executable(cls.RGF_PATH):
+                pass
+            else:
+                cls.RGF_AVAILABLE = False
+                warnings.warn("Cannot find RGF executable file. "
+                              "RGF estimators will be unavailable for usage.")
 
-        cls.FASTRGF_AVAILABLE = True
-        if cls.is_fastrgf_executable(cls.CURRENT_DIR):
-            cls.FASTRGF_PATH = cls.CURRENT_DIR
-        elif cls.is_fastrgf_executable(cls.DEFAULT_FASTRGF_PATH):
-            cls.FASTRGF_PATH = cls.DEFAULT_FASTRGF_PATH
-        elif cls.is_fastrgf_executable(cls.FASTRGF_PATH):
-            pass
-        else:
-            cls.FASTRGF_AVAILABLE = False
-            warnings.warn("Cannot find FastRGF executable files."
-                          "FastRGF estimators will be unavailable for usage.")
+            cls.FASTRGF_AVAILABLE = True
+            if cls.is_fastrgf_executable(cls.CURRENT_DIR):
+                cls.FASTRGF_PATH = cls.CURRENT_DIR
+            elif cls.is_fastrgf_executable(cls.DEFAULT_FASTRGF_PATH):
+                cls.FASTRGF_PATH = cls.DEFAULT_FASTRGF_PATH
+            elif cls.is_fastrgf_executable(cls.FASTRGF_PATH):
+                pass
+            else:
+                cls.FASTRGF_AVAILABLE = False
+                warnings.warn("Cannot find FastRGF executable files. "
+                              "FastRGF estimators will be unavailable for usage.")
 
-
-CONFIG = Config()
+        return cls.RGF_PATH, cls.RGF_AVAILABLE, cls.FASTRGF_PATH, cls.FASTRGF_AVAILABLE
 
 
 class AtomicCounter(object):
@@ -223,6 +226,7 @@ class AtomicCounter(object):
             return self.value
 
 
+CONFIG = None
 COUNTER = AtomicCounter()
 
 
@@ -268,13 +272,13 @@ class CommonRGFExecuterBase(BaseEstimator):
         self._fitted = False
 
     def _set_paths(self):
-        self._train_x_loc = os.path.join(CONFIG.TEMP_PATH, self._file_prefix + ".train.data.x")
-        self._test_x_loc = os.path.join(CONFIG.TEMP_PATH, self._file_prefix + ".test.data.x")
-        self._train_y_loc = os.path.join(CONFIG.TEMP_PATH, self._file_prefix + ".train.data.y")
-        self._train_weight_loc = os.path.join(CONFIG.TEMP_PATH, self._file_prefix + ".train.data.weight")
-        self._model_file_loc = os.path.join(CONFIG.TEMP_PATH, self._file_prefix + ".model")
-        self._pred_loc = os.path.join(CONFIG.TEMP_PATH, self._file_prefix + ".predictions.txt")
-        self._feature_importances_loc = os.path.join(CONFIG.TEMP_PATH, self._file_prefix + ".feature_importances.txt")
+        self._train_x_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".train.data.x")
+        self._test_x_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".test.data.x")
+        self._train_y_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".train.data.y")
+        self._train_weight_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".train.data.weight")
+        self._model_file_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".model")
+        self._pred_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".predictions.txt")
+        self._feature_importances_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".feature_importances.txt")
 
     def _execute_command(self, cmd, force_verbose=False):
         output = subprocess.Popen(cmd,
@@ -340,7 +344,7 @@ class CommonRGFExecuterBase(BaseEstimator):
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         if not os.path.isfile(self._model_file):
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(CONFIG.TEMP_PATH))
+                            'This is rgf_python error.'.format(self.config.TEMP_PATH))
 
     def _save_sparse_X(self, path, X):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
@@ -373,6 +377,9 @@ class CommonRGFExecuterBase(BaseEstimator):
 
 
 class CommonRGFEstimatorBase(BaseEstimator):
+    def __init__(self):
+        self._set_config()
+
     @property
     def n_features_(self):
         """The number of features when `fit` is performed."""
@@ -438,7 +445,23 @@ class CommonRGFEstimatorBase(BaseEstimator):
         return n_removed_files
 
     def _get_params(self):
-        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+        return {'config': CONFIG}
+
+    @classmethod
+    def _set_config(cls):
+        global CONFIG
+        if CONFIG is None:
+            CONFIG = Config()
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state["config"] = CONFIG
+        return state
+
+    def __setstate__(self, state):
+        global CONFIG
+        CONFIG = state.pop("config")
+        self.__dict__.update(state)
 
     def _fit_binary_task(self, X, y, sample_weight, params):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)

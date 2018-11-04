@@ -330,22 +330,24 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             self._n_iter = self.n_iter
 
     def _get_params(self):
-        return dict(max_leaf=self.max_leaf,
-                    test_interval=self.test_interval,
-                    algorithm=self.algorithm,
-                    loss=self.loss,
-                    reg_depth=self.reg_depth,
-                    l2=self.l2,
-                    sl2=self._sl2,
-                    normalize=self.normalize,
-                    min_samples_leaf=self._min_samples_leaf,
-                    n_iter=self._n_iter,
-                    n_tree_search=self.n_tree_search,
-                    opt_interval=self.opt_interval,
-                    learning_rate=self.learning_rate,
-                    memory_policy=self.memory_policy,
-                    verbose=self.verbose,
-                    is_classification=is_classifier(self))
+        res = super(RGFEstimatorBase, self)._get_params()
+        res.update(dict(max_leaf=self.max_leaf,
+                        test_interval=self.test_interval,
+                        algorithm=self.algorithm,
+                        loss=self.loss,
+                        reg_depth=self.reg_depth,
+                        l2=self.l2,
+                        sl2=self._sl2,
+                        normalize=self.normalize,
+                        min_samples_leaf=self._min_samples_leaf,
+                        n_iter=self._n_iter,
+                        n_tree_search=self.n_tree_search,
+                        opt_interval=self.opt_interval,
+                        learning_rate=self.learning_rate,
+                        memory_policy=self.memory_policy,
+                        verbose=self.verbose,
+                        is_classification=is_classifier(self)))
+        return res
 
     def _fit_binary_task(self, X, y, sample_weight, params):
         if self.n_jobs != 1 and self.verbose:
@@ -420,8 +422,9 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
                  learning_rate=0.5,
                  memory_policy="generous",
                  verbose=0):
-        if not utils.CONFIG.RGF_AVAILABLE:
+        if not utils.Config().RGF_AVAILABLE:
             raise Exception('RGF estimators are unavailable for usage.')
+        super(RGFRegressor, self).__init__()
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -473,8 +476,9 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
                  n_jobs=-1,
                  memory_policy="generous",
                  verbose=0):
-        if not utils.CONFIG.RGF_AVAILABLE:
+        if not utils.Config().RGF_AVAILABLE:
             raise Exception('RGF estimators are unavailable for usage.')
+        super(RGFClassifier, self).__init__()
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -565,7 +569,7 @@ class RGFExecuter(utils.CommonRGFExecuterBase):
         if self._use_sample_weight:
             params.append("train_w_fn=%s" % self._train_weight_loc)
 
-        cmd = (utils.CONFIG.RGF_PATH, "train", ",".join(params))
+        cmd = (self.config.RGF_PATH, "train", ",".join(params))
 
         return cmd
 
@@ -573,7 +577,7 @@ class RGFExecuter(utils.CommonRGFExecuterBase):
         model_files = glob(self._model_file_loc + "*")
         if not model_files:
             raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.CONFIG.TEMP_PATH))
+                            'Training is abnormally finished.'.format(self.config.TEMP_PATH))
         self._model_file = sorted(model_files, reverse=True)[0]
 
     def _get_test_command(self, is_sparse_test_X):
@@ -582,13 +586,13 @@ class RGFExecuter(utils.CommonRGFExecuterBase):
         params.append("prediction_fn=%s" % self._pred_loc)
         params.append("model_fn=%s" % self._model_file)
 
-        cmd = (utils.CONFIG.RGF_PATH, "predict", ",".join(params))
+        cmd = (self.config.RGF_PATH, "predict", ",".join(params))
 
         return cmd
 
     def dump_model(self):
         self._check_fitted()
-        cmd = (utils.CONFIG.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
+        cmd = (self.config.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
         self._execute_command(cmd, force_verbose=True)
 
     @property
@@ -597,6 +601,6 @@ class RGFExecuter(utils.CommonRGFExecuterBase):
         params.append("train_x_fn=%s" % self._train_x_loc)
         params.append("feature_importances_fn=%s" % self._feature_importances_loc)
         params.append("model_fn=%s" % self._model_file)
-        cmd = (utils.CONFIG.RGF_PATH, "feature_importances", ",".join(params))
+        cmd = (self.config.RGF_PATH, "feature_importances", ",".join(params))
         self._execute_command(cmd)
         return np.loadtxt(self._feature_importances_loc)

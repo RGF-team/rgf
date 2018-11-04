@@ -320,25 +320,27 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
         self._set_target_and_loss()
 
     def _get_params(self):
-        return dict(max_depth=self.max_depth,
-                    max_leaf=self.max_leaf,
-                    tree_gain_ratio=self.tree_gain_ratio,
-                    min_samples_leaf=self._min_samples_leaf,
-                    loss=self._loss,
-                    l1=self.l1,
-                    l2=self.l2,
-                    opt_algorithm=self.opt_algorithm,
-                    n_estimators=self.n_estimators,
-                    learning_rate=self.learning_rate,
-                    max_bin=self._max_bin,
-                    data_l2=self.data_l2,
-                    min_child_weight=self.min_child_weight,
-                    sparse_max_features=self.sparse_max_features,
-                    sparse_min_occurences=self.sparse_min_occurences,
-                    n_jobs=self._n_jobs,
-                    verbose=self.verbose,
-                    is_classification=is_classifier(self),
-                    target=self._target)
+        res = super(FastRGFEstimatorBase, self)._get_params()
+        res.update(dict(max_depth=self.max_depth,
+                        max_leaf=self.max_leaf,
+                        tree_gain_ratio=self.tree_gain_ratio,
+                        min_samples_leaf=self._min_samples_leaf,
+                        loss=self._loss,
+                        l1=self.l1,
+                        l2=self.l2,
+                        opt_algorithm=self.opt_algorithm,
+                        n_estimators=self.n_estimators,
+                        learning_rate=self.learning_rate,
+                        max_bin=self._max_bin,
+                        data_l2=self.data_l2,
+                        min_child_weight=self.min_child_weight,
+                        sparse_max_features=self.sparse_max_features,
+                        sparse_min_occurences=self.sparse_min_occurences,
+                        n_jobs=self._n_jobs,
+                        verbose=self.verbose,
+                        is_classification=is_classifier(self),
+                        target=self._target))
+        return res
 
     def _fit_binary_task(self, X, y, sample_weight, params):
         self._estimators[0] = FastRGFExecuter(**params).fit(X, y, sample_weight)
@@ -373,8 +375,9 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
                  sparse_min_occurences=5,
                  n_jobs=-1,
                  verbose=0):
-        if not utils.CONFIG.FASTRGF_AVAILABLE:
+        if not utils.Config().FASTRGF_AVAILABLE:
             raise Exception('FastRGF estimators are unavailable for usage.')
+        super(FastRGFRegressor, self).__init__()
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.max_leaf = max_leaf
@@ -430,8 +433,9 @@ class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
                  calc_prob="sigmoid",
                  n_jobs=-1,
                  verbose=0):
-        if not utils.CONFIG.FASTRGF_AVAILABLE:
+        if not utils.Config().FASTRGF_AVAILABLE:
             raise Exception('FastRGF estimators are unavailable for usage.')
+        super(FastRGFClassifier, self).__init__()
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.max_leaf = max_leaf
@@ -533,7 +537,7 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
         params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self._model_file_loc)
 
-        cmd = [os.path.join(utils.CONFIG.FASTRGF_PATH, "forest_train")]
+        cmd = [os.path.join(self.config.FASTRGF_PATH, "forest_train")]
         cmd.extend(params)
 
         return cmd
@@ -541,7 +545,7 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
     def _find_model_file(self):
         if not os.path.isfile(self._model_file_loc):
             raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.CONFIG.TEMP_PATH))
+                            'Training is abnormally finished.'.format(self.config.TEMP_PATH))
         self._model_file = self._model_file_loc
 
     def _get_test_command(self, is_sparse_test_X):
@@ -555,7 +559,7 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
         params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
 
-        cmd = [os.path.join(utils.CONFIG.FASTRGF_PATH, "forest_predict")]
+        cmd = [os.path.join(self.config.FASTRGF_PATH, "forest_predict")]
         cmd.extend(params)
 
         return cmd
