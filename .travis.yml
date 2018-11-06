@@ -6,6 +6,7 @@ language: generic
 os:
   - linux
   - osx
+osx_image: 10.1
 
 env:
   global:
@@ -25,9 +26,7 @@ matrix:
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
-      sudo softwareupdate -i "Command Line Tools (macOS High Sierra version 10.13) for Xcode-9.4";
-      rm '/usr/local/include/c++';
-      brew install gcc;
+      brew link gcc;
       export CXX=g++-8 && export CC=gcc-8;
       curl https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
     else
