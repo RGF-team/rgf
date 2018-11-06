@@ -63,7 +63,7 @@ mat_2scipy_sparse = function(x, format = 'sparse_row_matrix') {
 
   } else {
 
-    stop("the function can take either a 'sparse_row_matrix' or a 'sparse_column_matrix' for the 'format' parameter as input", call. = F)
+    stop("the function can take either a 'sparse_row_matrix' or a 'sparse_column_matrix' for the 'format' parameter as input", call. = FALSE)
   }
 }
 
@@ -154,8 +154,7 @@ TO_scipy_sparse = function(R_sparse_matrix) {
   }
 
   else {
-
-    stop("the 'R_sparse_matrix' parameter should be either a 'dgCMatrix' or a 'dgRMatrix' sparse matrix", call. = F)
+    stop("the 'R_sparse_matrix' parameter should be either a 'dgCMatrix' or a 'dgRMatrix' sparse matrix", call. = FALSE)
   }
 
   return(py_obj)
