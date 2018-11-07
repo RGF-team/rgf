@@ -6,7 +6,7 @@ language: generic
 os:
   - linux
   - osx
-osx_image: 10.1
+osx_image: xcode10.1
 
 env:
   global:
