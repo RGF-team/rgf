@@ -136,24 +136,24 @@ Reference
 
 
 class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
-    def _validate_rgf_params(self,
-                             max_leaf,
-                             test_interval,
-                             algorithm,
-                             loss,
-                             reg_depth,
-                             l2,
-                             sl2,
-                             normalize,
-                             min_samples_leaf,
-                             n_iter,
-                             n_tree_search,
-                             opt_interval,
-                             learning_rate,
-                             verbose,
-                             memory_policy,
-                             calc_prob="sigmoid",
-                             n_jobs=-1):
+    def _validate_params(self,
+                         max_leaf,
+                         test_interval,
+                         algorithm,
+                         loss,
+                         reg_depth,
+                         l2,
+                         sl2,
+                         normalize,
+                         min_samples_leaf,
+                         n_iter,
+                         n_tree_search,
+                         opt_interval,
+                         learning_rate,
+                         verbose,
+                         memory_policy,
+                         calc_prob="sigmoid",
+                         n_jobs=-1):
         if not isinstance(max_leaf, utils.INTS):
             raise ValueError(
                 "max_leaf must be an integer, got {0}.".format(type(max_leaf)))
@@ -306,9 +306,6 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._n_iter
-
-    def _validate_params(self, params):
-        self._validate_rgf_params(**params)
 
     def _set_params_with_dependencies(self):
         if self.sl2 is None:

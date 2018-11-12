@@ -124,25 +124,25 @@ Reference
 
 
 class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
-    def _validate_fastrgf_params(self,
-                                  n_estimators,
-                                  max_depth,
-                                  max_leaf,
-                                  tree_gain_ratio,
-                                  min_samples_leaf,
-                                  l1,
-                                  l2,
-                                  opt_algorithm,
-                                  learning_rate,
-                                  max_bin,
-                                  min_child_weight,
-                                  data_l2,
-                                  sparse_max_features,
-                                  sparse_min_occurences,
-                                  n_jobs,
-                                  verbose,
-                                  loss="LS",
-                                  calc_prob="sigmoid"):
+    def _validate_params(self,
+                         n_estimators,
+                         max_depth,
+                         max_leaf,
+                         tree_gain_ratio,
+                         min_samples_leaf,
+                         l1,
+                         l2,
+                         opt_algorithm,
+                         learning_rate,
+                         max_bin,
+                         min_child_weight,
+                         data_l2,
+                         sparse_max_features,
+                         sparse_min_occurences,
+                         n_jobs,
+                         verbose,
+                         loss="LS",
+                         calc_prob="sigmoid"):
         if not isinstance(n_estimators, utils.INTS):
             raise ValueError("n_estimators must be an integer, got {0}.".format(
                 type(n_estimators)))
@@ -292,9 +292,6 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._min_samples_leaf
-
-    def _validate_params(self, params):
-        self._validate_fastrgf_params(**params)
 
     def _set_params_with_dependencies(self):
         if self.max_bin is None:
