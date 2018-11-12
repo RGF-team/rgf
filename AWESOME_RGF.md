@@ -15,6 +15,7 @@ Please feel free to send a pull request if you find things that could be include
 
 * [1st Place Solution (Home Credit Default Risk)](https://www.kaggle.com/c/home-credit-default-risk/discussion/64821)
 * [1st Place Solution (Allstate Claims Severity)](https://www.kaggle.com/c/allstate-claims-severity/discussion/26416)
+* [2nd Place Solution (Home Credit Default Risk)](https://www.kaggle.com/c/home-credit-default-risk/discussion/64722)
 * [3rd Place Solution (Santander Customer Satisfaction)](https://www.kaggle.com/c/santander-customer-satisfaction/discussion/20978)
 * [18th Place Solution (Porto Seguro’s Safe Driver Prediction)](https://www.kaggle.com/c/porto-seguro-safe-driver-prediction/discussion/44579)
 * [35th Place Solution (Porto Seguro’s Safe Driver Prediction)](https://www.kaggle.com/c/porto-seguro-safe-driver-prediction/discussion/44711)
