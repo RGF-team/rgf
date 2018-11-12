@@ -20,7 +20,68 @@ from rgf.sklearn import FastRGFClassifier, FastRGFRegressor
 from rgf.utils import cleanup, TEMP_PATH
 
 
-class RGFClassfierBaseTest(object):
+class EstimatorBaseTest(object):
+    def test_sklearn_integration(self):
+        check_estimator(self.estimator_class)
+
+    def test_input_arrays_shape(self):
+        est = self.estimator_class(**self.kwargs)
+        n_samples = self.y_train.shape[0]
+        self.assertRaises(ValueError, est.fit, self.X_train, self.y_train[:(n_samples - 1)])
+        self.assertRaises(ValueError, est.fit, self.X_train, self.y_train, np.ones(n_samples - 1))
+        self.assertRaises(ValueError,
+                          est.fit,
+                          self.X_train,
+                          self.y_train,
+                          np.ones((n_samples, 2)))
+
+    def test_pickle(self):
+        est1 = self.estimator_class(**self.kwargs)
+        est1.fit(self.X_train, self.y_train)
+        y_pred1 = est1.predict(self.X_test)
+        s = pickle.dumps(est1)
+
+        # Remove model file
+        cleanup()
+
+        est2 = pickle.loads(s)
+        y_pred2 = est2.predict(self.X_test)
+
+        np.testing.assert_allclose(y_pred1, y_pred2)
+
+    def test_joblib_pickle(self):
+        est1 = self.estimator_class(**self.kwargs)
+        est1.fit(self.X_train, self.y_train)
+        y_pred1 = est1.predict(self.X_test)
+        joblib.dump(est1, 'test_est.pkl')
+
+        # Remove model file
+        cleanup()
+
+        est2 = joblib.load('test_est.pkl')
+        y_pred2 = est2.predict(self.X_test)
+
+        np.testing.assert_allclose(y_pred1, y_pred2)
+
+    def test_cleanup(self):
+        est1 = self.estimator_class(**self.kwargs)
+        est1.fit(self.X_train, self.y_train)
+
+        est2 = self.estimator_class(**self.kwargs)
+        est2.fit(self.X_train, self.y_train)
+
+        self.assertNotEqual(est1.cleanup(), 0)
+        self.assertEqual(est1.cleanup(), 0)
+
+        for base_est in est1.estimators_:
+            glob_file = os.path.join(TEMP_PATH, base_est._file_prefix + "*")
+            self.assertFalse(glob.glob(glob_file))
+
+        self.assertRaises(NotFittedError, est1.predict, self.X_test)
+        est2.predict(self.X_test)
+
+
+class ClassifierBaseTest(EstimatorBaseTest):
     def setUp(self):
         iris = datasets.load_iris()
         rng = check_random_state(0)
@@ -46,7 +107,7 @@ class RGFClassfierBaseTest(object):
         self.accuracy = 0.9
 
     def test_classifier(self):
-        clf = self.classifier_class(**self.kwargs)
+        clf = self.estimator_class(**self.kwargs)
         clf.fit(self.X_train, self.y_train)
 
         proba_sum = clf.predict_proba(self.X_test).sum(axis=1)
@@ -56,7 +117,7 @@ class RGFClassfierBaseTest(object):
         self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
     def test_softmax_classifier(self):
-        clf = self.classifier_class(calc_prob='softmax', **self.kwargs)
+        clf = self.estimator_class(calc_prob='softmax', **self.kwargs)
         clf.fit(self.X_train, self.y_train)
 
         proba_sum = clf.predict_proba(self.X_test).sum(axis=1)
@@ -66,7 +127,7 @@ class RGFClassfierBaseTest(object):
         self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
     def test_bin_classifier(self):
-        clf = self.classifier_class(**self.kwargs)
+        clf = self.estimator_class(**self.kwargs)
         bin_target_train = (self.y_train == 2).astype(int)
         bin_target_test = (self.y_test == 2).astype(int)
         clf.fit(self.X_train, bin_target_train)
@@ -78,7 +139,7 @@ class RGFClassfierBaseTest(object):
         self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
     def test_string_y(self):
-        clf = self.classifier_class(**self.kwargs)
+        clf = self.estimator_class(**self.kwargs)
 
         clf.fit(self.X_train, self.y_str_train)
         y_pred = clf.predict(self.X_test)
@@ -88,7 +149,7 @@ class RGFClassfierBaseTest(object):
     def test_bin_string_y(self):
         self.accuracy = 0.75
 
-        clf = self.classifier_class(**self.kwargs)
+        clf = self.estimator_class(**self.kwargs)
 
         bin_X_train = self.X_train[self.y_train != 0]
         bin_X_test = self.X_test[self.y_test != 0]
@@ -100,11 +161,8 @@ class RGFClassfierBaseTest(object):
         score = accuracy_score(y_str_test, y_pred)
         self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
-    def test_sklearn_integration(self):
-        check_estimator(self.classifier_class)
-
     def test_classifier_sparse_input(self):
-        clf = self.classifier_class(calc_prob='softmax', **self.kwargs)
+        clf = self.estimator_class(calc_prob='softmax', **self.kwargs)
         for sparse_format in (sparse.bsr_matrix, sparse.coo_matrix, sparse.csc_matrix,
                               sparse.csr_matrix, sparse.dia_matrix, sparse.dok_matrix, sparse.lil_matrix):
             sparse_X_train = sparse_format(self.X_train)
@@ -114,7 +172,7 @@ class RGFClassfierBaseTest(object):
             self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
     def test_sample_weight(self):
-        clf = self.classifier_class(**self.kwargs)
+        clf = self.estimator_class(**self.kwargs)
         y_pred = clf.fit(self.X_train, self.y_train).predict_proba(self.X_test)
         y_pred_weighted = clf.fit(self.X_train,
                                   self.y_train,
@@ -127,67 +185,10 @@ class RGFClassfierBaseTest(object):
         y_pred_weighted = clf.fit(self.X_train, self.y_train, weights).predict(self.X_test)
         np.testing.assert_equal(y_pred_weighted, np.full(self.y_test.shape[0], self.y_test[0]))
 
-    def test_input_arrays_shape(self):
-        clf = self.classifier_class(**self.kwargs)
-
-        n_samples = self.y_train.shape[0]
-        self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train[:(n_samples - 1)])
-        self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train, np.ones(n_samples - 1))
-        self.assertRaises(ValueError,
-                          clf.fit,
-                          self.X_train,
-                          self.y_train,
-                          np.ones((n_samples, 2)))
-
-    def test_pickle(self):
-        clf1 = self.classifier_class(**self.kwargs)
-        clf1.fit(self.X_train, self.y_train)
-        y_pred1 = clf1.predict(self.X_test)
-        s = pickle.dumps(clf1)
-
-        # Remove model file
-        cleanup()
-
-        clf2 = pickle.loads(s)
-        y_pred2 = clf2.predict(self.X_test)
-
-        np.testing.assert_allclose(y_pred1, y_pred2)
-
-    def test_joblib_pickle(self):
-        clf1 = self.classifier_class(**self.kwargs)
-        clf1.fit(self.X_train, self.y_train)
-        y_pred1 = clf1.predict(self.X_test)
-        joblib.dump(clf1, 'test_clf.pkl')
-
-        # Remove model file
-        cleanup()
-
-        clf2 = joblib.load('test_clf.pkl')
-        y_pred2 = clf2.predict(self.X_test)
-
-        np.testing.assert_allclose(y_pred1, y_pred2)
-
-    def test_cleanup(self):
-        clf1 = self.classifier_class(**self.kwargs)
-        clf1.fit(self.X_train, self.y_train)
-
-        clf2 = self.classifier_class(**self.kwargs)
-        clf2.fit(self.X_train, self.y_train)
-
-        self.assertNotEqual(clf1.cleanup(), 0)
-        self.assertEqual(clf1.cleanup(), 0)
-
-        for est in clf1.estimators_:
-            glob_file = os.path.join(TEMP_PATH, est._file_prefix + "*")
-            self.assertFalse(glob.glob(glob_file))
-
-        self.assertRaises(NotFittedError, clf1.predict, self.X_test)
-        clf2.predict(self.X_test)
-
     def test_parallel_gridsearch(self):
         self.kwargs['n_jobs'] = 1
         param_grid = dict(min_samples_leaf=[5, 10])
-        grid = GridSearchCV(self.classifier_class(**self.kwargs),
+        grid = GridSearchCV(self.estimator_class(**self.kwargs),
                             param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
         y_pred = grid.best_estimator_.predict(self.X_test)
@@ -195,181 +196,7 @@ class RGFClassfierBaseTest(object):
         self.assertGreaterEqual(score, self.accuracy, "Failed with score = {0:.5f}".format(score))
 
 
-class TestRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
-    def setUp(self):
-        self.classifier_class = RGFClassifier
-        self.kwargs = {}
-
-        super(TestRGFClassfier, self).setUp()
-
-    def test_params(self):
-        clf = self.classifier_class(**self.kwargs)
-        valid_params = dict(max_leaf=300,
-                            test_interval=100,
-                            algorithm='RGF_Sib',
-                            loss='Log',
-                            reg_depth=1.1,
-                            l2=0.1,
-                            sl2=None,
-                            normalize=False,
-                            min_samples_leaf=0.4,
-                            n_iter=None,
-                            n_tree_search=2,
-                            opt_interval=100,
-                            learning_rate=0.4,
-                            calc_prob='sigmoid',
-                            n_jobs=-1,
-                            memory_policy='conservative',
-                            verbose=True)
-        clf.set_params(**valid_params)
-        clf.fit(self.X_train, self.y_train)
-
-        non_valid_params = dict(max_leaf=0,
-                                test_interval=0,
-                                algorithm='RGF_Test',
-                                loss=True,
-                                reg_depth=0.1,
-                                l2=11,
-                                sl2=-1.1,
-                                normalize='False',
-                                min_samples_leaf=0.7,
-                                n_iter=11.1,
-                                n_tree_search=0,
-                                opt_interval=100.1,
-                                learning_rate=-0.5,
-                                calc_prob=True,
-                                n_jobs='-1',
-                                memory_policy='Generos',
-                                verbose=-1)
-        for key in non_valid_params:
-            clf.set_params(**valid_params)  # Reset to valid params
-            clf.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
-            self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
-
-    def test_attributes(self):
-        clf = self.classifier_class(**self.kwargs)
-        attributes = ('estimators_', 'classes_', 'n_classes_', 'n_features_', 'fitted_',
-                      'sl2_', 'min_samples_leaf_', 'n_iter_')
-
-        for attr in attributes:
-            self.assertRaises(NotFittedError, getattr, clf, attr)
-        clf.fit(self.X_train, self.y_train)
-        self.assertEqual(len(clf.estimators_), len(np.unique(self.y_train)))
-        np.testing.assert_array_equal(clf.classes_, sorted(np.unique(self.y_train)))
-        self.assertEqual(clf.n_classes_, len(clf.estimators_))
-        self.assertEqual(clf.n_features_, self.X_train.shape[-1])
-        self.assertTrue(clf.fitted_)
-        if clf.sl2 is None:
-            self.assertEqual(clf.sl2_, clf.l2)
-        else:
-            self.assertEqual(clf.sl2_, clf.sl2)
-        if clf.min_samples_leaf < 1:
-            self.assertLessEqual(clf.min_samples_leaf_, 0.5 * self.X_train.shape[0])
-        else:
-            self.assertEqual(clf.min_samples_leaf_, clf.min_samples_leaf)
-        if clf.n_iter is None:
-            if clf.loss == "LS":
-                self.assertEqual(clf.n_iter_, 10)
-            else:
-                self.assertEqual(clf.n_iter_, 5)
-        else:
-            self.assertEqual(clf.n_iter_, clf.n_iter)
-
-    def test_feature_impotances(self):
-        clf = self.classifier_class(**self.kwargs)
-        clf.fit(self.X_train, self.y_train)
-
-        fi = clf.feature_importances_
-        self.assertEqual(fi.shape[0], self.X_train.shape[1])
-        self.assertAlmostEquals(fi.sum(), 1)
-
-
-class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
-    def setUp(self):
-        self.classifier_class = FastRGFClassifier
-        self.kwargs = {}
-
-        super(TestFastRGFClassfier, self).setUp()
-
-    def test_params(self):
-        clf = self.classifier_class(**self.kwargs)
-        valid_params = dict(n_estimators=50,
-                            max_depth=3,
-                            max_leaf=20,
-                            tree_gain_ratio=0.3,
-                            min_samples_leaf=0.5,
-                            loss="LOGISTIC",
-                            l1=0.6,
-                            l2=100.0,
-                            opt_algorithm='rgf',
-                            learning_rate=0.05,
-                            max_bin=150,
-                            min_child_weight=9.0,
-                            data_l2=9.0,
-                            sparse_max_features=1000,
-                            sparse_min_occurences=2,
-                            calc_prob="sigmoid",
-                            n_jobs=-1,
-                            verbose=True)
-        clf.set_params(**valid_params)
-        clf.fit(self.X_train, self.y_train)
-
-        non_valid_params = dict(n_estimators=0,
-                                max_depth=-3.0,
-                                max_leaf=0,
-                                tree_gain_ratio=1.3,
-                                min_samples_leaf=0.55,
-                                loss="LOG",
-                                l1=6,
-                                l2=-10.0,
-                                opt_algorithm='RGF',
-                                learning_rate=0.0,
-                                max_bin=0.5,
-                                min_child_weight='auto',
-                                data_l2=None,
-                                sparse_max_features=0,
-                                sparse_min_occurences=-2.0,
-                                calc_prob=None,
-                                n_jobs=None,
-                                verbose=-3)
-        for key in non_valid_params:
-            clf.set_params(**valid_params)  # Reset to valid params
-            clf.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
-            self.assertRaises(ValueError, clf.fit, self.X_train, self.y_train)
-
-    def test_attributes(self):
-        clf = self.classifier_class(**self.kwargs)
-        attributes = ('estimators_', 'classes_', 'n_classes_', 'n_features_', 'fitted_',
-                      'max_bin_', 'min_samples_leaf_')
-
-        for attr in attributes:
-            self.assertRaises(NotFittedError, getattr, clf, attr)
-        clf.fit(self.X_train, self.y_train)
-        self.assertEqual(len(clf.estimators_), len(np.unique(self.y_train)))
-        np.testing.assert_array_equal(clf.classes_, sorted(np.unique(self.y_train)))
-        self.assertEqual(clf.n_classes_, len(clf.estimators_))
-        self.assertEqual(clf.n_features_, self.X_train.shape[-1])
-        self.assertTrue(clf.fitted_)
-        if clf.max_bin is None:
-            if sparse.isspmatrix(self.X_train):
-                self.assertEqual(clf.max_bin_, 200)
-            else:
-                self.assertEqual(clf.max_bin_, 65000)
-        else:
-            self.assertEqual(clf.max_bin_, clf.max_bin)
-        if clf.min_samples_leaf < 1:
-            self.assertLessEqual(clf.min_samples_leaf_, 0.5 * self.X_train.shape[0])
-        else:
-            self.assertEqual(clf.min_samples_leaf_, clf.min_samples_leaf)
-
-    def test_sklearn_integration(self):
-        # TODO(fukatani): FastRGF bug?
-        # FastRGF doesn't work if the number of sample is too small.
-        # check_estimator(self.classifier_class)
-        pass
-
-
-class RGFRegressorBaseTest(object):
+class RegressorBaseTest(EstimatorBaseTest):
     def setUp(self):
         self.X, self.y = datasets.make_friedman1(n_samples=500,
                                                  random_state=1,
@@ -378,17 +205,14 @@ class RGFRegressorBaseTest(object):
         self.X_test, self.y_test = self.X[400:], self.y[400:]
 
     def test_regressor(self):
-        reg = self.regressor_class(**self.kwargs)
+        reg = self.estimator_class(**self.kwargs)
         reg.fit(self.X_train, self.y_train)
         y_pred = reg.predict(self.X_test)
         mse = mean_squared_error(self.y_test, y_pred)
         self.assertLess(mse, self.mse, "Failed with MSE = {0:.5f}".format(mse))
 
-    def test_sklearn_integration(self):
-        check_estimator(self.regressor_class)
-
     def test_regressor_sparse_input(self):
-        reg = self.regressor_class(**self.kwargs)
+        reg = self.estimator_class(**self.kwargs)
         for sparse_format in (sparse.bsr_matrix, sparse.coo_matrix, sparse.csc_matrix,
                               sparse.csr_matrix, sparse.dia_matrix, sparse.dok_matrix, sparse.lil_matrix):
             X_sparse_train = sparse_format(self.X_train)
@@ -399,7 +223,7 @@ class RGFRegressorBaseTest(object):
             self.assertLess(mse, self.mse, "Failed with MSE = {0:.5f}".format(mse))
 
     def test_sample_weight(self):
-        reg = self.regressor_class(**self.kwargs)
+        reg = self.estimator_class(**self.kwargs)
 
         y_pred = reg.fit(self.X_train, self.y_train).predict(self.X_test)
         y_pred_weighted = reg.fit(self.X_train,
@@ -419,65 +243,9 @@ class RGFRegressorBaseTest(object):
         mse_fixed = mean_squared_error(self.y_test, y_pred_weighted)
         self.assertLess(mse_fixed, mse_corrupt)
 
-    def test_input_arrays_shape(self):
-        reg = self.regressor_class(**self.kwargs)
-
-        n_samples = self.y_train.shape[0]
-        self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train[:(n_samples - 1)])
-        self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train, np.ones(n_samples - 1))
-        self.assertRaises(ValueError,
-                          reg.fit,
-                          self.X_train,
-                          self.y_train,
-                          np.ones((n_samples, 2)))
-
-    def test_pickle(self):
-        reg1 = self.regressor_class(**self.kwargs)
-        reg1.fit(self.X_train, self.y_train)
-        y_pred1 = reg1.predict(self.X_test)
-        s = pickle.dumps(reg1)
-
-        # Remove model file
-        cleanup()
-
-        reg2 = pickle.loads(s)
-        y_pred2 = reg2.predict(self.X_test)
-
-        np.testing.assert_allclose(y_pred1, y_pred2)
-
-    def test_joblib_pickle(self):
-        reg1 = self.regressor_class(**self.kwargs)
-        reg1.fit(self.X_train, self.y_train)
-        y_pred1 = reg1.predict(self.X_test)
-        joblib.dump(reg1, 'test_reg.pkl')
-
-        # Remove model file
-        cleanup()
-
-        reg2 = joblib.load('test_reg.pkl')
-        y_pred2 = reg2.predict(self.X_test)
-
-        np.testing.assert_allclose(y_pred1, y_pred2)
-
-    def test_cleanup(self):
-        reg1 = self.regressor_class(**self.kwargs)
-        reg1.fit(self.X_train, self.y_train)
-
-        reg2 = self.regressor_class(**self.kwargs)
-        reg2.fit(self.X_train, self.y_train)
-
-        self.assertNotEqual(reg1.cleanup(), 0)
-        self.assertEqual(reg1.cleanup(), 0)
-
-        glob_file = os.path.join(TEMP_PATH, reg1._estimators[0]._file_prefix + "*")
-        self.assertFalse(glob.glob(glob_file))
-
-        self.assertRaises(NotFittedError, reg1.predict, self.X_test)
-        reg2.predict(self.X_test)
-
     def test_parallel_gridsearch(self):
         param_grid = dict(min_samples_leaf=[5, 10])
-        grid = GridSearchCV(self.regressor_class(**self.kwargs),
+        grid = GridSearchCV(self.estimator_class(**self.kwargs),
                             param_grid=param_grid, refit=True, cv=2, verbose=0, n_jobs=-1)
         grid.fit(self.X_train, self.y_train)
         y_pred = grid.best_estimator_.predict(self.X_test)
@@ -485,18 +253,11 @@ class RGFRegressorBaseTest(object):
         self.assertLess(mse, self.mse, "Failed with MSE = {0:.5f}".format(mse))
 
 
-class TestRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
-    def setUp(self):
-        self.regressor_class = RGFRegressor
-        self.kwargs = {}
-
-        self.mse = 2.0353275768
-
-        super(TestRGFRegressor, self).setUp()
-
-    def test_params(self):
-        reg = self.regressor_class(**self.kwargs)
-
+class RGFBaseTest(object):
+    def test_params(self, add_valid_params=None, add_non_valid_params=None):
+        add_valid_params = {} if add_valid_params is None else add_valid_params
+        add_non_valid_params = {} if add_non_valid_params is None else add_non_valid_params
+        est = self.estimator_class(**self.kwargs)
         valid_params = dict(max_leaf=300,
                             test_interval=100,
                             algorithm='RGF_Sib',
@@ -512,8 +273,9 @@ class TestRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
                             learning_rate=0.4,
                             memory_policy='conservative',
                             verbose=True)
-        reg.set_params(**valid_params)
-        reg.fit(self.X_train, self.y_train)
+        valid_params.update(add_valid_params)
+        est.set_params(**valid_params)
+        est.fit(self.X_train, self.y_train)
 
         non_valid_params = dict(max_leaf=0,
                                 test_interval=0,
@@ -530,64 +292,55 @@ class TestRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
                                 learning_rate=-0.5,
                                 memory_policy='Generos',
                                 verbose=-1)
+        non_valid_params.update(add_non_valid_params)
         for key in non_valid_params:
-            reg.set_params(**valid_params)  # Reset to valid params
-            reg.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
-            self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train)
+            est.set_params(**valid_params)  # Reset to valid params
+            est.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parameter
+            self.assertRaises(ValueError, est.fit, self.X_train, self.y_train)
 
-    def test_attributes(self):
-        reg = self.regressor_class(**self.kwargs)
-        attributes = ('n_features_', 'fitted_', 'sl2_', 'min_samples_leaf_', 'n_iter_')
+    def test_attributes(self, add_attrs=None):
+        self.est = self.estimator_class(**self.kwargs)
+        add_attrs = [] if add_attrs is None else add_attrs
+        attributes = ['n_features_', 'fitted_', 'sl2_',
+                      'min_samples_leaf_', 'n_iter_', 'estimators_']
+        attributes.extend(add_attrs)
 
         for attr in attributes:
-            self.assertRaises(NotFittedError, getattr, reg, attr)
-        reg.fit(self.X_train, self.y_train)
-        self.assertEqual(reg.n_features_, self.X_train.shape[-1])
-        self.assertTrue(reg.fitted_)
-        if reg.sl2 is None:
-            self.assertEqual(reg.sl2_, reg.l2)
-        else:
-            self.assertEqual(reg.sl2_, reg.sl2)
-        if reg.min_samples_leaf < 1:
-            self.assertLessEqual(reg.min_samples_leaf_, 0.5 * self.X_train.shape[0])
-        else:
-            self.assertEqual(reg.min_samples_leaf_, reg.min_samples_leaf)
-        if reg.n_iter is None:
-            if reg.loss == "LS":
-                self.assertEqual(reg.n_iter_, 10)
-            else:
-                self.assertEqual(reg.n_iter_, 5)
-        else:
-            self.assertEqual(reg.n_iter_, reg.n_iter)
+            self.assertRaises(NotFittedError, getattr, self.est, attr)
+        self.est.fit(self.X_train, self.y_train)
 
-    def test_abs_regressor(self):
-        reg = self.regressor_class(loss="Abs")
-        reg.fit(self.X_train, self.y_train)
-        y_pred = reg.predict(self.X_test)
-        mae = mean_absolute_error(self.y_test, y_pred)
-        self.assertLess(mae, 1.9916427774, "Failed with MAE = {0:.5f}".format(mae))
+        self.assertEqual(self.est.n_features_, self.X_train.shape[-1])
+        self.assertTrue(self.est.fitted_)
+        if self.est.sl2 is None:
+            self.assertEqual(self.est.sl2_, self.est.l2)
+        else:
+            self.assertEqual(self.est.sl2_, self.est.sl2)
+        if self.est.min_samples_leaf < 1:
+            self.assertLessEqual(self.est.min_samples_leaf_, 0.5 * self.X_train.shape[0])
+        else:
+            self.assertEqual(self.est.min_samples_leaf_, self.est.min_samples_leaf)
+        if self.est.n_iter is None:
+            if self.est.loss == "LS":
+                self.assertEqual(self.est.n_iter_, 10)
+            else:
+                self.assertEqual(self.est.n_iter_, 5)
+        else:
+            self.assertEqual(self.est.n_iter_, self.est.n_iter)
 
     def test_feature_impotances(self):
-        reg = self.regressor_class(**self.kwargs)
-        reg.fit(self.X_train, self.y_train)
+        est = self.estimator_class(**self.kwargs)
+        est.fit(self.X_train, self.y_train)
 
-        fi = reg.feature_importances_
+        fi = est.feature_importances_
         self.assertEqual(fi.shape[0], self.X_train.shape[1])
         self.assertAlmostEquals(fi.sum(), 1)
 
 
-class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
-    def setUp(self):
-        self.regressor_class = FastRGFRegressor
-        self.kwargs = {}
-
-        self.mse = 2.5522511545
-
-        super(TestFastRGFRegressor, self).setUp()
-
-    def test_params(self):
-        reg = self.regressor_class(**self.kwargs)
-
+class FastRGFBaseTest(object):
+    def test_params(self, add_valid_params=None, add_non_valid_params=None):
+        add_valid_params = {} if add_valid_params is None else add_valid_params
+        add_non_valid_params = {} if add_non_valid_params is None else add_non_valid_params
+        est = self.estimator_class(**self.kwargs)
         valid_params = dict(n_estimators=50,
                             max_depth=3,
                             max_leaf=20,
@@ -604,8 +357,9 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
                             sparse_min_occurences=2,
                             n_jobs=-1,
                             verbose=True)
-        reg.set_params(**valid_params)
-        reg.fit(self.X_train, self.y_train)
+        valid_params.update(add_valid_params)
+        est.set_params(**valid_params)
+        est.fit(self.X_train, self.y_train)
 
         non_valid_params = dict(n_estimators=0,
                                 max_depth=-3.0,
@@ -624,30 +378,116 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
                                 n_jobs=None,
                                 verbose=-3)
         for key in non_valid_params:
-            reg.set_params(**valid_params)  # Reset to valid params
-            reg.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parametr
-            self.assertRaises(ValueError, reg.fit, self.X_train, self.y_train)
+            est.set_params(**valid_params)  # Reset to valid params
+            est.set_params(**{key: non_valid_params[key]})  # Pick and set one non-valid parameter
+            self.assertRaises(ValueError, est.fit, self.X_train, self.y_train)
 
-    def test_attributes(self):
-        reg = self.regressor_class(**self.kwargs)
-        attributes = ('n_features_', 'fitted_', 'max_bin_', 'min_samples_leaf_')
+    def test_attributes(self, add_attrs=None):
+        add_attrs = [] if add_attrs is None else add_attrs
+        self.est = self.estimator_class(**self.kwargs)
+        attributes = ['n_features_', 'fitted_', 'max_bin_',
+                      'min_samples_leaf_', 'estimators_']
+        attributes.extend(add_attrs)
 
         for attr in attributes:
-            self.assertRaises(NotFittedError, getattr, reg, attr)
-        reg.fit(self.X_train, self.y_train)
-        self.assertEqual(reg.n_features_, self.X_train.shape[-1])
-        self.assertTrue(reg.fitted_)
-        if reg.max_bin is None:
+            self.assertRaises(NotFittedError, getattr, self.est, attr)
+        self.est.fit(self.X_train, self.y_train)
+        self.assertEqual(self.est.n_features_, self.X_train.shape[-1])
+        self.assertTrue(self.est.fitted_)
+        if self.est.max_bin is None:
             if sparse.isspmatrix(self.X_train):
-                self.assertEqual(reg.max_bin_, 200)
+                self.assertEqual(self.est.max_bin_, 200)
             else:
-                self.assertEqual(reg.max_bin_, 65000)
+                self.assertEqual(self.est.max_bin_, 65000)
         else:
-            self.assertEqual(reg.max_bin_, reg.max_bin)
-        if reg.min_samples_leaf < 1:
-            self.assertLessEqual(reg.min_samples_leaf_, 0.5 * self.X_train.shape[0])
+            self.assertEqual(self.est.max_bin_, self.est.max_bin)
+        if self.est.min_samples_leaf < 1:
+            self.assertLessEqual(self.est.min_samples_leaf_, 0.5 * self.X_train.shape[0])
         else:
-            self.assertEqual(reg.min_samples_leaf_, reg.min_samples_leaf)
+            self.assertEqual(self.est.min_samples_leaf_, self.est.min_samples_leaf)
+
+
+class TestRGFClassfier(ClassifierBaseTest, RGFBaseTest, unittest.TestCase):
+    def setUp(self):
+        self.estimator_class = RGFClassifier
+        self.kwargs = {}
+
+        super(TestRGFClassfier, self).setUp()
+
+    def test_params(self):
+        super(TestRGFClassfier, self).test_params(add_valid_params={'calc_prob': 'sigmoid',
+                                                                    'n_jobs': -1},
+                                                  add_non_valid_params={'calc_prob': True,
+                                                                        'n_jobs': '-1'})
+
+    def test_attributes(self):
+        super(TestRGFClassfier, self).test_attributes(add_attrs=['classes_',
+                                                                 'n_classes_'])
+        self.assertEqual(len(self.est.estimators_), len(np.unique(self.y_train)))
+        np.testing.assert_array_equal(self.est.classes_, sorted(np.unique(self.y_train)))
+        self.assertEqual(self.est.n_classes_, len(self.est.estimators_))
+
+
+class TestFastRGFClassfier(ClassifierBaseTest, FastRGFBaseTest, unittest.TestCase):
+    def setUp(self):
+        self.estimator_class = FastRGFClassifier
+        self.kwargs = {}
+
+        super(TestFastRGFClassfier, self).setUp()
+
+    def test_params(self):
+        super(TestFastRGFClassfier, self).test_params(add_valid_params={'loss': 'LOGISTIC',
+                                                                        'calc_prob': 'sigmoid'},
+                                                      add_non_valid_params={'loss': 'LOG',
+                                                                            'calc_prob': None})
+
+    def test_attributes(self):
+        super(TestFastRGFClassfier, self).test_attributes(add_attrs=['classes_',
+                                                                     'n_classes_'])
+        self.assertEqual(len(self.est.estimators_), len(np.unique(self.y_train)))
+        np.testing.assert_array_equal(self.est.classes_, sorted(np.unique(self.y_train)))
+        self.assertEqual(self.est.n_classes_, len(self.est.estimators_))
+
+    def test_sklearn_integration(self):
+        # TODO(fukatani): FastRGF bug?
+        # FastRGF doesn't work if the number of sample is too small.
+        # check_estimator(self.estimator_class)
+        pass
+
+
+class TestRGFRegressor(RegressorBaseTest, RGFBaseTest, unittest.TestCase):
+    def setUp(self):
+        self.estimator_class = RGFRegressor
+        self.kwargs = {}
+
+        self.mse = 2.0353275768
+
+        super(TestRGFRegressor, self).setUp()
+
+    def test_attributes(self):
+        super(TestRGFRegressor, self).test_attributes()
+        self.assertEqual(len(self.est.estimators_), 1)
+
+    def test_abs_regressor(self):
+        reg = self.estimator_class(loss="Abs")
+        reg.fit(self.X_train, self.y_train)
+        y_pred = reg.predict(self.X_test)
+        mae = mean_absolute_error(self.y_test, y_pred)
+        self.assertLess(mae, 1.9916427774, "Failed with MAE = {0:.5f}".format(mae))
+
+
+class TestFastRGFRegressor(RegressorBaseTest, FastRGFBaseTest, unittest.TestCase):
+    def setUp(self):
+        self.estimator_class = FastRGFRegressor
+        self.kwargs = {}
+
+        self.mse = 2.5522511545
+
+        super(TestFastRGFRegressor, self).setUp()
+
+    def test_attributes(self):
+        super(TestFastRGFRegressor, self).test_attributes()
+        self.assertEqual(len(self.est.estimators_), 1)
 
     def test_parallel_gridsearch(self):
         self.kwargs['n_jobs'] = 1
@@ -655,7 +495,6 @@ class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
 
     def test_sklearn_integration(self):
         # TODO(fukatani): FastRGF bug?
-        # FastRGF discretization doesn't work if the number of sample is too
-        # small.
-        # check_estimator(self.regressor_class)
+        # FastRGF doesn't work if the number of sample is too small.
+        # check_estimator(self.estimator_class)
         pass
