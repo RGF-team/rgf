@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from glob import glob
 from math import ceil
+from shutil import copyfile
 
 import numpy as np
 from sklearn.base import ClassifierMixin, RegressorMixin, is_classifier
@@ -104,6 +105,17 @@ memory_policy : string ("conservative" or "generous"), optional (default="genero
 verbose : int, optional (default=0)
     Controls the verbosity of the tree building process.
 
+init_model : None or string, optional (default=None)
+    Filename of a previously saved model from which training should do warm-start.
+    If model has been saved into multiple files,
+    do not include numerical suffixes in the filename.
+
+    Note
+    ----
+    Make sure you haven't forgotten to increase the value of the max_leaf parameter
+    regarding to the specified warm-start model
+    because warm-start model trees are counted in the overall number of trees.
+
 Attributes:
 -----------
 estimators_ : {%estimators_property_type_desc%}
@@ -152,6 +164,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
                              learning_rate,
                              verbose,
                              memory_policy,
+                             init_model,
                              calc_prob="sigmoid",
                              n_jobs=-1):
         if not isinstance(max_leaf, utils.INTS):
@@ -263,6 +276,11 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             raise ValueError(
                 "memory_policy must be 'conservative' or 'generous' but was %r." % memory_policy)
 
+        if not isinstance(init_model, (type(None), six.string_types)):
+            raise ValueError(
+                "init_model must be a string or None, got {0}.".format(
+                    type(init_model)))
+
         if not isinstance(calc_prob, six.string_types):
             raise ValueError(
                 "calc_prob must be a string, got {0}.".format(type(calc_prob)))
@@ -345,6 +363,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
                     learning_rate=self.learning_rate,
                     memory_policy=self.memory_policy,
                     verbose=self.verbose,
+                    init_model=self.init_model,
                     is_classification=is_classifier(self))
 
     def _fit_binary_task(self, X, y, sample_weight, params):
@@ -357,8 +376,14 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
         self._estimators[0] = RGFExecuter(**params).fit(X, y, sample_weight)
 
     def _fit_multiclass_task(self, X, y, sample_weight, params):
+        if params['init_model'] is not None:
+            max_digits = len(str(len(self._classes)))
+            init_model_filenames = ['{}.{}'.format(params['init_model'],
+                                                   str(i + 1).zfill(max_digits)) for i in range(self._n_classes)]
         ovr_list = [None] * self._n_classes
         for i, cls_num in enumerate(self._classes):
+            if params['init_model'] is not None:
+                params['init_model'] = init_model_filenames[i]
             self._classes_map[i] = cls_num
             ovr_list[i] = (y == cls_num).astype(int)
             self._estimators[i] = RGFExecuter(**params)
@@ -389,13 +414,40 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
           [  2], (-0.0146), depth=1, gain=0
         Here, [ x] is order of generated, (x) is weight for leaf nodes, last value is a border.
         """
-        for est in self.estimators_:
+        if self._fitted is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
+        for est in self._estimators:
             est.dump_model()
+
+    def save_model(self, filename):
+        """
+        Save model to {%file_singular_or_plural%} from which training can do warm-start in the future.
+{%note%}
+        Parameters
+        ----------
+        filename : string
+            Filename to save model.
+
+        Returns
+        -------
+        self : object
+            Returns self.
+        """
+        if self._fitted is None:
+            raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
+        if len(self._estimators) > 1:
+            max_digits = len(str(len(self._estimators)))
+            for idx, est in enumerate(self._estimators, 1):
+                est.save_model('{}.{}'.format(filename, str(idx).zfill(max_digits)))
+        else:
+            self._estimators[0].save_model(filename)
+        return self
 
     @property
     def feature_importances_(self):
         """
         The feature importances.
+
         The importance of a feature is computed from sum of gain of each node.
         """
         if self._fitted is None:
@@ -419,7 +471,8 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
                  opt_interval=100,
                  learning_rate=0.5,
                  memory_policy="generous",
-                 verbose=0):
+                 verbose=0,
+                 init_model=None):
         if not utils.RGF_AVAILABLE:
             raise Exception('RGF estimators are unavailable for usage.')
         self.max_leaf = max_leaf
@@ -440,12 +493,13 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         self.learning_rate = learning_rate
         self.memory_policy = memory_policy
         self.verbose = verbose
+        self.init_model = init_model
 
         self._n_features = None
         self._estimators = None
         self._fitted = None
 
-    _regressor_specific_values = {
+    _regressor_init_specific_values = {
         '{%estimator_type%}': 'regressor',
         '{%max_leaf_default_value%}': '500',
         '{%loss_default_value%}': 'LS',
@@ -457,8 +511,19 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         '{%n_classes_property%}': ''
     }
     __doc__ = rgf_estimator_docstring_template
-    for _template, _value in _regressor_specific_values.items():
+    for _template, _value in _regressor_init_specific_values.items():
         __doc__ = __doc__.replace(_template, _value)
+
+    def save_model(self, filename):
+        super(RGFRegressor, self).save_model(filename)
+
+    _regressor_save_model_specific_values = {
+        '{%file_singular_or_plural%}': 'file',
+        '{%note%}': ''
+    }
+    save_model.__doc__ = RGFEstimatorBase.save_model.__doc__
+    for _template, _value in _regressor_save_model_specific_values.items():
+        save_model.__doc__ = save_model.__doc__.replace(_template, _value)
 
 
 class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin):
@@ -479,7 +544,8 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
                  calc_prob="sigmoid",
                  n_jobs=-1,
                  memory_policy="generous",
-                 verbose=0):
+                 verbose=0,
+                 init_model=None):
         if not utils.RGF_AVAILABLE:
             raise Exception('RGF estimators are unavailable for usage.')
         self.max_leaf = max_leaf
@@ -502,6 +568,7 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
         self.n_jobs = n_jobs
         self.memory_policy = memory_policy
         self.verbose = verbose
+        self.init_model = init_model
 
         self._estimators = None
         self._classes = None
@@ -510,7 +577,7 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
         self._n_features = None
         self._fitted = None
 
-    _classifier_specific_values = {
+    _classifier_init_specific_values = {
         '{%estimator_type%}': 'classifier',
         '{%max_leaf_default_value%}': '1000',
         '{%loss_default_value%}': 'Log',
@@ -541,8 +608,25 @@ n_classes_ : int
 """
     }
     __doc__ = rgf_estimator_docstring_template
-    for _template, _value in _classifier_specific_values.items():
+    for _template, _value in _classifier_init_specific_values.items():
         __doc__ = __doc__.replace(_template, _value)
+
+    def save_model(self, filename):
+        super(RGFClassifier, self).save_model(filename)
+
+    _classifier_save_model_specific_values = {
+        '{%file_singular_or_plural%}': 'file(s)',
+        '{%note%}': """
+        Note
+        ----
+        Due to the fact that multiclass classification problems are handled by the OvR method,
+        such models are saved into multiple files with numerical suffixes,
+        like filename.1, filename.2, ..., filename.n_classes.
+"""
+    }
+    save_model.__doc__ = RGFEstimatorBase.save_model.__doc__
+    for _template, _value in _classifier_save_model_specific_values.items():
+        save_model.__doc__ = save_model.__doc__.replace(_template, _value)
 
 
 class RGFExecuter(utils.CommonRGFExecuterBase):
@@ -581,6 +665,8 @@ class RGFExecuter(utils.CommonRGFExecuterBase):
         params.append("model_fn_prefix=%s" % self._model_file_loc)
         if self._use_sample_weight:
             params.append("train_w_fn=%s" % self._train_weight_loc)
+        if self.init_model is not None:
+            params.append("model_fn_for_warmstart=%s" % self.init_model)
 
         cmd = (utils.RGF_PATH, "train", ",".join(params))
 
@@ -607,6 +693,10 @@ class RGFExecuter(utils.CommonRGFExecuterBase):
         self._check_fitted()
         cmd = (utils.RGF_PATH, "dump_model", "model_fn=%s" % self._model_file)
         self._execute_command(cmd, force_verbose=True)
+
+    def save_model(self, filename):
+        self._check_fitted()
+        copyfile(self._model_file, filename)
 
     @property
     def feature_importances_(self):
