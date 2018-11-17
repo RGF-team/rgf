@@ -17,7 +17,7 @@ from sklearn.utils.validation import check_random_state
 
 from rgf.sklearn import RGFClassifier, RGFRegressor
 from rgf.sklearn import FastRGFClassifier, FastRGFRegressor
-from rgf.utils import cleanup, TEMP_PATH
+from rgf.utils import cleanup, Config
 
 
 class EstimatorBaseTest(object):
@@ -74,7 +74,7 @@ class EstimatorBaseTest(object):
         self.assertEqual(est1.cleanup(), 0)
 
         for base_est in est1.estimators_:
-            glob_file = os.path.join(TEMP_PATH, base_est._file_prefix + "*")
+            glob_file = os.path.join(Config().TEMP_PATH, base_est._file_prefix + "*")
             self.assertFalse(glob.glob(glob_file))
 
         self.assertRaises(NotFittedError, est1.predict, self.X_test)
@@ -333,7 +333,7 @@ class RGFBaseTest(object):
 
         fi = est.feature_importances_
         self.assertEqual(fi.shape[0], self.X_train.shape[1])
-        self.assertAlmostEquals(fi.sum(), 1)
+        self.assertAlmostEqual(fi.sum(), 1)
 
 
 class FastRGFBaseTest(object):
@@ -407,42 +407,42 @@ class FastRGFBaseTest(object):
             self.assertEqual(self.est.min_samples_leaf_, self.est.min_samples_leaf)
 
 
-class TestRGFClassfier(ClassifierBaseTest, RGFBaseTest, unittest.TestCase):
+class TestRGFClassifier(ClassifierBaseTest, RGFBaseTest, unittest.TestCase):
     def setUp(self):
         self.estimator_class = RGFClassifier
         self.kwargs = {}
 
-        super(TestRGFClassfier, self).setUp()
+        super(TestRGFClassifier, self).setUp()
 
     def test_params(self):
-        super(TestRGFClassfier, self).test_params(add_valid_params={'calc_prob': 'sigmoid',
+        super(TestRGFClassifier, self).test_params(add_valid_params={'calc_prob': 'sigmoid',
                                                                     'n_jobs': -1},
                                                   add_non_valid_params={'calc_prob': True,
                                                                         'n_jobs': '-1'})
 
     def test_attributes(self):
-        super(TestRGFClassfier, self).test_attributes(add_attrs=['classes_',
+        super(TestRGFClassifier, self).test_attributes(add_attrs=['classes_',
                                                                  'n_classes_'])
         self.assertEqual(len(self.est.estimators_), len(np.unique(self.y_train)))
         np.testing.assert_array_equal(self.est.classes_, sorted(np.unique(self.y_train)))
         self.assertEqual(self.est.n_classes_, len(self.est.estimators_))
 
 
-class TestFastRGFClassfier(ClassifierBaseTest, FastRGFBaseTest, unittest.TestCase):
+class TestFastRGFClassifier(ClassifierBaseTest, FastRGFBaseTest, unittest.TestCase):
     def setUp(self):
         self.estimator_class = FastRGFClassifier
         self.kwargs = {}
 
-        super(TestFastRGFClassfier, self).setUp()
+        super(TestFastRGFClassifier, self).setUp()
 
     def test_params(self):
-        super(TestFastRGFClassfier, self).test_params(add_valid_params={'loss': 'LOGISTIC',
+        super(TestFastRGFClassifier, self).test_params(add_valid_params={'loss': 'LOGISTIC',
                                                                         'calc_prob': 'sigmoid'},
                                                       add_non_valid_params={'loss': 'LOG',
                                                                             'calc_prob': None})
 
     def test_attributes(self):
-        super(TestFastRGFClassfier, self).test_attributes(add_attrs=['classes_',
+        super(TestFastRGFClassifier, self).test_attributes(add_attrs=['classes_',
                                                                      'n_classes_'])
         self.assertEqual(len(self.est.estimators_), len(np.unique(self.y_train)))
         np.testing.assert_array_equal(self.est.classes_, sorted(np.unique(self.y_train)))
