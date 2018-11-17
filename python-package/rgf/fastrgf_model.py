@@ -277,7 +277,7 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
         The concrete maximum number of discretized values (bins)
         used in model building process for given data.
         """
-        if self._max_bin is None:
+        if not hasattr(self, '_max_bin'):
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._max_bin
@@ -288,7 +288,7 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
         Minimum number of training data points in each leaf node
         used in model building process.
         """
-        if self._min_samples_leaf is None:
+        if not hasattr(self, '_min_samples_leaf'):
             raise NotFittedError(utils.NOT_FITTED_ERROR_DESC)
         else:
             return self._min_samples_leaf
@@ -314,26 +314,30 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
         else:
             self._n_jobs = self.n_jobs
 
+        self._set_target_and_loss()
+
     def _get_params(self):
-        return dict(max_depth=self.max_depth,
-                    max_leaf=self.max_leaf,
-                    tree_gain_ratio=self.tree_gain_ratio,
-                    min_samples_leaf=self._min_samples_leaf,
-                    loss=self.loss,
-                    l1=self.l1,
-                    l2=self.l2,
-                    opt_algorithm=self.opt_algorithm,
-                    n_estimators=self.n_estimators,
-                    learning_rate=self.learning_rate,
-                    max_bin=self._max_bin,
-                    data_l2=self.data_l2,
-                    min_child_weight=self.min_child_weight,
-                    sparse_max_features=self.sparse_max_features,
-                    sparse_min_occurences=self.sparse_min_occurences,
-                    n_jobs=self._n_jobs,
-                    verbose=self.verbose,
-                    is_classification=is_classifier(self),
-                    target=self._target)
+        res = super(FastRGFEstimatorBase, self)._get_params()
+        res.update(dict(max_depth=self.max_depth,
+                        max_leaf=self.max_leaf,
+                        tree_gain_ratio=self.tree_gain_ratio,
+                        min_samples_leaf=self._min_samples_leaf,
+                        loss=self._loss,
+                        l1=self.l1,
+                        l2=self.l2,
+                        opt_algorithm=self.opt_algorithm,
+                        n_estimators=self.n_estimators,
+                        learning_rate=self.learning_rate,
+                        max_bin=self._max_bin,
+                        data_l2=self.data_l2,
+                        min_child_weight=self.min_child_weight,
+                        sparse_max_features=self.sparse_max_features,
+                        sparse_min_occurences=self.sparse_min_occurences,
+                        n_jobs=self._n_jobs,
+                        verbose=self.verbose,
+                        is_classification=is_classifier(self),
+                        target=self._target))
+        return res
 
     def _fit_binary_task(self, X, y, sample_weight, params):
         self._estimators[0] = FastRGFExecuter(**params).fit(X, y, sample_weight)
@@ -368,33 +372,29 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
                  sparse_min_occurences=5,
                  n_jobs=-1,
                  verbose=0):
-        if not utils.FASTRGF_AVAILABLE:
+        if not utils.Config().FASTRGF_AVAILABLE:
             raise Exception('FastRGF estimators are unavailable for usage.')
+        super(FastRGFRegressor, self).__init__()
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.max_leaf = max_leaf
         self.tree_gain_ratio = tree_gain_ratio
         self.min_samples_leaf = min_samples_leaf
-        self._min_samples_leaf = None
-        self.loss = "LS"  # Regressor can use only LS loss.
         self.l1 = l1
         self.l2 = l2
         self.opt_algorithm = opt_algorithm
         self.learning_rate = learning_rate
         self.max_bin = max_bin
-        self._max_bin = None
         self.min_child_weight = min_child_weight
         self.data_l2 = data_l2
         self.sparse_max_features = sparse_max_features
         self.sparse_min_occurences = sparse_min_occurences
         self.n_jobs = n_jobs
-        self._n_jobs = None
         self.verbose = verbose
 
-        self._estimators = None
-        self._n_features = None
-        self._fitted = None
+    def _set_target_and_loss(self):
         self._target = "REAL"
+        self._loss = "LS"  # Regressor can use only LS loss.
 
     _regressor_specific_values = {
         '{%estimator_type%}': 'regressor',
@@ -430,37 +430,31 @@ class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
                  calc_prob="sigmoid",
                  n_jobs=-1,
                  verbose=0):
-        if not utils.FASTRGF_AVAILABLE:
+        if not utils.Config().FASTRGF_AVAILABLE:
             raise Exception('FastRGF estimators are unavailable for usage.')
+        super(FastRGFClassifier, self).__init__()
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.max_leaf = max_leaf
         self.tree_gain_ratio = tree_gain_ratio
         self.min_samples_leaf = min_samples_leaf
-        self._min_samples_leaf = None
         self.loss = loss
         self.l1 = l1
         self.l2 = l2
         self.opt_algorithm = opt_algorithm
         self.learning_rate = learning_rate
         self.max_bin = max_bin
-        self._max_bin = None
         self.min_child_weight = min_child_weight
         self.data_l2 = data_l2
         self.sparse_max_features = sparse_max_features
         self.sparse_min_occurences = sparse_min_occurences
         self.calc_prob = calc_prob
         self.n_jobs = n_jobs
-        self._n_jobs = None
         self.verbose = verbose
 
-        self._estimators = None
-        self._classes = None
-        self._classes_map = {}
-        self._n_classes = None
-        self._n_features = None
-        self._fitted = None
+    def _set_target_and_loss(self):
         self._target = "BINARY"
+        self._loss = self.loss
 
     _classifier_specific_values = {
         '{%estimator_type%}': 'classifier',
@@ -540,7 +534,7 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
         params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self._model_file_loc)
 
-        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_train")]
+        cmd = [os.path.join(self.config.FASTRGF_PATH, "forest_train")]
         cmd.extend(params)
 
         return cmd
@@ -548,7 +542,7 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
     def _find_model_file(self):
         if not os.path.isfile(self._model_file_loc):
             raise Exception('Model learning result is not found in {0}. '
-                            'Training is abnormally finished.'.format(utils.TEMP_PATH))
+                            'Training is abnormally finished.'.format(self.config.TEMP_PATH))
         self._model_file = self._model_file_loc
 
     def _get_test_command(self, is_sparse_test_X):
@@ -562,7 +556,7 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
         params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
 
-        cmd = [os.path.join(utils.FASTRGF_PATH, "forest_predict")]
+        cmd = [os.path.join(self.config.FASTRGF_PATH, "forest_predict")]
         cmd.extend(params)
 
         return cmd
