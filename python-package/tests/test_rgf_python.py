@@ -17,7 +17,7 @@ from sklearn.utils.validation import check_random_state
 
 from rgf.sklearn import RGFClassifier, RGFRegressor
 from rgf.sklearn import FastRGFClassifier, FastRGFRegressor
-from rgf.utils import cleanup, TEMP_PATH
+from rgf.utils import cleanup, Config
 
 
 class RGFClassfierBaseTest(object):
@@ -178,7 +178,7 @@ class RGFClassfierBaseTest(object):
         self.assertEqual(clf1.cleanup(), 0)
 
         for est in clf1.estimators_:
-            glob_file = os.path.join(TEMP_PATH, est._file_prefix + "*")
+            glob_file = os.path.join(Config().TEMP_PATH, est._file_prefix + "*")
             self.assertFalse(glob.glob(glob_file))
 
         self.assertRaises(NotFittedError, clf1.predict, self.X_test)
@@ -281,7 +281,7 @@ class TestRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
 
         fi = clf.feature_importances_
         self.assertEqual(fi.shape[0], self.X_train.shape[1])
-        self.assertAlmostEquals(fi.sum(), 1)
+        self.assertAlmostEqual(fi.sum(), 1)
 
 
 class TestFastRGFClassfier(RGFClassfierBaseTest, unittest.TestCase):
@@ -469,7 +469,7 @@ class RGFRegressorBaseTest(object):
         self.assertNotEqual(reg1.cleanup(), 0)
         self.assertEqual(reg1.cleanup(), 0)
 
-        glob_file = os.path.join(TEMP_PATH, reg1._estimators[0]._file_prefix + "*")
+        glob_file = os.path.join(Config().TEMP_PATH, reg1._estimators[0]._file_prefix + "*")
         self.assertFalse(glob.glob(glob_file))
 
         self.assertRaises(NotFittedError, reg1.predict, self.X_test)
@@ -573,7 +573,7 @@ class TestRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
 
         fi = reg.feature_importances_
         self.assertEqual(fi.shape[0], self.X_train.shape[1])
-        self.assertAlmostEquals(fi.sum(), 1)
+        self.assertAlmostEqual(fi.sum(), 1)
 
 
 class TestFastRGFRegressor(RGFRegressorBaseTest, unittest.TestCase):
