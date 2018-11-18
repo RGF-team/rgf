@@ -510,7 +510,7 @@ class RGFClassifierMixin(object):
         self : object
             Returns self.
         """
-        self._validate_params(self.get_params())
+        self._validate_params(**self.get_params())
 
         X, y = check_X_y(X, y, accept_sparse=True)
         if sp.isspmatrix(X):
@@ -629,7 +629,7 @@ class RGFRegressorMixin(object):
         self : object
             Returns self.
         """
-        self._validate_params(self.get_params())
+        self._validate_params(**self.get_params())
 
         X, y = check_X_y(X, y, accept_sparse=True)
         if sp.isspmatrix(X):
