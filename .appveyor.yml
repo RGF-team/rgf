@@ -21,7 +21,8 @@ install:
           "3.4" {$env:MINICONDA = """C:\Miniconda34"""}
           "3.5" {$env:MINICONDA = """C:\Miniconda35"""}
           "3.6" {$env:MINICONDA = """C:\Miniconda36"""}
-          default {$env:MINICONDA = """C:\Miniconda36"""}
+          "3.7" {$env:MINICONDA = """C:\Miniconda37"""}
+          default {$env:MINICONDA = """C:\Miniconda37"""}
       }
   - ps: >-
       if($env:PLATFORM -eq "x64") {
