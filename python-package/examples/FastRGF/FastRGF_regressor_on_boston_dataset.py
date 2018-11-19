@@ -33,7 +33,7 @@ print("FastRGF: {} sec".format(end - start))
 print("score: {}".format(score))
 
 start = time.time()
-reg = RandomForestRegressor()
+reg = RandomForestRegressor(n_estimators=100)
 reg.fit(train_x, train_y)
 score = reg.score(test_x, test_y)
 end = time.time()
