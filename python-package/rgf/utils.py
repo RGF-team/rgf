@@ -281,14 +281,17 @@ class CommonRGFExecuterBase(BaseEstimator):
         self._feature_importances_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".feature_importances.txt")
 
     def _execute_command(self, cmd, force_verbose=False):
-        output = subprocess.Popen(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  universal_newlines=True).communicate()
+        process = subprocess.Popen(cmd,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT,
+                                   universal_newlines=True)
+        output = process.communicate()
+        output = '\n'.join([i for i in output if i is not None])
 
-        if self.verbose or force_verbose:
-            for k in output:
-                print(k)
+        if process.returncode != 0:
+            raise Exception(output)
+        elif self.verbose or force_verbose:
+            print(output)
 
     def _save_test_X(self, X):
         if sp.isspmatrix(X):
