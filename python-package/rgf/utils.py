@@ -23,7 +23,6 @@ from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d
 
 
-CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 FLOATS = (float, np.float, np.float16, np.float32, np.float64, np.double)
 INTS = (numbers.Integral, np.integer)
 NOT_FITTED_ERROR_DESC = "Estimator not fitted, call `fit` before exploiting the model."
@@ -41,7 +40,7 @@ def cleanup():
 def cleanup_partial(uuid, remove_from_list=False):
     n_removed_files = 0
     if uuid in UUIDS:
-        model_glob = os.path.join(TEMP_PATH, uuid + "*")
+        model_glob = os.path.join(Config().TEMP_PATH, uuid + "*")
         for fn in glob.glob(model_glob):
             os.remove(fn)
             n_removed_files += 1
@@ -50,150 +49,170 @@ def cleanup_partial(uuid, remove_from_list=False):
     return n_removed_files
 
 
-def get_paths():
-    config = six.moves.configparser.RawConfigParser()
-    path = os.path.join(os.path.expanduser('~'), '.rgfrc')
+class Config(object):
+    DEFAULT_RGF_PATH = None
+    RGF_PATH = None
+    DEFAULT_FASTRGF_PATH = None
+    FASTRGF_PATH = None
+    TEMP_PATH = None
+    CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-    try:
-        with codecs.open(path, 'r', 'utf-8') as cfg:
-            with six.StringIO(cfg.read()) as strIO:
-                config.readfp(strIO)
-    except six.moves.configparser.MissingSectionHeaderError:
-        with codecs.open(path, 'r', 'utf-8') as cfg:
-            with six.StringIO('[glob]\n' + cfg.read()) as strIO:
-                config.readfp(strIO)
-    except Exception:
-        pass
+    RGF_AVAILABLE = None
+    FASTRGF_AVAILABLE = None
 
-    if SYSTEM in ('Windows', 'Microsoft'):
+    def __init__(self):
+        (self.DEFAULT_RGF_PATH, self.RGF_PATH,
+         self.DEFAULT_FASTRGF_PATH, self.FASTRGF_PATH, self.TEMP_PATH) = self.init_paths()
+        (self.RGF_PATH, self.RGF_AVAILABLE,
+         self.FASTRGF_PATH, self.FASTRGF_AVAILABLE) = self.set_paths_and_availability()
+
+    @classmethod
+    def init_paths(cls):
+        if cls.TEMP_PATH is None:
+            config = six.moves.configparser.RawConfigParser()
+            path = os.path.join(os.path.expanduser('~'), '.rgfrc')
+
+            try:
+                with codecs.open(path, 'r', 'utf-8') as cfg:
+                    with six.StringIO(cfg.read()) as strIO:
+                        config.readfp(strIO)
+            except six.moves.configparser.MissingSectionHeaderError:
+                with codecs.open(path, 'r', 'utf-8') as cfg:
+                    with six.StringIO('[glob]\n' + cfg.read()) as strIO:
+                        config.readfp(strIO)
+            except Exception:
+                pass
+
+            if SYSTEM in ('Windows', 'Microsoft'):
+                try:
+                    cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+                except Exception:
+                    cls.RGF_PATH = os.path.join(os.path.expanduser('~'), 'rgf.exe')
+                cls.DEFAULT_RGF_PATH = 'rgf.exe'
+            else:  # Linux, Darwin (macOS), etc.
+                try:
+                    cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+                except Exception:
+                    cls.RGF_PATH = os.path.join(os.path.expanduser('~'), 'rgf')
+                cls.DEFAULT_RGF_PATH = 'rgf'
+
+            try:
+                cls.FASTRGF_PATH = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
+            except Exception:
+                cls.FASTRGF_PATH = os.path.expanduser('~')
+            cls.DEFAULT_FASTRGF_PATH = ''
+
+            try:
+                cls.TEMP_PATH = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
+            except Exception:
+                cls.TEMP_PATH = os.path.join(gettempdir(), 'rgf')
+            if not os.path.isdir(cls.TEMP_PATH):
+                os.makedirs(cls.TEMP_PATH)
+            if not os.access(cls.TEMP_PATH, os.W_OK):
+                raise Exception("{0} is not writable directory. Please set "
+                                "config flag 'temp_location' to writable directory".format(cls.TEMP_PATH))
+
+        return cls.DEFAULT_RGF_PATH, cls.RGF_PATH, cls.DEFAULT_FASTRGF_PATH, cls.FASTRGF_PATH, cls.TEMP_PATH
+
+    @classmethod
+    def is_rgf_executable(cls, path):
+        temp_x_loc = os.path.join(cls.TEMP_PATH, 'temp_rgf.train.data.x')
+        temp_y_loc = os.path.join(cls.TEMP_PATH, 'temp_rgf.train.data.y')
+        temp_model_loc = os.path.join(cls.TEMP_PATH, 'temp_rgf.model')
+        temp_pred_loc = os.path.join(cls.TEMP_PATH, 'temp_rgf.predictions.txt')
+        np.savetxt(temp_x_loc, [[1, 0, 1, 0], [0, 1, 0, 1]], delimiter=' ', fmt="%s")
+        np.savetxt(temp_y_loc, [1, -1], delimiter=' ', fmt="%s")
+        UUIDS.append('temp_rgf')
+        params_train = []
+        params_train.append("train_x_fn=%s" % temp_x_loc)
+        params_train.append("train_y_fn=%s" % temp_y_loc)
+        params_train.append("model_fn_prefix=%s" % temp_model_loc)
+        params_train.append("reg_L2=%s" % 1)
+        params_train.append("max_leaf_forest=%s" % 10)
+        params_pred = []
+        params_pred.append("test_x_fn=%s" % temp_x_loc)
+        params_pred.append("prediction_fn=%s" % temp_pred_loc)
+        params_pred.append("model_fn=%s" % temp_model_loc + "-01")
         try:
-            rgf_exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+            os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         except Exception:
-            rgf_exe = os.path.join(os.path.expanduser('~'), 'rgf.exe')
-        def_rgf = 'rgf.exe'
-    else:  # Linux, Darwin (macOS), etc.
+            pass
         try:
-            rgf_exe = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+            subprocess.check_output((path, "train", ",".join(params_train)),
+                                    stderr=subprocess.STDOUT)
+            subprocess.check_output((path, "predict", ",".join(params_pred)),
+                                    stderr=subprocess.STDOUT)
         except Exception:
-            rgf_exe = os.path.join(os.path.expanduser('~'), 'rgf')
-        def_rgf = 'rgf'
-
-    try:
-        fastrgf_path = os.path.abspath(config.get(config.sections()[0], 'fastrgf_location'))
-    except Exception:
-        fastrgf_path = os.path.expanduser('~')
-    def_fastrgf = ''
-
-    try:
-        temp = os.path.abspath(config.get(config.sections()[0], 'temp_location'))
-    except Exception:
-        temp = os.path.join(gettempdir(), 'rgf')
-
-    return def_rgf, rgf_exe, def_fastrgf, fastrgf_path, temp
-
-
-DEFAULT_RGF_PATH, RGF_PATH, DEFAULT_FASTRGF_PATH, FASTRGF_PATH, TEMP_PATH = get_paths()
-
-
-if not os.path.isdir(TEMP_PATH):
-    os.makedirs(TEMP_PATH)
-if not os.access(TEMP_PATH, os.W_OK):
-    raise Exception("{0} is not writable directory. Please set "
-                    "config flag 'temp_location' to writable directory".format(TEMP_PATH))
-
-
-def is_rgf_executable(path):
-    temp_x_loc = os.path.join(TEMP_PATH, 'temp_rgf.train.data.x')
-    temp_y_loc = os.path.join(TEMP_PATH, 'temp_rgf.train.data.y')
-    temp_model_loc = os.path.join(TEMP_PATH, 'temp_rgf.model')
-    temp_pred_loc = os.path.join(TEMP_PATH, 'temp_rgf.predictions.txt')
-    np.savetxt(temp_x_loc, [[1, 0, 1, 0], [0, 1, 0, 1]], delimiter=' ', fmt="%s")
-    np.savetxt(temp_y_loc, [1, -1], delimiter=' ', fmt="%s")
-    UUIDS.append('temp_rgf')
-    params_train = []
-    params_train.append("train_x_fn=%s" % temp_x_loc)
-    params_train.append("train_y_fn=%s" % temp_y_loc)
-    params_train.append("model_fn_prefix=%s" % temp_model_loc)
-    params_train.append("reg_L2=%s" % 1)
-    params_train.append("max_leaf_forest=%s" % 10)
-    params_pred = []
-    params_pred.append("test_x_fn=%s" % temp_x_loc)
-    params_pred.append("prediction_fn=%s" % temp_pred_loc)
-    params_pred.append("model_fn=%s" % temp_model_loc + "-01")
-    try:
-        os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-    except Exception:
-        pass
-    try:
-        subprocess.check_output((path, "train", ",".join(params_train)),
-                                stderr=subprocess.STDOUT)
-        subprocess.check_output((path, "predict", ",".join(params_pred)),
-                                stderr=subprocess.STDOUT)
+            return False
         return True
-    except Exception:
-        return False
 
+    @classmethod
+    def is_fastrgf_executable(cls, path):
+        temp_x_loc = os.path.join(cls.TEMP_PATH, 'temp_fastrgf.train.data.x')
+        temp_y_loc = os.path.join(cls.TEMP_PATH, 'temp_fastrgf.train.data.y')
+        temp_model_loc = os.path.join(cls.TEMP_PATH, "temp_fastrgf.model")
+        temp_pred_loc = os.path.join(cls.TEMP_PATH, "temp_fastrgf.predictions.txt")
+        X = np.tile(np.array([[1, 0, 1, 0], [0, 1, 0, 1]]), (14, 1))
+        y = np.tile(np.array([1, -1]), 14)
+        np.savetxt(temp_x_loc, X, delimiter=' ', fmt="%s")
+        np.savetxt(temp_y_loc, y, delimiter=' ', fmt="%s")
+        UUIDS.append('temp_fastrgf')
+        path_train = os.path.join(path, "forest_train")
+        params_train = []
+        params_train.append("forest.ntrees=%s" % 10)
+        params_train.append("tst.target=%s" % "BINARY")
+        params_train.append("trn.x-file=%s" % temp_x_loc)
+        params_train.append("trn.y-file=%s" % temp_y_loc)
+        params_train.append("model.save=%s" % temp_model_loc)
+        cmd_train = [path_train]
+        cmd_train.extend(params_train)
+        path_pred = os.path.join(path, "forest_predict")
+        params_pred = []
+        params_pred.append("model.load=%s" % temp_model_loc)
+        params_pred.append("tst.x-file=%s" % temp_x_loc)
+        params_pred.append("tst.output-prediction=%s" % temp_pred_loc)
+        cmd_pred = [path_pred]
+        cmd_pred.extend(params_pred)
+        try:
+            os.chmod(path_train, os.stat(path_train).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+            os.chmod(path_pred, os.stat(path_pred).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        except Exception:
+            pass
+        try:
+            subprocess.check_output(cmd_train, stderr=subprocess.STDOUT)
+            subprocess.check_output(cmd_pred, stderr=subprocess.STDOUT)
+        except Exception:
+            return False
+        return True
 
-def is_fastrgf_executable(path):
-    temp_x_loc = os.path.join(TEMP_PATH, 'temp_fastrgf.train.data.x')
-    temp_y_loc = os.path.join(TEMP_PATH, 'temp_fastrgf.train.data.y')
-    temp_model_loc = os.path.join(TEMP_PATH, "temp_fastrgf.model")
-    temp_pred_loc = os.path.join(TEMP_PATH, "temp_fastrgf.predictions.txt")
-    X = np.tile(np.array([[1, 0, 1, 0], [0, 1, 0, 1]]), (14, 1))
-    y = np.tile(np.array([1, -1]), 14)
-    np.savetxt(temp_x_loc, X, delimiter=' ', fmt="%s")
-    np.savetxt(temp_y_loc, y, delimiter=' ', fmt="%s")
-    UUIDS.append('temp_fastrgf')
-    path_train = os.path.join(path, "forest_train")
-    params_train = []
-    params_train.append("forest.ntrees=%s" % 10)
-    params_train.append("tst.target=%s" % "BINARY")
-    params_train.append("trn.x-file=%s" % temp_x_loc)
-    params_train.append("trn.y-file=%s" % temp_y_loc)
-    params_train.append("model.save=%s" % temp_model_loc)
-    cmd_train = [path_train]
-    cmd_train.extend(params_train)
-    path_pred = os.path.join(path, "forest_predict")
-    params_pred = []
-    params_pred.append("model.load=%s" % temp_model_loc)
-    params_pred.append("tst.x-file=%s" % temp_x_loc)
-    params_pred.append("tst.output-prediction=%s" % temp_pred_loc)
-    cmd_pred = [path_pred]
-    cmd_pred.extend(params_pred)
-    try:
-        os.chmod(path_train, os.stat(path_train).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-        os.chmod(path_pred, os.stat(path_pred).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-    except Exception:
-        pass
-    try:
-        subprocess.check_output(cmd_train, stderr=subprocess.STDOUT)
-        subprocess.check_output(cmd_pred, stderr=subprocess.STDOUT)
-    except Exception:
-        return False
-    return True
+    @classmethod
+    def set_paths_and_availability(cls):
+        if cls.RGF_AVAILABLE is None or cls.FASTRGF_AVAILABLE is None:
+            cls.RGF_AVAILABLE = True
+            if cls.is_rgf_executable(os.path.join(cls.CURRENT_DIR, cls.DEFAULT_RGF_PATH)):
+                cls.RGF_PATH = os.path.join(cls.CURRENT_DIR, cls.DEFAULT_RGF_PATH)
+            elif cls.is_rgf_executable(cls.DEFAULT_RGF_PATH):
+                cls.RGF_PATH = cls.DEFAULT_RGF_PATH
+            elif cls.is_rgf_executable(cls.RGF_PATH):
+                pass
+            else:
+                cls.RGF_AVAILABLE = False
+                warnings.warn("Cannot find RGF executable file. "
+                              "RGF estimators will be unavailable for usage.")
 
+            cls.FASTRGF_AVAILABLE = True
+            if cls.is_fastrgf_executable(cls.CURRENT_DIR):
+                cls.FASTRGF_PATH = cls.CURRENT_DIR
+            elif cls.is_fastrgf_executable(cls.DEFAULT_FASTRGF_PATH):
+                cls.FASTRGF_PATH = cls.DEFAULT_FASTRGF_PATH
+            elif cls.is_fastrgf_executable(cls.FASTRGF_PATH):
+                pass
+            else:
+                cls.FASTRGF_AVAILABLE = False
+                warnings.warn("Cannot find FastRGF executable files. "
+                              "FastRGF estimators will be unavailable for usage.")
 
-RGF_AVAILABLE = True
-if is_rgf_executable(os.path.join(CURRENT_DIR, DEFAULT_RGF_PATH)):
-    RGF_PATH = os.path.join(CURRENT_DIR, DEFAULT_RGF_PATH)
-elif is_rgf_executable(DEFAULT_RGF_PATH):
-    RGF_PATH = DEFAULT_RGF_PATH
-elif is_rgf_executable(RGF_PATH):
-    pass
-else:
-    RGF_AVAILABLE = False
-    warnings.warn("Cannot find RGF executable file. RGF estimators will be unavailable for usage.")
-
-FASTRGF_AVAILABLE = True
-if is_fastrgf_executable(CURRENT_DIR):
-    FASTRGF_PATH = CURRENT_DIR
-elif is_fastrgf_executable(DEFAULT_FASTRGF_PATH):
-    FASTRGF_PATH = DEFAULT_FASTRGF_PATH
-elif is_fastrgf_executable(FASTRGF_PATH):
-    pass
-else:
-    FASTRGF_AVAILABLE = False
-    warnings.warn("Cannot find FastRGF executable files. FastRGF estimators will be unavailable for usage.")
+        return cls.RGF_PATH, cls.RGF_AVAILABLE, cls.FASTRGF_PATH, cls.FASTRGF_AVAILABLE
 
 
 class AtomicCounter(object):
@@ -207,6 +226,7 @@ class AtomicCounter(object):
             return self.value
 
 
+CONFIG = None
 COUNTER = AtomicCounter()
 
 
@@ -249,16 +269,16 @@ class CommonRGFExecuterBase(BaseEstimator):
 
         self._file_prefix = str(uuid4()) + str(COUNTER.increment())
         UUIDS.append(self._file_prefix)
-        self._fitted = None
+        self._fitted = False
 
     def _set_paths(self):
-        self._train_x_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.x")
-        self._test_x_loc = os.path.join(TEMP_PATH, self._file_prefix + ".test.data.x")
-        self._train_y_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.y")
-        self._train_weight_loc = os.path.join(TEMP_PATH, self._file_prefix + ".train.data.weight")
-        self._model_file_loc = os.path.join(TEMP_PATH, self._file_prefix + ".model")
-        self._pred_loc = os.path.join(TEMP_PATH, self._file_prefix + ".predictions.txt")
-        self._feature_importances_loc = os.path.join(TEMP_PATH, self._file_prefix + ".feature_importances.txt")
+        self._train_x_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".train.data.x")
+        self._test_x_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".test.data.x")
+        self._train_y_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".train.data.y")
+        self._train_weight_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".train.data.weight")
+        self._model_file_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".model")
+        self._pred_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".predictions.txt")
+        self._feature_importances_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".feature_importances.txt")
 
     def _execute_command(self, cmd, force_verbose=False):
         output = subprocess.Popen(cmd,
@@ -320,11 +340,11 @@ class CommonRGFExecuterBase(BaseEstimator):
         return np.loadtxt(self._pred_loc)
 
     def _check_fitted(self):
-        if self._fitted is None:
+        if not self._fitted:
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         if not os.path.isfile(self._model_file):
             raise Exception('Model learning result is not found in {0}. '
-                            'This is rgf_python error.'.format(TEMP_PATH))
+                            'This is rgf_python error.'.format(self.config.TEMP_PATH))
 
     def _save_sparse_X(self, path, X):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
@@ -357,10 +377,13 @@ class CommonRGFExecuterBase(BaseEstimator):
 
 
 class CommonRGFEstimatorBase(BaseEstimator):
+    def __init__(self):
+        self._set_config()
+
     @property
     def n_features_(self):
         """The number of features when `fit` is performed."""
-        if self._n_features is None:
+        if not hasattr(self, '_n_features'):
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._n_features
@@ -368,10 +391,10 @@ class CommonRGFEstimatorBase(BaseEstimator):
     @property
     def fitted_(self):
         """Indicates whether `fit` is performed."""
-        if self._fitted is None:
+        if not hasattr(self, '_fitted') or not self._fitted:
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
-            return self._fitted
+            return True
 
     def _get_sample_weight(self, sample_weight):
         if sample_weight is not None:
@@ -396,7 +419,7 @@ class CommonRGFEstimatorBase(BaseEstimator):
     @property
     def estimators_(self):
         """The collection of fitted sub-estimators when `fit` is performed."""
-        if self._estimators is None:
+        if not hasattr(self, '_estimators'):
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._estimators
@@ -412,17 +435,33 @@ class CommonRGFEstimatorBase(BaseEstimator):
             Returns the number of removed files.
         """
         n_removed_files = 0
-        if self._estimators is not None:
+        if hasattr(self, '_estimators'):
             for est in self._estimators:
                 n_removed_files += cleanup_partial(est._file_prefix,
                                                    remove_from_list=True)
 
         # No more able to predict without refitting.
-        self._fitted = None
+        self._fitted = False
         return n_removed_files
 
     def _get_params(self):
-        raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
+        return {'config': CONFIG}
+
+    @classmethod
+    def _set_config(cls):
+        global CONFIG
+        if CONFIG is None:
+            CONFIG = Config()
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state["config"] = CONFIG
+        return state
+
+    def __setstate__(self, state):
+        global CONFIG
+        CONFIG = state.pop("config")
+        self.__dict__.update(state)
 
     def _fit_binary_task(self, X, y, sample_weight, params):
         raise NotImplementedError(NOT_IMPLEMENTED_ERROR_DESC)
@@ -438,7 +477,7 @@ class RGFClassifierMixin(object):
     @property
     def classes_(self):
         """The classes labels when `fit` is performed."""
-        if self._classes is None:
+        if not hasattr(self, '_classes'):
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._classes
@@ -446,7 +485,7 @@ class RGFClassifierMixin(object):
     @property
     def n_classes_(self):
         """The number of classes when `fit` is performed."""
-        if self._n_classes is None:
+        if not hasattr(self, '_n_classes'):
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         else:
             return self._n_classes
@@ -471,7 +510,7 @@ class RGFClassifierMixin(object):
         self : object
             Returns self.
         """
-        self._validate_params(self.get_params())
+        self._validate_params(**self.get_params())
 
         X, y = check_X_y(X, y, accept_sparse=True)
         if sp.isspmatrix(X):
@@ -484,6 +523,7 @@ class RGFClassifierMixin(object):
         check_classification_targets(y)
         self._classes = sorted(np.unique(y))
         self._n_classes = len(self._classes)
+        self._classes_map = {}
 
         self._set_params_with_dependencies()
         params = self._get_params()
@@ -543,7 +583,7 @@ class RGFClassifierMixin(object):
             The class probabilities of the input samples.
             The order of the classes corresponds to that in the attribute classes_.
         """
-        if self._fitted is None:
+        if not hasattr(self, '_fitted') or not self._fitted:
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         X = check_array(X, accept_sparse=True)
         self._check_n_features(X.shape[1])
@@ -589,7 +629,7 @@ class RGFRegressorMixin(object):
         self : object
             Returns self.
         """
-        self._validate_params(self.get_params())
+        self._validate_params(**self.get_params())
 
         X, y = check_X_y(X, y, accept_sparse=True)
         if sp.isspmatrix(X):
@@ -625,7 +665,7 @@ class RGFRegressorMixin(object):
         y : array of shape = [n_samples]
             The predicted values.
         """
-        if self._fitted is None:
+        if not hasattr(self, '_fitted') or not self._fitted:
             raise NotFittedError(NOT_FITTED_ERROR_DESC)
         X = check_array(X, accept_sparse=True)
         self._check_n_features(X.shape[1])
