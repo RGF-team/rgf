@@ -32,9 +32,9 @@ gb_scores = cross_val_score(gb,
                             cv=StratifiedKFold(n_folds))
 
 rgf_score = sum(rgf_scores)/n_folds
-print('RGF Classfier score: {0:.5f}'.format(rgf_score))
-# >>>RGF Classfier score: 0.95997
+print('RGF Classifier score: {0:.5f}'.format(rgf_score))
+# >>>RGF Classifier score: 0.95997
 
 gb_score = sum(gb_scores)/n_folds
-print('Gradient Boosting Classfier score: {0:.5f}'.format(gb_score))
-# >>>Gradient Boosting Classfier score: 0.95997
+print('Gradient Boosting Classifier score: {0:.5f}'.format(gb_score))
+# >>>Gradient Boosting Classifier score: 0.95997

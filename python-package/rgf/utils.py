@@ -85,13 +85,25 @@ class Config(object):
 
             if SYSTEM in ('Windows', 'Microsoft'):
                 try:
-                    cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+                    if config.has_option(config.sections()[0], 'exe_location'):
+                        warnings.warn("Config flag 'exe_location' has been deprecated "
+                                      "and will be removed in the future release.\n"
+                                      "Please use 'rgf_location' flag instead.")
+                        cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+                    else:
+                        cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'rgf_location'))
                 except Exception:
                     cls.RGF_PATH = os.path.join(os.path.expanduser('~'), 'rgf.exe')
                 cls.DEFAULT_RGF_PATH = 'rgf.exe'
             else:  # Linux, Darwin (macOS), etc.
                 try:
-                    cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+                    if config.has_option(config.sections()[0], 'exe_location'):
+                        warnings.warn("Config flag 'exe_location' has been deprecated "
+                                      "and will be removed in the future release.\n"
+                                      "Please use 'rgf_location' flag instead.")
+                        cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
+                    else:
+                        cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'rgf_location'))
                 except Exception:
                     cls.RGF_PATH = os.path.join(os.path.expanduser('~'), 'rgf')
                 cls.DEFAULT_RGF_PATH = 'rgf'
@@ -281,14 +293,17 @@ class CommonRGFExecuterBase(BaseEstimator):
         self._feature_importances_loc = os.path.join(self.config.TEMP_PATH, self._file_prefix + ".feature_importances.txt")
 
     def _execute_command(self, cmd, force_verbose=False):
-        output = subprocess.Popen(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  universal_newlines=True).communicate()
+        process = subprocess.Popen(cmd,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT,
+                                   universal_newlines=True)
+        output = process.communicate()
+        output = '\n'.join([i for i in output if i is not None])
 
-        if self.verbose or force_verbose:
-            for k in output:
-                print(k)
+        if process.returncode != 0:
+            raise Exception(output)
+        elif self.verbose or force_verbose:
+            print(output)
 
     def _save_test_X(self, X):
         if sp.isspmatrix(X):
@@ -510,7 +525,7 @@ class RGFClassifierMixin(object):
         self : object
             Returns self.
         """
-        self._validate_params(self.get_params())
+        self._validate_params(**self.get_params())
 
         X, y = check_X_y(X, y, accept_sparse=True)
         if sp.isspmatrix(X):
@@ -629,7 +644,7 @@ class RGFRegressorMixin(object):
         self : object
             Returns self.
         """
-        self._validate_params(self.get_params())
+        self._validate_params(**self.get_params())
 
         X, y = check_X_y(X, y, accept_sparse=True)
         if sp.isspmatrix(X):
