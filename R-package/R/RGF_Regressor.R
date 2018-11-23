@@ -145,21 +145,21 @@ RGF_Regressor <- R6::R6Class(
             # initialize RGF_Regressor
             #------------------------
             private$rgf_init <- RGF_mod$RGFRegressor(
-                as.integer(max_leaf)
-                , as.integer(test_interval)
-                , algorithm
-                , loss
-                , reg_depth
-                , l2
-                , sl2
-                , normalize
-                , min_samples_leaf
-                , n_iter
-                , as.integer(n_tree_search)
-                , as.integer(opt_interval)
-                , learning_rate
-                , memory_policy
-                , as.integer(verbose)
+                max_leaf = as.integer(max_leaf)
+                , test_interval = as.integer(test_interval)
+                , algorithm = algorithm
+                , loss = loss
+                , reg_depth = reg_depth
+                , l2 = l2
+                , sl2 = sl2
+                , normalize = normalize
+                , min_samples_leaf = min_samples_leaf
+                , n_iter = n_iter
+                , n_tree_search = as.integer(n_tree_search)
+                , opt_interval = as.integer(opt_interval)
+                , learning_rate = learning_rate
+                , memory_policy = memory_policy
+                , verbose = as.integer(verbose)
             )
         }
     )
