@@ -165,7 +165,7 @@ FastRGF_Classifier <- R6::R6Class(
                 , min_child_weight = min_child_weight
                 , data_l2 = data_l2
                 , sparse_max_features = as.integer(sparse_max_features)
-                , sparse_min_occurrences = as.integer(sparse_min_occurences)
+                , sparse_min_occurences = as.integer(sparse_min_occurences)
                 , calc_prob = calc_prob
                 , n_jobs = as.integer(n_jobs)
                 , verbose = as.integer(verbose)
