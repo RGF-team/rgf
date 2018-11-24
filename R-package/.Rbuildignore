@@ -1,1 +1,2 @@
 ^\.R\.travis\.sh$
+^\.R\.appveyor\.ps1$

@@ -9,7 +9,7 @@ sudo apt-get install gfortran-5 libcurl4-openssl-dev
 sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-5 10
 
 # install packages to build and check documentation
-conda install --no-deps pandoc
+conda install -y --no-deps pandoc
 sudo apt-get install texlive-latex-recommended texlive-fonts-recommended texlive-fonts-extra qpdf
 
 if ! command -v R &> /dev/null; then
