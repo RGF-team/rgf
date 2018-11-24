@@ -142,7 +142,7 @@ FastRGF_Regressor <- R6::R6Class(
                 n_estimators = as.integer(n_estimators)
                 , max_depth = as.integer(max_depth)
                 , max_leaf = as.integer(max_leaf)
-                , tree_grain_ratio = tree_gain_ratio
+                , tree_gain_ratio = tree_gain_ratio
                 , min_samples_leaf = min_samples_leaf
                 , l1 = l1
                 , l2 = l2
@@ -152,7 +152,7 @@ FastRGF_Regressor <- R6::R6Class(
                 , min_child_weight = min_child_weight
                 , data_l2 = data_l2
                 , sparse_max_features = as.integer(sparse_max_features)
-                , sparse_min_features = as.integer(sparse_min_occurences)
+                , sparse_min_occurences = as.integer(sparse_min_occurences)
                 , n_jobs = as.integer(n_jobs)
                 , verbose = as.integer(verbose)
             )
