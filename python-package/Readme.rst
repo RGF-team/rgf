@@ -78,15 +78,15 @@ or from `GitHub <https://github.com/RGF-team/rgf/python-package>`__:
 
 MacOS users, **rgf\_python** after the ``3.1.0`` version is built with **g++-8** and cannot be launched on systems with **g++-7** and earlier. You should update your **g++** compiler if you don't want to build from sources or install **rgf\_python** ``3.1.0`` from PyPI which is the last version built with **g++-7**.
 
-If you have any problems while installing by methods listed above, you should *build RGF and FastRGF executable files from binaries on your own and place compiled executable files* into directory which is included in environmental variable **'PATH'** or into directory with installed package. Alternatively, you may specify actual locations of executable files and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are the following: ``exe_location=$HOME/rgf`` (``$HOME/rgf.exe`` for Windows), ``fastrgf_location=$HOME``, ``temp_location=tempfile.gettempdir()`` (here is more details about `tempfile.gettempdir() <https://docs.python.org/3/library/tempfile.html#tempfile.gettempdir>`__). Please take a look at the example of the ``.rgfrc`` file:
+If you have any problems while installing by methods listed above, you should *build RGF and FastRGF executable files from binaries on your own and place compiled executable files* into directory which is included in environmental variable **'PATH'** or into directory with installed package. Alternatively, you may specify actual locations of executable files and directory for placing temp files by corresponding flags in configuration file ``.rgfrc``, which you should create into your home directory. The default values are the following: ``rgf_location=$HOME/rgf`` (``$HOME/rgf.exe`` for Windows), ``fastrgf_location=$HOME``, ``temp_location=tempfile.gettempdir()`` (here is more details about `tempfile.gettempdir() <https://docs.python.org/3/library/tempfile.html#tempfile.gettempdir>`__). Please take a look at the example of the ``.rgfrc`` file:
 
 ::
 
-    exe_location=C:/Program Files/RGF/bin/rgf.exe
+    rgf_location=C:/Program Files/RGF/bin/rgf.exe
     fastrgf_location=C:/Program Files/FastRGF/bin
     temp_location=C:/Program Files/RGF/temp
 
-Note that while ``exe_location`` should point to a concrete RGF executable **file**, ``fastrgf_location`` should point to a **folder** in which ``forest_train.exe`` and ``forest_predict.exe`` FastRGF executable files are located.
+Note that while ``rgf_location`` should point to a concrete RGF executable **file**, ``fastrgf_location`` should point to a **folder** in which ``forest_train.exe`` and ``forest_predict.exe`` FastRGF executable files are located.
 
 Also, you may directly specify installation without automatic compilation:
 

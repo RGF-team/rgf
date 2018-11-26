@@ -19,11 +19,6 @@ env:
     - PYTHON_VERSION=3.7
     - PYTHON_VERSION=3.7 TASK=R_PACKAGE
 
-matrix:
-  exclude:
-    - os: osx
-      env: PYTHON_VERSION=3.7 TASK=R_PACKAGE
-
 before_install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
       brew link --overwrite gcc;
@@ -42,7 +37,7 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
 
-  - if [[ $TASK == "R_PACKAGE" ]]; then
+  - if [[ $TASK == "R_PACKAGE" ]] && [[ $TRAVIS_OS_NAME == "linux" ]]; then
         conda create -q -n test-environment python=$PYTHON_VERSION pip openssl --no-deps;
         source activate test-environment;
         pip install setuptools wheel numpy scipy nose pandas scikit-learn pytest;

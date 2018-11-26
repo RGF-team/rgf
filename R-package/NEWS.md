@@ -1,3 +1,7 @@
+## RGF 1.0.5.1
+
+* Source files were broken up into one file per exported object as of [#266](https://github.com/RGF-team/rgf/pull/266)
+
 ## RGF 1.0.5
 
 The RGF R package was integrated in the home repository of the Regularized Greedy Forest (RGF) library (https://github.com/RGF-team).
