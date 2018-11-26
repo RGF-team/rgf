@@ -329,11 +329,36 @@ class RGFBaseTest(object):
 
     def test_feature_impotances(self):
         est = self.estimator_class(**self.kwargs)
+        with self.assertRaises(NotFittedError):
+            est.feature_importances_
         est.fit(self.X_train, self.y_train)
 
         fi = est.feature_importances_
         self.assertEqual(fi.shape[0], self.X_train.shape[1])
         self.assertAlmostEqual(fi.sum(), 1)
+
+    def test_warm_start(self):
+        est = self.estimator_class(**self.kwargs)
+        self.assertRaises(NotFittedError, est.save_model, 'model')
+        est.fit(self.X_train, self.y_train)
+        est.save_model('model')
+
+        self.kwargs['init_model'] = 'no_such_file'
+        new_est = self.estimator_class(**self.kwargs)
+        assertRaisesWithRegex = (self.assertRaisesRegex if hasattr(self, 'assertRaisesRegex')
+                                 else self.assertRaisesRegexp)
+        assertRaisesWithRegex(Exception, "!File I/O error!", new_est.fit, self.X_train, self.y_train)
+
+        self.kwargs['init_model'] = 'model'
+        new_est = self.estimator_class(**self.kwargs)
+        assertRaisesWithRegex(Exception, "The model given for warm-start is already "
+                                         "over the requested maximum size of the models",
+                              new_est.fit, self.X_train, self.y_train)
+
+        self.kwargs['max_leaf'] = self.new_max_leaf
+        new_est = self.estimator_class(**self.kwargs)
+        new_est.fit(self.X_train, self.y_train)
+        self.y_pred = new_est.predict(self.X_test)
 
 
 class FastRGFBaseTest(object):
@@ -427,6 +452,13 @@ class TestRGFClassifier(ClassifierBaseTest, RGFBaseTest, unittest.TestCase):
         np.testing.assert_array_equal(self.est.classes_, sorted(np.unique(self.y_train)))
         self.assertEqual(self.est.n_classes_, len(self.est.estimators_))
 
+    def test_warm_start(self):
+        self.new_max_leaf = 1050  # +50 to default value
+        super(TestRGFClassifier, self).test_warm_start()
+        warm_start_score = accuracy_score(self.y_test, self.y_pred)
+        self.assertGreaterEqual(warm_start_score, self.accuracy,
+                                "Failed with score = {0:.5f}".format(warm_start_score))
+
 
 class TestFastRGFClassifier(ClassifierBaseTest, FastRGFBaseTest, unittest.TestCase):
     def setUp(self):
@@ -474,6 +506,13 @@ class TestRGFRegressor(RegressorBaseTest, RGFBaseTest, unittest.TestCase):
         y_pred = reg.predict(self.X_test)
         mae = mean_absolute_error(self.y_test, y_pred)
         self.assertLess(mae, 1.9916427774, "Failed with MAE = {0:.5f}".format(mae))
+
+    def test_warm_start(self):
+        self.new_max_leaf = 560  # +60 to default value
+        super(TestRGFRegressor, self).test_warm_start()
+        warm_start_score = mean_squared_error(self.y_test, self.y_pred)
+        self.assertLess(warm_start_score, self.mse,
+                        "Failed with MSE = {0:.5f}".format(warm_start_score))
 
 
 class TestFastRGFRegressor(RegressorBaseTest, FastRGFBaseTest, unittest.TestCase):
