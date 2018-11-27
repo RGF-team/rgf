@@ -19,6 +19,7 @@ python-package/include/fast_rgf/bin/*
 python-package/build/
 python-package/compile/
 python-package/temp_*
+python-package/.cache/
 
 # R package stuff
 R-package/*.tar.gz

@@ -5,23 +5,31 @@ echo 'options(repos = "https://cran.rstudio.com")' > .Rprofile
 
 export PATH="$R_LIB_PATH/R/bin:$PATH"
 
-sudo apt-get install gfortran-5 libcurl4-openssl-dev
-sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-5 10
+if [[ $TRAVIS_OS_NAME == "linux" ]]; then
+    sudo apt-get install gfortran-5 libcurl4-openssl-dev
+    sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-5 10
 
-# install packages to build and check documentation
-conda install -y --no-deps pandoc
-sudo apt-get install texlive-latex-recommended texlive-fonts-recommended texlive-fonts-extra qpdf
+    sudo apt-get install texlive-latex-recommended texlive-fonts-recommended texlive-fonts-extra qpdf
 
-if ! command -v R &> /dev/null; then
-    R_VER=3.5.1
-    cd $TRAVIS_BUILD_DIR
-    wget https://cran.r-project.org/src/base/R-3/R-$R_VER.tar.gz
-    tar -xzf R-$R_VER.tar.gz
-    R-$R_VER/configure --enable-R-shlib --prefix=$R_LIB_PATH/R
-    make
-    make install
-    cd $TRAVIS_BUILD_DIR/R-package
+    if ! command -v R &> /dev/null; then
+        R_VER=3.5.1
+        cd $TRAVIS_BUILD_DIR
+        wget https://cran.r-project.org/src/base/R-3/R-$R_VER.tar.gz
+        tar -xzf R-$R_VER.tar.gz
+        R-$R_VER/configure --enable-R-shlib --prefix=$R_LIB_PATH/R
+        make
+        make install
+        cd $TRAVIS_BUILD_DIR/R-package
+    fi
+else
+    brew install r qpdf
+    brew cask install basictex
+    export PATH="/Library/TeX/texbin:$PATH"
+    sudo tlmgr update --self
+    sudo tlmgr install inconsolata helvetic
 fi
+
+conda install -y --no-deps pandoc
 
 Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
 Rscript -e 'if(!"roxygen2" %in% rownames(installed.packages())) { install.packages("roxygen2", dependencies = TRUE) }'

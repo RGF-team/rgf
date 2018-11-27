@@ -19,7 +19,7 @@ if (!(Get-Command R.exe -errorAction SilentlyContinue)) {
     appveyor DownloadFile https://cloud.r-project.org/bin/windows/base/R-3.5.1-win.exe -FileName ./R-win.exe
     Start-Process -FilePath .\R-win.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\R"
 
-    appveyor DownloadFile https://cloud.r-project.org//bin/windows/Rtools/Rtools35.exe -FileName ./Rtools.exe
+    appveyor DownloadFile https://cloud.r-project.org/bin/windows/Rtools/Rtools35.exe -FileName ./Rtools.exe
     Start-Process -FilePath .\Rtools.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\Rtools"
 
     appveyor DownloadFile https://miktex.org/download/ctan/systems/win32/miktex/setup/windows-x86/miktex-portable.exe -FileName ./miktex-portable.exe
