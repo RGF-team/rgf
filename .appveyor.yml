@@ -6,23 +6,33 @@ platform:
   - x86
 
 environment:
+  global:
+    R_LIB_PATH: C:\RLibrary
   matrix:
     - PYTHON_VERSION: 2.7
     - PYTHON_VERSION: 3.4
     - PYTHON_VERSION: 3.5
     - PYTHON_VERSION: 3.6
     - PYTHON_VERSION: 3.7
+    - PYTHON_VERSION: 3.6
+      TASK: R_PACKAGE
+
+matrix:
+  exclude:
+    - platform: x86
+      PYTHON_VERSION: 3.6
+      TASK: R_PACKAGE
 
 install:
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%  # Delete sh.exe from PATH (mingw32-make fix)
   - ps: >-
       switch($env:PYTHON_VERSION) {
-          "2.7" {$env:MINICONDA = """C:\Miniconda"""}
-          "3.4" {$env:MINICONDA = """C:\Miniconda34"""}
-          "3.5" {$env:MINICONDA = """C:\Miniconda35"""}
-          "3.6" {$env:MINICONDA = """C:\Miniconda36"""}
-          "3.7" {$env:MINICONDA = """C:\Miniconda37"""}
-          default {$env:MINICONDA = """C:\Miniconda37"""}
+          "2.7" {$env:MINICONDA = "C:\Miniconda"}
+          "3.4" {$env:MINICONDA = "C:\Miniconda34"}
+          "3.5" {$env:MINICONDA = "C:\Miniconda35"}
+          "3.6" {$env:MINICONDA = "C:\Miniconda36"}
+          "3.7" {$env:MINICONDA = "C:\Miniconda37"}
+          default {$env:MINICONDA = "C:\Miniconda37"}
       }
   - ps: >-
       if($env:PLATFORM -eq "x64") {
@@ -45,6 +55,12 @@ install:
 
 test_script:
   - pytest tests/ -v
+  - ps: >-
+      if($env:TASK -eq "R_PACKAGE") {
+          cd $env:APPVEYOR_BUILD_FOLDER;
+          Get-ChildItem env: | Export-CliXml ./env-vars.clixml;
+          & .\R-package\.R.appveyor.ps1
+      }
 
 after_test:
   - ps: >-
@@ -59,6 +75,9 @@ after_test:
     ELSE (
     python setup.py bdist_wheel --plat-name=win32 --universal)
   - IF NOT "%PLATFORM%" == "x64" rename compile\RGF\bin\rgf.exe rgf32.exe
+
+cache:
+  - '%R_LIB_PATH%'
 
 artifacts:
   - path: python-package\dist\*

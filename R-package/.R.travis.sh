@@ -29,7 +29,7 @@ else
     sudo tlmgr install inconsolata helvetic
 fi
 
-conda install --no-deps pandoc
+conda install -y --no-deps pandoc
 
 Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
 Rscript -e 'if(!"roxygen2" %in% rownames(installed.packages())) { install.packages("roxygen2", dependencies = TRUE) }'
