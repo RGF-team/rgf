@@ -1,6 +1,7 @@
 import glob
 import os
 import pickle
+import sys
 import unittest
 
 import numpy as np
@@ -337,6 +338,12 @@ class RGFBaseTest(object):
         self.assertEqual(fi.shape[0], self.X_train.shape[1])
         self.assertAlmostEqual(fi.sum(), 1)
 
+    def assertRaisesWithRegex(self, *args):
+        if sys.version_info[0] == 3:
+            self.assertRaisesRegex(*args)
+        else:
+            self.assertRaisesRegexp(*args)
+
     def test_warm_start(self):
         est = self.estimator_class(**self.kwargs)
         self.assertRaises(NotFittedError, est.save_model, 'model')
@@ -345,15 +352,14 @@ class RGFBaseTest(object):
 
         self.kwargs['init_model'] = 'no_such_file'
         new_est = self.estimator_class(**self.kwargs)
-        assertRaisesWithRegex = (self.assertRaisesRegex if hasattr(self, 'assertRaisesRegex')
-                                 else self.assertRaisesRegexp)
-        assertRaisesWithRegex(Exception, "!File I/O error!", new_est.fit, self.X_train, self.y_train)
+        self.assertRaisesWithRegex(Exception, "!File I/O error!",
+                                   new_est.fit, self.X_train, self.y_train)
 
         self.kwargs['init_model'] = 'model'
         new_est = self.estimator_class(**self.kwargs)
-        assertRaisesWithRegex(Exception, "The model given for warm-start is already "
-                                         "over the requested maximum size of the models",
-                              new_est.fit, self.X_train, self.y_train)
+        self.assertRaisesWithRegex(Exception, "The model given for warm-start is already "
+                                              "over the requested maximum size of the models",
+                                   new_est.fit, self.X_train, self.y_train)
 
         self.kwargs['max_leaf'] = self.new_max_leaf
         new_est = self.estimator_class(**self.kwargs)
