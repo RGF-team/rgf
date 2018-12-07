@@ -209,7 +209,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
         elif l2 < 0:
             raise ValueError("l2 must be no smaller than 0.0 but was %r." % l2)
 
-        if not isinstance(sl2, (type(None), utils.FLOATS)):
+        if sl2 is not None and not isinstance(sl2, utils.FLOATS):
             raise ValueError(
                 "sl2 must be a float or None, got {0}.".format(type(sl2)))
         elif sl2 is not None and sl2 < 0:
@@ -232,7 +232,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
                 "min_samples_leaf must be an integer or float, got {0}.".format(
                     type(min_samples_leaf)))
 
-        if not isinstance(n_iter, (type(None), utils.INTS)):
+        if n_iter is not None and not isinstance(n_iter, utils.INTS):
             raise ValueError(
                 "n_iter must be an integer or None, got {0}.".format(
                     type(n_iter)))
@@ -276,7 +276,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             raise ValueError(
                 "memory_policy must be 'conservative' or 'generous' but was %r." % memory_policy)
 
-        if not isinstance(init_model, (type(None), six.string_types)):
+        if init_model is not None and not isinstance(init_model, six.string_types):
             raise ValueError(
                 "init_model must be a string or None, got {0}.".format(
                     type(init_model)))

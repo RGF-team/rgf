@@ -207,7 +207,7 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
             raise ValueError(
                 "learning_rate must be greater than 0.0 but was %r." % learning_rate)
 
-        if not isinstance(max_bin, (type(None), utils.INTS)):
+        if max_bin is not None and not isinstance(max_bin, utils.INTS):
             raise ValueError(
                 "max_bin must be an integer or None, got {0}.".format(
                     type(max_bin)))
