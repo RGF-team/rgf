@@ -21,6 +21,8 @@
 #' @param n_jobs an integer. The number of jobs (threads) to use for the computation. The substantial number of the jobs dependents on \emph{classes_} (The number of classes when \emph{fit} is performed). If classes_ = 2, the substantial max number of the jobs is one. If classes_ > 2, the substantial max number of the jobs is the same as classes_. If n_jobs = 1, no parallel computing code is used at all regardless of classes_. If n_jobs = -1 and classes_ >= number of CPU, all CPUs are used. For n_jobs = -2, all CPUs but one are used. For n_jobs below -1, (n_cpus + 1 + n_jobs) are used.
 #' @param memory_policy a character string. One of \emph{"conservative"} (it uses less memory at the expense of longer runtime. Try only when with default value it uses too much memory) or \emph{"generous"} (it runs faster using more memory by keeping the sorted orders of the features on memory for reuse). Memory using policy.
 #' @param verbose an integer. Controls the verbosity of the tree building process.
+#' @param init_model either NULL or a character string, optional (default=NULL). Filename of a previously saved model from which training should do warm-start. If model has been saved into multiple files, do not include numerical suffixes in the filename. \emph{NOTE:} Make sure you haven't forgotten to increase the value of the max_leaf parameter regarding to the specified warm-start model because warm-start model trees are counted in the overall number of trees.
+#' @param filename a character string specifying a valid path to a file where the fitted model should be saved 
 #' @export
 #' @details
 #'
@@ -39,6 +41,8 @@
 #' the \emph{feature_importances} function returns the feature importances for the data.
 #'
 #' the \emph{dump_model} function currently prints information about the fitted model in the console
+#' 
+#' the \emph{save_model} function saves a model to a file from which training can do warm-start in the future.
 #'
 #' @references \emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest}
 #' @docType class
@@ -54,7 +58,7 @@
 #'                                n_tree_search = 1, opt_interval = 100,
 #'                                learning_rate = 0.5, calc_prob = "sigmoid",
 #'                                n_jobs = 1, memory_policy = "generous",
-#'                                verbose = 0)}}{}
+#'                                verbose = 0, init_model = NULL)}}{}
 #'
 #'  \item{\code{--------------}}{}
 #'
@@ -89,6 +93,10 @@
 #'  \item{\code{dump_model()}}{}
 #'
 #'  \item{\code{--------------}}{}
+#'  
+#'  \item{\code{save_model(filename)}}{}
+#'
+#'  \item{\code{--------------}}{}
 #'  }
 #'
 #' @usage # init <- RGF_Classifier$new(max_leaf = 1000, test_interval = 100,
@@ -98,7 +106,7 @@
 #' #                                  n_tree_search = 1, opt_interval = 100,
 #' #                                  learning_rate = 0.5, calc_prob = "sigmoid",
 #' #                                  n_jobs = 1, memory_policy = "generous",
-#' #                                  verbose = 0)
+#' #                                  verbose = 0, init_model = NULL)
 #' @examples
 #'
 #' if (reticulate::py_available() && reticulate::py_module_available("rgf.sklearn")) {
@@ -140,6 +148,7 @@ RGF_Classifier <- R6::R6Class(
                               , n_jobs = 1
                               , memory_policy = "generous"
                               , verbose = 0
+                              , init_model = NULL
         ) {
 
             # exceptions for 'min_samples_leaf', 'n_iter'
@@ -175,6 +184,7 @@ RGF_Classifier <- R6::R6Class(
                 , n_jobs = as.integer(n_jobs)
                 , memory_policy = memory_policy
                 , verbose = as.integer(verbose)
+                , init_model = init_model
             )
         }
     )

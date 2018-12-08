@@ -19,6 +19,8 @@
 #' @param learning_rate a float. Step size of Newton updates used in coordinate descent to optimize weights.
 #' @param memory_policy a character string. One of \emph{"conservative"} (it uses less memory at the expense of longer runtime. Try only when with default value it uses too much memory) or \emph{"generous"} (it runs faster using more memory by keeping the sorted orders of the features on memory for reuse). Memory using policy.
 #' @param verbose an integer. Controls the verbosity of the tree building process.
+#' @param init_model either NULL or a character string, optional (default=NULL). Filename of a previously saved model from which training should do warm-start. If model has been saved into multiple files, do not include numerical suffixes in the filename. \emph{NOTE:} Make sure you haven't forgotten to increase the value of the max_leaf parameter regarding to the specified warm-start model because warm-start model trees are counted in the overall number of trees.
+#' @param filename a character string specifying a valid path to a file where the fitted model should be saved 
 #' @export
 #' @details
 #'
@@ -35,6 +37,8 @@
 #' the \emph{feature_importances} function returns the feature importances for the data.
 #'
 #' the \emph{dump_model} function currently prints information about the fitted model in the console
+#' 
+#' the \emph{save_model} function saves a model to a file from which training can do warm-start in the future.
 #'
 #' @references \emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest}
 #' @docType class
@@ -49,7 +53,7 @@
 #'                                min_samples_leaf = 10, n_iter = NULL,
 #'                                n_tree_search = 1, opt_interval = 100,
 #'                                learning_rate = 0.5, memory_policy = "generous",
-#'                                verbose = 0)}}{}
+#'                                verbose = 0, init_model = NULL)}}{}
 #'
 #'  \item{\code{--------------}}{}
 #'
@@ -80,6 +84,10 @@
 #'  \item{\code{dump_model()}}{}
 #'
 #'  \item{\code{--------------}}{}
+#'
+#'  \item{\code{save_model(filename)}}{}
+#'
+#'  \item{\code{--------------}}{}
 #'  }
 #'
 #' @usage # init <- RGF_Regressor$new(max_leaf = 500, test_interval = 100,
@@ -88,7 +96,7 @@
 #' #                                  min_samples_leaf = 10, n_iter = NULL,
 #' #                                  n_tree_search = 1, opt_interval = 100,
 #' #                                  learning_rate = 0.5, memory_policy = "generous",
-#' #                                  verbose = 0)
+#' #                                  verbose = 0, init_model = NULL)
 #' @examples
 #'
 #' if (reticulate::py_available() && reticulate::py_module_available("rgf.sklearn")) {
@@ -127,6 +135,7 @@ RGF_Regressor <- R6::R6Class(
                               , learning_rate = 0.5
                               , memory_policy = "generous"
                               , verbose = 0
+                              , init_model = NULL
         ){
 
             # exceptions for 'min_samples_leaf', 'n_iter'
@@ -160,6 +169,7 @@ RGF_Regressor <- R6::R6Class(
                 , learning_rate = learning_rate
                 , memory_policy = memory_policy
                 , verbose = as.integer(verbose)
+                , init_model = init_model
             )
         }
     )

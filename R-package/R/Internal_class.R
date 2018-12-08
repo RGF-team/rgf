@@ -55,8 +55,14 @@ Internal_class <- R6::R6Class(
         #-----------
         dump_model = function() {
             return(private$rgf_init$dump_model)
+        },
+        
+        # save_model
+        #-----------
+        save_model = function(filename) {
+          private$rgf_init$save_model(filename)
+          return(invisible(NULL))
         }
-
     ),
 
     private = list(
