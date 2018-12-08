@@ -14,10 +14,11 @@ cd $env:APPVEYOR_BUILD_FOLDER
 [Void][System.IO.Directory]::CreateDirectory($env:R_LIB_PATH)
 
 $env:PATH = "$env:R_LIB_PATH\Rtools\bin;" + "$env:R_LIB_PATH\R\bin\x64;" + "$env:R_LIB_PATH\miktex\texmfs\install\miktex\bin;" + $env:PATH
+$env:BINPREF = "C:/mingw-w64/x86_64-6.3.0-posix-seh-rt_v5-rev1/mingw64/bin/"
 
 if (!(Get-Command R.exe -errorAction SilentlyContinue)) {
     appveyor DownloadFile https://cloud.r-project.org/bin/windows/base/R-3.5.1-win.exe -FileName ./R-win.exe
-    Start-Process -FilePath .\R-win.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\R"
+    Start-Process -FilePath .\R-win.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\R /COMPONENTS=main,x64"
 
     appveyor DownloadFile https://cloud.r-project.org/bin/windows/Rtools/Rtools35.exe -FileName ./Rtools.exe
     Start-Process -FilePath .\Rtools.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\Rtools"
