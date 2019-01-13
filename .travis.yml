@@ -21,6 +21,7 @@ env:
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
+      export HOMEBREW_LOGS="$HOME/brew_logs";
       brew link --overwrite gcc;
       export CXX=g++-8 && export CC=gcc-8;
       curl https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
