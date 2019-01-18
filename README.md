@@ -3,7 +3,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.1109/TPAMI.2013.159.svg)](https://doi.org/10.1109/TPAMI.2013.159)
 [![arXiv.org](https://img.shields.io/badge/arXiv-1109.0887-b31b1b.svg)](https://arxiv.org/abs/1109.0887)
 [![Python Versions](https://img.shields.io/pypi/pyversions/rgf_python.svg)](https://pypi.org/project/rgf_python)
-[![PyPI Version](https://badge.fury.io/py/rgf_python.svg)](https://badge.fury.io/py/rgf_python)
+[![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.org/project/rgf_python)
 [![CRAN Version](https://r-pkg.org/badges/version/RGF)](https://cran.r-project.org/package=RGF)
 
 # Regularized Greedy Forest
