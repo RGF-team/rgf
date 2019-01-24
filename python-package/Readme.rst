@@ -1,6 +1,8 @@
-|License| |Python Versions| |PyPI Version|
+|License| |Python Versions| |PyPI Version| |Downloads|
 
 .. [![PyPI Version](https://img.shields.io/pypi/v/rgf_python.svg)](https://pypi.org/project/rgf_python/) # Reserve link for PyPI in case of bugs at fury.io
+
+.. [![Downloads](https://pepy.tech/badge/rgf-python)](https://pepy.tech/project/rgf-python)
 
 rgf\_python
 ===========
