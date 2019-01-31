@@ -24,7 +24,7 @@ if (!(Get-Command R.exe -errorAction SilentlyContinue)) {
     Start-Process -FilePath .\Rtools.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\Rtools"
 
     appveyor DownloadFile https://miktex.org/download/ctan/systems/win32/miktex/setup/windows-x86/miktex-portable.exe -FileName ./miktex-portable.exe
-    7z x .\miktex-portable.exe -o"$env:R_LIB_PATH\miktex" -y > $nul
+    7z x .\miktex-portable.exe -o"$env:R_LIB_PATH\miktex" -y > $null
 }
 
 initexmf --set-config-value [MPM]AutoInstall=1
