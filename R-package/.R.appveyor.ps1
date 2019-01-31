@@ -1,7 +1,7 @@
 function Check-Output {
-    param( [int]$ExitCode )
-    if ($ExitCode -ne 0) {
-        $host.SetShouldExit($ExitCode)
+    param( [bool]$Success )
+    if (!$Success) {
+        $host.SetShouldExit(-1)
         Exit -1
     }
 }
@@ -48,16 +48,16 @@ Rscript -e "update.packages(ask = FALSE, instlib = Sys.getenv('R_LIB_PATH'))"
 
 Rscript -e "devtools::install_deps(pkg = '.', dependencies = TRUE)"
 
-R.exe CMD build . ; Check-Output $LastExitCode
+R.exe CMD build . ; Check-Output $?
 
 $PKG_FILE_NAME = Get-Item *.tar.gz
 $PKG_NAME = $PKG_FILE_NAME.BaseName.split("_")[0]
 $LOG_FILE_NAME = "$PKG_NAME.Rcheck/00check.log"
 
-R.exe CMD check "${PKG_FILE_NAME}" --as-cran ; Check-Output $LastExitCode
+R.exe CMD check "${PKG_FILE_NAME}" --as-cran ; Check-Output $?
 if (Get-Content "$LOG_FILE_NAME" | Select-String -Pattern "WARNING") {
     echo "WARNINGS have been found in the build log!"
-    Check-Output -1
+    Check-Output $False
 }
 
 Rscript -e "covr::codecov(quiet = FALSE)"
