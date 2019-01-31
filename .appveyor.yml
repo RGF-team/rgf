@@ -59,7 +59,7 @@ test_script:
       if($env:TASK -eq "R_PACKAGE") {
           cd $env:APPVEYOR_BUILD_FOLDER;
           Get-ChildItem env: | Export-CliXml ./env-vars.clixml;
-          & .\R-package\.R.appveyor.ps1
+          powershell -ExecutionPolicy Bypass -File .\R-package\.R.appveyor.ps1
       }
 
 after_test:
