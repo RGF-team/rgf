@@ -13,7 +13,7 @@
 #                                  n_tree_search = 1, opt_interval = 100,
 #                                  learning_rate = 0.5, calc_prob = "sigmoid",
 #                                  n_jobs = 1, memory_policy = "generous",
-#                                  verbose = 0)
+#                                  verbose = 0, init_model = NULL)
 }
 \arguments{
 \item{x}{an R matrix (object) or a Python sparse matrix (object) of shape c(n_samples, n_features). The training input samples. The sparse matrix should be a Python sparse matrix. The helper functions \emph{mat_2scipy_sparse} and \emph{TO_scipy_sparse} allow the user to convert an R dense or sparse matrix to a scipy sparse matrix.}
@@ -55,6 +55,10 @@
 \item{memory_policy}{a character string. One of \emph{"conservative"} (it uses less memory at the expense of longer runtime. Try only when with default value it uses too much memory) or \emph{"generous"} (it runs faster using more memory by keeping the sorted orders of the features on memory for reuse). Memory using policy.}
 
 \item{verbose}{an integer. Controls the verbosity of the tree building process.}
+
+\item{init_model}{either NULL or a character string, optional (default=NULL). Filename of a previously saved model from which training should do warm-start. If model has been saved into multiple files, do not include numerical suffixes in the filename. \emph{NOTE:} Make sure you haven't forgotten to increase the value of the max_leaf parameter regarding to the specified warm-start model because warm-start model trees are counted in the overall number of trees.}
+
+\item{filename}{a character string specifying a valid path to a file where the fitted model should be saved}
 }
 \description{
 Regularized Greedy Forest classifier
@@ -75,6 +79,8 @@ the \emph{score} function returns the mean accuracy on the given test data and l
 the \emph{feature_importances} function returns the feature importances for the data.
 
 the \emph{dump_model} function currently prints information about the fitted model in the console
+
+the \emph{save_model} function saves a model to a file from which training can do warm-start in the future.
 }
 \section{Methods}{
 
@@ -87,7 +93,7 @@ the \emph{dump_model} function currently prints information about the fitted mod
                                n_tree_search = 1, opt_interval = 100,
                                learning_rate = 0.5, calc_prob = "sigmoid",
                                n_jobs = 1, memory_policy = "generous",
-                               verbose = 0)}}{}
+                               verbose = 0, init_model = NULL)}}{}
 
  \item{\code{--------------}}{}
 
@@ -120,6 +126,10 @@ the \emph{dump_model} function currently prints information about the fitted mod
  \item{\code{--------------}}{}
 
  \item{\code{dump_model()}}{}
+
+ \item{\code{--------------}}{}
+ 
+ \item{\code{save_model(filename)}}{}
 
  \item{\code{--------------}}{}
  }
