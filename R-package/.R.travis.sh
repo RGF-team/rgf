@@ -58,7 +58,7 @@ if grep -q -R "WARNING" "$LOG_FILE_NAME"; then
     exit -1
 fi
 
-Rscript -e 'covr::codecov(quiet = FALSE)' |& tee "$COVERAGE_FILE_NAME"
+Rscript -e 'covr::codecov(quiet = FALSE)' 2>&1 | tee "$COVERAGE_FILE_NAME"
 if [[ "$(grep -R "RGF Coverage:" $COVERAGE_FILE_NAME | rev | cut -d" " -f1 | rev | cut -d"." -f1)" -le 50 ]]; then
     echo "Code coverage is extremely small!"
     exit -1
