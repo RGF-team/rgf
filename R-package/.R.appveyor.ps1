@@ -53,11 +53,19 @@ R.exe CMD build . ; Check-Output $?
 $PKG_FILE_NAME = Get-Item *.tar.gz
 $PKG_NAME = $PKG_FILE_NAME.BaseName.split("_")[0]
 $LOG_FILE_NAME = "$PKG_NAME.Rcheck/00check.log"
+$COVERAGE_FILE_NAME = "$PKG_NAME.Rcheck/coverage.log"
 
 R.exe CMD check "${PKG_FILE_NAME}" --as-cran ; Check-Output $?
-if (Get-Content "$LOG_FILE_NAME" | Select-String -Pattern "WARNING") {
+if (Get-Content "$LOG_FILE_NAME" | Select-String -Pattern "WARNING" -Quiet) {
     echo "WARNINGS have been found in the build log!"
     Check-Output $False
 }
 
-Rscript -e "covr::codecov(quiet = FALSE)"
+Rscript -e "covr::codecov(quiet = FALSE)" *>&1 | Tee-Object "$COVERAGE_FILE_NAME"
+$Coverage = 0
+$Match = Get-Content "$COVERAGE_FILE_NAME" | Select-String -Pattern "RGF Coverage:" | Select-Object -First 1
+$Coverage = [float]$Match.Line.Trim().Split(" ")[-1].Replace("%", "")
+if ($Coverage -le 50) {
+    echo "Code coverage is extremely small!"
+    Check-Output $False
+}

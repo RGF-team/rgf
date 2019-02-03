@@ -50,6 +50,7 @@ R CMD build . || exit -1
 PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
 PKG_NAME="${PKG_FILE_NAME%%_*}"
 LOG_FILE_NAME="$PKG_NAME.Rcheck/00check.log"
+COVERAGE_FILE_NAME="$PKG_NAME.Rcheck/coverage.log"
 
 R CMD check "${PKG_FILE_NAME}" --as-cran || exit -1
 if grep -q -R "WARNING" "$LOG_FILE_NAME"; then
@@ -57,4 +58,8 @@ if grep -q -R "WARNING" "$LOG_FILE_NAME"; then
     exit -1
 fi
 
-Rscript -e 'covr::codecov(quiet = FALSE)'
+Rscript -e 'covr::codecov(quiet = FALSE)' 2>&1 | tee "$COVERAGE_FILE_NAME"
+if [[ "$(grep -R "RGF Coverage:" $COVERAGE_FILE_NAME | rev | cut -d" " -f1 | rev | cut -d"." -f1)" -le 50 ]]; then
+    echo "Code coverage is extremely small!"
+    exit -1
+fi
