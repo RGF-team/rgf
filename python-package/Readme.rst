@@ -1,8 +1,8 @@
-|License| |Python Versions| 
-.. image:: https://badge.fury.io/py/rgf-python.svg
-    :target: https://badge.fury.io/py/rgf-python
-.. image:: https://pepy.tech/badge/rgf-python
-    :https://pepy.tech/project/rgf-python
+.. |PyPI Version| image:: https://badge.fury.io/py/rgf-python.svg
+   :target: https://badge.fury.io/py/rgf-python
+.. |Downloads| image:: https://pepy.tech/badge/rgf-python
+   :target: https://pepy.tech/project/rgf-python
+|License| |Python Versions| |PyPI Version| |Downloads|
 
 rgf\_python
 ===========
