@@ -1,5 +1,5 @@
-.. |PyPI Version| image:: https://badge.fury.io/py/rgf-python.svg
-   :target: https://badge.fury.io/py/rgf-python
+.. |PyPI Version| image:: https://img.shields.io/pypi/v/rgf_python.svg
+   :target: https://pypi.org/project/rgf_python
 .. |Downloads| image:: https://pepy.tech/badge/rgf-python
    :target: https://pepy.tech/project/rgf-python
 |License| |Python Versions| |PyPI Version| |Downloads|
