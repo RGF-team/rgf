@@ -1,5 +1,3 @@
-.. |Downloads| image:: https://pepy.tech/badge/rgf-python
-   :target: https://pepy.tech/project/rgf-python
 |License| |Python Versions| |PyPI Version| |Downloads|
 
 rgf\_python
@@ -216,3 +214,5 @@ References
    :target: https://pypi.org/project/rgf_python/
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/rgf_python.svg
    :target: https://pypi.org/project/rgf_python
+.. |Downloads| image:: https://pepy.tech/badge/rgf-python
+   :target: https://pepy.tech/project/rgf-python
