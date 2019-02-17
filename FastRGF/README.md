@@ -122,8 +122,8 @@ make install
 
 # 5. Known Issues
 
-- FastRGF crashes if training dataset is too small (#data < 28). (`rgf#92 <https://github.com/RGF-team/rgf/issues/92>`__)
-- FastRGF does not provide any built-in method to calculate feature importances. (`rgf#109 <https://github.com/RGF-team/rgf/issues/109>`__)
+- FastRGF crashes if training dataset is too small (#data < 28). [rgf#92](https://github.com/RGF-team/rgf/issues/92)
+- FastRGF does not provide any built-in method to calculate feature importances. [rgf#109](https://github.com/RGF-team/rgf/issues/109)
 
 # 6. Contact
 
