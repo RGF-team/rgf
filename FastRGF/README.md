@@ -120,15 +120,20 @@ make install
 -  **discretize.sparse.max_features**: Controls the maximum number of selected features. Typical range is `[1000, 10000000]`. Default value is `80000`. Meant for being used with sparse data.
 -  **discretize.sparse.min_occurrences**: Controls the minimum number of occurrences for a feature to be selected. Default value is `5`. Meant for being used with sparse data.
 
-# 5. Contact
+# 5. Known Issues
+
+- FastRGF crashes if training dataset is too small (#data < 28). (`rgf#92 <https://github.com/RGF-team/rgf/issues/92>`__)
+- FastRGF does not provide any built-in method to calculate feature importances. (`rgf#109 <https://github.com/RGF-team/rgf/issues/109>`__)
+
+# 6. Contact
 
 Please post an [issue](https://github.com/RGF-team/rgf/issues) at GitHub repository for any errors you encounter.
 
-# 6. Copyright
+# 7. Copyright
 
 FastRGF is distributed under the **MIT license**. Please read the file [`LICENSE`](./LICENSE).
 
-# 7. References
+# 8. References
 
 [1] Rie Johnson and Tong Zhang. [Learning Nonlinear Functions Using Regularized Greedy Forest.](https://arxiv.org/abs/1109.0887) IEEE Transactions on Pattern Analysis and Machine Intelligence, 36(5):942-954, May 2014.
 

@@ -178,7 +178,7 @@ Known Issues
 
 * FastRGF crashes if training dataset is too small (#data < 28). (`rgf#92 <https://github.com/RGF-team/rgf/issues/92>`__)
 
-* **rgf\_python** does not provide any built-in method to calculate feature importances. (`rgf#109 <https://github.com/RGF-team/rgf/issues/109>`__)
+* **FastRGFClassifier** and **FastRGFRegressor** does not provide any built-in method to calculate feature importances. (`rgf#109 <https://github.com/RGF-team/rgf/issues/109>`__)
 
 FAQ
 '''
