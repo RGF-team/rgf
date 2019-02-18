@@ -20,11 +20,13 @@ Please see the file [`CHANGES.md`](./CHANGES.md) for the changelog of FastRGF.
 
 4. [Hyperparameters Tuning](#4-hyperparameters-tuning)
 
-5. [Contact](#5-contact)
+5. [Known Issues](#5-known-issues)
 
-6. [Copyright](#6-copyright)
+6. [Contact](#5-contact)
 
-7. [References](#7-references)
+7. [Copyright](#6-copyright)
+
+8. [References](#7-references)
 
 # 1. Introduction
 
