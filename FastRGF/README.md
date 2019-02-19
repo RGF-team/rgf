@@ -22,7 +22,7 @@ Please see the file [`CHANGES.md`](./CHANGES.md) for the changelog of FastRGF.
 
 5. [Known Issues](#5-known-issues)
 
-6. [Contact](#5-contact)
+6. [Contact](#6-contact)
 
 7. [Copyright](#6-copyright)
 
