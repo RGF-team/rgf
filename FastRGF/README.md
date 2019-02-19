@@ -24,7 +24,7 @@ Please see the file [`CHANGES.md`](./CHANGES.md) for the changelog of FastRGF.
 
 6. [Contact](#6-contact)
 
-7. [Copyright](#6-copyright)
+7. [Copyright](#7-copyright)
 
 8. [References](#7-references)
 
