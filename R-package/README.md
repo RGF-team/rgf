@@ -35,7 +35,7 @@ The **RGF** package is a wrapper of the [Regularized Greedy Forest (RGF)](https:
 
 <br>
 
-* Python (2.7 or >= 3.4)
+* Python (2.7 or >= 3.5)
 
 
 <br>
@@ -87,7 +87,7 @@ sudo python setup.py install
 
 
 
-#### **Mac OS X**            [ installed / tested on Python >= 3.4 ]
+#### **Mac OS X**            [ installed / tested on Python >= 3.5 ]
 
 <br>
 
@@ -247,7 +247,7 @@ UserWarning: Cannot find FastRGF executable files. FastRGF estimators will be un
 
 <br><br>
 
-#### **Windows OS**            [ installed / tested on Python >= 3.4 ]
+#### **Windows OS**            [ installed / tested on Python >= 3.5 ]
 
 <br>
 

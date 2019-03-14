@@ -54,7 +54,7 @@ Examples of using FastRGF estimators could be found `here <https://github.com/RG
 Software Requirements
 ---------------------
 
--  Python (2.7 or >= 3.4)
+-  Python (2.7 or >= 3.5)
 -  scikit-learn (>= 0.18)
 
 Installation
