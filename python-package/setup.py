@@ -118,7 +118,8 @@ def is_fastrgf_response(path):
     temp_y_loc = os.path.join(CURRENT_DIR, 'temp_fastrgf.train.data.y')
     temp_model_loc = os.path.join(CURRENT_DIR, "temp_fastrgf.model")
     temp_pred_loc = os.path.join(CURRENT_DIR, "temp_fastrgf.predictions.txt")
-    path_train = os.path.join(path, "forest_train")
+    path_train = os.path.join(path, ("forest_train.exe" if system() in ('Windows', 'Microsoft')
+                                     else "forest_train"))
     params_train = []
     params_train.append("forest.ntrees=%s" % 10)
     params_train.append("tst.target=%s" % "BINARY")
@@ -127,7 +128,8 @@ def is_fastrgf_response(path):
     params_train.append("model.save=%s" % temp_model_loc)
     cmd_train = [path_train]
     cmd_train.extend(params_train)
-    path_pred = os.path.join(path, "forest_predict")
+    path_pred = os.path.join(path, ("forest_predict.exe" if system() in ('Windows', 'Microsoft')
+                                    else "forest_predict"))
     params_pred = []
     params_pred.append("model.load=%s" % temp_model_loc)
     params_pred.append("tst.x-file=%s" % temp_x_loc)
