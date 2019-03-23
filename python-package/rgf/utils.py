@@ -57,6 +57,11 @@ class Config(object):
     TEMP_PATH = None
     CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
+    (FASTRGF_TRAIN_EXECUTABLE_FILE,
+     FASTRGF_PREDICT_EXECUTABLE_FILE) = (("forest_train.exe", "forest_predict.exe")
+                                         if SYSTEM in ('Windows', 'Microsoft')
+                                         else ("forest_train", "forest_predict"))
+
     RGF_AVAILABLE = None
     FASTRGF_AVAILABLE = None
 

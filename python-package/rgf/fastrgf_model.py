@@ -534,7 +534,8 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
         params.append("set.verbose=%s" % self.verbose)
         params.append("model.save=%s" % self._model_file_loc)
 
-        cmd = [os.path.join(self.config.FASTRGF_PATH, "forest_train")]
+        cmd = [os.path.join(self.config.FASTRGF_PATH,
+                            self.config.FASTRGF_TRAIN_EXECUTABLE_FILE)]
         cmd.extend(params)
 
         return cmd
@@ -556,7 +557,8 @@ class FastRGFExecuter(utils.CommonRGFExecuterBase):
         params.append("set.nthreads=%s" % self.n_jobs)
         params.append("set.verbose=%s" % self.verbose)
 
-        cmd = [os.path.join(self.config.FASTRGF_PATH, "forest_predict")]
+        cmd = [os.path.join(self.config.FASTRGF_PATH,
+                            self.config.FASTRGF_PREDICT_EXECUTABLE_FILE)]
         cmd.extend(params)
 
         return cmd
