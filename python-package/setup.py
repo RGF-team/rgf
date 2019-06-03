@@ -173,13 +173,13 @@ def compile_rgf():
         target = os.path.join(rgf_base_dir, 'bin', 'rgf.exe')
         logger.info("Trying to build executable file with MSBuild "
                     "from existing Visual Studio solution.")
+        if IS_64BITS:
+            arch = 'x64'
+        else:
+            arch = 'Win32'
         platform_toolsets = ('Windows7.1SDK', 'v100', 'v110',
-                             'v120', 'v140', 'v141')
+                             'v120', 'v140', 'v141', 'v142')
         for platform_toolset in platform_toolsets:
-            if IS_64BITS:
-                arch = 'x64'
-            else:
-                arch = 'Win32'
             success = silent_call(('MSBuild',
                                    'rgf.sln',
                                    '/p:Configuration=Release',
@@ -201,12 +201,10 @@ def compile_rgf():
             logger.info("Trying to build executable file with CMake and MSBuild.")
             generators = ('Visual Studio 10 2010', 'Visual Studio 11 2012',
                           'Visual Studio 12 2013', 'Visual Studio 14 2015',
-                          'Visual Studio 15 2017')
+                          'Visual Studio 15 2017', 'Visual Studio 16 2019')
             for generator in generators:
-                if IS_64BITS:
-                    generator += ' Win64'
                 clear_folder(os.path.join(rgf_base_dir, 'build'))
-                success = silent_call(('cmake', '../', '-G', generator))
+                success = silent_call(('cmake', '../', '-G', generator, '-A', arch))
                 success &= silent_call(('cmake', '--build', '.', '--config', 'Release'))
                 if success and os.path.isfile(target) and is_rgf_response(target):
                     break
