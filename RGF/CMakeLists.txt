@@ -5,6 +5,7 @@ if(MINGW)
     set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++)
 endif()
 if(MSVC)
+    cmake_minimum_required(VERSION 3.1)
     add_definitions(-D__AZ_MSDN__)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin)
     set(variables
