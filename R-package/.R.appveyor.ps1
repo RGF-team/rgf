@@ -13,8 +13,8 @@ cd $env:APPVEYOR_BUILD_FOLDER
 
 [Void][System.IO.Directory]::CreateDirectory($env:R_LIB_PATH)
 
-$env:PATH = "$env:R_LIB_PATH\Rtools\bin;" + "$env:R_LIB_PATH\R\bin\x64;" + "$env:R_LIB_PATH\miktex\texmfs\install\miktex\bin;" + $env:PATH
-$env:BINPREF = "C:/mingw-w64/x86_64-6.3.0-posix-seh-rt_v5-rev1/mingw64/bin/"
+$env:PATH = "$env:R_LIB_PATH\Rtools\bin;" + "$env:R_LIB_PATH\R\bin\x64;" + "$env:R_LIB_PATH\miktex\texmfs\install\miktex\bin\x64;" + $env:PATH
+$env:BINPREF = "C:/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/mingw64/bin/"
 
 if (!(Get-Command R.exe -errorAction SilentlyContinue)) {
     appveyor DownloadFile https://cloud.r-project.org/bin/windows/base/R-3.6.0-win.exe -FileName ./R-win.exe
@@ -23,8 +23,11 @@ if (!(Get-Command R.exe -errorAction SilentlyContinue)) {
     appveyor DownloadFile https://cloud.r-project.org/bin/windows/Rtools/Rtools35.exe -FileName ./Rtools.exe
     Start-Process -FilePath .\Rtools.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\Rtools"
 
-    appveyor DownloadFile https://miktex.org/download/ctan/systems/win32/miktex/setup/windows-x86/miktex-portable.exe -FileName ./miktex-portable.exe
-    7z x .\miktex-portable.exe -o"$env:R_LIB_PATH\miktex" -y > $null
+    appveyor DownloadFile https://miktex.org/download/win/miktexsetup-x64.zip -FileName ./miktexsetup-x64.zip
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::ExtractToDirectory("miktexsetup-x64.zip", "miktex")
+    .\miktex\miktexsetup.exe --local-package-repository=.\miktex\download --package-set=essential --quiet download
+    .\miktex\download\miktexsetup.exe --portable="$env:R_LIB_PATH\miktex" --quiet install
 }
 
 initexmf --set-config-value [MPM]AutoInstall=1
