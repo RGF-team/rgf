@@ -250,7 +250,7 @@ def compile_fastrgf():
         if tmp_result or system() in ('Windows', 'Microsoft'):
             return tmp_result
 
-        for version in range(5, 9):
+        for version in range(5, 10):
             try:
                 subprocess.check_output(('g++-' + str(version), '--version'))
                 return True
