@@ -90,25 +90,13 @@ class Config(object):
 
             if SYSTEM in ('Windows', 'Microsoft'):
                 try:
-                    if config.has_option(config.sections()[0], 'exe_location'):
-                        warnings.warn("Config flag 'exe_location' has been deprecated "
-                                      "and will be removed in the future release.\n"
-                                      "Please use 'rgf_location' flag instead.")
-                        cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
-                    else:
-                        cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'rgf_location'))
+                    cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'rgf_location'))
                 except Exception:
                     cls.RGF_PATH = os.path.join(os.path.expanduser('~'), 'rgf.exe')
                 cls.DEFAULT_RGF_PATH = 'rgf.exe'
             else:  # Linux, Darwin (macOS), etc.
                 try:
-                    if config.has_option(config.sections()[0], 'exe_location'):
-                        warnings.warn("Config flag 'exe_location' has been deprecated "
-                                      "and will be removed in the future release.\n"
-                                      "Please use 'rgf_location' flag instead.")
-                        cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'exe_location'))
-                    else:
-                        cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'rgf_location'))
+                    cls.RGF_PATH = os.path.abspath(config.get(config.sections()[0], 'rgf_location'))
                 except Exception:
                     cls.RGF_PATH = os.path.join(os.path.expanduser('~'), 'rgf')
                 cls.DEFAULT_RGF_PATH = 'rgf'
