@@ -117,7 +117,7 @@ cmake ../ -G "Visual Studio 10 2010"
 cmake --build . --config Release
 ```
 
-If you are compiling on 64-bit machine, then add `Win64` to the end of generator's name: `Visual Studio 10 2010 Win64`.
+If you are compiling on 64-bit machine, then add `-A x64` to the end of command: `cmake ../ -G "Visual Studio 10 2010" -A x64`.
 
 We tested following versions of Visual Studio:
 
@@ -126,6 +126,7 @@ We tested following versions of Visual Studio:
 - Visual Studio 12 2013 [Win64]
 - Visual Studio 14 2015 [Win64]
 - Visual Studio 15 2017 [Win64]
+- Visual Studio 16 2019 [Win64]
 
 Other versions may work but are untested.
 
