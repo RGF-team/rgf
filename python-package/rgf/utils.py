@@ -65,11 +65,11 @@ class Config(object):
     RGF_AVAILABLE = None
     FASTRGF_AVAILABLE = None
 
-    def __init__(self):
+    def __init__(self, verbose=False):
         (self.DEFAULT_RGF_PATH, self.RGF_PATH,
          self.DEFAULT_FASTRGF_PATH, self.FASTRGF_PATH, self.TEMP_PATH) = self.init_paths()
         (self.RGF_PATH, self.RGF_AVAILABLE,
-         self.FASTRGF_PATH, self.FASTRGF_AVAILABLE) = self.set_paths_and_availability()
+         self.FASTRGF_PATH, self.FASTRGF_AVAILABLE) = self.set_paths_and_availability(verbose)
 
     @classmethod
     def init_paths(cls):
@@ -152,7 +152,9 @@ class Config(object):
         return True
 
     @classmethod
-    def is_fastrgf_executable(cls, path):
+    def is_fastrgf_executable(cls, path, verbose=False):
+        if verbose:
+            print("[FastRgf] investigate {}".format(path))
         temp_x_loc = os.path.join(cls.TEMP_PATH, 'temp_fastrgf.train.data.x')
         temp_y_loc = os.path.join(cls.TEMP_PATH, 'temp_fastrgf.train.data.y')
         temp_model_loc = os.path.join(cls.TEMP_PATH, "temp_fastrgf.model")
@@ -186,12 +188,18 @@ class Config(object):
         try:
             subprocess.check_output(cmd_train, stderr=subprocess.STDOUT)
             subprocess.check_output(cmd_pred, stderr=subprocess.STDOUT)
-        except Exception:
+        except Exception as e:
+            if verbose:
+                print(e)
             return False
+
+        if verbose:
+            print("[FastRgf] Found in {}".format(path))
+
         return True
 
     @classmethod
-    def set_paths_and_availability(cls):
+    def set_paths_and_availability(cls, verbose=False):
         if cls.RGF_AVAILABLE is None or cls.FASTRGF_AVAILABLE is None:
             cls.RGF_AVAILABLE = True
             if cls.is_rgf_executable(os.path.join(cls.CURRENT_DIR, cls.DEFAULT_RGF_PATH)):
@@ -206,11 +214,11 @@ class Config(object):
                               "RGF estimators will be unavailable for usage.")
 
             cls.FASTRGF_AVAILABLE = True
-            if cls.is_fastrgf_executable(cls.CURRENT_DIR):
+            if cls.is_fastrgf_executable(cls.CURRENT_DIR, verbose):
                 cls.FASTRGF_PATH = cls.CURRENT_DIR
-            elif cls.is_fastrgf_executable(cls.DEFAULT_FASTRGF_PATH):
+            elif cls.is_fastrgf_executable(cls.DEFAULT_FASTRGF_PATH, verbose):
                 cls.FASTRGF_PATH = cls.DEFAULT_FASTRGF_PATH
-            elif cls.is_fastrgf_executable(cls.FASTRGF_PATH):
+            elif cls.is_fastrgf_executable(cls.FASTRGF_PATH, verbose):
                 pass
             else:
                 cls.FASTRGF_AVAILABLE = False
