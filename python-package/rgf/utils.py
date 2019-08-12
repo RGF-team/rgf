@@ -165,6 +165,7 @@ class Config(object):
         path_train = os.path.join(path, "forest_train")
         params_train = []
         params_train.append("forest.ntrees=%s" % 10)
+        params_train.append("set.nthreads=1")
         params_train.append("tst.target=%s" % "BINARY")
         params_train.append("trn.x-file=%s" % temp_x_loc)
         params_train.append("trn.y-file=%s" % temp_y_loc)
@@ -174,6 +175,7 @@ class Config(object):
         path_pred = os.path.join(path, "forest_predict")
         params_pred = []
         params_pred.append("model.load=%s" % temp_model_loc)
+        params_pred.append("set.nthreads=1")
         params_pred.append("tst.x-file=%s" % temp_x_loc)
         params_pred.append("tst.output-prediction=%s" % temp_pred_loc)
         cmd_pred = [path_pred]
