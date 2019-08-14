@@ -14,7 +14,7 @@ env:
     - PYTHON_VERSION=3.5
     - PYTHON_VERSION=3.6
     - PYTHON_VERSION=3.7
-    - PYTHON_VERSION=3.7.3 TASK=R_PACKAGE
+    - PYTHON_VERSION=3.7 TASK=R_PACKAGE
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
