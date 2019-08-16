@@ -1,3 +1,8 @@
+## RGF 1.0.7
+* We've modified the *package.R* file so that messages are printed to the console whenever Python or any of the required modules is not available
+* We've modified the *.appveyor.yml* file to return the *artifacts* in order to observe if tests ran successfully
+
+
 ## RGF 1.0.6
 
 * We've added the *init_model* parameter to the *RGFRegressor* and *RGFClassifier*
