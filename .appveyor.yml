@@ -74,11 +74,23 @@ after_test:
 cache:
   - '%R_LIB_PATH%'
 
+on_failure:
+  - 7z a failure.zip *.Rcheck\*
+  - appveyor PushArtifact failure.zip
+
 artifacts:
   - path: python-package\dist\*
     name: pip
   - path: python-package\compile\RGF\bin\*
     name: rgf_exe
+  - path: '*.Rcheck\**\*.log'
+    name: Logs
+  - path: '*.Rcheck\**\*.out'
+    name: Logs
+  - path: '*.Rcheck\**\*.fail'
+    name: Logs
+  - path: '*.Rcheck\**\*.Rout'
+    name: Logs
 
 deploy:
   release: $(APPVEYOR_REPO_TAG_NAME)
