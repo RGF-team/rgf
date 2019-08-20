@@ -8,6 +8,8 @@ RGF_mod <- NULL; RGF_utils <- NULL; SCP <- NULL;
 
 .onLoad <- function(libname, pkgname) {
 
+  print(reticulate::py_discover_config())         # see this issue, probably related : https://github.com/rstudio/reticulate/issues/394
+
   if (reticulate::py_available(initialize = TRUE)) {
 
     if (reticulate::py_module_available("rgf.sklearn")) {

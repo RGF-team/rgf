@@ -75,7 +75,7 @@ cache:
   - '%R_LIB_PATH%'
 
 on_failure:
-  - 7z a failure.zip *.Rcheck\*
+  - 7z a failure.zip R-package\*.Rcheck\*
   - appveyor PushArtifact failure.zip
 
 artifacts:
@@ -83,13 +83,13 @@ artifacts:
     name: pip
   - path: python-package\compile\RGF\bin\*
     name: rgf_exe
-  - path: '*.Rcheck\**\*.log'
+  - path: 'R-package\*.Rcheck\**\*.log'
     name: Logs
-  - path: '*.Rcheck\**\*.out'
+  - path: 'R-package\*.Rcheck\**\*.out'
     name: Logs
-  - path: '*.Rcheck\**\*.fail'
+  - path: 'R-package\*.Rcheck\**\*.fail'
     name: Logs
-  - path: '*.Rcheck\**\*.Rout'
+  - path: 'R-package\*.Rcheck\**\*.Rout'
     name: Logs
 
 deploy:
