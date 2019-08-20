@@ -8,7 +8,9 @@ RGF_mod <- NULL; RGF_utils <- NULL; SCP <- NULL;
 
 .onLoad <- function(libname, pkgname) {
 
-  print(reticulate::py_discover_config())         # see this issue, probably related : https://github.com/rstudio/reticulate/issues/394
+  # print(reticulate::py_discover_config())         # see this issue, probably related : https://github.com/rstudio/reticulate/issues/394
+  # reticulate::use_condaenv("MINICONDA")
+  reticulate::conda_list(conda = "auto")
 
   if (reticulate::py_available(initialize = TRUE)) {
 
