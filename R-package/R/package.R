@@ -10,7 +10,7 @@ RGF_mod <- NULL; RGF_utils <- NULL; SCP <- NULL;
 
   # print(reticulate::py_discover_config())         # see this issue, probably related : https://github.com/rstudio/reticulate/issues/394
   # reticulate::use_condaenv("MINICONDA")
-  reticulate::conda_list(conda = "auto")
+  print(reticulate::conda_list(conda = "auto"))
 
   if (reticulate::py_available(initialize = TRUE)) {
 
