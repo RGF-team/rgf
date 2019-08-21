@@ -83,13 +83,13 @@ artifacts:
     name: pip
   - path: python-package\compile\RGF\bin\*
     name: rgf_exe
-  - path: 'R-package\*.Rcheck\**\*.log'
+  - path: '**\*.Rcheck\**\*.log'
     name: Logs
-  - path: 'R-package\*.Rcheck\**\*.out'
+  - path: '**\*.Rcheck\**\*.out'
     name: Logs
-  - path: 'R-package\*.Rcheck\**\*.fail'
+  - path: '**\*.Rcheck\**\*.fail'
     name: Logs
-  - path: 'R-package\*.Rcheck\**\*.Rout'
+  - path: '**\*.Rcheck\**\*.Rout'
     name: Logs
 
 deploy:

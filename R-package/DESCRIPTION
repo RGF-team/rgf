@@ -2,7 +2,7 @@ Package: RGF
 Type: Package
 Title: Regularized Greedy Forest
 Version: 1.0.6.2
-Date: 2019-08-20
+Date: 2019-08-21
 Authors@R: c( person("Lampros", "Mouselimis", email = "mouselimislampros@gmail.com", role = c("aut", "cre")), person("Ryosuke", "Fukatani", role = "cph", comment = "Author of the python wrapper of the 'Regularized Greedy Forest' machine learning algorithm"), person("Nikita", "Titov", role = "cph", comment = "Author of the python wrapper of the 'Regularized Greedy Forest' machine learning algorithm"), person("Tong", "Zhang", role = "cph", comment = "Author of the 'Regularized Greedy Forest' and of the Multi-core implementation of Regularized Greedy Forest machine learning algorithm"), person("Rie", "Johnson", role = "cph", comment = "Author of the 'Regularized Greedy Forest' machine learning algorithm") )
 Maintainer: Lampros Mouselimis <mouselimislampros@gmail.com>
 BugReports: https://github.com/RGF-team/rgf/issues
