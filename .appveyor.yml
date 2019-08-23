@@ -13,13 +13,13 @@ environment:
     - PYTHON_VERSION: 3.5
     - PYTHON_VERSION: 3.6
     - PYTHON_VERSION: 3.7
-    - PYTHON_VERSION: 3.6
+    - PYTHON_VERSION: 3.7
       TASK: R_PACKAGE
 
 matrix:
   exclude:
     - platform: x86
-      PYTHON_VERSION: 3.6
+      PYTHON_VERSION: 3.7
       TASK: R_PACKAGE
 
 install:
@@ -62,7 +62,8 @@ after_test:
       if(
          $env:APPVEYOR_REPO_TAG -eq "false" -or
          $env:APPVEYOR_REPO_BRANCH -ne "master" -or
-         $env:PYTHON_VERSION -ne "3.7") {
+         $env:PYTHON_VERSION -ne "3.7" -or
+         $env:TASK -eq "R_PACKAGE") {
           Exit-AppVeyorBuild
       }
   - IF "%PLATFORM%" == "x64" (
@@ -75,22 +76,14 @@ cache:
   - '%R_LIB_PATH%'
 
 on_failure:
-  - 7z a failure.zip R-package\*.Rcheck\*
-  - appveyor PushArtifact failure.zip
+  - 7z a R_failure.zip R-package\*.Rcheck\*
+  - appveyor PushArtifact R_failure.zip
 
 artifacts:
   - path: python-package\dist\*
     name: pip
   - path: python-package\compile\RGF\bin\*
     name: rgf_exe
-  - path: '**\*.Rcheck\**\*.log'
-    name: Logs
-  - path: '**\*.Rcheck\**\*.out'
-    name: Logs
-  - path: '**\*.Rcheck\**\*.fail'
-    name: Logs
-  - path: '**\*.Rcheck\**\*.Rout'
-    name: Logs
 
 deploy:
   release: $(APPVEYOR_REPO_TAG_NAME)

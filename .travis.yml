@@ -93,5 +93,5 @@ deploy:
   tag_name: $TRAVIS_TAG
   on:
     branch: master
-    condition: "$PYTHON_VERSION = 3.7"
+    condition: "$PYTHON_VERSION = 3.7 && $TASK != R_PACKAGE"
     tags: true
