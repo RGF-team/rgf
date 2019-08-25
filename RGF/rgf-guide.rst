@@ -1,6 +1,10 @@
 Regularized Greedy Forest in C++: User Guide
 ********************************************
 
+.. contents:: **Contents**
+    :local:
+    :backlinks: none
+
 1 Introduction
 ==============
 
