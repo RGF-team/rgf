@@ -12,7 +12,7 @@ if [[ $TRAVIS_OS_NAME == "linux" ]]; then
     sudo apt-get install texlive-latex-recommended texlive-fonts-recommended texlive-fonts-extra qpdf
 
     if ! command -v R &> /dev/null; then
-        R_VER=3.6.0
+        R_VER=3.6.1
         cd $TRAVIS_BUILD_DIR
         wget https://cran.r-project.org/src/base/R-3/R-$R_VER.tar.gz
         tar -xzf R-$R_VER.tar.gz

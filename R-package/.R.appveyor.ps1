@@ -17,7 +17,7 @@ $env:PATH = "$env:R_LIB_PATH\Rtools\bin;" + "$env:R_LIB_PATH\R\bin\x64;" + "$env
 $env:BINPREF = "C:/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/mingw64/bin/"
 
 if (!(Get-Command R.exe -errorAction SilentlyContinue)) {
-    appveyor DownloadFile https://cloud.r-project.org/bin/windows/base/R-3.6.0-win.exe -FileName ./R-win.exe
+    appveyor DownloadFile https://cloud.r-project.org/bin/windows/base/R-3.6.1-win.exe -FileName ./R-win.exe
     Start-Process -FilePath .\R-win.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\R /COMPONENTS=main,x64"
 
     appveyor DownloadFile https://cloud.r-project.org/bin/windows/Rtools/Rtools35.exe -FileName ./Rtools.exe
@@ -36,6 +36,7 @@ conda install -y --no-deps pandoc
 cd .\R-package
 Add-Content .Renviron "R_LIBS=$env:R_LIB_PATH"
 Add-Content .Rprofile "options(repos = 'https://cran.rstudio.com')"
+Add-Content .Rprofile "Sys.setenv(RETICULATE_PYTHON = '$([RegEx]::Escape($env:CONDA_PREFIX))/python.exe')"
 
 Rscript -e "if(!'devtools' %in% rownames(installed.packages())) { install.packages('devtools', dependencies = TRUE) }"
 Rscript -e "if(!'roxygen2' %in% rownames(installed.packages())) { install.packages('roxygen2', dependencies = TRUE) }"
@@ -59,6 +60,8 @@ $LOG_FILE_NAME = "$PKG_NAME.Rcheck/00check.log"
 $COVERAGE_FILE_NAME = "$PKG_NAME.Rcheck/coverage.log"
 
 R.exe CMD check "${PKG_FILE_NAME}" --as-cran ; Check-Output $?
+7z a R_logs.zip "$PKG_NAME.Rcheck/*"
+appveyor PushArtifact R_logs.zip
 if (Get-Content "$LOG_FILE_NAME" | Select-String -Pattern "WARNING" -Quiet) {
     echo "WARNINGS have been found in the build log!"
     Check-Output $False
