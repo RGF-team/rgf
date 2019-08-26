@@ -154,7 +154,7 @@ class Config(object):
     @classmethod
     def is_fastrgf_executable(cls, path, verbose=False):
         if verbose:
-            print("[FastRGF] investigate {}".format(path))
+            print("[FastRGF] Investigate {}".format(path))
         temp_x_loc = os.path.join(cls.TEMP_PATH, 'temp_fastrgf.train.data.x')
         temp_y_loc = os.path.join(cls.TEMP_PATH, 'temp_fastrgf.train.data.y')
         temp_model_loc = os.path.join(cls.TEMP_PATH, "temp_fastrgf.model")
