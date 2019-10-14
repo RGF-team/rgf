@@ -38,7 +38,7 @@ before_install:
   - if [[ $TASK == "R_PACKAGE" ]] && [[ $TRAVIS_OS_NAME == "linux" ]]; then
         conda create -q -n test-environment python=$PYTHON_VERSION pip openssl --no-deps;
         source activate test-environment;
-        pip install setuptools wheel numpy scipy pandas scikit-learn pytest;
+        pip install setuptools wheel numpy scipy pandas scikit-learn;
     else
         conda create -q -n test-environment python=$PYTHON_VERSION numpy scipy pandas scikit-learn pytest;
         source activate test-environment;
