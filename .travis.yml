@@ -4,7 +4,7 @@ language: generic
 os:
   - linux
   - osx
-osx_image: xcode10.1
+osx_image: xcode11
 
 env:
   global:
@@ -18,8 +18,7 @@ env:
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
-      brew link --overwrite gcc;
-      brew upgrade gcc;
+      brew install gcc;
       export CXX=g++-9 && export CC=gcc-9;
       curl https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
     else
