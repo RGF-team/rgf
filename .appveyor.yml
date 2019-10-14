@@ -49,12 +49,12 @@ install:
   - pip install dist\rgf_python-%RGF_VER%.tar.gz -v
 
 test_script:
-  - pytest tests/ -v
   - ps: >-
       if($env:TASK -eq "R_PACKAGE") {
           cd $env:APPVEYOR_BUILD_FOLDER;
           Get-ChildItem env: | Export-CliXml ./env-vars.clixml
       }
+      else {pytest tests/ -v}
   - IF "%TASK%" == "R_PACKAGE" powershell.exe -ExecutionPolicy Bypass -File .\R-package\.R.appveyor.ps1
 
 after_test:
