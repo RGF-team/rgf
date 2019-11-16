@@ -13,11 +13,11 @@ from tempfile import gettempdir
 from threading import Lock
 from uuid import uuid4
 
+import six
 import numpy as np
 import scipy.sparse as sp
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
-from sklearn.externals import six
 from sklearn.utils.extmath import softmax
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_array, check_consistent_length, check_X_y, column_or_1d

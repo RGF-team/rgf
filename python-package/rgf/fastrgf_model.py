@@ -4,10 +4,10 @@ import os
 from math import ceil
 
 import numpy as np
+from joblib import cpu_count
+from six import string_types
 from sklearn.base import ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.exceptions import NotFittedError
-from sklearn.externals import six
-from sklearn.externals.joblib import cpu_count
 
 from rgf import utils
 
@@ -193,7 +193,7 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
         elif l2 < 0:
             raise ValueError("l2 must be no smaller than 0.0 but was %r." % l2)
 
-        if not isinstance(opt_algorithm, six.string_types):
+        if not isinstance(opt_algorithm, string_types):
             raise ValueError("opt_algorithm must be a string, got {0}.".format(
                 type(opt_algorithm)))
         elif opt_algorithm not in ALGORITHMS:
@@ -257,14 +257,14 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
             raise ValueError(
                 "verbose must be no smaller than 0 but was %r." % verbose)
 
-        if not isinstance(loss, six.string_types):
+        if not isinstance(loss, string_types):
             raise ValueError(
                 "loss must be a string, got {0}.".format(type(loss)))
         elif loss not in LOSSES:
             raise ValueError(
                 "loss must be 'LS' or 'MODLS' or 'LOGISTIC' but was %r." % loss)
 
-        if not isinstance(calc_prob, six.string_types):
+        if not isinstance(calc_prob, string_types):
             raise ValueError(
                 "calc_prob must be a string, got {0}.".format(type(calc_prob)))
         elif calc_prob not in ("sigmoid", "softmax"):

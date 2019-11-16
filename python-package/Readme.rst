@@ -1,4 +1,4 @@
-|License| |Python Versions| |PyPI Version| |Downloads|
+﻿|License| |Python Versions| |PyPI Version| |Downloads|
 
 rgf\_python
 ===========
@@ -55,6 +55,8 @@ Software Requirements
 ---------------------
 
 -  Python (2.7 or >= 3.5)
+-  joblib
+-  six
 -  scikit-learn (>= 0.18)
 
 Installation
