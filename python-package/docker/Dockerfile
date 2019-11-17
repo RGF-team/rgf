@@ -10,7 +10,7 @@ RUN apt-get update && \
     /bin/bash Miniconda3-latest-Linux-x86_64.sh -f -b -p /opt/conda && \
     export PATH="/opt/conda/bin:$PATH" && \
     # rgf_python
-    conda install -y numpy scipy scikit-learn pandas && \
+    conda install -y -q numpy joblib six scipy scikit-learn pandas && \
     git clone https://github.com/RGF-team/rgf.git && \
     cd rgf/python-package && python setup.py install && \
 

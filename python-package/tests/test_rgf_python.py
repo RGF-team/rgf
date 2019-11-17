@@ -4,11 +4,11 @@ import pickle
 import sys
 import unittest
 
+import joblib
 import numpy as np
 from scipy import sparse
 from sklearn import datasets
 from sklearn.exceptions import NotFittedError
-from sklearn.externals import joblib
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
