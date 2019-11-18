@@ -258,7 +258,7 @@ testthat::test_that("the 'mat_2scipy_sparse' returns an error in case that the '
 })
 
 
-testthat::test_that("the 'mat_2scipy_sparse' returns a scipy sparse matrix", {
+testthat::test_that("the 'mat_2scipy_sparse' returns a scipy CSR sparse matrix", {
 
   skip_test_if_no_module("scipy")
 
@@ -272,6 +272,20 @@ testthat::test_that("the 'mat_2scipy_sparse' returns a scipy sparse matrix", {
 })
 
 
+testthat::test_that("the 'mat_2scipy_sparse' returns a scipy CSC sparse matrix", {
+
+  skip_test_if_no_module("scipy")
+
+  res = mat_2scipy_sparse(x_rgf, format = 'sparse_column_matrix')
+
+  cl_obj = class(res)[1]                                                             # class is python object
+
+  same_dims = sum(unlist(reticulate::py_to_r(res$shape)) == dim(x_rgf)) == 2         # sparse matrix has same dimensions as input dense matrix
+
+  testthat::expect_true( same_dims && cl_obj == "scipy.sparse.csc.csc_matrix"  )
+})
+
+
 
 # run the following tests on all operating systems except for 'Macintosh'   
 # [ otherwise it will raise an error due to the fact that the 'scipy-sparse' library ( applied on 'TO_scipy_sparse' function) 
@@ -280,8 +294,8 @@ testthat::test_that("the 'mat_2scipy_sparse' returns a scipy sparse matrix", {
 
 if (Sys.info()["sysname"] != 'Darwin') {
 
-  # conversion of an R 'dgCMatrix' to a scipy sparse matrix
-  #--------------------------------------------------------
+  # conversion of an R 'dgCMatrix' and 'dgRMatrix' to a scipy sparse matrices
+  #--------------------------------------------------------------------------
   
   testthat::test_that("the 'TO_scipy_sparse' returns an error in case that the input object is not of type 'dgCMatrix' or 'dgRMatrix'", {
   
@@ -293,7 +307,7 @@ if (Sys.info()["sysname"] != 'Darwin') {
   })
   
   
-  testthat::test_that("the 'TO_scipy_sparse' returns the correct output", {
+  testthat::test_that("the 'TO_scipy_sparse' returns the correct output for dgCMatrix", {
   
     skip_test_if_no_module("scipy")
   
@@ -312,6 +326,28 @@ if (Sys.info()["sysname"] != 'Darwin') {
     validate_dims = sum(dim(dgcM) == unlist(reticulate::py_to_r(res$shape))) == 2      # sparse matrix has same dimensions as input R sparse matrix
   
     testthat::expect_true( validate_dims && cl_obj == "scipy.sparse.csc.csc_matrix" )
+  })
+
+
+  testthat::test_that("the 'TO_scipy_sparse' returns the correct output for dgRMatrix", {
+  
+    skip_test_if_no_module("scipy")
+  
+    data = c(1, 0, 2, 0, 0, 3, 4, 5, 6)
+  
+    dgrM = as(Matrix::Matrix(data = data, nrow = 3,
+  
+                             ncol = 3, sparse = TRUE),
+
+              "RsparseMatrix")
+  
+    res = TO_scipy_sparse(dgrM)
+  
+    cl_obj = class(res)[1]                                                             # class is python object
+  
+    validate_dims = sum(dim(dgrM) == unlist(reticulate::py_to_r(res$shape))) == 2      # sparse matrix has same dimensions as input R sparse matrix
+  
+    testthat::expect_true( validate_dims && cl_obj == "scipy.sparse.csr.csr_matrix" )
   })
   
   
