@@ -250,6 +250,16 @@ testthat::test_that("the methods of the 'FastRGF_Classifier' class return the co
 # conversion of an R matrix to a scipy sparse matrix
 #---------------------------------------------------
 
+testthat::test_that("the 'mat_2scipy_sparse' returns an error in case that the data is not inheriting matrix class", {
+
+  skip_test_if_no_module("scipy")
+
+  x_rgf_invalid = as.data.frame(x_rgf)
+
+  testthat::expect_error( mat_2scipy_sparse(x_rgf_invalid) )
+})
+
+
 testthat::test_that("the 'mat_2scipy_sparse' returns an error in case that the 'format' parameter is invalid", {
 
   skip_test_if_no_module("scipy")
