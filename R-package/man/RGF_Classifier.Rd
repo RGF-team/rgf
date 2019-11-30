@@ -4,7 +4,7 @@
 \name{RGF_Classifier}
 \alias{RGF_Classifier}
 \title{Regularized Greedy Forest classifier}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
+\format{An object of class \code{R6ClassGenerator} of length 25.}
 \usage{
 # init <- RGF_Classifier$new(max_leaf = 1000, test_interval = 100,
 #                                  algorithm = "RGF", loss = "Log", reg_depth = 1.0,

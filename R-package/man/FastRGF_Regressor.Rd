@@ -4,7 +4,7 @@
 \name{FastRGF_Regressor}
 \alias{FastRGF_Regressor}
 \title{A Fast Regularized Greedy Forest regressor}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
+\format{An object of class \code{R6ClassGenerator} of length 25.}
 \usage{
 # init <- FastRGF_Regressor$new(n_estimators = 500, max_depth = 6,
 #                                      max_leaf = 50, tree_gain_ratio = 1.0,

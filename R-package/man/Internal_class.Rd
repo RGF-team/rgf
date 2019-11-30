@@ -4,7 +4,7 @@
 \name{Internal_class}
 \alias{Internal_class}
 \title{Internal R6 class for all secondary functions used in RGF and FastRGF}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
+\format{An object of class \code{R6ClassGenerator} of length 25.}
 \usage{
 Internal_class
 }

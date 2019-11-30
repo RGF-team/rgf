@@ -4,7 +4,7 @@
 \name{RGF_Regressor}
 \alias{RGF_Regressor}
 \title{Regularized Greedy Forest regressor}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
+\format{An object of class \code{R6ClassGenerator} of length 25.}
 \usage{
 # init <- RGF_Regressor$new(max_leaf = 500, test_interval = 100,
 #                                  algorithm = "RGF", loss = "LS", reg_depth = 1.0,

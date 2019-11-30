@@ -454,86 +454,86 @@ testthat::test_that("the 'save_model' method returns the correct output -- works
 })
 
 
-#=========================================================================================== test the 'cleanup' method     [ tested only on a unix-like OS ]
+#=========================================================================================== test the 'cleanup' method
 
-if(.Platform$OS.type == "unix") {
+
   
-  testthat::test_that("the 'cleanup' method (ESTIMATOR specific) works as expected for both RGF and FastRGF (checking of the length of the '/tmp/rgf' default directory before and after the '$fit' method)", {
-    
-    skip_test_if_no_module("rgf.sklearn")
-    
-    #-------------------------------------------------------------------------------- default directory where the temporary 'rgf' files are saved 
-    
-    default_dir = '/tmp/rgf'
-    
-    #-------------------------------------------------------------------------------- RGF
-    lst_files_tmp = list.files(path = default_dir)
-
-    init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
-    init_class$fit(x = x_rgf, y = y_BINclass)
-    
-    lst_files_tmp_upd_rgf = list.files(path = default_dir)
-    
-    init_exists_upd_rgf = (dir.exists(default_dir) == TRUE)
-    init_num_files_rgf = length(lst_files_tmp_upd_rgf)
-    
-    init_class$cleanup()
-    
-    lst_files_tmp_upd_rgf = list.files(path = default_dir)
-    init_num_files_rgf_after_clean = length(lst_files_tmp_upd_rgf)
-    
-    end_state_rgf = (init_num_files_rgf_after_clean < init_num_files_rgf)
-    
-    #-------------------------------------------------------------------------------- FastRGF
-    init_class = FastRGF_Classifier$new(n_estimators = 50, max_bin = 65000)
-    init_class$fit(x = x_FASTrgf, y = y_MULTIclass)
-    
-    lst_files_tmp_upd_fastrgf = list.files(path = default_dir)
-    init_num_files_fastrgf = length(lst_files_tmp_upd_fastrgf)
-    
-    init_class$cleanup()
-    
-    lst_files_tmp_upd_fastrgf = list.files(path = default_dir)
-    init_num_files_fastrgf_after_clean = length(lst_files_tmp_upd_fastrgf)
-    
-    end_state_fastrgf = (init_num_files_fastrgf_after_clean < init_num_files_fastrgf)
-    
-    testthat::expect_true( init_exists_upd_rgf && end_state_rgf && end_state_fastrgf )
-  })
+testthat::test_that("the 'cleanup' method (ESTIMATOR specific) works as expected for both RGF and FastRGF (checking of the size of the temporary directory before and after the '$fit' method)", {
   
+  skip_test_if_no_module("rgf.sklearn")
   
-  testthat::test_that("the 'cleanup' method (APPLIES TO ALL ESTIMATORS) works as expected for both RGF and FastRGF (checking of the length of the '/tmp/rgf' default directory before and after the '$fit' method)", {
-    
-    skip_test_if_no_module("rgf.sklearn")
-    
-    #-------------------------------------------------------------------------------- default directory where the temporary 'rgf' files are saved 
-    
-    default_dir = '/tmp/rgf'
-    
-    #-------------------------------------------------------------------------------- RGF
-    lst_files_tmp = list.files(path = default_dir)
+  #-------------------------------------------------------------------------------- default directory where the temporary 'rgf' files are saved 
+  
+  default_dir = file.path(dirname(tempdir()), 'rgf')
+  
+  #-------------------------------------------------------------------------------- RGF
+  lst_files_tmp = list.files(path = default_dir)
 
-    init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
-    init_class$fit(x = x_rgf, y = y_BINclass)
-    
-    lst_files_tmp_upd_rgf = list.files(path = default_dir)
-    
-    init_exists_upd_rgf = (dir.exists(default_dir) == TRUE)
-    init_num_files_rgf = length(lst_files_tmp_upd_rgf)
+  init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
+  init_class$fit(x = x_rgf, y = y_BINclass)
+  
+  lst_files_tmp_upd_rgf = list.files(path = default_dir)
+  
+  init_exists_upd_rgf = (dir.exists(default_dir) == TRUE)
+  init_num_files_rgf = length(lst_files_tmp_upd_rgf)
+  
+  init_class$cleanup()
+  
+  lst_files_tmp_upd_rgf = list.files(path = default_dir)
+  init_num_files_rgf_after_clean = length(lst_files_tmp_upd_rgf)
+  
+  end_state_rgf = (init_num_files_rgf_after_clean < init_num_files_rgf)
+  
+  #-------------------------------------------------------------------------------- FastRGF
+  init_class = FastRGF_Classifier$new(n_estimators = 50, max_bin = 65000)
+  init_class$fit(x = x_FASTrgf, y = y_MULTIclass)
+  
+  lst_files_tmp_upd_fastrgf = list.files(path = default_dir)
+  init_num_files_fastrgf = length(lst_files_tmp_upd_fastrgf)
+  
+  init_class$cleanup()
+  
+  lst_files_tmp_upd_fastrgf = list.files(path = default_dir)
+  init_num_files_fastrgf_after_clean = length(lst_files_tmp_upd_fastrgf)
+  
+  end_state_fastrgf = (init_num_files_fastrgf_after_clean < init_num_files_fastrgf)
+  
+  testthat::expect_true( init_exists_upd_rgf && end_state_rgf && end_state_fastrgf )
+})
 
-    #-------------------------------------------------------------------------------- FastRGF
-    init_class = FastRGF_Classifier$new(n_estimators = 50, max_bin = 65000)
-    init_class$fit(x = x_FASTrgf, y = y_MULTIclass)
-    
-    lst_files_tmp_upd_fastrgf = list.files(path = default_dir)
-    init_num_files_fastrgf = length(lst_files_tmp_upd_fastrgf)
-    
-    RGF_cleanup_temp_files()
-    
-    lst_files_tmp_end_state = list.files(path = default_dir)
-    
-    testthat::expect_true( init_exists_upd_rgf && (init_num_files_rgf > 0) && (init_num_files_fastrgf > init_num_files_rgf) &&
-                              ( init_num_files_rgf > length(lst_files_tmp) && init_num_files_fastrgf > length(lst_files_tmp_end_state) ) )       # normally, both initial and end state must have the same length [ length(lst_files_tmp) == length(lst_files_tmp_end_state) ]
-  })
-}
+
+
+testthat::test_that("the 'cleanup' method (APPLIES TO ALL ESTIMATORS) works as expected for both RGF and FastRGF (checking of the size of the temporary directory before and after the '$fit' method)", {
+  
+  skip_test_if_no_module("rgf.sklearn")
+  
+  #-------------------------------------------------------------------------------- default directory where the temporary 'rgf' files are saved 
+  
+  default_dir = file.path(dirname(tempdir()), 'rgf')
+  
+  #-------------------------------------------------------------------------------- RGF
+  lst_files_tmp = list.files(path = default_dir)
+
+  init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
+  init_class$fit(x = x_rgf, y = y_BINclass)
+  
+  lst_files_tmp_upd_rgf = list.files(path = default_dir)
+  
+  init_exists_upd_rgf = (dir.exists(default_dir) == TRUE)
+  init_num_files_rgf = length(lst_files_tmp_upd_rgf)
+
+  #-------------------------------------------------------------------------------- FastRGF
+  init_class = FastRGF_Classifier$new(n_estimators = 50, max_bin = 65000)
+  init_class$fit(x = x_FASTrgf, y = y_MULTIclass)
+  
+  lst_files_tmp_upd_fastrgf = list.files(path = default_dir)
+  init_num_files_fastrgf = length(lst_files_tmp_upd_fastrgf)
+  
+  RGF_cleanup_temp_files()
+  
+  lst_files_tmp_end_state = list.files(path = default_dir)
+  
+  testthat::expect_true( init_exists_upd_rgf && (init_num_files_rgf > 0) && (init_num_files_fastrgf > init_num_files_rgf) &&
+                            ( init_num_files_rgf > length(lst_files_tmp) && init_num_files_fastrgf > length(lst_files_tmp_end_state) ) )       # normally, both initial and end state must have the same length [ length(lst_files_tmp) == length(lst_files_tmp_end_state) ]
+})
 
