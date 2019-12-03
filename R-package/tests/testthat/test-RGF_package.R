@@ -1,6 +1,7 @@
 context('rgf R-package tests')
 
-#========================================================================================  helper function to skip tests if we don't have the 'foo' module  [  https://github.com/rstudio/reticulate ]
+#========================================================================================  
+# helper function to skip tests if we don't have the 'foo' module  [  https://github.com/rstudio/reticulate ]
 
 skip_test_if_no_module <- function(MODULE) {                                              # MODULE is of type character string ( length(MODULE) >= 1 )
 
@@ -19,7 +20,8 @@ skip_test_if_no_module <- function(MODULE) {                                    
   }
 }
 
-#===========================================================================================    Input data
+#===========================================================================================    
+# Input data
 
 # data [ regression and (multiclass-) classification RGF_Regressor, RGF_Classifier ]
 #-----------------------------------------------------------------------------------
@@ -62,7 +64,8 @@ y_MULTIclass = sample(1:5, 100, replace = T)
 set.seed(6)
 W = runif(100)
 
-#===========================================================================================  Tests for 'RGF_Regressor' & 'RGF_Classifier'
+#===========================================================================================  
+# Tests for 'RGF_Regressor' & 'RGF_Classifier'
 
 # tests for 'RGF_Regressor'
 #-------------------------
@@ -148,7 +151,8 @@ testthat::test_that("the methods of the 'RGF_Classifier' class return the correc
 })
 
 
-#===========================================================================================  Tests for 'FastRGF_Regressor' & 'FastRGF_Classifier'
+#===========================================================================================  
+# Tests for 'FastRGF_Regressor' & 'FastRGF_Classifier'
 
 # tests for 'FastRGF_Regressor'
 #------------------------------
@@ -241,7 +245,8 @@ testthat::test_that("the methods of the 'FastRGF_Classifier' class return the co
 })
 
 
-#=========================================================================================== Tests for scipy sparse
+#=========================================================================================== 
+# Tests for scipy sparse
 
 
 # conversion of an R matrix to a scipy sparse matrix
@@ -389,7 +394,8 @@ if (Sys.info()["sysname"] != 'Darwin') {
 }
 
 
-#=========================================================================================== test feature importances
+#=========================================================================================== 
+# test feature importances
 
 
 testthat::test_that("the feature importances of the 'RGF_Regressor' class works as expected", {
@@ -406,7 +412,8 @@ testthat::test_that("the feature importances of the 'RGF_Regressor' class works 
 })
 
 
-#=========================================================================================== test dump-model
+#===========================================================================================
+# test dump-model
 
 
 testthat::test_that("the 'dump_model' method returns the correct output (Dumps the forest information to the R session -- works ONLY for RGF and NOT for FastRGF)", {
@@ -425,11 +432,38 @@ testthat::test_that("the 'dump_model' method returns the correct output (Dumps t
   
   output_dump = reticulate::py_capture_output(dump_model())
   
-  testthat::expect_true( nchar(output_dump) > 0 && object.size(output_dump) > 0 )
+  #-------------------------------------------------
+  # function to search for terms in the dumped model
+  #-------------------------------------------------
+  
+  search_for_term = function(term, model_dump) {
+    
+    regex = gregexpr(pattern = term, text = model_dump)[[1]]
+    
+    len_result = attributes(regex)$match.length
+    regex = as.vector(regex)
+    
+    term_results = unlist(lapply(1:length(regex), function(x) {
+      
+      substr(model_dump, start = regex[x], stop = regex[x] + len_result[x] - 1)
+    }))
+    
+    return(all(term_results == term))
+  }
+  
+  is_depth_0_in_model_dump = search_for_term(term = 'depth=0', model_dump = output_dump)
+  is_gain_0_in_model_dump = search_for_term(term = 'gain=0', model_dump = output_dump)
+  
+  is_depth_1_in_model_dump = search_for_term(term = 'depth=1', model_dump = output_dump)
+  is_gain_1_in_model_dump = search_for_term(term = 'gain=1', model_dump = output_dump)
+  
+  testthat::expect_true( nchar(output_dump) > 0 && object.size(output_dump) > 0 && is_depth_0_in_model_dump && 
+                           is_gain_0_in_model_dump && is_depth_1_in_model_dump && is_gain_1_in_model_dump )
 })
 
 
-#=========================================================================================== test saving a model
+#===========================================================================================
+# test saving a model
 
 
 testthat::test_that("the 'save_model' method returns the correct output -- works ONLY for RGF and NOT for FastRGF", {
@@ -439,7 +473,7 @@ testthat::test_that("the 'save_model' method returns the correct output -- works
   init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
   
   init_class$fit(x = x_rgf, y = y_BINclass)
-  
+      
   tmp_file = tempfile(fileext = '.model')
   
   SIZE_begin = file.info(tmp_file)$size
@@ -454,7 +488,8 @@ testthat::test_that("the 'save_model' method returns the correct output -- works
 })
 
 
-#=========================================================================================== test the 'cleanup' method
+#=========================================================================================== 
+# test the 'cleanup' method
 
 
   
@@ -462,11 +497,14 @@ testthat::test_that("the 'cleanup' method (ESTIMATOR specific) works as expected
   
   skip_test_if_no_module("rgf.sklearn")
   
-  #-------------------------------------------------------------------------------- default directory where the temporary 'rgf' files are saved 
+  #-------------------------------------------------------------------------------- 
+  # default directory where the temporary 'rgf' files are saved 
   
   default_dir = file.path(dirname(tempdir()), 'rgf')
   
-  #-------------------------------------------------------------------------------- RGF
+  #-------------------------------------------------------------------------------- 
+  # RGF
+  
   lst_files_tmp = list.files(path = default_dir)
 
   init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
@@ -484,7 +522,9 @@ testthat::test_that("the 'cleanup' method (ESTIMATOR specific) works as expected
   
   end_state_rgf = (init_num_files_rgf_after_clean < init_num_files_rgf)
   
-  #-------------------------------------------------------------------------------- FastRGF
+  #-------------------------------------------------------------------------------- 
+  # FastRGF
+  
   init_class = FastRGF_Classifier$new(n_estimators = 50, max_bin = 65000)
   init_class$fit(x = x_FASTrgf, y = y_MULTIclass)
   
@@ -507,11 +547,14 @@ testthat::test_that("the 'cleanup' method (APPLIES TO ALL ESTIMATORS) works as e
   
   skip_test_if_no_module("rgf.sklearn")
   
-  #-------------------------------------------------------------------------------- default directory where the temporary 'rgf' files are saved 
+  #-------------------------------------------------------------------------------- 
+  # default directory where the temporary 'rgf' files are saved 
   
   default_dir = file.path(dirname(tempdir()), 'rgf')
   
-  #-------------------------------------------------------------------------------- RGF
+  #-------------------------------------------------------------------------------- 
+  # RGF
+  
   lst_files_tmp = list.files(path = default_dir)
 
   init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
@@ -522,7 +565,9 @@ testthat::test_that("the 'cleanup' method (APPLIES TO ALL ESTIMATORS) works as e
   init_exists_upd_rgf = (dir.exists(default_dir) == TRUE)
   init_num_files_rgf = length(lst_files_tmp_upd_rgf)
 
-  #-------------------------------------------------------------------------------- FastRGF
+  #-------------------------------------------------------------------------------- 
+  # FastRGF
+  
   init_class = FastRGF_Classifier$new(n_estimators = 50, max_bin = 65000)
   init_class$fit(x = x_FASTrgf, y = y_MULTIclass)
   
