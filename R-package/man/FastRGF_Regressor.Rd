@@ -4,7 +4,6 @@
 \name{FastRGF_Regressor}
 \alias{FastRGF_Regressor}
 \title{A Fast Regularized Greedy Forest regressor}
-\format{An object of class \code{R6ClassGenerator} of length 25.}
 \usage{
 # init <- FastRGF_Regressor$new(n_estimators = 500, max_depth = 6,
 #                                      max_leaf = 50, tree_gain_ratio = 1.0,
@@ -16,44 +15,9 @@
 #                                      sparse_min_occurences = 5,
 #                                      n_jobs = 1, verbose = 0)
 }
-\arguments{
-\item{x}{an R matrix (object) or a Python sparse matrix (object) of shape c(n_samples, n_features). The training input samples. The sparse matrix should be a Python sparse matrix. The helper functions \emph{mat_2scipy_sparse} and \emph{TO_scipy_sparse} allow the user to convert an R dense or sparse matrix to a scipy sparse matrix.}
-
-\item{y}{a vector of shape c(n_samples). The target values (real numbers in regression).}
-
-\item{n_estimators}{an integer. The number of trees in the forest (Original name: forest.ntrees.)}
-
-\item{max_depth}{an integer. Maximum tree depth (Original name: dtree.max_level.)}
-
-\item{max_leaf}{an integer. Maximum number of leaf nodes in best-first search (Original name: dtree.max_nodes.)}
-
-\item{tree_gain_ratio}{a float. New tree is created when leaf-nodes gain < this value * estimated gain of creating new tree (Original name: dtree.new_tree_gain_ratio.)}
-
-\item{min_samples_leaf}{an integer or float. Minimum number of training data points in each leaf node. If an integer, then consider min_samples_leaf as the minimum number. If a float, then min_samples_leaf is a percentage and ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node (Original name: dtree.min_sample.)}
-
-\item{l1}{a float. Used to control the degree of L1 regularization (Original name: dtree.lamL1.)}
-
-\item{l2}{a float. Used to control the degree of L2 regularization (Original name: dtree.lamL2.)}
-
-\item{opt_algorithm}{a character string. Either \emph{"rgf"} or \emph{"epsilon-greedy"}. Optimization method for training forest (Original name: forest.opt.)}
-
-\item{learning_rate}{a float. Step size of epsilon-greedy boosting. Meant for being used with opt_algorithm = "epsilon-greedy" (Original name: forest.stepsize.)}
-
-\item{max_bin}{an integer or NULL. Maximum number of discretized values (bins). If NULL, 65000 is used for dense data and 200 for sparse data (Original name: discretize.(sparse/dense).max_buckets.)}
-
-\item{min_child_weight}{a float. Minimum sum of data weights for each discretized value (bin) (Original name: discretize.(sparse/dense).min_bucket_weights.)}
-
-\item{data_l2}{a float. Used to control the degree of L2 regularization for discretization (Original name: discretize.(sparse/dense).lamL2.)}
-
-\item{sparse_max_features}{an integer. Maximum number of selected features. Meant for being used with sparse data (Original name: discretize.sparse.max_features.)}
-
-\item{sparse_min_occurences}{an integer. Minimum number of occurrences for a feature to be selected. Meant for being used with sparse data (Original name: discretize.sparse.min_occrrences.)}
-
-\item{n_jobs}{an integer. The number of jobs to run in parallel for both fit and predict. If -1, all CPUs are used. If -2, all CPUs but one are used. If < -1, (n_cpus + 1 + n_jobs) are used (Original name: set.nthreads.)}
-
-\item{verbose}{an integer. Controls the verbosity of the tree building process (Original name: set.verbose.)}
-}
 \description{
+A Fast Regularized Greedy Forest regressor
+
 A Fast Regularized Greedy Forest regressor
 }
 \details{
@@ -126,4 +90,107 @@ if (reticulate::py_available() && reticulate::py_module_available("rgf.sklearn")
 \references{
 \emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Tong Zhang, FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/RGF-team/rgf/tree/master/FastRGF)}
 }
-\keyword{datasets}
+\section{Super class}{
+\code{\link[RGF:Internal_class]{RGF::Internal_class}} -> \code{FastRGF_Regressor}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{FastRGF_Regressor$new()}}
+\item \href{#method-clone}{\code{FastRGF_Regressor$clone()}}
+}
+}
+\if{html}{
+\out{<details ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="cleanup">}\href{../../RGF/html/Internal_class.html#method-cleanup}{\code{RGF::Internal_class$cleanup()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="dump_model">}\href{../../RGF/html/Internal_class.html#method-dump_model}{\code{RGF::Internal_class$dump_model()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="feature_importances">}\href{../../RGF/html/Internal_class.html#method-feature_importances}{\code{RGF::Internal_class$feature_importances()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="fit">}\href{../../RGF/html/Internal_class.html#method-fit}{\code{RGF::Internal_class$fit()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="get_params">}\href{../../RGF/html/Internal_class.html#method-get_params}{\code{RGF::Internal_class$get_params()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="predict">}\href{../../RGF/html/Internal_class.html#method-predict}{\code{RGF::Internal_class$predict()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="predict_proba">}\href{../../RGF/html/Internal_class.html#method-predict_proba}{\code{RGF::Internal_class$predict_proba()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="save_model">}\href{../../RGF/html/Internal_class.html#method-save_model}{\code{RGF::Internal_class$save_model()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="score">}\href{../../RGF/html/Internal_class.html#method-score}{\code{RGF::Internal_class$score()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FastRGF_Regressor$new(
+  n_estimators = 500,
+  max_depth = 6,
+  max_leaf = 50,
+  tree_gain_ratio = 1,
+  min_samples_leaf = 5,
+  l1 = 1,
+  l2 = 1000,
+  opt_algorithm = "rgf",
+  learning_rate = 0.001,
+  max_bin = NULL,
+  min_child_weight = 5,
+  data_l2 = 2,
+  sparse_max_features = 80000,
+  sparse_min_occurences = 5,
+  n_jobs = 1,
+  verbose = 0
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n_estimators}}{an integer. The number of trees in the forest (Original name: forest.ntrees.)}
+
+\item{\code{max_depth}}{an integer. Maximum tree depth (Original name: dtree.max_level.)}
+
+\item{\code{max_leaf}}{an integer. Maximum number of leaf nodes in best-first search (Original name: dtree.max_nodes.)}
+
+\item{\code{tree_gain_ratio}}{a float. New tree is created when leaf-nodes gain < this value * estimated gain of creating new tree (Original name: dtree.new_tree_gain_ratio.)}
+
+\item{\code{min_samples_leaf}}{an integer or float. Minimum number of training data points in each leaf node. If an integer, then consider min_samples_leaf as the minimum number. If a float, then min_samples_leaf is a percentage and ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node (Original name: dtree.min_sample.)}
+
+\item{\code{l1}}{a float. Used to control the degree of L1 regularization (Original name: dtree.lamL1.)}
+
+\item{\code{l2}}{a float. Used to control the degree of L2 regularization (Original name: dtree.lamL2.)}
+
+\item{\code{opt_algorithm}}{a character string. Either \emph{"rgf"} or \emph{"epsilon-greedy"}. Optimization method for training forest (Original name: forest.opt.)}
+
+\item{\code{learning_rate}}{a float. Step size of epsilon-greedy boosting. Meant for being used with opt_algorithm = "epsilon-greedy" (Original name: forest.stepsize.)}
+
+\item{\code{max_bin}}{an integer or NULL. Maximum number of discretized values (bins). If NULL, 65000 is used for dense data and 200 for sparse data (Original name: discretize.(sparse/dense).max_buckets.)}
+
+\item{\code{min_child_weight}}{a float. Minimum sum of data weights for each discretized value (bin) (Original name: discretize.(sparse/dense).min_bucket_weights.)}
+
+\item{\code{data_l2}}{a float. Used to control the degree of L2 regularization for discretization (Original name: discretize.(sparse/dense).lamL2.)}
+
+\item{\code{sparse_max_features}}{an integer. Maximum number of selected features. Meant for being used with sparse data (Original name: discretize.sparse.max_features.)}
+
+\item{\code{sparse_min_occurences}}{an integer. Minimum number of occurrences for a feature to be selected. Meant for being used with sparse data (Original name: discretize.sparse.min_occrrences.)}
+
+\item{\code{n_jobs}}{an integer. The number of jobs to run in parallel for both fit and predict. If -1, all CPUs are used. If -2, all CPUs but one are used. If < -1, (n_cpus + 1 + n_jobs) are used (Original name: set.nthreads.)}
+
+\item{\code{verbose}}{an integer. Controls the verbosity of the tree building process (Original name: set.verbose.)}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FastRGF_Regressor$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

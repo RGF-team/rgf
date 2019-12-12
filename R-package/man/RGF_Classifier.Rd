@@ -4,7 +4,6 @@
 \name{RGF_Classifier}
 \alias{RGF_Classifier}
 \title{Regularized Greedy Forest classifier}
-\format{An object of class \code{R6ClassGenerator} of length 25.}
 \usage{
 # init <- RGF_Classifier$new(max_leaf = 1000, test_interval = 100,
 #                                  algorithm = "RGF", loss = "Log", reg_depth = 1.0,
@@ -15,52 +14,9 @@
 #                                  n_jobs = 1, memory_policy = "generous",
 #                                  verbose = 0, init_model = NULL)
 }
-\arguments{
-\item{x}{an R matrix (object) or a Python sparse matrix (object) of shape c(n_samples, n_features). The training input samples. The sparse matrix should be a Python sparse matrix. The helper functions \emph{mat_2scipy_sparse} and \emph{TO_scipy_sparse} allow the user to convert an R dense or sparse matrix to a scipy sparse matrix.}
-
-\item{y}{a vector of shape c(n_samples). The target values (class labels in classification).}
-
-\item{sample_weight}{a vector of shape c(n_samples) or NULL. Individual weights for each sample.}
-
-\item{max_leaf}{an integer. Training will be terminated when the number of leaf nodes in the forest reaches this value.}
-
-\item{test_interval}{an integer. Test interval in terms of the number of leaf nodes.}
-
-\item{algorithm}{a character string specifying the \emph{Regularization algorithm}. One of \emph{"RGF"} (RGF with L2 regularization on leaf-only models), \emph{"RGF_Opt"} (RGF with min-penalty regularization) or \emph{"RGF_Sib"} (RGF with min-penalty regularization with the sum-to-zero sibling constraints).}
-
-\item{loss}{a character string specifying the \emph{Loss function}. One of \emph{"LS"} (Square loss), \emph{"Expo"} (Exponential loss) or \emph{"Log"} (Logistic loss).}
-
-\item{reg_depth}{a float. Must be no smaller than 1.0. Meant for being used with the algorithm \emph{RGF Opt} or \emph{RGF Sib}. A larger value penalizes deeper nodes more severely.}
-
-\item{l2}{a float. Used to control the degree of L2 regularization.}
-
-\item{sl2}{a float or NULL. Override L2 regularization parameter l2 for the process of growing the forest. That is, if specified, the weight correction process uses l2 and the forest growing process uses sl2. If NULL, no override takes place and l2 is used throughout training.}
-
-\item{normalize}{a boolean. If True, training targets are normalized so that the average becomes zero.}
-
-\item{min_samples_leaf}{an integer or a float. Minimum number of training data points in each leaf node. If an integer, then consider \emph{min_samples_leaf} as the minimum number. If a float, then \emph{min_samples_leaf} is a percentage and ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.}
-
-\item{n_iter}{an integer or NULL. The number of iterations of coordinate descent to optimize weights. If NULL, 10 is used for loss = "LS" and 5 for loss = "Expo" or "Log".}
-
-\item{n_tree_search}{an integer. The number of trees to be searched for the nodes to split. The most recently grown trees are searched first.}
-
-\item{opt_interval}{an integer. Weight optimization interval in terms of the number of leaf nodes. For example, by default, weight optimization is performed every time approximately 100 leaf nodes are newly added to the forest.}
-
-\item{learning_rate}{a float. Step size of Newton updates used in coordinate descent to optimize weights.}
-
-\item{calc_prob}{a character string. One of \emph{"sigmoid"} or \emph{"softmax"}. Method of probability calculation.}
-
-\item{n_jobs}{an integer. The number of jobs (threads) to use for the computation. The substantial number of the jobs dependents on \emph{classes_} (The number of classes when \emph{fit} is performed). If classes_ = 2, the substantial max number of the jobs is one. If classes_ > 2, the substantial max number of the jobs is the same as classes_. If n_jobs = 1, no parallel computing code is used at all regardless of classes_. If n_jobs = -1 and classes_ >= number of CPU, all CPUs are used. For n_jobs = -2, all CPUs but one are used. For n_jobs below -1, (n_cpus + 1 + n_jobs) are used.}
-
-\item{memory_policy}{a character string. One of \emph{"conservative"} (it uses less memory at the expense of longer runtime. Try only when with default value it uses too much memory) or \emph{"generous"} (it runs faster using more memory by keeping the sorted orders of the features on memory for reuse). Memory using policy.}
-
-\item{verbose}{an integer. Controls the verbosity of the tree building process.}
-
-\item{init_model}{either NULL or a character string, optional (default=NULL). Filename of a previously saved model from which training should do warm-start. If model has been saved into multiple files, do not include numerical suffixes in the filename. \emph{NOTE:} Make sure you haven't forgotten to increase the value of the max_leaf parameter regarding to the specified warm-start model because warm-start model trees are counted in the overall number of trees.}
-
-\item{filename}{a character string specifying a valid path to a file where the fitted model should be saved}
-}
 \description{
+Regularized Greedy Forest classifier
+
 Regularized Greedy Forest classifier
 }
 \details{
@@ -156,4 +112,113 @@ if (reticulate::py_available() && reticulate::py_module_available("rgf.sklearn")
 \references{
 \emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest}
 }
-\keyword{datasets}
+\section{Super class}{
+\code{\link[RGF:Internal_class]{RGF::Internal_class}} -> \code{RGF_Classifier}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{RGF_Classifier$new()}}
+\item \href{#method-clone}{\code{RGF_Classifier$clone()}}
+}
+}
+\if{html}{
+\out{<details ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="cleanup">}\href{../../RGF/html/Internal_class.html#method-cleanup}{\code{RGF::Internal_class$cleanup()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="dump_model">}\href{../../RGF/html/Internal_class.html#method-dump_model}{\code{RGF::Internal_class$dump_model()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="feature_importances">}\href{../../RGF/html/Internal_class.html#method-feature_importances}{\code{RGF::Internal_class$feature_importances()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="fit">}\href{../../RGF/html/Internal_class.html#method-fit}{\code{RGF::Internal_class$fit()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="get_params">}\href{../../RGF/html/Internal_class.html#method-get_params}{\code{RGF::Internal_class$get_params()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="predict">}\href{../../RGF/html/Internal_class.html#method-predict}{\code{RGF::Internal_class$predict()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="predict_proba">}\href{../../RGF/html/Internal_class.html#method-predict_proba}{\code{RGF::Internal_class$predict_proba()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="save_model">}\href{../../RGF/html/Internal_class.html#method-save_model}{\code{RGF::Internal_class$save_model()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="RGF" data-topic="Internal_class" data-id="score">}\href{../../RGF/html/Internal_class.html#method-score}{\code{RGF::Internal_class$score()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{RGF_Classifier$new(
+  max_leaf = 1000,
+  test_interval = 100,
+  algorithm = "RGF",
+  loss = "Log",
+  reg_depth = 1,
+  l2 = 0.1,
+  sl2 = NULL,
+  normalize = FALSE,
+  min_samples_leaf = 10,
+  n_iter = NULL,
+  n_tree_search = 1,
+  opt_interval = 100,
+  learning_rate = 0.5,
+  calc_prob = "sigmoid",
+  n_jobs = 1,
+  memory_policy = "generous",
+  verbose = 0,
+  init_model = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{max_leaf}}{an integer. Training will be terminated when the number of leaf nodes in the forest reaches this value.}
+
+\item{\code{test_interval}}{an integer. Test interval in terms of the number of leaf nodes.}
+
+\item{\code{algorithm}}{a character string specifying the \emph{Regularization algorithm}. One of \emph{"RGF"} (RGF with L2 regularization on leaf-only models), \emph{"RGF_Opt"} (RGF with min-penalty regularization) or \emph{"RGF_Sib"} (RGF with min-penalty regularization with the sum-to-zero sibling constraints).}
+
+\item{\code{loss}}{a character string specifying the \emph{Loss function}. One of \emph{"LS"} (Square loss), \emph{"Expo"} (Exponential loss) or \emph{"Log"} (Logistic loss).}
+
+\item{\code{reg_depth}}{a float. Must be no smaller than 1.0. Meant for being used with the algorithm \emph{RGF Opt} or \emph{RGF Sib}. A larger value penalizes deeper nodes more severely.}
+
+\item{\code{l2}}{a float. Used to control the degree of L2 regularization.}
+
+\item{\code{sl2}}{a float or NULL. Override L2 regularization parameter l2 for the process of growing the forest. That is, if specified, the weight correction process uses l2 and the forest growing process uses sl2. If NULL, no override takes place and l2 is used throughout training.}
+
+\item{\code{normalize}}{a boolean. If True, training targets are normalized so that the average becomes zero.}
+
+\item{\code{min_samples_leaf}}{an integer or a float. Minimum number of training data points in each leaf node. If an integer, then consider \emph{min_samples_leaf} as the minimum number. If a float, then \emph{min_samples_leaf} is a percentage and ceil(min_samples_leaf * n_samples) are the minimum number of samples for each node.}
+
+\item{\code{n_iter}}{an integer or NULL. The number of iterations of coordinate descent to optimize weights. If NULL, 10 is used for loss = "LS" and 5 for loss = "Expo" or "Log".}
+
+\item{\code{n_tree_search}}{an integer. The number of trees to be searched for the nodes to split. The most recently grown trees are searched first.}
+
+\item{\code{opt_interval}}{an integer. Weight optimization interval in terms of the number of leaf nodes. For example, by default, weight optimization is performed every time approximately 100 leaf nodes are newly added to the forest.}
+
+\item{\code{learning_rate}}{a float. Step size of Newton updates used in coordinate descent to optimize weights.}
+
+\item{\code{calc_prob}}{a character string. One of \emph{"sigmoid"} or \emph{"softmax"}. Method of probability calculation.}
+
+\item{\code{n_jobs}}{an integer. The number of jobs (threads) to use for the computation. The substantial number of the jobs dependents on \emph{classes_} (The number of classes when \emph{fit} is performed). If classes_ = 2, the substantial max number of the jobs is one. If classes_ > 2, the substantial max number of the jobs is the same as classes_. If n_jobs = 1, no parallel computing code is used at all regardless of classes_. If n_jobs = -1 and classes_ >= number of CPU, all CPUs are used. For n_jobs = -2, all CPUs but one are used. For n_jobs below -1, (n_cpus + 1 + n_jobs) are used.}
+
+\item{\code{memory_policy}}{a character string. One of \emph{"conservative"} (it uses less memory at the expense of longer runtime. Try only when with default value it uses too much memory) or \emph{"generous"} (it runs faster using more memory by keeping the sorted orders of the features on memory for reuse). Memory using policy.}
+
+\item{\code{verbose}}{an integer. Controls the verbosity of the tree building process.}
+
+\item{\code{init_model}}{either NULL or a character string, optional (default=NULL). Filename of a previously saved model from which training should do warm-start. If model has been saved into multiple files, do not include numerical suffixes in the filename. \emph{NOTE:} Make sure you haven't forgotten to increase the value of the max_leaf parameter regarding to the specified warm-start model because warm-start model trees are counted in the overall number of trees.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{RGF_Classifier$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

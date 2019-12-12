@@ -480,11 +480,21 @@ testthat::test_that("the 'save_model' method returns the correct output -- works
   
   sv_md = init_class$save_model(filename = tmp_file)
   
-  SIZE_after = file.info(tmp_file)$size
+  SIZE_after = file.info(tmp_file)$size                                   # size of the saved model
+  
+  binary_file = file(tmp_file, "rb")                                      # connection to binary file
+  raw_binary = readBin(binary_file, character(), n = 10000)               # read first 10.000 characters of the binary file
+  close(binary_file)                                                      # close connection
+  
+  idx_chars = which(raw_binary != "")                                     # keep non-empty strings
+  raw_binary = raw_binary[idx_chars]
+  
+  idx_max_leaf = which(gregexpr('max_leaf_forest', raw_binary) != -1)     # search for 'max_leaf_forest'
+  idx_sl2 = which(gregexpr('reg_sL2', raw_binary) != -1)                  # search for 'reg_sL2'
   
   if (file.exists(tmp_file)) file.remove(tmp_file)
   
-  testthat::expect_true( is.na(SIZE_begin) && (SIZE_after > 0) )
+    testthat::expect_true( is.na(SIZE_begin) && (SIZE_after > 0) && (length(idx_max_leaf) > 0) && (length(idx_sl2) > 0) )
 })
 
 
