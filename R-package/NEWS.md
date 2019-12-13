@@ -1,6 +1,7 @@
 ## RGF 1.0.7
 * We've modified the *package.R* file so that messages are printed to the console whenever Python or any of the required modules is not available. Moreover, for the R-package testing the conda environment parameter is adjusted ( this applies to the RGF-team Github repository and not to the CRAN package directly )
 * We've modified the *.appveyor.yml* file to return the *artifacts* in order to observe if tests ran successfully ( this applies to the RGF-team Github repository and not to the CRAN package directly )
+* We've added tests to increase the code coverage.
 
 
 ## RGF 1.0.6
