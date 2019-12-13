@@ -494,7 +494,7 @@ testthat::test_that("the 'save_model' method returns the correct output -- works
   
   if (file.exists(tmp_file)) file.remove(tmp_file)
   
-    testthat::expect_true( is.na(SIZE_begin) && (SIZE_after > 0) && (length(idx_max_leaf) > 0) && (length(idx_sl2) > 0) )
+  testthat::expect_true( is.na(SIZE_begin) && (SIZE_after > 0) && (length(idx_max_leaf) > 0) && (length(idx_sl2) > 0) )
 })
 
 
@@ -514,8 +514,6 @@ testthat::test_that("the 'cleanup' method (ESTIMATOR specific) works as expected
   
   #-------------------------------------------------------------------------------- 
   # RGF
-  
-  lst_files_tmp = list.files(path = default_dir)
 
   init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
   init_class$fit(x = x_rgf, y = y_BINclass)
