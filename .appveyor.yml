@@ -13,13 +13,14 @@ environment:
     - PYTHON_VERSION: 3.5
     - PYTHON_VERSION: 3.6
     - PYTHON_VERSION: 3.7
-    - PYTHON_VERSION: 3.7
+    - PYTHON_VERSION: 3.8
+    - PYTHON_VERSION: 3.8
       TASK: R_PACKAGE
 
 matrix:
   exclude:
     - platform: x86
-      PYTHON_VERSION: 3.7
+      PYTHON_VERSION: 3.8
       TASK: R_PACKAGE
 
 install:
@@ -62,7 +63,7 @@ after_test:
       if(
          $env:APPVEYOR_REPO_TAG -eq "false" -or
          $env:APPVEYOR_REPO_BRANCH -ne "master" -or
-         $env:PYTHON_VERSION -ne "3.7" -or
+         $env:PYTHON_VERSION -ne "3.8" -or
          $env:TASK -eq "R_PACKAGE") {
           Exit-AppVeyorBuild
       }
@@ -96,4 +97,4 @@ deploy:
   on:
     appveyor_repo_tag: true
     branch: master
-    PYTHON_VERSION: 3.7
+    PYTHON_VERSION: 3.8
