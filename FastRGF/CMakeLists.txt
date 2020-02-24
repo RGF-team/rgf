@@ -14,7 +14,7 @@ if(OPENMP)
  # use OpenMP
  add_definitions("-DUSE_OMP")
 
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     cmake_minimum_required (VERSION 3.16)
     find_package(OpenMP REQUIRED)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
