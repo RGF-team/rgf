@@ -21,9 +21,9 @@ target_link_libraries(discretized_trainer base forest)
 add_executable(forest_train forest_train.cpp) 
 target_link_libraries(forest_train forest base)
 
-install(TARGETS forest_train DESTINATION ${CMAKE_SOURCE_DIR}/bin)
+install(TARGETS forest_train DESTINATION bin)
 
 add_executable(forest_predict forest_predict.cpp) 
 target_link_libraries(forest_predict forest base)
 
-install(TARGETS forest_predict DESTINATION ${CMAKE_SOURCE_DIR}/bin)
+install(TARGETS forest_predict DESTINATION bin)
