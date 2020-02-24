@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8.0)
 
-project (FastRGF) 
+project (FastRGF)
 
 # whether to use OpenMP (default is ON)
 option(OPENMP "Use OpenMP for multithreading" ON)
@@ -12,19 +12,15 @@ set(CMAKE_CXX_FLAGS "-O3 -std=c++11")
 if(OPENMP)
  message("Use OpenMP for multithreading")
  # use OpenMP
- add_definitions("-DUSE_OMP")		
+ add_definitions("-DUSE_OMP")
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    #  macOS: Clang does not support OpenMP, need to install a g++ with OpenMP support
-    #  if the executables are gcc-7 and g++-7, then use the following in build/
-    #  cmake .. -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7
-    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "[gG][nN][uU]")
-     message(FATAL_ERROR "Compilation only with g++ is supported.\nInstall a gcc-x and g++-x and use cmake command option -DCMAKE_C_COMPILER=gcc-x -DCMAKE_CXX_COMPILER=g++-x, where x is a version number")
-    endif()
-    set(CMAKE_CXX_COMPILER_ID "GNU")
+    cmake_minimum_required (VERSION 3.16)
+    find_package(OpenMP REQUIRED)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
   endif()
-
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 else()
  message("Use standard C++11 thread library")
 endif()
