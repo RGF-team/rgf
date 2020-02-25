@@ -8,6 +8,8 @@ add_library (base utils.cpp data.cpp discretization.cpp classifier.cpp)
 
 #install(TARGETS tester_base DESTINATION ${CMAKE_SOURCE_DIR}/src/base)
 
-if(OPENMP AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-  target_link_libraries(base PUBLIC OpenMP::OpenMP_CXX)
-endif()
+if(OPENMP)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_link_libraries(base OpenMP::OpenMP_CXX)
+  endif()
+endif(OPENMP)
