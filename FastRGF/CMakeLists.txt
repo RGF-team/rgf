@@ -1,4 +1,8 @@
-cmake_minimum_required (VERSION 2.8.0)
+if(APPLE)
+  cmake_minimum_required(VERSION 3.0)
+else()
+  cmake_minimum_required(VERSION 2.8)
+endif()
 
 project (FastRGF)
 
