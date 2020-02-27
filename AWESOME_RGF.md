@@ -10,6 +10,7 @@ Please feel free to send a pull request if you find things that could be include
 * [An Introductory Guide to Regularized Greedy Forests (RGF) with a case study in Python](https://www.analyticsvidhya.com/blog/2018/02/introductory-guide-regularized-greedy-forests-rgf-python/)
 * [Regularized Greedy Forest – The Scottish Play (Act I)](https://www.statworx.com/ch/blog/regularized-greedy-forest-the-scottish-play-act-i/)
 * [Regularized Greedy Forest – The Scottish Play (ACT II)](https://www.statworx.com/ch/blog/regularized-greedy-forest-the-scottish-play-act-ii/)
+* [The Gradient Boosters II: Regularized Greedy Forest](https://deep-and-shallow.com/2020/02/09/the-gradient-boosters-ii-regularized-greedy-forest/)
 
 ### Machine Learning Competitions Winning Solutions and Kernels
 
