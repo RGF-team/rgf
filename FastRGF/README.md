@@ -1,4 +1,4 @@
-# FastRGF Version 0.6
+# FastRGF Version 0.7
 
 ### C++ Multi-core Implementation of Regularized Greedy Forest (RGF)
 
@@ -46,7 +46,7 @@ The implementation of greedy tree node optimization employs second order Newton 
 
 # 2. Installation
 
-The software is written in C++11 and requires to be built from the sources with the **g++** compiler. Note that compilation only with g++-5 and newer versions is possible. Other compilers are unsupported and older versions produce corrupted files.
+The software is written in C++11 and requires to be built from the sources with the **g++**, **Clang** or **AppleClang** compiler. Note that compilation only with g++-5, Clang 3.8, AppleClang 8.1 (or newer versions) is possible. Other compilers are unsupported and older versions produce corrupted files. In case you are compiling with the AppleClang compiler, you should install OpenMP separately.
 
 [Download](https://github.com/RGF-team/rgf/archive/master.zip) the package and extract the content. Otherwise, you can use git
 

@@ -15,18 +15,27 @@ env:
     - PYTHON_VERSION=3.6
     - PYTHON_VERSION=3.7
     - PYTHON_VERSION=3.8
+    - PYTHON_VERSION=3.8 COMPILER=clang
     - PYTHON_VERSION=3.8 TASK=R_PACKAGE
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
-      brew install gcc;
-      export CXX=g++-9 && export CC=gcc-9;
+      if [[ $COMPILER != "clang" ]]; then
+        brew install gcc;
+        export CXX=g++-9 && export CC=gcc-9;
+      else
+        brew install libomp;
+      fi
       curl https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
-    else
-      sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
-      sudo apt-get update;
-      sudo apt-get install g++-5;
-      export CXX=g++-5 && export CC=gcc-5;
+    else  # Linux
+      if [[ $COMPILER != "clang" ]]; then
+        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
+        sudo apt-get update;
+        sudo apt-get install g++-5;
+        export CXX=g++-5 && export CC=gcc-5;
+      else
+        export CXX=clang++ && export CC=clang;
+      fi
       wget https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
 

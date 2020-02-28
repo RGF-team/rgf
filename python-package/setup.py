@@ -237,27 +237,6 @@ def compile_rgf():
 
 def compile_fastrgf():
 
-    def is_valid_gpp():
-        tmp_result = False
-        try:
-            gpp_version = subprocess.check_output(('g++', '-dumpversion'),
-                                                  universal_newlines=True,
-                                                  stderr=subprocess.STDOUT)
-            tmp_result = int(gpp_version[0]) >= 5
-        except Exception:
-            pass
-
-        if tmp_result or system() in ('Windows', 'Microsoft'):
-            return tmp_result
-
-        for version in range(5, 10):
-            try:
-                subprocess.check_output(('g++-' + str(version), '--version'))
-                return True
-            except Exception:
-                pass
-        return tmp_result
-
     def is_valid_mingw():
         if not silent_call(('mingw32-make', '--version')):
             return False
@@ -280,10 +259,6 @@ def compile_fastrgf():
         logger.error("Cannot compile FastRGF. "
                      "Make sure that you have installed CMake "
                      "and added path to it in environmental variable 'PATH'.")
-        return
-    if not is_valid_gpp():
-        logger.error("Cannot compile FastRGF. "
-                     "Compilation only with g++-5 and newer versions is possible.")
         return
     os.chdir(os.path.join(fastrgf_base_dir, 'build'))
     if system() in ('Windows', 'Microsoft'):

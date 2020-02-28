@@ -37,7 +37,7 @@
 namespace rgf {
   
 
-#define VER "version 0.6"
+#define VER "version 0.7"
 
   
   const int max_thrds=128;

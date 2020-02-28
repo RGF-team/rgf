@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7 (Feb 2020)
+
+  - Added support for compilation with Clang and AppleClang.
+
 ## 0.6 (Feb 2018)
 
   - Fixed bug which led to program crash in case of usage of small samples weights.
