@@ -18,7 +18,11 @@ if(OPENMP)
  # use OpenMP
  add_definitions("-DUSE_OMP")
 
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "5.0")
+      message(FATAL_ERROR "Insufficient gcc version")
+    endif()
+  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.8")
       message(FATAL_ERROR "Insufficient Clang version")
     endif()
@@ -34,7 +38,7 @@ else()
  message("Use standard C++11 thread library")
 endif()
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -ftree-vectorize -ffast-math")
 endif()
 
