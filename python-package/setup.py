@@ -155,7 +155,7 @@ def is_fastrgf_response(path):
 
 def silent_call(cmd):
     try:
-        subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        print(subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True))
         return True
     except Exception:
         return False
