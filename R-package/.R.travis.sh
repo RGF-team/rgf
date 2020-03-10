@@ -2,6 +2,8 @@ mkdir -p $R_LIB_PATH
 cd $TRAVIS_BUILD_DIR/R-package
 echo "R_LIBS=$R_LIB_PATH" > .Renviron
 echo 'options(repos = "https://cran.rstudio.com")' > .Rprofile
+echo 'options(pkgType = "binary")' >> .Rprofile
+echo 'options(install.packages.check.source = "no")' >> .Rprofile
 
 export PATH="$R_LIB_PATH/R/bin:$PATH"
 
@@ -12,7 +14,7 @@ if [[ $TRAVIS_OS_NAME == "linux" ]]; then
     sudo apt-get install texlive-latex-recommended texlive-fonts-recommended texlive-fonts-extra qpdf
 
     if ! command -v R &> /dev/null; then
-        R_VER=3.6.1
+        R_VER=3.6.2
         cd $TRAVIS_BUILD_DIR
         wget https://cran.r-project.org/src/base/R-3/R-$R_VER.tar.gz
         tar -xzf R-$R_VER.tar.gz
