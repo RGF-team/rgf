@@ -36,6 +36,8 @@ conda install -y --no-deps pandoc
 cd .\R-package
 Add-Content .Renviron "R_LIBS=$env:R_LIB_PATH"
 Add-Content .Rprofile "options(repos = 'https://cran.rstudio.com')"
+Add-Content .Rprofile "options(pkgType = 'binary')"
+Add-Content .Rprofile "options(install.packages.check.source = 'no')"
 Add-Content .Rprofile "Sys.setenv(RETICULATE_PYTHON = '$([RegEx]::Escape($env:CONDA_PREFIX))/python.exe')"
 
 Rscript -e "if(!'devtools' %in% rownames(installed.packages())) { install.packages('devtools', dependencies = TRUE) }"
