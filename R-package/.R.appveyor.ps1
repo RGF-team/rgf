@@ -17,7 +17,8 @@ $env:PATH = "$env:R_LIB_PATH\Rtools\bin;" + "$env:R_LIB_PATH\R\bin\x64;" + "$env
 $env:BINPREF = "C:/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/mingw64/bin/"
 
 if (!(Get-Command R.exe -errorAction SilentlyContinue)) {
-    appveyor DownloadFile https://cloud.r-project.org/bin/windows/base/R-3.6.2-win.exe -FileName ./R-win.exe
+
+    appveyor DownloadFile https://cloud.r-project.org/bin/windows/base/old/$env:R_VERSION/R-$env:R_VERSION-win.exe -FileName ./R-win.exe
     Start-Process -FilePath .\R-win.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\R /COMPONENTS=main,x64"
 
     appveyor DownloadFile https://cloud.r-project.org/bin/windows/Rtools/Rtools35.exe -FileName ./Rtools.exe
