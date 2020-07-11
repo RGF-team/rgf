@@ -14,6 +14,7 @@ Please feel free to send a pull request if you find things that could be include
 
 ### Machine Learning Competitions Winning Solutions and Kernels
 
+* [1st Place Solution (TReNDS Neuroimaging)](https://www.kaggle.com/c/trends-assessment-prediction/discussion/163017)
 * [1st Place Solution (Home Credit Default Risk)](https://www.kaggle.com/c/home-credit-default-risk/discussion/64821)
 * [1st Place Solution (Allstate Claims Severity)](https://www.kaggle.com/c/allstate-claims-severity/discussion/26416)
 * [2nd Place Solution (Home Credit Default Risk)](https://www.kaggle.com/c/home-credit-default-risk/discussion/64722)
