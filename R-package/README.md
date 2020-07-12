@@ -1,5 +1,5 @@
 [![CRAN Version](https://r-pkg.org/badges/version/RGF)](https://cran.r-project.org/package=RGF)
-[![codecov.io](https://codecov.io/github/RGF-team/rgf/coverage.svg?branch=master)](https://codecov.io/github/RGF-team/rgf?branch=master)
+[![codecov.io](https://codecov.io/gh/RGF-team/rgf/branch/master/graphs/badge.svg?branch=master)](https://codecov.io/github/RGF-team/rgf?branch=master)
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/RGF?color=blue)](https://cran.r-project.org/package=RGF)
 
 
