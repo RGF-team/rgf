@@ -37,7 +37,7 @@ before_install:
   - conda update -q conda
 
   - if [[ $TASK == "R_PACKAGE" ]] && [[ $TRAVIS_OS_NAME == "linux" ]]; then
-        conda create -q -n test-environment python=$PYTHON_VERSION pip openssl --no-deps;
+        conda create -q -n test-environment python=$PYTHON_VERSION pip openssl libffi=3.2.1 --no-deps;
         source activate test-environment;
         pip install setuptools wheel joblib six numpy scipy pandas scikit-learn;
     else
