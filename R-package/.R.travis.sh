@@ -2,7 +2,9 @@ mkdir -p $R_LIB_PATH
 cd $TRAVIS_BUILD_DIR/R-package
 echo "R_LIBS=$R_LIB_PATH" > .Renviron
 echo 'options(repos = "https://cran.rstudio.com")' > .Rprofile
-echo 'options(pkgType = "mac.binary")' >> .Rprofile
+if [[ $TRAVIS_OS_NAME == "osx" ]]; then
+    echo 'options(pkgType = "mac.binary")' >> .Rprofile
+fi
 echo 'options(install.packages.check.source = "no")' >> .Rprofile
 
 export PATH="$R_LIB_PATH/R/bin:$PATH"
