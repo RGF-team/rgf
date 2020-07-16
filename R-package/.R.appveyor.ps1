@@ -33,7 +33,7 @@ if (!(Get-Command R.exe -errorAction SilentlyContinue)) {
 }
 
 initexmf --set-config-value [MPM]AutoInstall=1
-conda install -y --no-deps pandoc ca-certificates openssl
+conda install -y --no-deps pandoc
 
 cd .\R-package
 Add-Content .Renviron "R_LIBS=$env:R_LIB_PATH"
