@@ -42,6 +42,10 @@ Add-Content .Rprofile "options(pkgType = 'binary')"
 Add-Content .Rprofile "options(install.packages.check.source = 'no')"
 Add-Content .Rprofile "Sys.setenv(RETICULATE_PYTHON = '$([RegEx]::Escape($env:CONDA_PREFIX))/python.exe')"
 
+# Temporary remove coverage badge as it causes errors during checks
+$README = Get-Content README.md
+$Contents -replace $README[1],"" | Set-Content -Encoding UTF8 README.md
+
 Rscript -e "if(!'devtools' %in% rownames(installed.packages())) { install.packages('devtools', dependencies = TRUE) }"
 Rscript -e "if(!'roxygen2' %in% rownames(installed.packages())) { install.packages('roxygen2', dependencies = TRUE) }"
 Rscript -e "if(!'testthat' %in% rownames(installed.packages())) { install.packages('testthat', dependencies = TRUE) }"
