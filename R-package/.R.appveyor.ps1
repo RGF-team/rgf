@@ -44,7 +44,7 @@ Add-Content .Rprofile "Sys.setenv(RETICULATE_PYTHON = '$([RegEx]::Escape($env:CO
 
 # Temporary remove coverage badge as it causes errors during checks
 $README = Get-Content README.md
-$Contents -replace $README[1],"" | Set-Content -Encoding UTF8 README.md
+$README -Replace [regex]::Escape($README[1]) | Set-Content -Encoding UTF8 README.md
 
 Rscript -e "if(!'devtools' %in% rownames(installed.packages())) { install.packages('devtools', dependencies = TRUE) }"
 Rscript -e "if(!'roxygen2' %in% rownames(installed.packages())) { install.packages('roxygen2', dependencies = TRUE) }"
