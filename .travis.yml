@@ -4,7 +4,8 @@ language: generic
 os:
   - linux
   - osx
-osx_image: xcode11
+dist: trusty
+osx_image: xcode11.5
 
 env:
   global:
@@ -19,15 +20,15 @@ env:
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
-      brew install gcc;
-      export CXX=g++-9 && export CC=gcc-9;
-      curl https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
+      brew upgrade gcc || true;
+      export CXX=g++-10 && export CC=gcc-10;
+      curl https://repo.anaconda.com/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
     else
       sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
       sudo apt-get update;
       sudo apt-get install g++-5;
       export CXX=g++-5 && export CC=gcc-5;
-      wget https://repo.continuum.io/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh -O miniconda.sh;
+      wget https://repo.anaconda.com/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
 
   - bash miniconda.sh -b -p $HOME/miniconda
@@ -36,7 +37,7 @@ before_install:
   - conda update -q conda
 
   - if [[ $TASK == "R_PACKAGE" ]] && [[ $TRAVIS_OS_NAME == "linux" ]]; then
-        conda create -q -n test-environment python=$PYTHON_VERSION pip openssl --no-deps;
+        conda create -q -n test-environment python=$PYTHON_VERSION pip openssl libffi=3.2.1 --no-deps;
         source activate test-environment;
         pip install setuptools wheel joblib six numpy scipy pandas scikit-learn;
     else
