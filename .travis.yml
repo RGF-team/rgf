@@ -19,7 +19,7 @@ env:
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
-      brew upgrade gcc || true;
+      brew install gcc;
       export CXX=g++-10 && export CC=gcc-10;
       curl https://repo.anaconda.com/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
     else
