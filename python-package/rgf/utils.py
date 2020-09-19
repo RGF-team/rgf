@@ -559,6 +559,7 @@ class RGFClassifierMixin(object):
             raise ValueError("Classifier can't predict when only one class is present.")
 
         self._fitted = True
+        self.n_features_in_ = self._n_features
 
         return self
 
@@ -663,6 +664,7 @@ class RGFRegressorMixin(object):
         self._fit_regression_task(X, y, sample_weight, params)
 
         self._fitted = True
+        self.n_features_in_ = self._n_features
 
         return self
 
