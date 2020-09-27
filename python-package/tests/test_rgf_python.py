@@ -23,7 +23,7 @@ from rgf.utils import cleanup, Config
 
 class EstimatorBaseTest(object):
     def test_sklearn_integration(self):
-        check_estimator(self.estimator_class)
+        check_estimator(self.estimator_class())
 
     def test_input_arrays_shape(self):
         est = self.estimator_class(**self.kwargs)
@@ -489,7 +489,7 @@ class TestFastRGFClassifier(ClassifierBaseTest, FastRGFBaseTest, unittest.TestCa
     def test_sklearn_integration(self):
         # TODO(fukatani): FastRGF bug?
         # FastRGF doesn't work if the number of sample is too small.
-        # check_estimator(self.estimator_class)
+        # check_estimator(self.estimator_class())
         pass
 
 
@@ -541,5 +541,5 @@ class TestFastRGFRegressor(RegressorBaseTest, FastRGFBaseTest, unittest.TestCase
     def test_sklearn_integration(self):
         # TODO(fukatani): FastRGF bug?
         # FastRGF doesn't work if the number of sample is too small.
-        # check_estimator(self.estimator_class)
+        # check_estimator(self.estimator_class())
         pass
