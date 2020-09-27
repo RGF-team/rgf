@@ -5,14 +5,13 @@ os:
   - linux
   - osx
 dist: trusty
-osx_image: xcode11.5
+osx_image: xcode12
 
 env:
   global:
     - R_LIB_PATH=~/Rlib
   matrix:
     - PYTHON_VERSION=2.7
-    - PYTHON_VERSION=3.5
     - PYTHON_VERSION=3.6
     - PYTHON_VERSION=3.7
     - PYTHON_VERSION=3.8
@@ -20,7 +19,7 @@ env:
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
-      brew upgrade gcc || true;
+      brew install gcc;
       export CXX=g++-10 && export CC=gcc-10;
       curl https://repo.anaconda.com/miniconda/Miniconda${PYTHON_VERSION:0:1}-latest-MacOSX-x86_64.sh -o miniconda.sh;
     else
