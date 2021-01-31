@@ -33,9 +33,8 @@ LOG_FILE_NAME="$PKG_NAME.Rcheck/00check.log"
 COVERAGE_FILE_NAME="$PKG_NAME.Rcheck/coverage.log"
 
 R CMD check "${PKG_FILE_NAME}" --as-cran || exit -1
-cat /Users/runner/work/rgf/rgf/R-package/RGF.Rcheck/00install.out
 if grep -q -E "WARNING|ERROR" "$LOG_FILE_NAME"; then
-    echo "WARNINGs, or ERRORs have been found by R CMD check"
+    echo "WARNINGs or ERRORs have been found by R CMD check"
     exit -1
 fi
 

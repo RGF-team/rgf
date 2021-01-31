@@ -54,7 +54,7 @@ test_script:
           Get-ChildItem env: | Export-CliXml ./env-vars.clixml
       }
       else {pytest tests/ -v}
-  - IF "%TASK%" == "R_PACKAGE" powershell.exe -ExecutionPolicy Bypass -File .\R-package\.R.appveyor.ps1
+  - IF "%TASK%" == "R_PACKAGE" powershell.exe -ExecutionPolicy Bypass -File .\ci\.R.appveyor.ps1
 
 after_test:
   - ps: >-
