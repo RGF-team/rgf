@@ -1,0 +1,98 @@
+name: Python and R tests
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  test:
+    name: ${{ matrix.task == 'R_PACKAGE' && format('R {0}', matrix.os) || format('Python {0} ({1})', matrix.python_version, matrix.os) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            container: ubuntu:trusty
+            python_version: 3.6
+          - os: macos-latest
+            python_version: 3.6
+          - os: ubuntu-latest
+            container: ubuntu:trusty
+            python_version: 3.7
+          - os: macos-latest
+            python_version: 3.7
+          - os: ubuntu-latest
+            container: ubuntu:trusty
+            python_version: 3.8
+          - os: macos-latest
+            python_version: 3.8
+          - os: ubuntu-latest
+            container: rocker/verse:latest
+            python_version: 3.8
+            task: R_PACKAGE
+          - os: macos-latest
+            python_version: 3.8
+            task: R_PACKAGE
+    container: ${{ matrix.container }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 5
+      - name: Setup and run tests
+        shell: bash
+        run: |
+          export OS_NAME="${{ matrix.os }}"
+          export PYTHON_VERSION="${{ matrix.python_version }}"
+          export CONDA_ENV=test-env
+          echo "CONDA_ENV=$CONDA_ENV" >> $GITHUB_ENV
+          export CONDA_PATH=$HOME/miniconda
+          echo "CONDA_PATH=$CONDA_PATH" >> $GITHUB_ENV
+          export PATH="$CONDA_PATH/bin:$PATH"
+          export TASK="${{ matrix.task }}"
+          if [[ $OS_NAME == "macos-latest" ]]; then
+            export CXX=g++-10 && export CC=gcc-10
+          fi
+          export RGF_VER=$(head -n 1 $GITHUB_WORKSPACE/python-package/rgf/VERSION)
+          echo "RGF_VER=$RGF_VER" >> $GITHUB_ENV
+          $GITHUB_WORKSPACE/.ci/python_tests.sh || exit -1
+          if [[ $TASK == "R_PACKAGE" ]]; then
+            $GITHUB_WORKSPACE/.ci/r_tests.sh || exit -1
+          fi
+      - name: Create Wheel
+        if: matrix.python_version == 3.8 && matrix.task != 'R_PACKAGE' && github.ref == 'refs/heads/master'
+        shell: bash
+        run: |
+          export PATH="${{ env.CONDA_PATH }}/bin:$PATH"
+          source activate ${{ env.CONDA_ENV }}
+          cd $GITHUB_WORKSPACE/python-package
+          if [[ ${{ matrix.os }} == "macos-latest" ]]; then
+            python setup.py bdist_wheel --plat-name=macosx --python-tag py3;
+            mv dist/rgf_python-${{ env.RGF_VER }}-py3-none-macosx.whl dist/rgf_python-${{ env.RGF_VER }}-py3-none-macosx_10_14_x86_64.macosx_10_15_x86_64.macosx_11_0_x86_64.whl;
+          else
+            python setup.py bdist_wheel --plat-name=manylinux1_x86_64 --python-tag py3;
+          fi
+      - name: Create GitHub Release
+        if: matrix.python_version == 3.8 && matrix.task != 'R_PACKAGE' && github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.RGF_VER }}
+          name: ${{ env.RGF_VER }}
+          draft: true
+          prerelease: false
+          files: ${{ github.workspace }}/python-package/dist/*.whl
+  all-successful:
+    # https://github.community/t/is-it-possible-to-require-all-github-actions-tasks-to-pass-without-enumerating-them/117957/4?u=graingert
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+    - name: Note that all tests succeeded
+      run: echo "🎉"

@@ -28,8 +28,8 @@ if (!(Get-Command R.exe -errorAction SilentlyContinue)) {
     appveyor DownloadFile https://miktex.org/download/win/miktexsetup-x64.zip -FileName ./miktexsetup-x64.zip
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     [System.IO.Compression.ZipFile]::ExtractToDirectory("miktexsetup-x64.zip", "miktex")
-    .\miktex\miktexsetup.exe --local-package-repository=.\miktex\download --package-set=essential --quiet download
-    .\miktex\download\miktexsetup.exe --portable="$env:R_LIB_PATH\miktex" --quiet install
+    .\miktex\miktexsetup_standalone.exe --local-package-repository=.\miktex\download --package-set=essential --quiet download
+    .\miktex\download\miktexsetup_standalone.exe --portable="$env:R_LIB_PATH\miktex" --quiet install
 }
 
 initexmf --set-config-value [MPM]AutoInstall=1
