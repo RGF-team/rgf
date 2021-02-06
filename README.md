@@ -1,4 +1,4 @@
-[![Python and R tests](https://github.com/RGF-team/rgf/workflows/Python%20and%20R%20tests/badge.svg?branch=master)](https://github.com/RGF-team/rgf/actions)
+[![Build Status Travis](https://travis-ci.org/RGF-team/rgf.svg?branch=master)](https://travis-ci.org/RGF-team/rgf)
 [![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/u3612bfh9pmela42/branch/master?svg=true)](https://ci.appveyor.com/project/RGF-team/rgf)
 [![DOI](https://zenodo.org/badge/DOI/10.1109/TPAMI.2013.159.svg)](https://doi.org/10.1109/TPAMI.2013.159)
 [![arXiv.org](https://img.shields.io/badge/arXiv-1109.0887-b31b1b.svg)](https://arxiv.org/abs/1109.0887)
