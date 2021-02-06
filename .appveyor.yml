@@ -9,7 +9,6 @@ environment:
   global:
     R_LIB_PATH: C:\RLibrary
   matrix:
-    - PYTHON_VERSION: 2.7
     - PYTHON_VERSION: 3.6
     - PYTHON_VERSION: 3.7
     - PYTHON_VERSION: 3.8
@@ -26,7 +25,6 @@ install:
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%  # Delete sh.exe from PATH (mingw32-make fix)
   - ps: >-
       switch($env:PYTHON_VERSION) {
-          "2.7" {$env:MINICONDA = "C:\Miniconda"}
           "3.6" {$env:MINICONDA = "C:\Miniconda36"}
           "3.7" {$env:MINICONDA = "C:\Miniconda37"}
           default {$env:MINICONDA = "C:\Miniconda37"}
