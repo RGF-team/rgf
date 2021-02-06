@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from glob import glob
 from math import ceil
 from shutil import copyfile
