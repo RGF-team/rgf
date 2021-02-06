@@ -5,7 +5,6 @@ from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
 from setuptools.command.sdist import sdist
 from shutil import rmtree
-import io
 import logging
 import os
 import subprocess
@@ -19,7 +18,7 @@ logger = logging.getLogger('rgf_python')
 
 
 def read(filename):
-    return io.open(os.path.join(CURRENT_DIR, filename), encoding='utf-8').read()
+    return open(os.path.join(CURRENT_DIR, filename), encoding='utf-8').read()
 
 
 def copy_files():
