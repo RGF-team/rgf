@@ -3,7 +3,7 @@ name: Python and R tests
 on:
   push:
     branches:
-    - master
+    - sklearn
   pull_request:
     branches:
     - master
