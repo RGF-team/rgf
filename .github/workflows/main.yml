@@ -19,25 +19,15 @@ jobs:
         include:
           - os: ubuntu-latest
             container: ubuntu:trusty
-            python_version: 3.6
+            python_version: 3.9
           - os: macos-latest
-            python_version: 3.6
-          - os: ubuntu-latest
-            container: ubuntu:trusty
-            python_version: 3.7
-          - os: macos-latest
-            python_version: 3.7
-          - os: ubuntu-latest
-            container: ubuntu:trusty
-            python_version: 3.8
-          - os: macos-latest
-            python_version: 3.8
+            python_version: 3.9
           - os: ubuntu-latest
             container: rocker/verse:latest
-            python_version: 3.8
+            python_version: 3.9
             task: R_PACKAGE
           - os: macos-latest
-            python_version: 3.8
+            python_version: 3.9
             task: R_PACKAGE
     container: ${{ matrix.container }}
     steps:
@@ -66,7 +56,7 @@ jobs:
             $GITHUB_WORKSPACE/.ci/r_tests.sh || exit -1
           fi
       - name: Create Wheel
-        if: matrix.python_version == 3.8 && matrix.task != 'R_PACKAGE' && github.ref == 'refs/heads/master'
+        if: matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && github.ref == 'refs/heads/master'
         shell: bash
         run: |
           export PATH="${{ env.CONDA_PATH }}/bin:$PATH"
@@ -79,7 +69,7 @@ jobs:
             python setup.py bdist_wheel --plat-name=manylinux1_x86_64 --python-tag py3;
           fi
       - name: Create GitHub Release
-        if: matrix.python_version == 3.8 && matrix.task != 'R_PACKAGE' && github.ref == 'refs/heads/master'
+        if: matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
