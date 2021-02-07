@@ -27,9 +27,9 @@ conda update -q conda
 if [[ $TASK == "R_PACKAGE" ]]; then
   conda create -q -n $CONDA_ENV python=$PYTHON_VERSION pip openssl libffi --no-deps
   source activate $CONDA_ENV
-  pip install setuptools joblib numpy scikit-learn scipy pandas wheel
+  pip install setuptools joblib numpy "scikit-learn<0.24" scipy pandas wheel
 else
-  conda create -q -n $CONDA_ENV python=$PYTHON_VERSION joblib numpy scikit-learn scipy pandas pytest
+  conda create -q -n $CONDA_ENV python=$PYTHON_VERSION joblib numpy "scikit-learn<0.24" scipy pandas pytest
   source activate $CONDA_ENV
 fi
 cd $GITHUB_WORKSPACE/python-package
