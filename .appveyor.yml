@@ -9,17 +9,14 @@ environment:
   global:
     R_LIB_PATH: C:\RLibrary
   matrix:
-    - PYTHON_VERSION: 2.7
-    - PYTHON_VERSION: 3.6
-    - PYTHON_VERSION: 3.7
-    - PYTHON_VERSION: 3.8
-    - PYTHON_VERSION: 3.8
+    - PYTHON_VERSION: 3.9
+    - PYTHON_VERSION: 3.9
       TASK: R_PACKAGE
 
 matrix:
   exclude:
     - platform: x86
-      PYTHON_VERSION: 3.8
+      PYTHON_VERSION: 3.9
       TASK: R_PACKAGE
 
 install:
@@ -61,7 +58,7 @@ after_test:
       if(
          $env:APPVEYOR_REPO_TAG -eq "false" -or
          $env:APPVEYOR_REPO_BRANCH -ne "master" -or
-         $env:PYTHON_VERSION -ne "3.8" -or
+         $env:PYTHON_VERSION -ne "3.9" -or
          $env:TASK -eq "R_PACKAGE") {
           Exit-AppVeyorBuild
       }
@@ -95,4 +92,4 @@ deploy:
   on:
     appveyor_repo_tag: true
     branch: master
-    PYTHON_VERSION: 3.8
+    PYTHON_VERSION: 3.9
