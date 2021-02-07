@@ -315,7 +315,7 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
         self._set_target_and_loss()
 
     def _get_params(self):
-        res = super(FastRGFEstimatorBase, self)._get_params()
+        res = super()._get_params()
         res.update(dict(max_depth=self.max_depth,
                         max_leaf=self.max_leaf,
                         tree_gain_ratio=self.tree_gain_ratio,
@@ -372,7 +372,7 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
                  verbose=0):
         if not utils.Config().FASTRGF_AVAILABLE:
             raise Exception('FastRGF estimators are unavailable for usage.')
-        super(FastRGFRegressor, self).__init__()
+        super().__init__()
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.max_leaf = max_leaf
@@ -430,7 +430,7 @@ class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
                  verbose=0):
         if not utils.Config().FASTRGF_AVAILABLE:
             raise Exception('FastRGF estimators are unavailable for usage.')
-        super(FastRGFClassifier, self).__init__()
+        super().__init__()
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.max_leaf = max_leaf
