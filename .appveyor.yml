@@ -38,7 +38,7 @@ install:
   - set PATH=%MINICONDA%;%MINICONDA%\Scripts;%PATH%
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - conda create -q -n test-environment python=%PYTHON_VERSION% joblib six numpy scipy pandas scikit-learn pytest
+  - conda create -q -n test-environment python=%PYTHON_VERSION% joblib numpy scipy pandas scikit-learn pytest
   - activate test-environment
   - cd python-package
   - ps: $env:RGF_VER = (Get-Content rgf\VERSION).trim()
