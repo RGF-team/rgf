@@ -7,12 +7,12 @@ import platform
 import stat
 import subprocess
 import warnings
+from configparser import MissingSectionHeaderError, RawConfigParser
 from io import StringIO
 from tempfile import gettempdir
 from threading import Lock
 from uuid import uuid4
 
-import six
 import numpy as np
 import scipy.sparse as sp
 from sklearn.base import BaseEstimator
@@ -73,14 +73,14 @@ class Config(object):
     @classmethod
     def init_paths(cls):
         if cls.TEMP_PATH is None:
-            config = six.moves.configparser.RawConfigParser()
+            config = RawConfigParser()
             path = os.path.join(os.path.expanduser('~'), '.rgfrc')
 
             try:
                 with codecs.open(path, 'r', 'utf-8') as cfg:
                     with StringIO(cfg.read()) as strIO:
                         config.readfp(strIO)
-            except six.moves.configparser.MissingSectionHeaderError:
+            except MissingSectionHeaderError:
                 with codecs.open(path, 'r', 'utf-8') as cfg:
                     with StringIO('[glob]\n' + cfg.read()) as strIO:
                         config.readfp(strIO)
