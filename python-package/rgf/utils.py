@@ -244,7 +244,6 @@ COUNTER = AtomicCounter()
 
 
 def sparse_savetxt(filename, input_array, including_header=True):
-    zip_func = six.moves.zip
     if sp.isspmatrix_csr(input_array):
         input_array = input_array.tocoo()
     else:
@@ -255,7 +254,7 @@ def sparse_savetxt(filename, input_array, including_header=True):
     with open(filename, 'w') as fw:
         if including_header:
             fw.write('sparse {0:d}\n'.format(input_array.shape[-1]))
-        for i, j, v in zip_func(input_array.row, input_array.col, input_array.data):
+        for i, j, v in zip(input_array.row, input_array.col, input_array.data):
             if i == current_sample_row:
                 line.append('{0}:{1}'.format(j, v))
             else:
