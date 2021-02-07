@@ -454,7 +454,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
         return np.mean([est.feature_importances_ for est in self._estimators], axis=0)
 
 
-class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
+class RGFRegressor(RegressorMixin, utils.RGFRegressorMixin, RGFEstimatorBase):
     def __init__(self,
                  max_leaf=500,
                  test_interval=100,
@@ -519,7 +519,7 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         save_model.__doc__ = save_model.__doc__.replace(_template, _value)
 
 
-class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin):
+class RGFClassifier(ClassifierMixin, utils.RGFClassifierMixin, RGFEstimatorBase):
     def __init__(self,
                  max_leaf=1000,
                  test_interval=100,
