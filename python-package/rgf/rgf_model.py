@@ -4,7 +4,6 @@ from shutil import copyfile
 
 import numpy as np
 from joblib import Parallel, delayed, cpu_count
-from six import string_types
 from sklearn.base import ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.exceptions import NotFittedError
 
@@ -180,14 +179,14 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             raise ValueError(
                 "test_interval must be greater than 0 but was %r." % test_interval)
 
-        if not isinstance(algorithm, string_types):
+        if not isinstance(algorithm, str):
             raise ValueError(
                 "algorithm must be a string, got {0}.".format(type(algorithm)))
         elif algorithm not in ALGORITHMS:
             raise ValueError(
                 "algorithm must be 'RGF' or 'RGF_Opt' or 'RGF_Sib' but was %r." % algorithm)
 
-        if not isinstance(loss, string_types):
+        if not isinstance(loss, str):
             raise ValueError(
                 "loss must be a string, got {0}.".format(type(loss)))
         elif loss not in LOSSES:
@@ -267,19 +266,19 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             raise ValueError(
                 "verbose must be no smaller than 0 but was %r." % verbose)
 
-        if not isinstance(memory_policy, string_types):
+        if not isinstance(memory_policy, str):
             raise ValueError("memory_policy must be a string, got {0}.".format(
                 type(memory_policy)))
         elif memory_policy not in ("conservative", "generous"):
             raise ValueError(
                 "memory_policy must be 'conservative' or 'generous' but was %r." % memory_policy)
 
-        if init_model is not None and not isinstance(init_model, string_types):
+        if init_model is not None and not isinstance(init_model, str):
             raise ValueError(
                 "init_model must be a string or None, got {0}.".format(
                     type(init_model)))
 
-        if not isinstance(calc_prob, string_types):
+        if not isinstance(calc_prob, str):
             raise ValueError(
                 "calc_prob must be a string, got {0}.".format(type(calc_prob)))
         elif calc_prob not in ("sigmoid", "softmax"):
