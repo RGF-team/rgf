@@ -35,6 +35,6 @@ fi
 cd $GITHUB_WORKSPACE/python-package
 python setup.py sdist --formats gztar || exit -1
 pip install dist/rgf_python-$RGF_VER.tar.gz -v || exit -1
-if [[ $TASK != "R_PACKAGE" ]]; then
-  pytest tests/ -v || exit -1
-fi
+#if [[ $TASK != "R_PACKAGE" ]]; then
+pytest tests/ -v || exit -1
+#fi
