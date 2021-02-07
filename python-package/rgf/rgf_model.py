@@ -343,7 +343,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             self._n_iter = self.n_iter
 
     def _get_params(self):
-        res = super(RGFEstimatorBase, self)._get_params()
+        res = super()._get_params()
         res.update(dict(max_leaf=self.max_leaf,
                         test_interval=self.test_interval,
                         algorithm=self.algorithm,
@@ -472,7 +472,7 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
                  init_model=None):
         if not utils.Config().RGF_AVAILABLE:
             raise Exception('RGF estimators are unavailable for usage.')
-        super(RGFRegressor, self).__init__()
+        super().__init__()
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -506,7 +506,7 @@ class RGFRegressor(RGFEstimatorBase, RegressorMixin, utils.RGFRegressorMixin):
         __doc__ = __doc__.replace(_template, _value)
 
     def save_model(self, filename):
-        super(RGFRegressor, self).save_model(filename)
+        super().save_model(filename)
 
     _regressor_save_model_specific_values = {
         '{%file_singular_or_plural%}': 'file',
@@ -539,7 +539,7 @@ class RGFClassifier(RGFEstimatorBase, ClassifierMixin, utils.RGFClassifierMixin)
                  init_model=None):
         if not utils.Config().RGF_AVAILABLE:
             raise Exception('RGF estimators are unavailable for usage.')
-        super(RGFClassifier, self).__init__()
+        super().__init__()
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -594,7 +594,7 @@ n_classes_ : int
         __doc__ = __doc__.replace(_template, _value)
 
     def save_model(self, filename):
-        super(RGFClassifier, self).save_model(filename)
+        super().save_model(filename)
 
     _classifier_save_model_specific_values = {
         '{%file_singular_or_plural%}': 'file(s)',
