@@ -7,6 +7,7 @@ import platform
 import stat
 import subprocess
 import warnings
+from io import StringIO
 from tempfile import gettempdir
 from threading import Lock
 from uuid import uuid4
@@ -77,11 +78,11 @@ class Config(object):
 
             try:
                 with codecs.open(path, 'r', 'utf-8') as cfg:
-                    with six.StringIO(cfg.read()) as strIO:
+                    with StringIO(cfg.read()) as strIO:
                         config.readfp(strIO)
             except six.moves.configparser.MissingSectionHeaderError:
                 with codecs.open(path, 'r', 'utf-8') as cfg:
-                    with six.StringIO('[glob]\n' + cfg.read()) as strIO:
+                    with StringIO('[glob]\n' + cfg.read()) as strIO:
                         config.readfp(strIO)
             except Exception:
                 pass
