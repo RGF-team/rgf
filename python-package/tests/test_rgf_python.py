@@ -23,8 +23,7 @@ from rgf.utils import cleanup, Config
 
 class EstimatorBaseTest(object):
     def test_sklearn_integration(self):
-        for estimator, check in check_estimator(self.estimator_class(), generate_only=True):
-            check(estimator)
+        check_estimator(self.estimator_class())
 
     def test_input_arrays_shape(self):
         est = self.estimator_class(**self.kwargs)
