@@ -79,11 +79,11 @@ class Config(object):
             try:
                 with codecs.open(path, 'r', 'utf-8') as cfg:
                     with StringIO(cfg.read()) as strIO:
-                        config.readfp(strIO)
+                        config.read_file(strIO)
             except MissingSectionHeaderError:
                 with codecs.open(path, 'r', 'utf-8') as cfg:
                     with StringIO('[glob]\n' + cfg.read()) as strIO:
-                        config.readfp(strIO)
+                        config.read_file(strIO)
             except Exception:
                 pass
 
