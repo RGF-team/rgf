@@ -56,7 +56,6 @@ Software Requirements
 
 -  Python (>= 3.6)
 -  joblib
--  six
 -  scikit-learn (>= 0.18)
 
 Installation
