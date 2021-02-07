@@ -492,6 +492,7 @@ class CommonRGFEstimatorBase(BaseEstimator):
 class RGFClassifierMixin(object):
     def _more_tags(self):
         return {'X_types': ['2darray', 'sparse', '1dlabels'],
+                'requires_y' : True,
                 '_xfail_checks': {'check_sample_weights_invariance': 'sample_weight must have positive values'}}
 
     @property
@@ -632,6 +633,7 @@ class RGFClassifierMixin(object):
 class RGFRegressorMixin(object):
     def _more_tags(self):
         return {'X_types': ['2darray', 'sparse', '1dlabels'],
+                'requires_y' : True,
                 '_xfail_checks': {'check_sample_weights_invariance': 'sample_weight must have positive values'}}
 
     def fit(self, X, y, sample_weight=None):
