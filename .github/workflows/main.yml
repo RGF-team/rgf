@@ -3,7 +3,7 @@ name: Python and R tests
 on:
   push:
     branches:
-    - py39
+    - master
   pull_request:
     branches:
     - master
