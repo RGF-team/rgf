@@ -13,6 +13,7 @@ if [[ $OS_NAME == "macos-latest" ]]; then
   echo 'options(pkgType = "mac.binary")' > .Rprofile
   echo 'options(install.packages.check.source = "no")' >> .Rprofile
 else
+  tlmgr --verify-repo=none update --self
   tlmgr --verify-repo=none install ec
 fi
 
