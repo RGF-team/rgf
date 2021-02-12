@@ -3,7 +3,7 @@ name: Python and R tests
 on:
   push:
     branches:
-    - fix_artifacts
+    - master
   pull_request:
     branches:
     - master
