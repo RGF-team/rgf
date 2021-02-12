@@ -353,8 +353,7 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
                                               sample_weight)
 
 
-class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
-                       utils.RGFRegressorMixin):
+class FastRGFRegressor(RegressorMixin, utils.RGFRegressorMixin, FastRGFEstimatorBase):
     def __init__(self,
                  n_estimators=500,
                  max_depth=6,
@@ -409,8 +408,7 @@ class FastRGFRegressor(FastRGFEstimatorBase, RegressorMixin,
         __doc__ = __doc__.replace(_template, _value)
 
 
-class FastRGFClassifier(FastRGFEstimatorBase, ClassifierMixin,
-                        utils.RGFClassifierMixin):
+class FastRGFClassifier(ClassifierMixin, utils.RGFClassifierMixin, FastRGFEstimatorBase):
     def __init__(self,
                  n_estimators=500,
                  max_depth=6,
