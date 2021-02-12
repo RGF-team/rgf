@@ -3,7 +3,7 @@ name: Python and R tests
 on:
   push:
     branches:
-    - master
+    - fix_artifacts
   pull_request:
     branches:
     - master
@@ -71,7 +71,7 @@ jobs:
             $GITHUB_WORKSPACE/.ci/r_tests.sh || exit -1
           fi
       - name: Create Wheel
-        if: matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && startsWith(github.ref, 'refs/tags/')
+        if: matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE'
         shell: bash
         run: |
           export PATH="${{ env.CONDA_PATH }}/bin:$PATH"
@@ -84,7 +84,7 @@ jobs:
             python setup.py bdist_wheel --plat-name=manylinux1_x86_64 --python-tag py3;
           fi
       - name: Create GitHub Release
-        if: matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && startsWith(github.ref, 'refs/tags/')
+        if: matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE'
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
