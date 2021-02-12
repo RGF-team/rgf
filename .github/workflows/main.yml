@@ -79,7 +79,7 @@ jobs:
         run: |
           export PATH="${{ env.CONDA_PATH }}/bin:$PATH"
           source activate ${{ env.CONDA_ENV }}
-          if [[ $OS_NAME == "macos-latest" ]]; then
+          if [[ ${{ matrix.os }} == "macos-latest" ]]; then
             export CXX=g++-${{ env.GCC_VER_MACOS }} && export CC=gcc-${{ env.GCC_VER_MACOS }}
           else
             export CXX=g++-${{ env.GCC_VER_LINUX }} && export CC=gcc-${{ env.GCC_VER_LINUX }}
