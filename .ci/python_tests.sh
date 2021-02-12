@@ -17,7 +17,7 @@ else
     add-apt-repository -y ppa:ubuntu-toolchain-r/test
     apt-get update
     apt-get install --no-install-recommends -y g++-5
-    export CXX=g++-5 && export CC=gcc-5
+    export CXX="g++-$GCC_VER_LINUX" && export CC="gcc-$GCC_VER_LINUX"
   fi
   curl -sL https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh
 fi
