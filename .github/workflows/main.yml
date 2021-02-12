@@ -8,6 +8,9 @@ on:
     branches:
     - master
 
+env:
+  GCC_VER_MACOS: '10'
+  GCC_VER_LINUX: '5'
 jobs:
   test:
     name: ${{ matrix.task == 'R_PACKAGE' && format('R {0}', matrix.os) || format('Python {0} ({1})', matrix.python_version, matrix.os) }}
@@ -62,7 +65,7 @@ jobs:
           export PATH="$CONDA_PATH/bin:$PATH"
           export TASK="${{ matrix.task }}"
           if [[ $OS_NAME == "macos-latest" ]]; then
-            export CXX=g++-10 && export CC=gcc-10
+            export CXX=g++-${{ env.GCC_VER_MACOS }} && export CC=gcc-${{ env.GCC_VER_MACOS }}
           fi
           export RGF_VER=$(head -n 1 $GITHUB_WORKSPACE/python-package/rgf/VERSION)
           echo "RGF_VER=$RGF_VER" >> $GITHUB_ENV
@@ -76,6 +79,11 @@ jobs:
         run: |
           export PATH="${{ env.CONDA_PATH }}/bin:$PATH"
           source activate ${{ env.CONDA_ENV }}
+          if [[ $OS_NAME == "macos-latest" ]]; then
+            export CXX=g++-${{ env.GCC_VER_MACOS }} && export CC=gcc-${{ env.GCC_VER_MACOS }}
+          else
+            export CXX=g++-${{ env.GCC_VER_LINUX }} && export CC=gcc-${{ env.GCC_VER_LINUX }}
+          fi
           cd $GITHUB_WORKSPACE/python-package
           if [[ ${{ matrix.os }} == "macos-latest" ]]; then
             python setup.py bdist_wheel --plat-name=macosx --python-tag py3;
