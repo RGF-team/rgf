@@ -66,6 +66,7 @@ jobs:
           fi
       - name: Setup and run tests on Windows
         if: startsWith(matrix.os, 'windows')
+        shell: powershell
         run: |
           $env:OS_NAME = "${{ matrix.os }}"
           $env:PYTHON_VERSION = "${{ matrix.python_version }}"
