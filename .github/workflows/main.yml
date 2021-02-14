@@ -3,7 +3,7 @@ name: Python and R tests
 on:
   push:
     branches:
-    - master
+    - github_actions_windows
   pull_request:
     branches:
     - master
@@ -22,26 +22,16 @@ jobs:
             python_version: 3.6
           - os: macos-latest
             python_version: 3.6
-          - os: ubuntu-latest
-            container: ubuntu:trusty
-            python_version: 3.7
-          - os: macos-latest
-            python_version: 3.7
-          - os: ubuntu-latest
-            container: ubuntu:trusty
-            python_version: 3.8
-          - os: macos-latest
-            python_version: 3.8
-          - os: ubuntu-latest
-            container: ubuntu:trusty
-            python_version: 3.9
-          - os: macos-latest
-            python_version: 3.9
+          - os: windows-2016
+            python_version: 3.6
           - os: ubuntu-latest
             container: rocker/verse:latest
             python_version: 3.9
             task: R_PACKAGE
           - os: macos-latest
+            python_version: 3.9
+            task: R_PACKAGE
+          - os: windows-2016
             python_version: 3.9
             task: R_PACKAGE
     container: ${{ matrix.container }}
@@ -50,7 +40,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 5
-      - name: Setup and run tests
+      - name: Install pandoc
+        if: matrix.task == 'R_PACKAGE' && startsWith(matrix.os, 'windows')
+        uses: r-lib/actions/setup-pandoc@v1
+      - name: Setup and run tests on Linux and macOS
+        if: matrix.os == 'macOS-latest' || matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
           export OS_NAME="${{ matrix.os }}"
@@ -70,6 +64,22 @@ jobs:
           if [[ $TASK == "R_PACKAGE" ]]; then
             $GITHUB_WORKSPACE/.ci/r_tests.sh || exit -1
           fi
+      - name: Setup and run tests on Windows
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          $env:OS_NAME = "${{ matrix.os }}"
+          $env:PYTHON_VERSION = "${{ matrix.python_version }}"
+          $env:CONDA_ENV=test-env
+          echo "CONDA_ENV=$env:CONDA_ENV" >> $GITHUB_ENV
+          $env:CONDA_PATH=$HOME/miniconda
+          echo "CONDA_PATH=$env:CONDA_PATH" >> $GITHUB_ENV
+          $env:PATH += ";$env:CONDA_PATH/bin;$env:CONDA_PATH/Scripts"
+          $env:TASK = "${{ matrix.task }}"
+          $env:RGF_VER = (Get-Content $env:GITHUB_WORKSPACE/python-package/rgf/VERSION).trim()
+          & "$env:GITHUB_WORKSPACE/.ci/python_tests_windows.ps1"
+          if ($env:TASK -eq "R_PACKAGE") {
+            & "$env:GITHUB_WORKSPACE/.ci/r_tests_windows.ps1"
+          }
       - name: Create Wheel
         if: matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && startsWith(github.ref, 'refs/tags/')
         shell: bash
