@@ -10,6 +10,7 @@ $env:PATH += ";$env:CONDA_PATH;$env:CONDA_PATH\bin;$env:CONDA_PATH\condabin;$env
 $ProgressPreference = "SilentlyContinue"  # progress bar bug extremely slows down download speed
 $InstallerName = "$env:GITHUB_WORKSPACE\Miniconda3-latest-Windows-x86_64.exe"
 Invoke-WebRequest -Uri "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe" -OutFile $InstallerName
+echo "BEFORE START-PROCESS"
 Start-Process -FilePath $InstallerName -Wait
 echo "BEFORE ECHO"
 echo $env:CONDA_PATH
