@@ -18,7 +18,6 @@ conda update -q conda
 conda create -q -n $env:CONDA_ENV python=$env:PYTHON_VERSION joblib numpy scikit-learn scipy pandas pytest
 conda activate $env:CONDA_ENV
 cd $env:GITHUB_WORKSPACE\python-package
-pytest tests -v ; Check-Output $?
 python setup.py sdist --formats gztar ; Check-Output $?
 pip install dist\rgf_python-$env:RGF_VER.tar.gz -v ; Check-Output $?
 pytest tests -v ; Check-Output $?
