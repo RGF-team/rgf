@@ -17,7 +17,7 @@ activate
 conda config --set always_yes yes --set changeps1 no
 conda update -q conda
 conda create -q -n $env:CONDA_ENV python=$env:PYTHON_VERSION joblib numpy scikit-learn scipy pandas pytest
-activate $env:CONDA_ENV
+conda activate $env:CONDA_ENV
 cd $env:GITHUB_WORKSPACE\python-package
 pytest tests -v ; Check-Output $?
 python setup.py sdist --formats gztar ; Check-Output $?
