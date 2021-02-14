@@ -69,9 +69,9 @@ jobs:
         run: |
           $env:OS_NAME = "${{ matrix.os }}"
           $env:PYTHON_VERSION = "${{ matrix.python_version }}"
-          $env:CONDA_ENV=test-env
+          $env:CONDA_ENV = "test-env"
           echo "CONDA_ENV=$env:CONDA_ENV" >> $GITHUB_ENV
-          $env:CONDA_PATH=$HOME\miniconda
+          $env:CONDA_PATH = "$env:USERPROFILE\miniconda"
           echo "CONDA_PATH=$env:CONDA_PATH" >> $GITHUB_ENV
           $env:PATH += ";$env:CONDA_PATH\bin;$env:CONDA_PATH\Scripts"
           $env:TASK = "${{ matrix.task }}"
