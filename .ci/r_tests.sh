@@ -23,6 +23,7 @@ echo "R_LIBS=$R_LIB_PATH" > .Renviron
 
 # ignore R CMD CHECK NOTE checking how long it has
 # been since the last submission
+export _R_CHECK_CRAN_INCOMING_=0
 export _R_CHECK_CRAN_INCOMING_REMOTE_=0
 
 if [[ $OS_NAME == "macos-latest" ]]; then
