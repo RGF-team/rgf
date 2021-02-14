@@ -71,14 +71,14 @@ jobs:
           $env:PYTHON_VERSION = "${{ matrix.python_version }}"
           $env:CONDA_ENV=test-env
           echo "CONDA_ENV=$env:CONDA_ENV" >> $GITHUB_ENV
-          $env:CONDA_PATH=$HOME/miniconda
+          $env:CONDA_PATH=$HOME\miniconda
           echo "CONDA_PATH=$env:CONDA_PATH" >> $GITHUB_ENV
-          $env:PATH += ";$env:CONDA_PATH/bin;$env:CONDA_PATH/Scripts"
+          $env:PATH += ";$env:CONDA_PATH\bin;$env:CONDA_PATH\Scripts"
           $env:TASK = "${{ matrix.task }}"
-          $env:RGF_VER = (Get-Content $env:GITHUB_WORKSPACE/python-package/rgf/VERSION).trim()
-          & "$env:GITHUB_WORKSPACE/.ci/python_tests_windows.ps1"
+          $env:RGF_VER = (Get-Content $env:GITHUB_WORKSPACE\python-package\rgf\VERSION).trim()
+          & "$env:GITHUB_WORKSPACE\.ci\python_tests_windows.ps1"
           if ($env:TASK -eq "R_PACKAGE") {
-            & "$env:GITHUB_WORKSPACE/.ci/r_tests_windows.ps1"
+            & "$env:GITHUB_WORKSPACE\.ci\r_tests_windows.ps1"
           }
       - name: Create Wheel
         if: matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && startsWith(github.ref, 'refs/tags/')
