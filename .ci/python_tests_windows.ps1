@@ -11,7 +11,7 @@ $ProgressPreference = "SilentlyContinue"  # progress bar bug extremely slows dow
 $InstallerName = "$env:GITHUB_WORKSPACE\Miniconda3-latest-Windows-x86_64.exe"
 mkdir $env:CONDA_PATH -Force
 Invoke-WebRequest -Uri "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe" -OutFile $InstallerName
-Start-Process -FilePath $InstallerName -ArgumentList "/InstallationType=JustMe","/RegisterPython=0","/D=$env:CONDA_PATH"
+Start-Process -FilePath $InstallerName -ArgumentList '/InstallationType=JustMe /RegisterPython=0 /D=$env:CONDA_PATH' -Wait
 echo "BEFORE ECHO"
 echo $env:CONDA_PATH
 cd "$env:CONDA_PATH"
