@@ -6,7 +6,7 @@ function Check-Output {
     }
 }
 
-$ProgressPreference = "SilentlyContinue"  # progress bar bug extremely slows down download speed
+#$ProgressPreference = "SilentlyContinue"  # progress bar bug extremely slows down download speed
 $InstallerName = "$env:GITHUB_WORKSPACE\Miniconda3-latest-Windows-x86_64.exe"
 Invoke-WebRequest -Uri "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe" -OutFile $InstallerName
 &$InstallerName /InstallationType=JustMe /RegisterPython=0 /D=$env:CONDA_PATH
