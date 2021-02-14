@@ -13,7 +13,7 @@ mkdir $env:CONDA_PATH -Force
 Invoke-WebRequest -Uri "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe" -OutFile $InstallerName
 &$InstallerName /InstallationType=JustMe /RegisterPython=0 /D=$env:CONDA_PATH
 echo $env:CONDA_PATH
-cd $env:CONDA_PATH
+cd "$env:CONDA_PATH"
 ls
 conda config --set always_yes yes --set changeps1 no
 conda update -q conda
