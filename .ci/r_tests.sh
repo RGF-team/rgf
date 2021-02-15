@@ -21,6 +21,11 @@ R_LIB_PATH=$HOME/R
 mkdir -p $R_LIB_PATH
 echo "R_LIBS=$R_LIB_PATH" > .Renviron
 
+# ignore R CMD CHECK NOTE checking how long it has
+# been since the last submission
+export _R_CHECK_CRAN_INCOMING_=0
+export _R_CHECK_CRAN_INCOMING_REMOTE_=0
+
 if [[ $OS_NAME == "macos-latest" ]]; then
   Rscript -e "install.packages('devtools', dependencies = TRUE, repos = 'https://cran.r-project.org')"
 fi
@@ -34,8 +39,8 @@ LOG_FILE_NAME="$PKG_NAME.Rcheck/00check.log"
 COVERAGE_FILE_NAME="$PKG_NAME.Rcheck/coverage.log"
 
 R CMD check "${PKG_FILE_NAME}" --as-cran || exit -1
-if grep -q -E "WARNING|ERROR" "$LOG_FILE_NAME"; then
-    echo "WARNINGs or ERRORs have been found by R CMD check"
+if grep -q -E "NOTE|WARNING|ERROR" "$LOG_FILE_NAME"; then
+    echo "NOTEs, WARNINGs or ERRORs have been found by R CMD check"
     exit -1
 fi
 
