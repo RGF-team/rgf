@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import atexit
 import codecs
 import glob
@@ -9,11 +7,12 @@ import platform
 import stat
 import subprocess
 import warnings
+from configparser import MissingSectionHeaderError, RawConfigParser
+from io import StringIO
 from tempfile import gettempdir
 from threading import Lock
 from uuid import uuid4
 
-import six
 import numpy as np
 import scipy.sparse as sp
 from sklearn.base import BaseEstimator
@@ -74,17 +73,17 @@ class Config(object):
     @classmethod
     def init_paths(cls):
         if cls.TEMP_PATH is None:
-            config = six.moves.configparser.RawConfigParser()
+            config = RawConfigParser()
             path = os.path.join(os.path.expanduser('~'), '.rgfrc')
 
             try:
                 with codecs.open(path, 'r', 'utf-8') as cfg:
-                    with six.StringIO(cfg.read()) as strIO:
-                        config.readfp(strIO)
-            except six.moves.configparser.MissingSectionHeaderError:
+                    with StringIO(cfg.read()) as strIO:
+                        config.read_file(strIO)
+            except MissingSectionHeaderError:
                 with codecs.open(path, 'r', 'utf-8') as cfg:
-                    with six.StringIO('[glob]\n' + cfg.read()) as strIO:
-                        config.readfp(strIO)
+                    with StringIO('[glob]\n' + cfg.read()) as strIO:
+                        config.read_file(strIO)
             except Exception:
                 pass
 
@@ -244,7 +243,6 @@ COUNTER = AtomicCounter()
 
 
 def sparse_savetxt(filename, input_array, including_header=True):
-    zip_func = six.moves.zip
     if sp.isspmatrix_csr(input_array):
         input_array = input_array.tocoo()
     else:
@@ -255,7 +253,7 @@ def sparse_savetxt(filename, input_array, including_header=True):
     with open(filename, 'w') as fw:
         if including_header:
             fw.write('sparse {0:d}\n'.format(input_array.shape[-1]))
-        for i, j, v in zip_func(input_array.row, input_array.col, input_array.data):
+        for i, j, v in zip(input_array.row, input_array.col, input_array.data):
             if i == current_sample_row:
                 line.append('{0}:{1}'.format(j, v))
             else:
