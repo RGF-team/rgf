@@ -20,4 +20,6 @@ conda activate $env:CONDA_ENV
 cd $env:GITHUB_WORKSPACE\python-package
 python setup.py sdist --formats gztar ; Check-Output $?
 pip install dist\rgf_python-$env:RGF_VER.tar.gz -v ; Check-Output $?
-pytest tests -v ; Check-Output $?
+if ($env:TASK -ne "R_PACKAGE") {
+    pytest tests -v ; Check-Output $?
+}
