@@ -29,7 +29,7 @@ Invoke-WebRequest -Uri https://cloud.r-project.org/bin/windows/base/old/$R_VER/R
 Start-Process -FilePath R-win.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\R /COMPONENTS=main,x64" ; Check-Output $?
 
 Invoke-WebRequest -Uri https://cran.r-project.org/bin/windows/Rtools/rtools40-x86_64.exe -OutFile Rtools.exe
-Start-Process -FilePath Rtools.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /DIR=$env:R_LIB_PATH\Rtools" ; Check-Output $?
+Start-Process -FilePath Rtools.exe -NoNewWindow -Wait -ArgumentList "/TYPE=full /VERYSILENT /SUPPRESSMSGBOXES /DIR=$env:R_LIB_PATH\Rtools" ; Check-Output $?
 
 Invoke-WebRequest -Uri https://miktex.org/download/win/miktexsetup-x64.zip -OutFile miktexsetup-x64.zip
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -38,7 +38,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 .\miktex\download\miktexsetup_standalone.exe --portable="$env:R_LIB_PATH\miktex" --quiet install ; Check-Output $?
 
 initexmf --set-config-value [MPM]AutoInstall=1
-echo yes | pacman -S mingw-w64-x86_64-qpdf
+#echo yes | pacman -S mingw-w64-x86_64-qpdf
 
 cd "$env:GITHUB_WORKSPACE\R-package"
 Add-Content .Renviron "R_LIBS=$env:R_LIB_PATH"
@@ -63,11 +63,11 @@ if (Get-Content "$LOG_FILE_NAME" | Select-String -Pattern "NOTE|WARNING|ERROR" -
     Check-Output $False
 }
 
-Rscript -e "covr::codecov(quiet = FALSE)" *>&1 | Tee-Object "$COVERAGE_FILE_NAME"
-$Coverage = 0
-$Match = Get-Content "$COVERAGE_FILE_NAME" | Select-String -Pattern "RGF Coverage:" | Select-Object -First 1
-$Coverage = [float]$Match.Line.Trim().Split(" ")[-1].Replace("%", "")
-if ($Coverage -le 50) {
-    echo "Code coverage is extremely small!"
-    Check-Output $False
-}
+#Rscript -e "covr::codecov(quiet = FALSE)" *>&1 | Tee-Object "$COVERAGE_FILE_NAME"
+#$Coverage = 0
+#$Match = Get-Content "$COVERAGE_FILE_NAME" | Select-String -Pattern "RGF Coverage:" | Select-Object -First 1
+#$Coverage = [float]$Match.Line.Trim().Split(" ")[-1].Replace("%", "")
+#if ($Coverage -le 50) {
+#    echo "Code coverage is extremely small!"
+#    Check-Output $False
+#}
