@@ -64,23 +64,21 @@ jobs:
           if [[ $TASK == "R_PACKAGE" ]]; then
             $GITHUB_WORKSPACE/.ci/r_tests.sh || exit -1
           fi
-      - name: Setup and run tests on Windows
-        if: startsWith(matrix.os, 'windows')
-        run: |
-          $env:OS_NAME = "${{ matrix.os }}"
-          $env:PYTHON_VERSION = "${{ matrix.python_version }}"
-          $env:CONDA_ENV = "test-env"
-          echo "CONDA_ENV=$env:CONDA_ENV" >> $GITHUB_ENV
-          $env:CONDA_PATH = "$env:USERPROFILE\miniconda"
-          echo "CONDA_PATH=$env:CONDA_PATH" >> $GITHUB_ENV
-          $env:PATH += ";$env:CONDA_PATH\Scripts"
-          $env:PATH += ";C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin"
-          $env:TASK = "${{ matrix.task }}"
-          $env:RGF_VER = (Get-Content $env:GITHUB_WORKSPACE\python-package\rgf\VERSION).trim()
-          & "$env:GITHUB_WORKSPACE\.ci\python_tests_windows.ps1"
-          if ($env:TASK -eq "R_PACKAGE") {
-            & "$env:GITHUB_WORKSPACE\.ci\r_tests_windows.ps1"
-          }
+      - name: Download
+        run: Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+      - name: Extract
+        run: Expand-Archive ngrok.zip
+      - name: Auth
+        run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+        env:
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+      - name: Enable TS
+        run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+      - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+      - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+      - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
+      - name: Create Tunnel
+        run: .\ngrok\ngrok.exe tcp 3389
       - name: Create Wheel
         if: matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && startsWith(github.ref, 'refs/tags/')
         shell: bash
