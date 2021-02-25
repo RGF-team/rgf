@@ -12,6 +12,7 @@ conda activate $env:CONDA_ENV
 tzutil /s "GMT Standard Time"
 
 $env:R_LIB_PATH = "$env:USERPROFILE\R"
+$env:R_QPDF = "$env:R_LIB_PATH\Rtools\usr\bin\qpdf.exe"
 $env:PATH += ";$env:R_LIB_PATH\Rtools\usr\bin" + ";$env:R_LIB_PATH\Rtools\mingw64\bin" + ";$env:R_LIB_PATH\R\bin\x64" + ";$env:R_LIB_PATH\miktex\texmfs\install\miktex\bin\x64"
 cd $env:GITHUB_WORKSPACE
 
