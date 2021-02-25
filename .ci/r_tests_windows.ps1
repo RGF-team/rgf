@@ -12,8 +12,8 @@ conda activate $env:CONDA_ENV
 tzutil /s "GMT Standard Time"
 
 $env:R_LIB_PATH = "$env:USERPROFILE\R"
-$env:R_QPDF = "$env:R_LIB_PATH\Rtools\usr\bin\qpdf.exe"
-$env:PATH += ";$env:R_LIB_PATH\Rtools\usr\bin" + ";$env:R_LIB_PATH\Rtools\mingw64\bin" + ";$env:R_LIB_PATH\R\bin\x64" + ";$env:R_LIB_PATH\miktex\texmfs\install\miktex\bin\x64"
+$RTOOLS_INSTALL_PATH = "C:\rtools40"
+$env:PATH += ";$RTOOLS_INSTALL_PATH\usr\bin" + ";$RTOOLS_INSTALL_PATH\mingw64\bin" + ";$env:R_LIB_PATH\R\bin\x64" + ";$env:R_LIB_PATH\miktex\texmfs\install\miktex\bin\x64"
 cd $env:GITHUB_WORKSPACE
 
 [Void][System.IO.Directory]::CreateDirectory($env:R_LIB_PATH)
@@ -29,7 +29,7 @@ Invoke-WebRequest -Uri https://cloud.r-project.org/bin/windows/base/old/$R_VER/R
 Start-Process -FilePath R-win.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\R /COMPONENTS=main,x64" ; Check-Output $?
 
 Invoke-WebRequest -Uri https://cran.r-project.org/bin/windows/Rtools/rtools40-x86_64.exe -OutFile Rtools.exe
-Start-Process -FilePath Rtools.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /DIR=$env:R_LIB_PATH\Rtools" ; Check-Output $?
+Start-Process -FilePath Rtools.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /DIR=$RTOOLS_INSTALL_PATH" ; Check-Output $?
 
 Invoke-WebRequest -Uri https://miktex.org/download/win/miktexsetup-x64.zip -OutFile miktexsetup-x64.zip
 Add-Type -AssemblyName System.IO.Compression.FileSystem
