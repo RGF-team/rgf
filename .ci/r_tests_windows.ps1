@@ -38,7 +38,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 .\miktex\download\miktexsetup_standalone.exe --portable="$env:R_LIB_PATH\miktex" --quiet install ; Check-Output $?
 
 initexmf --set-config-value [MPM]AutoInstall=1
-echo yes | pacman -S mingw-w64-x86_64-qpdf pandoc-static
+echo yes | pacman -S mingw-w64-x86_64-qpdf
 
 cd "$env:GITHUB_WORKSPACE\R-package"
 Add-Content .Renviron "R_LIBS=$env:R_LIB_PATH"
