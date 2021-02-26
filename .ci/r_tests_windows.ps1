@@ -12,6 +12,7 @@ conda activate $env:CONDA_ENV
 tzutil /s "GMT Standard Time"
 
 $env:R_LIB_PATH = "$env:USERPROFILE\R"
+$env:CTAN_PACKAGE_ARCHIVE = "https://ctan.math.illinois.edu/systems/win32/miktex/tm/packages/"
 $env:PATH += ";$env:R_LIB_PATH\Rtools\usr\bin" + ";$env:R_LIB_PATH\Rtools\mingw64\bin" + ";$env:R_LIB_PATH\R\bin\x64" + ";$env:R_LIB_PATH\miktex\texmfs\install\miktex\bin\x64"
 cd $env:GITHUB_WORKSPACE
 
@@ -34,8 +35,8 @@ Start-Process -FilePath Rtools.exe -NoNewWindow -Wait -ArgumentList "/TYPE=full 
 Invoke-WebRequest -Uri https://miktex.org/download/win/miktexsetup-x64.zip -OutFile miktexsetup-x64.zip
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory("miktexsetup-x64.zip", "miktex")
-.\miktex\miktexsetup_standalone.exe --local-package-repository=.\miktex\download --package-set=essential --quiet download ; Check-Output $?
-.\miktex\download\miktexsetup_standalone.exe --portable="$env:R_LIB_PATH\miktex" --quiet install ; Check-Output $?
+.\miktex\miktexsetup_standalone.exe --remote-package-repository="$env:CTAN_PACKAGE_ARCHIVE" --local-package-repository=.\miktex\download --package-set=essential --quiet download ; Check-Output $?
+.\miktex\download\miktexsetup_standalone.exe --remote-package-repository="$env:CTAN_PACKAGE_ARCHIVE" --portable="$env:R_LIB_PATH\miktex" --quiet install ; Check-Output $?
 
 initexmf --set-config-value [MPM]AutoInstall=1
 echo yes | pacman -S mingw-w64-x86_64-qpdf
