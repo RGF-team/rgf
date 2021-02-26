@@ -64,7 +64,7 @@ if (Get-Content "$LOG_FILE_NAME" | Select-String -Pattern "NOTE|WARNING|ERROR" -
     Check-Output $False
 }
 
-Rscript -e "covr::codecov(quiet = FALSE)" *>&1 | Tee-Object -FilePath "$COVERAGE_FILE_NAME" | Out-Null
+Rscript -e "covr::codecov(quiet = FALSE)" *>$null
 #$Coverage = 0
 #$Match = Get-Content "$COVERAGE_FILE_NAME" | Select-String -Pattern "RGF Coverage:" | Select-Object -First 1
 #$Coverage = [float]$Match.Line.Trim().Split(" ")[-1].Replace("%", "")
