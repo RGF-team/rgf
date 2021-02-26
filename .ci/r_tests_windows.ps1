@@ -46,6 +46,7 @@ Add-Content .Renviron "R_LIBS=$env:R_LIB_PATH"
 Add-Content .Rprofile "options(repos = 'https://cran.r-project.org')"
 Add-Content .Rprofile "options(pkgType = 'binary')"
 Add-Content .Rprofile "options(install.packages.check.source = 'no')"
+Add-Content .Rprofile "Sys.setenv(RETICULATE_PYTHON = '$([RegEx]::Escape($env:CONDA_PREFIX))/python.exe')"
 
 Rscript -e "install.packages('devtools', dependencies = TRUE)"
 Rscript -e "devtools::install_deps(pkg = '.', dependencies = TRUE)"
@@ -63,12 +64,12 @@ if (Get-Content "$LOG_FILE_NAME" | Select-String -Pattern "NOTE|WARNING|ERROR" -
     echo "NOTEs, WARNINGs or ERRORs have been found by R CMD check"
     Check-Output $False
 }
-
-#Rscript -e "covr::codecov(quiet = FALSE)" *>$null
-#$Coverage = 0
-#$Match = Get-Content "$COVERAGE_FILE_NAME" | Select-String -Pattern "RGF Coverage:" | Select-Object -First 1
-#$Coverage = [float]$Match.Line.Trim().Split(" ")[-1].Replace("%", "")
-#if ($Coverage -le 50) {
-#    echo "Code coverage is extremely small!"
-#    Check-Output $False
-#}
+Rscript -e "covr::codecov(quiet = FALSE)" *> "$COVERAGE_FILE_NAME" ; $LastExitCode = 0
+Get-Content -LiteralPath "$COVERAGE_FILE_NAME"
+$Coverage = 0
+$Match = Get-Content "$COVERAGE_FILE_NAME" | Select-String -Pattern "RGF Coverage:" | Select-Object -First 1
+$Coverage = [float]$Match.Line.Trim().Split(" ")[-1].Replace("%", "")
+if ($Coverage -le 50) {
+    echo "Code coverage is extremely small!"
+    Check-Output $False
+}
