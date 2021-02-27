@@ -67,7 +67,7 @@ if (Get-Content "$LOG_FILE_NAME" | Select-String -Pattern "NOTE|WARNING|ERROR" -
 
 # $ActualErrorPreference = $ErrorActionPreference
 # $ErrorActionPreference = "SilentlyContinue"
-Rscript -e "covr::codecov(quiet = FALSE)" *> "$COVERAGE_FILE_NAME" ; $LastExitCode = 0
+Rscript -e "covr::codecov(quiet = FALSE)" *> "$COVERAGE_FILE_NAME" 2>&1 ; $LastExitCode = 0
 # $ErrorActionPreference = $ActualErrorPreference
 Get-Content -LiteralPath "$COVERAGE_FILE_NAME"
 $Coverage = 0
