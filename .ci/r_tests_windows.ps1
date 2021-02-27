@@ -64,7 +64,8 @@ if (Get-Content "$LOG_FILE_NAME" | Select-String -Pattern "NOTE|WARNING|ERROR" -
     echo "NOTEs, WARNINGs or ERRORs have been found by R CMD check"
     Check-Output $False
 }
-Rscript -e "covr::codecov(quiet = FALSE)" *> "$COVERAGE_FILE_NAME" ; $LastExitCode = 0
+
+& cmd /c 'Rscript -e "covr::codecov(quiet = FALSE)"' *> "$COVERAGE_FILE_NAME" ; $LastExitCode = 0
 Get-Content -LiteralPath "$COVERAGE_FILE_NAME"
 $Coverage = 0
 $Match = Get-Content "$COVERAGE_FILE_NAME" | Select-String -Pattern "RGF Coverage:" | Select-Object -First 1
