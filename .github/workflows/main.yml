@@ -81,8 +81,8 @@ jobs:
           if ($env:TASK -eq "R_PACKAGE") {
             & "$env:GITHUB_WORKSPACE\.ci\r_tests_windows.ps1"
           }
-      - name: Create Wheel
-        if: matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && startsWith(github.ref, 'refs/tags/')
+      - name: Create wheel for Linux and macOS
+        if: (matrix.os == 'macOS-latest' || matrix.os == 'ubuntu-latest') && matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
           export PATH="${{ env.CONDA_PATH }}/bin:$PATH"
@@ -94,6 +94,14 @@ jobs:
           else
             python setup.py bdist_wheel --plat-name=manylinux1_x86_64 --python-tag py3;
           fi
+      - name: Create wheel for Windows
+        if: startsWith(matrix.os, 'windows') && matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          $env:PATH += ";${{ env.CONDA_PATH }}\Scripts"
+          $env:PATH += ";C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin"
+          conda activate ${{ env.CONDA_ENV }}
+          cd $GITHUB_WORKSPACE\python-package
+          python setup.py bdist_wheel --plat-name=win-amd64 --python-tag py3
       - name: Create GitHub Release
         if: matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
@@ -104,7 +112,9 @@ jobs:
           name: ${{ env.RGF_VER }}
           draft: true
           prerelease: false
-          files: ${{ github.workspace }}/python-package/dist/*.whl
+          files: |
+            ${{ github.workspace }}/python-package/dist/*.whl
+            ${{ github.workspace }}/python-package/compile/RGF/bin/*.exe
   all-successful:
     # https://github.community/t/is-it-possible-to-require-all-github-actions-tasks-to-pass-without-enumerating-them/117957/4?u=graingert
     runs-on: ubuntu-latest
