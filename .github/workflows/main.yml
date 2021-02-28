@@ -3,7 +3,7 @@ name: Python and R tests
 on:
   push:
     branches:
-    - github_actions_windows
+    - master
   pull_request:
     branches:
     - master
@@ -17,6 +17,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - os: ubuntu-latest
+            container: ubuntu:trusty
+            python_version: 3.6
+          - os: macos-latest
+            python_version: 3.6
+          - os: windows-2016
+            python_version: 3.6
+          - os: ubuntu-latest
+            container: ubuntu:trusty
+            python_version: 3.7
+          - os: macos-latest
+            python_version: 3.7
+          - os: windows-2016
+            python_version: 3.7
+          - os: ubuntu-latest
+            container: ubuntu:trusty
+            python_version: 3.8
+          - os: macos-latest
+            python_version: 3.8
+          - os: windows-2016
+            python_version: 3.8
           - os: ubuntu-latest
             container: ubuntu:trusty
             python_version: 3.9
