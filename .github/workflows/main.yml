@@ -100,7 +100,7 @@ jobs:
           $env:PATH += ";${{ env.CONDA_PATH }}\Scripts"
           $env:PATH += ";C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin"
           conda activate ${{ env.CONDA_ENV }}
-          cd $GITHUB_WORKSPACE\python-package
+          cd $env:GITHUB_WORKSPACE\python-package
           python setup.py bdist_wheel --plat-name=win-amd64 --python-tag py3
       - name: Create GitHub Release
         if: matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && startsWith(github.ref, 'refs/tags/')
