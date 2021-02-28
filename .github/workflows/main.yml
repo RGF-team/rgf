@@ -70,14 +70,14 @@ jobs:
           $env:OS_NAME = "${{ matrix.os }}"
           $env:PYTHON_VERSION = "${{ matrix.python_version }}"
           $env:CONDA_ENV = "test-env"
-          echo "CONDA_ENV=$env:CONDA_ENV" >> $GITHUB_ENV
+          echo "CONDA_ENV=$env:CONDA_ENV" >> $env:GITHUB_ENV
           $env:CONDA_PATH = "$env:USERPROFILE\miniconda"
-          echo "CONDA_PATH=$env:CONDA_PATH" >> $GITHUB_ENV
+          echo "CONDA_PATH=$env:CONDA_PATH" >> $env:GITHUB_ENV
           $env:PATH += ";$env:CONDA_PATH\Scripts"
           $env:PATH += ";C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin"
           $env:TASK = "${{ matrix.task }}"
           $env:RGF_VER = (Get-Content $env:GITHUB_WORKSPACE\python-package\rgf\VERSION).trim()
-          echo "RGF_VER=$env:RGF_VER" >> $GITHUB_ENV
+          echo "RGF_VER=$env:RGF_VER" >> $env:GITHUB_ENV
           & "$env:GITHUB_WORKSPACE\.ci\python_tests_windows.ps1"
           if ($env:TASK -eq "R_PACKAGE") {
             & "$env:GITHUB_WORKSPACE\.ci\r_tests_windows.ps1"
