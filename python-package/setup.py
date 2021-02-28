@@ -5,7 +5,6 @@ from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
 from setuptools.command.sdist import sdist
 from shutil import rmtree
-import io
 import logging
 import os
 import subprocess
@@ -19,7 +18,7 @@ logger = logging.getLogger('rgf_python')
 
 
 def read(filename):
-    return io.open(os.path.join(CURRENT_DIR, filename), encoding='utf-8').read()
+    return open(os.path.join(CURRENT_DIR, filename), encoding='utf-8').read()
 
 
 def copy_files():
@@ -380,7 +379,7 @@ setup(name='rgf_python',
                 'sdist': CustomSdist},
       packages=find_packages(),
       include_package_data=True,
-      install_requires=["joblib", "six", "scikit-learn>=0.18"],
+      install_requires=["joblib", "scikit-learn>=0.18"],
       classifiers=['Development Status :: 5 - Production/Stable',
                    'Intended Audience :: Science/Research',
                    'License :: OSI Approved :: MIT License',
@@ -389,8 +388,6 @@ setup(name='rgf_python',
                    'Operating System :: Microsoft :: Windows',
                    'Operating System :: POSIX',
                    'Operating System :: Unix',
-                   'Programming Language :: Python :: 2',
-                   'Programming Language :: Python :: 2.7',
                    'Programming Language :: Python :: 3',
                    'Programming Language :: Python :: 3.6',
                    'Programming Language :: Python :: 3.7',

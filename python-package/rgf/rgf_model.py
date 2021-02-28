@@ -1,12 +1,9 @@
-from __future__ import absolute_import
-
 from glob import glob
 from math import ceil
 from shutil import copyfile
 
 import numpy as np
 from joblib import Parallel, delayed, cpu_count
-from six import string_types
 from sklearn.base import ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.exceptions import NotFittedError
 
@@ -182,14 +179,14 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             raise ValueError(
                 "test_interval must be greater than 0 but was %r." % test_interval)
 
-        if not isinstance(algorithm, string_types):
+        if not isinstance(algorithm, str):
             raise ValueError(
                 "algorithm must be a string, got {0}.".format(type(algorithm)))
         elif algorithm not in ALGORITHMS:
             raise ValueError(
                 "algorithm must be 'RGF' or 'RGF_Opt' or 'RGF_Sib' but was %r." % algorithm)
 
-        if not isinstance(loss, string_types):
+        if not isinstance(loss, str):
             raise ValueError(
                 "loss must be a string, got {0}.".format(type(loss)))
         elif loss not in LOSSES:
@@ -269,19 +266,19 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             raise ValueError(
                 "verbose must be no smaller than 0 but was %r." % verbose)
 
-        if not isinstance(memory_policy, string_types):
+        if not isinstance(memory_policy, str):
             raise ValueError("memory_policy must be a string, got {0}.".format(
                 type(memory_policy)))
         elif memory_policy not in ("conservative", "generous"):
             raise ValueError(
                 "memory_policy must be 'conservative' or 'generous' but was %r." % memory_policy)
 
-        if init_model is not None and not isinstance(init_model, string_types):
+        if init_model is not None and not isinstance(init_model, str):
             raise ValueError(
                 "init_model must be a string or None, got {0}.".format(
                     type(init_model)))
 
-        if not isinstance(calc_prob, string_types):
+        if not isinstance(calc_prob, str):
             raise ValueError(
                 "calc_prob must be a string, got {0}.".format(type(calc_prob)))
         elif calc_prob not in ("sigmoid", "softmax"):
@@ -345,7 +342,7 @@ class RGFEstimatorBase(utils.CommonRGFEstimatorBase):
             self._n_iter = self.n_iter
 
     def _get_params(self):
-        res = super(RGFEstimatorBase, self)._get_params()
+        res = super()._get_params()
         res.update(dict(max_leaf=self.max_leaf,
                         test_interval=self.test_interval,
                         algorithm=self.algorithm,
@@ -474,7 +471,7 @@ class RGFRegressor(RegressorMixin, utils.RGFRegressorMixin, RGFEstimatorBase):
                  init_model=None):
         if not utils.Config().RGF_AVAILABLE:
             raise Exception('RGF estimators are unavailable for usage.')
-        super(RGFRegressor, self).__init__()
+        super().__init__()
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -508,7 +505,7 @@ class RGFRegressor(RegressorMixin, utils.RGFRegressorMixin, RGFEstimatorBase):
         __doc__ = __doc__.replace(_template, _value)
 
     def save_model(self, filename):
-        super(RGFRegressor, self).save_model(filename)
+        super().save_model(filename)
 
     _regressor_save_model_specific_values = {
         '{%file_singular_or_plural%}': 'file',
@@ -541,7 +538,7 @@ class RGFClassifier(ClassifierMixin, utils.RGFClassifierMixin, RGFEstimatorBase)
                  init_model=None):
         if not utils.Config().RGF_AVAILABLE:
             raise Exception('RGF estimators are unavailable for usage.')
-        super(RGFClassifier, self).__init__()
+        super().__init__()
         self.max_leaf = max_leaf
         self.test_interval = test_interval
         self.algorithm = algorithm
@@ -596,7 +593,7 @@ n_classes_ : int
         __doc__ = __doc__.replace(_template, _value)
 
     def save_model(self, filename):
-        super(RGFClassifier, self).save_model(filename)
+        super().save_model(filename)
 
     _classifier_save_model_specific_values = {
         '{%file_singular_or_plural%}': 'file(s)',

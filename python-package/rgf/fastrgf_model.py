@@ -1,11 +1,8 @@
-from __future__ import absolute_import
-
 import os
 from math import ceil
 
 import numpy as np
 from joblib import cpu_count
-from six import string_types
 from sklearn.base import ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.exceptions import NotFittedError
 
@@ -193,7 +190,7 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
         elif l2 < 0:
             raise ValueError("l2 must be no smaller than 0.0 but was %r." % l2)
 
-        if not isinstance(opt_algorithm, string_types):
+        if not isinstance(opt_algorithm, str):
             raise ValueError("opt_algorithm must be a string, got {0}.".format(
                 type(opt_algorithm)))
         elif opt_algorithm not in ALGORITHMS:
@@ -257,14 +254,14 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
             raise ValueError(
                 "verbose must be no smaller than 0 but was %r." % verbose)
 
-        if not isinstance(loss, string_types):
+        if not isinstance(loss, str):
             raise ValueError(
                 "loss must be a string, got {0}.".format(type(loss)))
         elif loss not in LOSSES:
             raise ValueError(
                 "loss must be 'LS' or 'MODLS' or 'LOGISTIC' but was %r." % loss)
 
-        if not isinstance(calc_prob, string_types):
+        if not isinstance(calc_prob, str):
             raise ValueError(
                 "calc_prob must be a string, got {0}.".format(type(calc_prob)))
         elif calc_prob not in ("sigmoid", "softmax"):
@@ -317,7 +314,7 @@ class FastRGFEstimatorBase(utils.CommonRGFEstimatorBase):
         self._set_target_and_loss()
 
     def _get_params(self):
-        res = super(FastRGFEstimatorBase, self)._get_params()
+        res = super()._get_params()
         res.update(dict(max_depth=self.max_depth,
                         max_leaf=self.max_leaf,
                         tree_gain_ratio=self.tree_gain_ratio,
@@ -373,7 +370,7 @@ class FastRGFRegressor(RegressorMixin, utils.RGFRegressorMixin, FastRGFEstimator
                  verbose=0):
         if not utils.Config().FASTRGF_AVAILABLE:
             raise Exception('FastRGF estimators are unavailable for usage.')
-        super(FastRGFRegressor, self).__init__()
+        super().__init__()
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.max_leaf = max_leaf
@@ -430,7 +427,7 @@ class FastRGFClassifier(ClassifierMixin, utils.RGFClassifierMixin, FastRGFEstima
                  verbose=0):
         if not utils.Config().FASTRGF_AVAILABLE:
             raise Exception('FastRGF estimators are unavailable for usage.')
-        super(FastRGFClassifier, self).__init__()
+        super().__init__()
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.max_leaf = max_leaf

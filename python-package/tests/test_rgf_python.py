@@ -443,24 +443,24 @@ class TestRGFClassifier(ClassifierBaseTest, RGFBaseTest, unittest.TestCase):
         self.estimator_class = RGFClassifier
         self.kwargs = {}
 
-        super(TestRGFClassifier, self).setUp()
+        super().setUp()
 
     def test_params(self):
-        super(TestRGFClassifier, self).test_params(add_valid_params={'calc_prob': 'sigmoid',
-                                                                    'n_jobs': -1},
-                                                  add_non_valid_params={'calc_prob': True,
-                                                                        'n_jobs': '-1'})
+        super().test_params(add_valid_params={'calc_prob': 'sigmoid',
+                                              'n_jobs': -1},
+                            add_non_valid_params={'calc_prob': True,
+                                                  'n_jobs': '-1'})
 
     def test_attributes(self):
-        super(TestRGFClassifier, self).test_attributes(add_attrs=['classes_',
-                                                                 'n_classes_'])
+        super().test_attributes(add_attrs=['classes_',
+                                           'n_classes_'])
         self.assertEqual(len(self.est.estimators_), len(np.unique(self.y_train)))
         np.testing.assert_array_equal(self.est.classes_, sorted(np.unique(self.y_train)))
         self.assertEqual(self.est.n_classes_, len(self.est.estimators_))
 
     def test_warm_start(self):
         self.new_max_leaf = 1050  # +50 to default value
-        super(TestRGFClassifier, self).test_warm_start()
+        super().test_warm_start()
         warm_start_score = accuracy_score(self.y_test, self.y_pred)
         self.assertGreaterEqual(warm_start_score, self.accuracy,
                                 "Failed with score = {0:.5f}".format(warm_start_score))
@@ -471,17 +471,17 @@ class TestFastRGFClassifier(ClassifierBaseTest, FastRGFBaseTest, unittest.TestCa
         self.estimator_class = FastRGFClassifier
         self.kwargs = {}
 
-        super(TestFastRGFClassifier, self).setUp()
+        super().setUp()
 
     def test_params(self):
-        super(TestFastRGFClassifier, self).test_params(add_valid_params={'loss': 'LOGISTIC',
-                                                                        'calc_prob': 'sigmoid'},
-                                                      add_non_valid_params={'loss': 'LOG',
-                                                                            'calc_prob': None})
+        super().test_params(add_valid_params={'loss': 'LOGISTIC',
+                                              'calc_prob': 'sigmoid'},
+                            add_non_valid_params={'loss': 'LOG',
+                                                  'calc_prob': None})
 
     def test_attributes(self):
-        super(TestFastRGFClassifier, self).test_attributes(add_attrs=['classes_',
-                                                                     'n_classes_'])
+        super().test_attributes(add_attrs=['classes_',
+                                           'n_classes_'])
         self.assertEqual(len(self.est.estimators_), len(np.unique(self.y_train)))
         np.testing.assert_array_equal(self.est.classes_, sorted(np.unique(self.y_train)))
         self.assertEqual(self.est.n_classes_, len(self.est.estimators_))
@@ -500,10 +500,10 @@ class TestRGFRegressor(RegressorBaseTest, RGFBaseTest, unittest.TestCase):
 
         self.mse = 2.0353275768
 
-        super(TestRGFRegressor, self).setUp()
+        super().setUp()
 
     def test_attributes(self):
-        super(TestRGFRegressor, self).test_attributes()
+        super().test_attributes()
         self.assertEqual(len(self.est.estimators_), 1)
 
     def test_abs_regressor(self):
@@ -515,7 +515,7 @@ class TestRGFRegressor(RegressorBaseTest, RGFBaseTest, unittest.TestCase):
 
     def test_warm_start(self):
         self.new_max_leaf = 560  # +60 to default value
-        super(TestRGFRegressor, self).test_warm_start()
+        super().test_warm_start()
         warm_start_score = mean_squared_error(self.y_test, self.y_pred)
         self.assertLess(warm_start_score, self.mse,
                         "Failed with MSE = {0:.5f}".format(warm_start_score))
@@ -528,15 +528,15 @@ class TestFastRGFRegressor(RegressorBaseTest, FastRGFBaseTest, unittest.TestCase
 
         self.mse = 2.5522511545
 
-        super(TestFastRGFRegressor, self).setUp()
+        super().setUp()
 
     def test_attributes(self):
-        super(TestFastRGFRegressor, self).test_attributes()
+        super().test_attributes()
         self.assertEqual(len(self.est.estimators_), 1)
 
     def test_parallel_gridsearch(self):
         self.kwargs['n_jobs'] = 1
-        super(TestFastRGFRegressor, self).test_parallel_gridsearch()
+        super().test_parallel_gridsearch()
 
     def test_sklearn_integration(self):
         # TODO(fukatani): FastRGF bug?

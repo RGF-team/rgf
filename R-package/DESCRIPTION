@@ -9,7 +9,7 @@ BugReports: https://github.com/RGF-team/rgf/issues
 URL: https://github.com/RGF-team/rgf/tree/master/R-package
 Description: Regularized Greedy Forest wrapper of the 'Regularized Greedy Forest' <https://github.com/RGF-team/rgf/tree/master/python-package> 'python' package, which also includes a Multi-core implementation (FastRGF) <https://github.com/RGF-team/rgf/tree/master/FastRGF>.
 License: MIT + file LICENSE
-SystemRequirements: Python (2.7 or >= 3.6), rgf_python, scikit-learn (>= 0.18.0), scipy, numpy. Detailed installation instructions for each operating system can be found in the README file.
+SystemRequirements: Python (>= 3.6), rgf_python, scikit-learn (>= 0.18.0), scipy, numpy. Detailed installation instructions for each operating system can be found in the README file.
 Depends:
     R(>= 3.2.0)
 Imports:
