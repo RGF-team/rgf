@@ -19,11 +19,11 @@ jobs:
         include:
           - os: ubuntu-latest
             container: ubuntu:trusty
-            python_version: 3.6
+            python_version: 3.9
           - os: macos-latest
-            python_version: 3.6
+            python_version: 3.9
           - os: windows-2016
-            python_version: 3.6
+            python_version: 3.9
           - os: ubuntu-latest
             container: rocker/verse:latest
             python_version: 3.9
