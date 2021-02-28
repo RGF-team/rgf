@@ -30,7 +30,7 @@ Invoke-WebRequest -Uri https://cloud.r-project.org/bin/windows/base/old/$R_VER/R
 Start-Process -FilePath R-win.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\R /COMPONENTS=main,x64" ; Check-Output $?
 
 Invoke-WebRequest -Uri https://cran.r-project.org/bin/windows/Rtools/rtools40-x86_64.exe -OutFile Rtools.exe
-Start-Process -FilePath Rtools.exe -NoNewWindow -Wait -ArgumentList "/TYPE=full /VERYSILENT /SUPPRESSMSGBOXES /DIR=$env:R_LIB_PATH\Rtools" ; Check-Output $?
+Start-Process -FilePath Rtools.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /DIR=$env:R_LIB_PATH\Rtools" ; Check-Output $?
 
 Invoke-WebRequest -Uri https://miktex.org/download/win/miktexsetup-x64.zip -OutFile miktexsetup-x64.zip
 Add-Type -AssemblyName System.IO.Compression.FileSystem
