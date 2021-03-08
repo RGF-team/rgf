@@ -24,7 +24,7 @@ Remove-Item C:\rtools40 -Force -Recurse -ErrorAction Ignore
 $env:_R_CHECK_CRAN_INCOMING_ = 0
 $env:_R_CHECK_CRAN_INCOMING_REMOTE_ = 0
 
-$R_VER = "4.0.3"
+$R_VER = "4.0.4"
 $ProgressPreference = "SilentlyContinue"  # progress bar bug extremely slows down download speed
 Invoke-WebRequest -Uri https://cloud.r-project.org/bin/windows/base/old/$R_VER/R-$R_VER-win.exe -OutFile R-win.exe
 Start-Process -FilePath R-win.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\R /COMPONENTS=main,x64" ; Check-Output $?
