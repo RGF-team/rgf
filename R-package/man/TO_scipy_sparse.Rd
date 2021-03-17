@@ -19,45 +19,49 @@ The \emph{dgCMatrix} class is a class of sparse numeric matrices in the compress
 }
 \examples{
 
-if (reticulate::py_available() && reticulate::py_module_available("scipy")) {
+try({
+    if (reticulate::py_available(initialize = TRUE)) {
+        if (reticulate::py_module_available("scipy")) {
 
-  if (Sys.info()["sysname"] != 'Darwin') {
+            if (Sys.info()["sysname"] != 'Darwin') {
 
-    library(RGF)
-
-
-    # 'dgCMatrix' sparse matrix
-    #--------------------------
-
-    data = c(1, 0, 2, 0, 0, 3, 4, 5, 6)
-
-    dgcM = Matrix::Matrix(
-        data = data
-        , nrow = 3
-        , ncol = 3
-        , byrow = TRUE
-        , sparse = TRUE
-    )
-
-    print(dim(dgcM))
-
-    res = TO_scipy_sparse(dgcM)
-
-    print(res$shape)
+                library(RGF)
 
 
-    # 'dgRMatrix' sparse matrix
-    #--------------------------
+                # 'dgCMatrix' sparse matrix
+                #--------------------------
 
-    dgrM = as(dgcM, "RsparseMatrix")
+                data = c(1, 0, 2, 0, 0, 3, 4, 5, 6)
 
-    print(dim(dgrM))
+                dgcM = Matrix::Matrix(
+                    data = data
+                    , nrow = 3
+                    , ncol = 3
+                    , byrow = TRUE
+                    , sparse = TRUE
+                )
 
-    res_dgr = TO_scipy_sparse(dgrM)
+                print(dim(dgcM))
 
-    print(res_dgr$shape)
-  }
-}
+                res = TO_scipy_sparse(dgcM)
+
+                print(res$shape)
+
+
+                # 'dgRMatrix' sparse matrix
+                #--------------------------
+
+                dgrM = as(dgcM, "RsparseMatrix")
+
+                print(dim(dgrM))
+
+                res_dgr = TO_scipy_sparse(dgrM)
+
+                print(res_dgr$shape)
+            }
+        }
+    }
+}, silent=TRUE)
 }
 \references{
 https://stat.ethz.ch/R-manual/R-devel/library/Matrix/html/dgCMatrix-class.html, https://stat.ethz.ch/R-manual/R-devel/library/Matrix/html/dgRMatrix-class.html, https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html#scipy.sparse.csc_matrix

@@ -9,20 +9,24 @@
 #' @references https://docs.scipy.org/doc/scipy/reference/sparse.html
 #' @examples
 #'
-#' if (reticulate::py_available() && reticulate::py_module_available("scipy")) {
+#' try({
+#'     if (reticulate::py_available(initialize = TRUE)) {
+#'         if (reticulate::py_module_available("scipy")) {
 #'
-#'   library(RGF)
+#'             library(RGF)
 #'
-#'   set.seed(1)
+#'             set.seed(1)
 #'
-#'   x = matrix(runif(1000), nrow = 100, ncol = 10)
+#'             x = matrix(runif(1000), nrow = 100, ncol = 10)
 #'
-#'   res = mat_2scipy_sparse(x)
+#'             res = mat_2scipy_sparse(x)
 #'
-#'   print(dim(x))
+#'             print(dim(x))
 #'
-#'   print(res$shape)
-#' }
+#'             print(res$shape)
+#'         }
+#'     }
+#' }, silent=TRUE)
 
 mat_2scipy_sparse = function(x, format = 'sparse_row_matrix') {
 
