@@ -14,7 +14,7 @@ if [[ $OS_NAME == "macos-latest" ]]; then
   echo 'options(install.packages.check.source = "no")' >> .Rprofile
 else
   tlmgr --verify-repo=none update --self
-  tlmgr --verify-repo=none install ec
+  tlmgr --verify-repo=none install inconsolata helvetic
 fi
 
 R_LIB_PATH=$HOME/R
