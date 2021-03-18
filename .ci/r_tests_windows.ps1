@@ -24,6 +24,13 @@ Remove-Item C:\rtools40 -Force -Recurse -ErrorAction Ignore
 $env:_R_CHECK_CRAN_INCOMING_ = 0
 $env:_R_CHECK_CRAN_INCOMING_REMOTE_ = 0
 
+# increase the allowed time to run the examples
+$env:_R_CHECK_EXAMPLE_TIMING_THRESHOLD_=30
+
+# fix the 'unable to verify current time' NOTE
+# see: https://stackoverflow.com/a/63837547/8302386
+$env:_R_CHECK_SYSTEM_CLOCK_=0
+
 $R_VER = "4.0.4"
 $ProgressPreference = "SilentlyContinue"  # progress bar bug extremely slows down download speed
 Invoke-WebRequest -Uri https://cloud.r-project.org/bin/windows/base/old/$R_VER/R-$R_VER-win.exe -OutFile R-win.exe -MaximumRetryCount 3
