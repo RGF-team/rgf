@@ -13,7 +13,7 @@ if [[ $OS_NAME == "macos-latest" ]]; then
   echo 'options(pkgType = "mac.binary")' > .Rprofile
   echo 'options(install.packages.check.source = "no")' >> .Rprofile
 else
-  sudo tlmgr --verify-repo=none --self --all update
+  tlmgr --verify-repo=none --self --all update
 fi
 
 R_LIB_PATH=$HOME/R
