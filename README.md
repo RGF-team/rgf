@@ -12,7 +12,7 @@ RGF can deliver better results than gradient boosted decision trees (GBDT) on a 
 Unlike the traditional boosted decision tree approach, RGF works directly with the underlying forest structure.
 RGF integrates two ideas: one is to include tree-structured regularization into the learning formulation; and the other is to employ the fully-corrective regularized greedy algorithm.
 
-This repository contains the following implementations of the RGF algorithm:
+This repository contains the following implementations of RGF algorithm:
 
 - [RGF](https://github.com/RGF-team/rgf/tree/master/RGF): original implementation from the paper;
 - [FastRGF](https://github.com/RGF-team/rgf/tree/master/FastRGF): multi-core implementation with some simplifications;
