@@ -26,14 +26,14 @@ y_reg = runif(100)
 #---------------------------------
 
 set.seed(4)
-y_BINclass = sample(1:2, 100, replace = T)
+y_BINclass = sample(1:2, 100, replace = TRUE)
 
 
 # response "multiclass" classification
 #-------------------------------------
 
 set.seed(5)
-y_MULTIclass = sample(1:5, 100, replace = T)
+y_MULTIclass = sample(1:5, 100, replace = TRUE)
 
 
 # weights for the fit function
