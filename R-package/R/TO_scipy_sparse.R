@@ -55,7 +55,7 @@
 #'             }
 #'         }
 #'     }
-#' }, silent=TRUE)
+#' }, silent = TRUE)
 
 TO_scipy_sparse = function(R_sparse_matrix) {
 

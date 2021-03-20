@@ -53,6 +53,7 @@ Add-Content .Renviron "R_LIBS=$env:R_LIB_PATH"
 Add-Content .Rprofile "options(repos = 'https://cran.r-project.org')"
 Add-Content .Rprofile "options(pkgType = 'binary')"
 Add-Content .Rprofile "options(install.packages.check.source = 'no')"
+Add-Content .Rprofile "Sys.setenv(RETICULATE_PYTHON = '$([RegEx]::Escape($env:CONDA_PREFIX))/python.exe')"
 
 Rscript -e "install.packages('devtools', dependencies = TRUE)"
 Rscript -e "devtools::install_deps(pkg = '.', dependencies = TRUE)"

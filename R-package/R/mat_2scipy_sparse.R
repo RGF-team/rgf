@@ -26,7 +26,7 @@
 #'             print(res$shape)
 #'         }
 #'     }
-#' }, silent=TRUE)
+#' }, silent = TRUE)
 
 mat_2scipy_sparse = function(x, format = 'sparse_row_matrix') {
 
