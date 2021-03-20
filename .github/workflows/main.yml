@@ -15,7 +15,7 @@ jobs:
   test:
     name: ${{ matrix.task == 'R_PACKAGE' && format('R {0}', matrix.os) || format('Python {0} ({1})', matrix.python_version, matrix.os) }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix:
