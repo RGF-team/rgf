@@ -16,7 +16,7 @@ else
   tlmgr --verify-repo=none update --self
   tlmgr --verify-repo=none install ec
 
-  echo "Sys.setenv(RETICULATE_PYTHON = '$CONDA_PREFIX/python')" >> .Rprofile
+  echo "Sys.setenv(RETICULATE_PYTHON = '$CONDA_PREFIX/bin/python')" >> .Rprofile
 fi
 
 R_LIB_PATH=$HOME/R
