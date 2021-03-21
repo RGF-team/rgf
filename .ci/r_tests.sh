@@ -14,7 +14,7 @@ if [[ $OS_NAME == "macos-latest" ]]; then
   echo 'options(install.packages.check.source = "no")' >> .Rprofile
 else
   tlmgr --verify-repo=none update --self
-  tlmgr --verify-repo=none install ec
+  tlmgr --verify-repo=none install ec hyperref iftex infwarerr kvoptions pdftexcmds
 
   echo "Sys.setenv(RETICULATE_PYTHON = '$CONDA_PREFIX/bin/python')" >> .Rprofile
 fi
