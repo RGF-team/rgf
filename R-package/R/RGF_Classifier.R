@@ -127,7 +127,7 @@
 #'             preds = RGF_class$predict_proba(x)
 #'         }
 #'     }
-#' }, silent=TRUE)
+#' }, silent = TRUE)
 
 RGF_Classifier <- R6::R6Class(
     "RGF_Classifier",

@@ -101,7 +101,7 @@
 #'             preds = fast_RGF_regr$predict(x)
 #'         }
 #'     }
-#' }, silent=TRUE)
+#' }, silent = TRUE)
 
 FastRGF_Regressor <- R6::R6Class(
     "FastRGF_Regressor",

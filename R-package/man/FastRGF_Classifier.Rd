@@ -13,7 +13,7 @@
 #                                      min_child_weight = 5.0, data_l2 = 2.0,
 #                                      sparse_max_features = 80000,
 #                                      sparse_min_occurences = 5,
-#                                      calc_prob="sigmoid", n_jobs = 1,
+#                                      calc_prob = "sigmoid", n_jobs = 1,
 #                                      verbose = 0)
 }
 \description{
@@ -46,7 +46,7 @@ the \emph{score} function returns the mean accuracy on the given test data and l
                                     min_child_weight = 5.0, data_l2 = 2.0,
                                     sparse_max_features = 80000,
                                     sparse_min_occurences = 5,
-                                    calc_prob="sigmoid", n_jobs = 1,
+                                    calc_prob = "sigmoid", n_jobs = 1,
                                     verbose = 0)}}{}
 
  \item{\code{--------------}}{}
@@ -97,7 +97,7 @@ try({
             preds = fast_RGF_class$predict_proba(x)
         }
     }
-}, silent=TRUE)
+}, silent = TRUE)
 }
 \references{
 \emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Tong Zhang, FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/RGF-team/rgf/tree/master/FastRGF)}
@@ -129,7 +129,6 @@ try({
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{FastRGF_Classifier$new(
@@ -198,7 +197,6 @@ try({
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

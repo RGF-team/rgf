@@ -29,15 +29,15 @@ RGF_mod <- NULL; RGF_utils <- NULL; SCP <- NULL;
 
   try({       # I added the try() functions in version 1.0.7 because I received a similar warning as mentioned in: [ https://github.com/rstudio/reticulate/issues/730#issuecomment-594365528 ] and [ https://github.com/rstudio/reticulate/issues/814 ]
     RGF_mod <<- reticulate::import("rgf.sklearn", delay_load = TRUE)
-  }, silent=TRUE)
+  }, silent = TRUE)
 
   try({
     RGF_utils <<- reticulate::import("rgf.utils", delay_load = TRUE)
-  }, silent=TRUE)
+  }, silent = TRUE)
 
   try({
     SCP <<- reticulate::import("scipy", delay_load = TRUE, convert = FALSE)
-  }, silent=TRUE)
+  }, silent = TRUE)
 
   # #................................................................................. keep this as a reference, however it gives a warning on CRAN because it tries to initialize python
   # try({
@@ -59,6 +59,6 @@ RGF_mod <- NULL; RGF_utils <- NULL; SCP <- NULL;
   #   # else {
   #   #   packageStartupMessage("The 'scipy' package is not available!")
   #   # }
-  # }, silent=TRUE)
+  # }, silent = TRUE)
   # #.................................................................................
 }

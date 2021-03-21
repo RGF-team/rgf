@@ -51,7 +51,7 @@
 #'                                     min_child_weight = 5.0, data_l2 = 2.0,
 #'                                     sparse_max_features = 80000,
 #'                                     sparse_min_occurences = 5,
-#'                                     calc_prob="sigmoid", n_jobs = 1,
+#'                                     calc_prob = "sigmoid", n_jobs = 1,
 #'                                     verbose = 0)}}{}
 #'
 #'  \item{\code{--------------}}{}
@@ -89,7 +89,7 @@
 #' #                                      min_child_weight = 5.0, data_l2 = 2.0,
 #' #                                      sparse_max_features = 80000,
 #' #                                      sparse_min_occurences = 5,
-#' #                                      calc_prob="sigmoid", n_jobs = 1,
+#' #                                      calc_prob = "sigmoid", n_jobs = 1,
 #' #                                      verbose = 0)
 #' @examples
 #'
@@ -111,7 +111,7 @@
 #'             preds = fast_RGF_class$predict_proba(x)
 #'         }
 #'     }
-#' }, silent=TRUE)
+#' }, silent = TRUE)
 
 FastRGF_Classifier <- R6::R6Class(
     "FastRGF_Classifier",

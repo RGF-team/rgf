@@ -117,7 +117,7 @@
 #'             preds = RGF_regr$predict(x)
 #'         }
 #'     }
-#' }, silent=TRUE)
+#' }, silent = TRUE)
 
 RGF_Regressor <- R6::R6Class(
     "RGF_Regressor",

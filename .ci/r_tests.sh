@@ -13,7 +13,10 @@ if [[ $OS_NAME == "macos-latest" ]]; then
   echo 'options(pkgType = "mac.binary")' > .Rprofile
   echo 'options(install.packages.check.source = "no")' >> .Rprofile
 else
-  tlmgr --verify-repo=none --self --all update
+  tlmgr --verify-repo=none update --self
+  tlmgr --verify-repo=none install ec
+
+  echo "Sys.setenv(RETICULATE_PYTHON = '$CONDA_PREFIX/bin/python')" >> .Rprofile
 fi
 
 R_LIB_PATH=$HOME/R
