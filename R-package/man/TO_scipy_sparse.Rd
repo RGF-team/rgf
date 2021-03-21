@@ -61,7 +61,7 @@ try({
             }
         }
     }
-}, silent=TRUE)
+}, silent = TRUE)
 }
 \references{
 https://stat.ethz.ch/R-manual/R-devel/library/Matrix/html/dgCMatrix-class.html, https://stat.ethz.ch/R-manual/R-devel/library/Matrix/html/dgRMatrix-class.html, https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html#scipy.sparse.csc_matrix

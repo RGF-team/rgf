@@ -36,7 +36,7 @@ try({
             print(res$shape)
         }
     }
-}, silent=TRUE)
+}, silent = TRUE)
 }
 \references{
 https://docs.scipy.org/doc/scipy/reference/sparse.html
