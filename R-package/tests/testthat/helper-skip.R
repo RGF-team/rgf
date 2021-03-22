@@ -21,7 +21,7 @@ skip_test_if_no_module <- function(MODULE) {    # MODULE is of type character st
     else {
       module_exists <- sum(as.vector(sapply(MODULE, function(x) reticulate::py_module_available(x)))) == length(MODULE)
     }
-  }, silent=TRUE)
+  }, silent = TRUE)
 
   if (!module_exists) {
     testthat::skip(paste0(MODULE, " is not available for testthat-testing"))
