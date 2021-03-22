@@ -51,7 +51,7 @@
 #'                                     min_child_weight = 5.0, data_l2 = 2.0,
 #'                                     sparse_max_features = 80000,
 #'                                     sparse_min_occurences = 5,
-#'                                     calc_prob="sigmoid", n_jobs = 1,
+#'                                     calc_prob = "sigmoid", n_jobs = 1,
 #'                                     verbose = 0)}}{}
 #'
 #'  \item{\code{--------------}}{}
@@ -89,25 +89,29 @@
 #' #                                      min_child_weight = 5.0, data_l2 = 2.0,
 #' #                                      sparse_max_features = 80000,
 #' #                                      sparse_min_occurences = 5,
-#' #                                      calc_prob="sigmoid", n_jobs = 1,
+#' #                                      calc_prob = "sigmoid", n_jobs = 1,
 #' #                                      verbose = 0)
 #' @examples
 #'
-#' if (reticulate::py_available() && reticulate::py_module_available("rgf.sklearn")) {
+#' try({
+#'     if (reticulate::py_available(initialize = TRUE)) {
+#'         if (reticulate::py_module_available("rgf.sklearn")) {
 #'
-#'   library(RGF)
+#'             library(RGF)
 #'
-#'   set.seed(1)
-#'   x = matrix(runif(100000), nrow = 100, ncol = 1000)
+#'             set.seed(1)
+#'             x = matrix(runif(100000), nrow = 100, ncol = 1000)
 #'
-#'   y = sample(1:2, 100, replace = TRUE)
+#'             y = sample(1:2, 100, replace = TRUE)
 #'
-#'   fast_RGF_class = FastRGF_Classifier$new(max_leaf = 50)
+#'             fast_RGF_class = FastRGF_Classifier$new(max_leaf = 50)
 #'
-#'   fast_RGF_class$fit(x, y)
+#'             fast_RGF_class$fit(x, y)
 #'
-#'   preds = fast_RGF_class$predict_proba(x)
-#' }
+#'             preds = fast_RGF_class$predict_proba(x)
+#'         }
+#'     }
+#' }, silent = TRUE)
 
 FastRGF_Classifier <- R6::R6Class(
     "FastRGF_Classifier",

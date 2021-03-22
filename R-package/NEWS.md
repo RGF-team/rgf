@@ -2,6 +2,10 @@
 * We've modified the *package.R* file so that messages are printed to the console whenever Python or any of the required modules is not available. Moreover, for the R-package testing the conda environment parameter is adjusted ( this applies to the RGF-team Github repository and not to the CRAN package directly )
 * We've modified the *.appveyor.yml* file to return the *artifacts* in order to observe if tests ran successfully ( this applies to the RGF-team Github repository and not to the CRAN package directly )
 * We've added tests to increase the code coverage.
+* We've dropped support for Python 2.7
+* We've fixed also the invalid URL's in the README.md file
+* We removed the 'zzz.R' file which included the message: 'Beginning from version 1.0.3 the 'dgCMatrix_2scipy_sparse' function was renamed to 'TO_scipy_sparse' and now accepts either a 'dgCMatrix' or a 'dgRMatrix' as input. The appropriate format for the 'RGF' package in case of sparse matrices is the 'dgCMatrix' format (scipy.sparse.csc_matrix)' as after 4 version updates is no longer required
+* We've modified the '.onLoad' function in the 'package.R' file by removing 'reticulate::py_available(initialize = TRUE)' which forces reticulate to initialize Python and gives the following NOTE on CRAN 'Warning in system2(command = python, args = shQuote(config_script), stdout = TRUE,  : ..."' had status 2' (see: https://github.com/rstudio/reticulate/issues/730#issuecomment-594365528)
 
 
 ## RGF 1.0.6

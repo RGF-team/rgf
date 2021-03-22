@@ -27,33 +27,38 @@ RGF_mod <- NULL; RGF_utils <- NULL; SCP <- NULL;
   # reticulate::use_condaenv('test-environment', required = TRUE)
   #---------------------------------------------------------------------------
 
-  if (reticulate::py_available(initialize = TRUE)) {
+  try({       # I added the try() functions in version 1.0.7 because I received a similar warning as mentioned in: [ https://github.com/rstudio/reticulate/issues/730#issuecomment-594365528 ] and [ https://github.com/rstudio/reticulate/issues/814 ]
+    RGF_mod <<- reticulate::import("rgf.sklearn", delay_load = TRUE)
+  }, silent = TRUE)
 
-    if (reticulate::py_module_available("rgf.sklearn")) {
+  try({
+    RGF_utils <<- reticulate::import("rgf.utils", delay_load = TRUE)
+  }, silent = TRUE)
 
-      RGF_mod <<- reticulate::import("rgf.sklearn", delay_load = TRUE)
-    }
-    # else {
-    #   packageStartupMessage("The 'rgf.sklearn' module is not available!")          # keep these lines for debugging
-    # }
+  try({
+    SCP <<- reticulate::import("scipy", delay_load = TRUE, convert = FALSE)
+  }, silent = TRUE)
 
-    if (reticulate::py_module_available("rgf.utils")) {
-
-      RGF_utils <<- reticulate::import("rgf.utils", delay_load = TRUE)
-    }
-    # else {
-    #   packageStartupMessage("The 'rgf.utils' module is not available!")            # keep these lines for debugging
-    # }
-
-    if (reticulate::py_module_available("scipy")) {
-
-      SCP <<- reticulate::import("scipy", delay_load = TRUE, convert = FALSE)
-    }
-    # else {
-    #   packageStartupMessage("The 'scipy' package is not available!")                # keep these lines for debugging
-    # }
-  }
-  # else {
-  #   packageStartupMessage("Python is not available!")                              # keep these lines for debugging
-  # }
+  # #................................................................................. keep this as a reference, however it gives a warning on CRAN because it tries to initialize python
+  # try({
+  #   if (reticulate::py_module_available("rgf.sklearn")) {
+  #     RGF_mod <<- reticulate::import("rgf.sklearn", delay_load = TRUE)
+  #   }
+  #   # else {
+  #   #   packageStartupMessage("The 'rgf.sklearn' module is not available!")          # keep these lines for debugging
+  #   # }
+  #   if (reticulate::py_module_available("rgf.utils")) {
+  #     RGF_utils <<- reticulate::import("rgf.utils", delay_load = TRUE)
+  #   }
+  #   # else {
+  #   #   packageStartupMessage("The 'rgf.utils' module is not available!")
+  #   # }
+  #   if (reticulate::py_module_available("scipy")) {
+  #     SCP <<- reticulate::import("scipy", delay_load = TRUE, convert = FALSE)
+  #   }
+  #   # else {
+  #   #   packageStartupMessage("The 'scipy' package is not available!")
+  #   # }
+  # }, silent = TRUE)
+  # #.................................................................................
 }

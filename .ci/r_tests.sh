@@ -14,7 +14,9 @@ if [[ $OS_NAME == "macos-latest" ]]; then
   echo 'options(install.packages.check.source = "no")' >> .Rprofile
 else
   tlmgr --verify-repo=none update --self
-  tlmgr --verify-repo=none install ec
+  tlmgr --verify-repo=none install ec hyperref iftex infwarerr kvoptions pdftexcmds
+
+  echo "Sys.setenv(RETICULATE_PYTHON = '$CONDA_PREFIX/bin/python')" >> .Rprofile
 fi
 
 R_LIB_PATH=$HOME/R
@@ -25,6 +27,13 @@ echo "R_LIBS=$R_LIB_PATH" > .Renviron
 # been since the last submission
 export _R_CHECK_CRAN_INCOMING_=0
 export _R_CHECK_CRAN_INCOMING_REMOTE_=0
+
+# increase the allowed time to run the examples
+export _R_CHECK_EXAMPLE_TIMING_THRESHOLD_=30
+
+# fix the 'unable to verify current time' NOTE
+# see: https://stackoverflow.com/a/63837547/8302386
+export _R_CHECK_SYSTEM_CLOCK_=0
 
 if [[ $OS_NAME == "macos-latest" ]]; then
   Rscript -e "install.packages('devtools', dependencies = TRUE, repos = 'https://cran.r-project.org')"

@@ -71,21 +71,25 @@ the \emph{score} function returns the coefficient of determination ( R^2 ) for t
 
 \examples{
 
-if (reticulate::py_available() && reticulate::py_module_available("rgf.sklearn")) {
+try({
+    if (reticulate::py_available(initialize = TRUE)) {
+        if (reticulate::py_module_available("rgf.sklearn")) {
 
-  library(RGF)
+            library(RGF)
 
-  set.seed(1)
-  x = matrix(runif(100000), nrow = 100, ncol = 1000)
+            set.seed(1)
+            x = matrix(runif(100000), nrow = 100, ncol = 1000)
 
-  y = runif(100)
+            y = runif(100)
 
-  fast_RGF_regr = FastRGF_Regressor$new(max_leaf = 50)
+            fast_RGF_regr = FastRGF_Regressor$new(max_leaf = 50)
 
-  fast_RGF_regr$fit(x, y)
+            fast_RGF_regr$fit(x, y)
 
-  preds = fast_RGF_regr$predict(x)
-}
+            preds = fast_RGF_regr$predict(x)
+        }
+    }
+}, silent = TRUE)
 }
 \references{
 \emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Tong Zhang, FastRGF: Multi-core Implementation of Regularized Greedy Forest (https://github.com/RGF-team/rgf/tree/master/FastRGF)}
@@ -117,6 +121,7 @@ if (reticulate::py_available() && reticulate::py_module_available("rgf.sklearn")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{FastRGF_Regressor$new(
@@ -179,6 +184,7 @@ if (reticulate::py_available() && reticulate::py_module_available("rgf.sklearn")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

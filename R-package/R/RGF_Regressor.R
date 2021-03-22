@@ -20,7 +20,7 @@
 #' @param memory_policy a character string. One of \emph{"conservative"} (it uses less memory at the expense of longer runtime. Try only when with default value it uses too much memory) or \emph{"generous"} (it runs faster using more memory by keeping the sorted orders of the features on memory for reuse). Memory using policy.
 #' @param verbose an integer. Controls the verbosity of the tree building process.
 #' @param init_model either NULL or a character string, optional (default=NULL). Filename of a previously saved model from which training should do warm-start. If model has been saved into multiple files, do not include numerical suffixes in the filename. \emph{NOTE:} Make sure you haven't forgotten to increase the value of the max_leaf parameter regarding to the specified warm-start model because warm-start model trees are counted in the overall number of trees.
-#' @param filename a character string specifying a valid path to a file where the fitted model should be saved 
+#' @param filename a character string specifying a valid path to a file where the fitted model should be saved
 #' @export
 #' @details
 #'
@@ -37,7 +37,7 @@
 #' the \emph{feature_importances} function returns the feature importances for the data.
 #'
 #' the \emph{dump_model} function currently prints information about the fitted model in the console
-#' 
+#'
 #' the \emph{save_model} function saves a model to a file from which training can do warm-start in the future.
 #'
 #' @references \emph{https://github.com/RGF-team/rgf/tree/master/python-package}, \emph{Rie Johnson and Tong Zhang, Learning Nonlinear Functions Using Regularized Greedy Forest}
@@ -99,21 +99,26 @@
 #' #                                  verbose = 0, init_model = NULL)
 #' @examples
 #'
-#' if (reticulate::py_available() && reticulate::py_module_available("rgf.sklearn")) {
+#' try({
+#'     if (reticulate::py_available(initialize = TRUE)) {
+#'         if (reticulate::py_module_available("rgf.sklearn")) {
 #'
-#'   library(RGF)
+#'             library(RGF)
 #'
-#'   set.seed(1)
-#'   x = matrix(runif(1000), nrow = 100, ncol = 10)
+#'             set.seed(1)
+#'             x = matrix(runif(1000), nrow = 100, ncol = 10)
 #'
-#'   y = runif(100)
+#'             y = runif(100)
 #'
-#'   RGF_regr = RGF_Regressor$new(max_leaf = 50)
+#'             RGF_regr = RGF_Regressor$new(max_leaf = 50)
 #'
-#'   RGF_regr$fit(x, y)
+#'             RGF_regr$fit(x, y)
 #'
-#'   preds = RGF_regr$predict(x)
-#' }
+#'             preds = RGF_regr$predict(x)
+#'         }
+#'     }
+#' }, silent = TRUE)
+
 RGF_Regressor <- R6::R6Class(
     "RGF_Regressor",
     inherit = Internal_class,
