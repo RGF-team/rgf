@@ -25,7 +25,7 @@ $env:_R_CHECK_CRAN_INCOMING_ = 0
 $env:_R_CHECK_CRAN_INCOMING_REMOTE_ = 0
 
 # increase the allowed time to run the examples
-$env:_R_CHECK_EXAMPLE_TIMING_THRESHOLD_=30
+$env:_R_CHECK_EXAMPLE_TIMING_THRESHOLD_ = 30
 
 # fix the 'unable to verify current time' NOTE
 # see: https://stackoverflow.com/a/63837547/8302386
