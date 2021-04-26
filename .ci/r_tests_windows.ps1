@@ -45,7 +45,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 .\miktex\miktexsetup_standalone.exe --remote-package-repository="$env:CTAN_PACKAGE_ARCHIVE" --local-package-repository=.\miktex\download --package-set=essential --quiet download ; Check-Output $?
 .\miktex\download\miktexsetup_standalone.exe --remote-package-repository="$env:CTAN_PACKAGE_ARCHIVE" --portable="$env:R_LIB_PATH\miktex" --quiet install ; Check-Output $?
 
-Invoke-WebRequest -Uri https://sourceforge.net/projects/qpdf/files/qpdf/10.3.1/qpdf-10.3.1-bin-mingw32.zip/download -OutFile qpdf.zip -MaximumRetryCount 5
+Invoke-WebRequest -Uri https://sourceforge.net/projects/qpdf/files/qpdf/10.3.1/qpdf-10.3.1-bin-mingw32.zip/download -OutFile qpdf.zip -UserAgent "NativeHost" -MaximumRetryCount 5
 [System.IO.Compression.ZipFile]::ExtractToDirectory("qpdf.zip", "qpdf")
 Copy-Item .\qpdf -Destination $env:R_LIB_PATH -Recurse
 
