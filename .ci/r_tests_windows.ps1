@@ -13,7 +13,7 @@ tzutil /s "GMT Standard Time"
 
 $env:R_LIB_PATH = "$env:USERPROFILE\R"
 $env:CTAN_PACKAGE_ARCHIVE = "https://ctan.math.illinois.edu/systems/win32/miktex/tm/packages/"
-$env:PATH += ";$env:R_LIB_PATH\Rtools\usr\bin" + ";$env:R_LIB_PATH\Rtools\mingw64\bin" + ";$env:R_LIB_PATH\R\bin\x64" + ";$env:R_LIB_PATH\miktex\texmfs\install\miktex\bin\x64"
+$env:PATH += ";$env:R_LIB_PATH\Rtools\usr\bin" + ";$env:R_LIB_PATH\Rtools\mingw64\bin" + ";$env:R_LIB_PATH\R\bin\x64" + ";$env:R_LIB_PATH\miktex\texmfs\install\miktex\bin\x64" + ";$env:R_LIB_PATH\qpdf\qpdf-10.3.1\bin"
 cd $env:GITHUB_WORKSPACE
 
 [Void][System.IO.Directory]::CreateDirectory($env:R_LIB_PATH)
@@ -45,8 +45,11 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 .\miktex\miktexsetup_standalone.exe --remote-package-repository="$env:CTAN_PACKAGE_ARCHIVE" --local-package-repository=.\miktex\download --package-set=essential --quiet download ; Check-Output $?
 .\miktex\download\miktexsetup_standalone.exe --remote-package-repository="$env:CTAN_PACKAGE_ARCHIVE" --portable="$env:R_LIB_PATH\miktex" --quiet install ; Check-Output $?
 
+Invoke-WebRequest -Uri https://sourceforge.net/projects/qpdf/files/qpdf/10.3.1/qpdf-10.3.1-bin-mingw32.zip/download -OutFile qpdf.zip -MaximumRetryCount 3
+[System.IO.Compression.ZipFile]::ExtractToDirectory("qpdf.zip", "qpdf")
+Copy-Item .\qpdf -Destination $env:R_LIB_PATH -Recurse
+
 initexmf --set-config-value [MPM]AutoInstall=1
-echo yes | pacman -S mingw-w64-x86_64-qpdf
 
 cd "$env:GITHUB_WORKSPACE\R-package"
 Add-Content .Renviron "R_LIBS=$env:R_LIB_PATH"
