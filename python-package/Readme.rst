@@ -1,4 +1,4 @@
-﻿|License| |Python Versions| |PyPI Version| |Downloads|
+|License| |Python Versions| |PyPI Version| |Downloads|
 
 rgf\_python
 ===========
