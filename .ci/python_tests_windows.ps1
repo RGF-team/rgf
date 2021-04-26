@@ -9,7 +9,7 @@ function Check-Output {
 
 $ProgressPreference = "SilentlyContinue"  # progress bar bug extremely slows down download speed
 $InstallerName = "$env:GITHUB_WORKSPACE\Miniconda3-latest-Windows-x86_64.exe"
-Invoke-WebRequest -Uri "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe" -OutFile $InstallerName -MaximumRetryCount 3
+Invoke-WebRequest -Uri "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe" -OutFile $InstallerName -MaximumRetryCount 5
 Start-Process -FilePath $InstallerName -ArgumentList "/InstallationType=JustMe /RegisterPython=0 /S /D=$env:CONDA_PATH" -Wait
 conda init powershell
 Invoke-Expression -Command "$env:USERPROFILE\Documents\WindowsPowerShell\profile.ps1"
