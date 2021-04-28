@@ -108,7 +108,7 @@ jobs:
           if ($env:TASK -eq "R_PACKAGE") {
             & "$env:GITHUB_WORKSPACE\.ci\r_tests_windows.ps1"
           }
-      - name: Create wheel for Linux and macOS
+      - name: Create wheel and source archive for Linux and macOS
         if: (matrix.os == 'macOS-latest' || matrix.os == 'ubuntu-latest') && matrix.python_version == 3.9 && matrix.task != 'R_PACKAGE' && startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
@@ -124,6 +124,7 @@ jobs:
             python setup.py bdist_wheel --plat-name=macosx --python-tag py3;
             mv dist/rgf_python-${{ env.RGF_VER }}-py3-none-macosx.whl dist/rgf_python-${{ env.RGF_VER }}-py3-none-macosx_10_14_x86_64.macosx_10_15_x86_64.macosx_11_0_x86_64.whl;
           else
+            python setup.py sdist;
             python setup.py bdist_wheel --plat-name=manylinux1_x86_64 --python-tag py3;
           fi
       - name: Create wheel for Windows
@@ -146,6 +147,7 @@ jobs:
           prerelease: false
           files: |
             ${{ github.workspace }}/python-package/dist/*.whl
+            ${{ github.workspace }}/python-package/dist/*.tar.gz
             ${{ github.workspace }}/python-package/compile/RGF/bin/*.exe
   all-successful:
     # https://github.community/t/is-it-possible-to-require-all-github-actions-tasks-to-pass-without-enumerating-them/117957/4?u=graingert
