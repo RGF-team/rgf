@@ -14,7 +14,6 @@ testthat::test_that("the methods of the 'RGF_Regressor' class return the correct
   #............................................................................................................
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("rgf.sklearn")
 
   init_regr = RGF_Regressor$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
@@ -44,7 +43,6 @@ testthat::test_that("the methods of the 'RGF_Regressor' class return the correct
 testthat::test_that("the methods of the 'RGF_Classifier' class return the correct output (binary classification)", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("rgf.sklearn")
 
   init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
@@ -73,7 +71,6 @@ testthat::test_that("the methods of the 'RGF_Classifier' class return the correc
 testthat::test_that("the methods of the 'RGF_Classifier' class return the correct output (multiclass classification)", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("rgf.sklearn")
 
   init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
@@ -107,7 +104,6 @@ testthat::test_that("the methods of the 'RGF_Classifier' class return the correc
 testthat::test_that("the methods of the 'FastRGF_Regressor' class return the correct output", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("rgf.sklearn")
 
   init_regr = FastRGF_Regressor$new(n_estimators = 50, max_bin = 65000)
@@ -142,7 +138,6 @@ testthat::test_that("the methods of the 'FastRGF_Regressor' class return the cor
 testthat::test_that("the methods of the 'FastRGF_Classifier' class return the correct output (binary classification)", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("rgf.sklearn")
 
   init_class = FastRGF_Classifier$new(n_estimators = 50, max_bin = 65000)
@@ -172,7 +167,6 @@ testthat::test_that("the methods of the 'FastRGF_Classifier' class return the co
 testthat::test_that("the methods of the 'FastRGF_Classifier' class return the correct output (multiclass classification)", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("rgf.sklearn")
 
   init_class = FastRGF_Classifier$new(n_estimators = 50, max_bin = 65000)
@@ -208,7 +202,6 @@ testthat::test_that("the methods of the 'FastRGF_Classifier' class return the co
 testthat::test_that("the 'mat_2scipy_sparse' returns an error in case that the data is not inheriting matrix class", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("scipy")
 
   x_rgf_invalid = as.data.frame(x_rgf)
@@ -220,7 +213,6 @@ testthat::test_that("the 'mat_2scipy_sparse' returns an error in case that the d
 testthat::test_that("the 'mat_2scipy_sparse' returns an error in case that the 'format' parameter is invalid", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("scipy")
 
   testthat::expect_error( mat_2scipy_sparse(x_rgf, format = 'invalid') )
@@ -230,7 +222,6 @@ testthat::test_that("the 'mat_2scipy_sparse' returns an error in case that the '
 testthat::test_that("the 'mat_2scipy_sparse' returns a scipy CSR sparse matrix", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("scipy")
 
   res = mat_2scipy_sparse(x_rgf, format = 'sparse_row_matrix')
@@ -244,7 +235,6 @@ testthat::test_that("the 'mat_2scipy_sparse' returns a scipy CSR sparse matrix",
 testthat::test_that("the 'mat_2scipy_sparse' returns a scipy CSC sparse matrix", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("scipy")
 
   res = mat_2scipy_sparse(x_rgf, format = 'sparse_column_matrix')
@@ -269,7 +259,6 @@ if (Sys.info()["sysname"] != 'Darwin') {
   testthat::test_that("the 'TO_scipy_sparse' returns an error in case that the input object is not of type 'dgCMatrix' or 'dgRMatrix'", {
 
     skip_test_if_no_python()
-
     skip_test_if_no_module("scipy")
 
     mt = matrix(runif(20), nrow = 5, ncol = 4)
@@ -281,7 +270,6 @@ if (Sys.info()["sysname"] != 'Darwin') {
   testthat::test_that("the 'TO_scipy_sparse' returns the correct output for dgCMatrix", {
 
     skip_test_if_no_python()
-
     skip_test_if_no_module("scipy")
 
     data = c(1, 0, 2, 0, 0, 3, 4, 5, 6)
@@ -303,7 +291,6 @@ if (Sys.info()["sysname"] != 'Darwin') {
   testthat::test_that("the 'TO_scipy_sparse' returns the correct output for dgRMatrix", {
 
     skip_test_if_no_python()
-
     skip_test_if_no_module("scipy")
 
     data = c(1, 0, 2, 0, 0, 3, 4, 5, 6)
@@ -328,7 +315,6 @@ if (Sys.info()["sysname"] != 'Darwin') {
   testthat::test_that("the RGF_Regressor works with sparse (scipy) matrices", {
 
     skip_test_if_no_python()
-
     skip_test_if_no_module(c("rgf.sklearn", 'scipy'))
 
     set.seed(1)
@@ -370,7 +356,6 @@ if (Sys.info()["sysname"] != 'Darwin') {
 testthat::test_that("the feature importances of the 'RGF_Regressor' class works as expected", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("rgf.sklearn")
 
   init_regr = RGF_Regressor$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
@@ -390,7 +375,6 @@ testthat::test_that("the feature importances of the 'RGF_Regressor' class works 
 testthat::test_that("the 'dump_model' method returns the correct output (Dumps the forest information to the R session -- works ONLY for RGF and NOT for FastRGF)", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("rgf.sklearn")
 
   init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
@@ -442,7 +426,6 @@ testthat::test_that("the 'dump_model' method returns the correct output (Dumps t
 testthat::test_that("the 'save_model' method returns the correct output -- works ONLY for RGF and NOT for FastRGF", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("rgf.sklearn")
 
   init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
@@ -481,7 +464,6 @@ testthat::test_that("the 'save_model' method returns the correct output -- works
 testthat::test_that("the 'cleanup' method (ESTIMATOR specific) works as expected for both RGF and FastRGF (checking of the size of the temporary directory before and after the '$fit' method)", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("rgf.sklearn")
 
   #--------------------------------------------------------------------------------
@@ -531,7 +513,6 @@ testthat::test_that("the 'cleanup' method (ESTIMATOR specific) works as expected
 testthat::test_that("the 'cleanup' method (APPLIES TO ALL ESTIMATORS) works as expected for both RGF and FastRGF (checking of the size of the temporary directory before and after the '$fit' method)", {
 
   skip_test_if_no_python()
-
   skip_test_if_no_module("rgf.sklearn")
 
   #--------------------------------------------------------------------------------

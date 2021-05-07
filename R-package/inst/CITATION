@@ -1,0 +1,41 @@
+citHeader("Please cite both the package and the original articles / software in your publications:")
+
+year <- sub("-.*", "", meta$Date)
+note <- sprintf("R package version %s", meta$Version)
+
+bibentry(
+  bibtype = "Manual",
+  title   = "{RGF}: Regularized Greedy Forest",
+  author  = c(person("Lampros", "Mouselimis"), person("Ryosuke", "Fukatani"), person("Nikita", "Titov"), person("Tong", "Zhang"), person("Rie", "Johnson")),
+  year    = year,
+  note    = note,
+  url     = "https://CRAN.R-project.org/package=RGF"
+)
+
+bibentry(
+  bibtype = "Manual",
+  title   = "{rgf_python}: The wrapper of machine learning algorithm Regularized Greedy Forest (RGF) for Python",
+  author  = c(person("Ryosuke", "Fukatani"), person("Nikita", "Titov"), person("Tong", "Zhang"), person("Rie", "Johnson")),
+  year    = 2021,
+  url     = "https://pypi.org/project/rgf-python/"
+)
+
+bibentry(
+  bibtype  = "Article",
+  title    = "Learning Nonlinear Functions Using Regularized Greedy Forest",
+  author   = c(as.person("Rie Johnson"), as.person("Tong Zhang")),
+  journal  = "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+  year     = "2014",
+  volume   = "36",
+  pages    = "942--954",
+  doi      = "10.1109/TPAMI.2013.159"
+)
+
+bibentry(
+  bibtype  = "Article",
+  title    = "Learning Nonlinear Functions Using Regularized Greedy Forest",
+  author   = c(as.person("Rie Johnson"), as.person("Tong Zhang")),
+  journal  = "arXiv.org, stat.ML",
+  year     = "2011",
+  note     = "arXiv:1109.0887"
+)
