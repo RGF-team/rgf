@@ -564,19 +564,8 @@ Use the following link to report bugs/issues,
 
 ### **Citation:**
 
-If you use the code of this repository in your paper or research please cite both **RGF** and the **original articles / software** [https://cran.r-project.org/web/packages/RGF/citation.html](https://cran.r-project.org/web/packages/RGF/citation.html):
+If you use the code of this repository in your paper or research please cite both **RGF** and the **original articles / software**:
 
-<br>
-
-```R
-@Manual{,
-  title = {{RGF}: Regularized Greedy Forest},
-  author = {Lampros Mouselimis and Ryosuke Fukatani and Nikita Titov
-    and Tong Zhang and Rie Johnson},
-  year = {2021},
-  note = {R package version 1.0.8},
-  url = {https://CRAN.R-project.org/package=RGF},
-}
-```
+* [https://cran.r-project.org/web/packages/RGF/citation.html](https://cran.r-project.org/web/packages/RGF/citation.html)
 
 <br>
