@@ -16,7 +16,7 @@ bibentry(
   bibtype = "Manual",
   title   = "{rgf_python}: The wrapper of machine learning algorithm Regularized Greedy Forest (RGF) for Python",
   author  = c(person("Ryosuke", "Fukatani"), person("Nikita", "Titov"), person("Tong", "Zhang"), person("Rie", "Johnson")),
-  year    = 2021,
+  year    = year,
   url     = "https://pypi.org/project/rgf-python/"
 )
 
