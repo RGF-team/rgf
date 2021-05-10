@@ -4,7 +4,7 @@
 #.......................................
 
 skip_test_if_no_python <- function() {
-  if (!reticulate::py_available(initialize = TRUE))
+  if (!reticulate::py_available(initialize = FALSE))
     testthat::skip("Python bindings not available for testing")
 }
 

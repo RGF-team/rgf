@@ -20,7 +20,7 @@ This function allows the user to convert an R matrix to a scipy sparse matrix. T
 \examples{
 
 try({
-    if (reticulate::py_available(initialize = TRUE)) {
+    if (reticulate::py_available(initialize = FALSE)) {
         if (reticulate::py_module_available("scipy")) {
 
             library(RGF)

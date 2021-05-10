@@ -20,7 +20,7 @@ The \emph{dgCMatrix} class is a class of sparse numeric matrices in the compress
 \examples{
 
 try({
-    if (reticulate::py_available(initialize = TRUE)) {
+    if (reticulate::py_available(initialize = FALSE)) {
         if (reticulate::py_module_available("scipy")) {
 
             if (Sys.info()["sysname"] != 'Darwin') {

@@ -72,7 +72,7 @@ the \emph{score} function returns the coefficient of determination ( R^2 ) for t
 \examples{
 
 try({
-    if (reticulate::py_available(initialize = TRUE)) {
+    if (reticulate::py_available(initialize = FALSE)) {
         if (reticulate::py_module_available("rgf.sklearn")) {
 
             library(RGF)

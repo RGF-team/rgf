@@ -561,3 +561,11 @@ Use the following link to report bugs/issues,
 
 [https://github.com/RGF-team/rgf/issues](https://github.com/RGF-team/rgf/issues)
 <br>
+
+### **Citation:**
+
+If you use the code of this repository in your paper or research please cite both **RGF** and the **original articles / software**:
+
+* [https://cran.r-project.org/web/packages/RGF/citation.html](https://cran.r-project.org/web/packages/RGF/citation.html)
+
+<br>

@@ -1,3 +1,12 @@
+## RGF 1.0.8
+* We've modified the DESCRIPTION file by adding the 'Orcid' Number for the person 'Lampros Mouselimis'
+* We've removed the 'maintainer' in the DESCRIPTION because this field is created automatically
+* We've removed the 'LazyData' in the DESCRIPTION file that gave a NOTE on the CRAN checks
+* We've converted all 'reticulate::py_available(initialize = TRUE)' to 'reticulate::py_available(initialize = FALSE)' otherwise it would give a NOTE on the CRAN tests for the Windows Operating System
+* We've removed all comments from the 'package.R' file
+* We've added the 'inst' folder and the 'CITATION' file to cite the software and the original articles / software
+
+
 ## RGF 1.0.7
 * We've modified the *package.R* file so that messages are printed to the console whenever Python or any of the required modules is not available. Moreover, for the R-package testing the conda environment parameter is adjusted ( this applies to the RGF-team Github repository and not to the CRAN package directly )
 * We've modified the *.appveyor.yml* file to return the *artifacts* in order to observe if tests ran successfully ( this applies to the RGF-team Github repository and not to the CRAN package directly )
