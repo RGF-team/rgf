@@ -31,12 +31,12 @@ $env:_R_CHECK_EXAMPLE_TIMING_THRESHOLD_ = 30
 # see: https://stackoverflow.com/a/63837547/8302386
 $env:_R_CHECK_SYSTEM_CLOCK_ = 0
 
-$R_VER = "4.0.4"
+$R_VER = "4.1.0"
 $ProgressPreference = "SilentlyContinue"  # progress bar bug extremely slows down download speed
 Invoke-WebRequest -Uri https://cloud.r-project.org/bin/windows/base/old/$R_VER/R-$R_VER-win.exe -OutFile R-win.exe -MaximumRetryCount 5
 Start-Process -FilePath R-win.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\R /COMPONENTS=main,x64" ; Check-Output $?
 
-Invoke-WebRequest -Uri https://cran.r-project.org/bin/windows/Rtools/rtools40-x86_64.exe -OutFile Rtools.exe -MaximumRetryCount 5
+Invoke-WebRequest -Uri https://cran.r-project.org/bin/windows/Rtools/rtools40v2-x86_64.exe -OutFile Rtools.exe -MaximumRetryCount 5
 Start-Process -FilePath Rtools.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /DIR=$env:R_LIB_PATH\Rtools" ; Check-Output $?
 
 Invoke-WebRequest -Uri https://miktex.org/download/win/miktexsetup-x64.zip -OutFile miktexsetup-x64.zip -MaximumRetryCount 5
