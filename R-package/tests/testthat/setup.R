@@ -41,3 +41,10 @@ y_MULTIclass = sample(1:5, 100, replace = TRUE)
 
 set.seed(6)
 W = runif(100)
+
+# Temporary I/O structures
+
+# default directory where the temporary 'rgf' files are saved
+#------------------------------------------------------------
+
+default_dir = file.path(dirname(tempdir()), 'rgf')
