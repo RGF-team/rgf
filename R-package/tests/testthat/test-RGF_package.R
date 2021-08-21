@@ -467,11 +467,6 @@ testthat::test_that("the 'cleanup' method (ESTIMATOR specific) works as expected
   skip_test_if_no_module("rgf.sklearn")
 
   #--------------------------------------------------------------------------------
-  # default directory where the temporary 'rgf' files are saved
-
-  default_dir = file.path(dirname(tempdir()), 'rgf')
-
-  #--------------------------------------------------------------------------------
   # RGF
 
   init_class = RGF_Classifier$new(max_leaf = 50, sl2 = 0.1, n_iter = 10)
@@ -516,11 +511,6 @@ testthat::test_that("the 'cleanup' method (APPLIES TO ALL ESTIMATORS) works as e
   skip_test_if_no_module("rgf.sklearn")
 
   #--------------------------------------------------------------------------------
-  # default directory where the temporary 'rgf' files are saved
-
-  default_dir = file.path(dirname(tempdir()), 'rgf')
-
-  #--------------------------------------------------------------------------------
   # RGF
 
   lst_files_tmp = list.files(path = default_dir)
@@ -549,4 +539,3 @@ testthat::test_that("the 'cleanup' method (APPLIES TO ALL ESTIMATORS) works as e
   testthat::expect_true( init_exists_upd_rgf && (init_num_files_rgf > 0) && (init_num_files_fastrgf > init_num_files_rgf) &&
                             ( init_num_files_rgf > length(lst_files_tmp) && init_num_files_fastrgf > length(lst_files_tmp_end_state) ) )       # normally, both initial and end state must have the same length [ length(lst_files_tmp) == length(lst_files_tmp_end_state) ]
 })
-
