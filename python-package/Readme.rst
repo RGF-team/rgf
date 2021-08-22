@@ -75,6 +75,8 @@ or from `GitHub <https://github.com/RGF-team/rgf/python-package>`__:
     cd rgf/python-package
     python setup.py install
 
+MacOS users, **rgf\_python** after the ``3.10.0`` version is built with **g++-11** and cannot be launched on systems with **g++-10** and earlier. You should update your **g++** compiler if you don't want to build from sources or install **rgf\_python** ``3.10.0`` from PyPI which is the last version built with **g++-10**.
+
 MacOS users, **rgf\_python** after the ``3.8.0`` version is built with **g++-10** and cannot be launched on systems with **g++-9** and earlier. You should update your **g++** compiler if you don't want to build from sources or install **rgf\_python** ``3.8.0`` from PyPI which is the last version built with **g++-9**.
 
 MacOS users, **rgf\_python** after the ``3.5.0`` version is built with **g++-9** and cannot be launched on systems with **g++-8** and earlier. You should update your **g++** compiler if you don't want to build from sources or install **rgf\_python** ``3.5.0`` from PyPI which is the last version built with **g++-8**.

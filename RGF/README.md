@@ -11,7 +11,7 @@ Please see the file [`CHANGES.md`](./CHANGES.md) for the changelog of RGF.
 # 0.1 Acknowledgements
 
   We thank **Dave Slate** for suggesting a solution to the issue of file size
-  restriction above.
+  restriction.
 
 ************************************************************************
 
@@ -79,8 +79,6 @@ Otherwise, your executable can be anywhere you like.
 
 The easiest way. Just download the precompiled file `rgf.exe`
 from the latest [GitHub release](https://github.com/RGF-team/rgf/releases).
-
-For 32-bit Windows download `rgf32.exe` file and rename it to `rgf.exe`.
 
 ### 3.1.2. Visual Studio (Using the Provided Solution File)
 

@@ -11,7 +11,7 @@ on:
     - master
 
 env:
-  GCC_VER_MACOS: '10'
+  GCC_VER_MACOS: '11'
   GCC_VER_LINUX: '5'
 jobs:
   test:
