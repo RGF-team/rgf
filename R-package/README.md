@@ -339,7 +339,7 @@ gcc --version
 
 <br>
 
-Normally MinGW is installed in the **C:\\** directory. So, first delete the folder **C:\\MinGW** (if it already exists), and then remove the environment variable from (Control Panel >> System and Security >> System >> Advanced system settings >> Environment variables >> System variables >> Path >> Edit) which usually is **C:\\MinGW\\bin**. Then download the most recent version of [MinGW](http://mingw-w64.org/doku.php), and especially the **mingw-get-setup.exe** which is an *automated GUI installer assistant*. After the new version is installed successfully, update the environment variable by adding **C:\\MinGW\\bin** in (Control Panel >> System and Security >> System >> Advanced system settings >> Environment variables >> System variables >> Path >> Edit). Then open a new command prompt (console) and type, 
+Normally MinGW is installed in the **C:\\** directory. So, first delete the folder **C:\\MinGW** (if it already exists), and then remove the environment variable from (Control Panel >> System and Security >> System >> Advanced system settings >> Environment variables >> System variables >> Path >> Edit) which usually is **C:\\MinGW\\bin**. Then download the most recent version of [MinGW](https://www.mingw-w64.org/docs/overview/), and especially the **mingw-get-setup.exe** which is an *automated GUI installer assistant*. After the new version is installed successfully, update the environment variable by adding **C:\\MinGW\\bin** in (Control Panel >> System and Security >> System >> Advanced system settings >> Environment variables >> System variables >> Path >> Edit). Then open a new command prompt (console) and type, 
 
 <br>
 
@@ -364,7 +364,7 @@ A word of caution, If *Rtools* is already installed then make sure that it does 
 
 <br>
 
-*FastRGF* works only with [MinGW-w64](http://mingw-w64.org/doku.php) because only this version provides POSIX threads. It can be downloaded from the project's [official SourceForge page](https://sourceforge.net/projects/mingw-w64/). After a successful download and installation the user should also update the environment variables field in (Control Panel >> System and Security >> System >> Advanced system settings >> Environment variables >> System variables >> Path >> Edit) by adding the following path (assuming the software is installed in **C:\\Program Files (x86)** folder),
+*FastRGF* works only with [MinGW-w64](https://www.mingw-w64.org/docs/overview/) because only this version provides POSIX threads. It can be downloaded from the project's [official SourceForge page](https://sourceforge.net/projects/mingw-w64/). After a successful download and installation the user should also update the environment variables field in (Control Panel >> System and Security >> System >> Advanced system settings >> Environment variables >> System variables >> Path >> Edit) by adding the following path (assuming the software is installed in **C:\\Program Files (x86)** folder),
 
 <br>
 
@@ -566,6 +566,6 @@ Use the following link to report bugs/issues,
 
 If you use the code of this repository in your paper or research please cite both **RGF** and the **original articles / software**:
 
-* [https://cran.r-project.org/web/packages/RGF/citation.html](https://cran.r-project.org/web/packages/RGF/citation.html)
+* [https://CRAN.R-project.org/package=RGF/citation.html](https://CRAN.R-project.org/package=RGF/citation.html)
 
 <br>

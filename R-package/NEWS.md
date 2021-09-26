@@ -1,3 +1,7 @@
+## RGF 1.0.9
+* We've added a 'packageStartupMessage' informing the user in case of the error 'attempt to apply non-function' that he/she has to use the 'reticulate::py_config()' before loading the package (in a new R session)
+
+
 ## RGF 1.0.8
 * We've modified the DESCRIPTION file by adding the 'Orcid' Number for the person 'Lampros Mouselimis'
 * We've removed the 'maintainer' in the DESCRIPTION because this field is created automatically
