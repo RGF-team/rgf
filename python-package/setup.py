@@ -203,7 +203,7 @@ def compile_rgf():
 #                          'Visual Studio 12 2013', 'Visual Studio 14 2015',
 #                          'Visual Studio 15 2017', 'Visual Studio 16 2019',
 #                          'Visual Studio 17 2022')
-            generators = ('Visual Studio 17 2022')
+            generators = ('Visual Studio 17 2022',)
             for generator in generators:
                 clear_folder(os.path.join(rgf_base_dir, 'build'))
                 success = silent_call(('cmake', '../', '-G', generator, '-A', arch))
