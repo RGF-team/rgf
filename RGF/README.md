@@ -125,6 +125,7 @@ We tested following versions of Visual Studio:
 - Visual Studio 14 2015 [Win64]
 - Visual Studio 15 2017 [Win64]
 - Visual Studio 16 2019 [Win64]
+- Visual Studio 17 2022 [Win64]
 
 Other versions may work but are untested.
 
