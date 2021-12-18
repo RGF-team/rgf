@@ -5,7 +5,7 @@ on:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
     branches:
-    - master
+    - vs_2022
   pull_request:
     branches:
     - master
@@ -34,7 +34,7 @@ jobs:
             python_version: 3.7
           - os: macos-latest
             python_version: 3.7
-          - os: windows-2016
+          - os: windows-2022
             python_version: 3.7
           - os: ubuntu-latest
             container: ubuntu:trusty
