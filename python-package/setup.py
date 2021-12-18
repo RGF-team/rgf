@@ -179,31 +179,30 @@ def compile_rgf():
         platform_toolsets = ('Windows7.1SDK', 'v100', 'v110',
                              'v120', 'v140', 'v141', 'v142',
                              'v143')
-#        for platform_toolset in platform_toolsets:
-#            success = silent_call(('MSBuild',
-#                                   'rgf.sln',
-#                                   '/p:Configuration=Release',
-#                                   '/p:Platform={0}'.format(arch),
-#                                   '/p:PlatformToolset={0}'.format(platform_toolset)))
-#            clear_folder(os.path.join(rgf_base_dir, 'Windows', 'rgf', 'Release'))
-#            if success and os.path.isfile(target) and is_rgf_response(target):
-#                break
+        for platform_toolset in platform_toolsets:
+            success = silent_call(('MSBuild',
+                                   'rgf.sln',
+                                   '/p:Configuration=Release',
+                                   '/p:Platform={0}'.format(arch),
+                                   '/p:PlatformToolset={0}'.format(platform_toolset)))
+            clear_folder(os.path.join(rgf_base_dir, 'Windows', 'rgf', 'Release'))
+            if success and os.path.isfile(target) and is_rgf_response(target):
+                break
         os.chdir(os.path.join(rgf_base_dir, 'build'))
-#        if not success or not os.path.isfile(target) or not is_rgf_response(target):
-#            logger.warning("Building executable file with MSBuild "
-#                           "from existing Visual Studio solution failed.")
-#            logger.info("Trying to build executable file with MinGW g++ "
-#                        "from existing makefile.")
-#            success = silent_call(('mingw32-make'))
+        if not success or not os.path.isfile(target) or not is_rgf_response(target):
+            logger.warning("Building executable file with MSBuild "
+                           "from existing Visual Studio solution failed.")
+            logger.info("Trying to build executable file with MinGW g++ "
+                        "from existing makefile.")
+            success = silent_call(('mingw32-make'))
         if not success or not os.path.isfile(target) or not is_rgf_response(target):
             logger.warning("Building executable file with MinGW g++ "
                            "from existing makefile failed.")
             logger.info("Trying to build executable file with CMake and MSBuild.")
-#            generators = ('Visual Studio 10 2010', 'Visual Studio 11 2012',
-#                          'Visual Studio 12 2013', 'Visual Studio 14 2015',
-#                          'Visual Studio 15 2017', 'Visual Studio 16 2019',
-#                          'Visual Studio 17 2022')
-            generators = ('Visual Studio 17 2022',)
+            generators = ('Visual Studio 10 2010', 'Visual Studio 11 2012',
+                          'Visual Studio 12 2013', 'Visual Studio 14 2015',
+                          'Visual Studio 15 2017', 'Visual Studio 16 2019',
+                          'Visual Studio 17 2022')
             for generator in generators:
                 clear_folder(os.path.join(rgf_base_dir, 'build'))
                 success = silent_call(('cmake', '../', '-G', generator, '-A', arch))
