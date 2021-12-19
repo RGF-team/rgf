@@ -25,7 +25,7 @@ bash miniconda.sh -b -p $CONDA_PATH
 conda config --set always_yes yes --set changeps1 no
 conda update -q conda
 if [[ $TASK == "R_PACKAGE" ]]; then
-  conda create -q -n $CONDA_ENV python=$PYTHON_VERSION pip openssl libffi --no-deps
+  conda create -q -n $CONDA_ENV python=$PYTHON_VERSION pip openssl libffi zlib --no-deps
   source activate $CONDA_ENV
   pip install setuptools joblib numpy scikit-learn scipy pandas wheel
 else
