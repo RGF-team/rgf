@@ -31,7 +31,7 @@ $env:_R_CHECK_EXAMPLE_TIMING_THRESHOLD_ = 30
 # see: https://stackoverflow.com/a/63837547/8302386
 $env:_R_CHECK_SYSTEM_CLOCK_ = 0
 
-$R_VER = "4.1.1"
+$R_VER = "4.1.2"
 $ProgressPreference = "SilentlyContinue"  # progress bar bug extremely slows down download speed
 Invoke-WebRequest -Uri https://cloud.r-project.org/bin/windows/base/old/$R_VER/R-$R_VER-win.exe -OutFile R-win.exe -MaximumRetryCount 5
 Start-Process -FilePath R-win.exe -NoNewWindow -Wait -ArgumentList "/VERYSILENT /DIR=$env:R_LIB_PATH\R /COMPONENTS=main,x64" ; Check-Output $?
