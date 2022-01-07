@@ -35,7 +35,7 @@ The **RGF** package is a wrapper of the [Regularized Greedy Forest (RGF)](https:
 
 <br>
 
-* Python (>= 3.6)
+* Python (>= 3.7)
 
 
 <br>
