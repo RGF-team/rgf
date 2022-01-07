@@ -115,7 +115,7 @@ jobs:
           cd $GITHUB_WORKSPACE/python-package
           if [[ ${{ matrix.os }} == "macos-latest" ]]; then
             python setup.py bdist_wheel --plat-name=macosx --python-tag py3;
-            mv dist/rgf_python-${{ env.RGF_VER }}-py3-none-macosx.whl dist/rgf_python-${{ env.RGF_VER }}-py3-none-macosx_10_14_x86_64.macosx_10_15_x86_64.macosx_11_0_x86_64.whl;
+            mv dist/rgf_python-${{ env.RGF_VER }}-py3-none-macosx.whl dist/rgf_python-${{ env.RGF_VER }}-py3-none-macosx_10_15_x86_64.macosx_11_6_x86_64.macosx_12_0_x86_64.whl;
           else
             python setup.py sdist;
             python setup.py bdist_wheel --plat-name=manylinux1_x86_64 --python-tag py3;
