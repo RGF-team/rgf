@@ -1,20 +1,20 @@
 import time
 
-from sklearn.datasets import load_boston
+from sklearn.datasets import load_diabetes
 from sklearn.utils.validation import check_random_state
 from sklearn.ensemble import RandomForestRegressor
 from rgf.sklearn import FastRGFRegressor, RGFRegressor
 
-boston = load_boston()
+diabetes = load_diabetes()
 rng = check_random_state(42)
-perm = rng.permutation(boston.target.size)
-boston.data = boston.data[perm]
-boston.target = boston.target[perm]
+perm = rng.permutation(diabetes.target.size)
+diabetes.data = diabetes.data[perm]
+diabetes.target = diabetes.target[perm]
 
-train_x = boston.data[:300]
-test_x = boston.data[300:]
-train_y = boston.target[:300]
-test_y = boston.target[300:]
+train_x = diabetes.data[:300]
+test_x = diabetes.data[300:]
+train_y = diabetes.target[:300]
+test_y = diabetes.target[300:]
 
 start = time.time()
 reg = RGFRegressor()
