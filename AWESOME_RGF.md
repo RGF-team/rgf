@@ -4,6 +4,10 @@ This page contains a curated list of blogs, competitions solutions about RGF.
 
 Please feel free to send a pull request if you find things that could be included in this document.
 
+### YouTube
+
+* [Regularized Greedy Forest (RGF) - a machine learning model we missed! (other than XGBoost, LightGBM)](https://www.youtube.com/watch?v=jBxIk14MIQI)
+  
 ### Blog Posts
 
 * [Regularized Greedy Forest (RGF) - Nice alternative to tree-boosting](https://www.linkedin.com/pulse/regularized-greedy-forest-rgf-nice-alternative-marios-michailidis/)
